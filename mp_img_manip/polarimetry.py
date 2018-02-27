@@ -2,7 +2,7 @@ import mp_img_manip.tiling as til
 import numpy as np
 import SimpleITK as sitk
 
-def  calculateRetardanceOverArea(retardance, orientation):
+def calculateRetardanceOverArea(retardance, orientation):
     
     # This gives me the orientation in 360 degrees, doubled to calculate alignment.
     circularOrientation = (2*np.pi/180)*(orientation/100);
@@ -65,3 +65,24 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
             downOrient[x,y] = orientPixel
             
     return (downRet, downOrient) 
+
+def BatchDownsampleRetardance(scaleFactor, retDir, orientDir, outputDir, simulatedResolutionFactor = None):
+    
+    if not simulatedResolutionFactor:
+        simulatedResolutionFactor = scaleFactor;
+    
+    outputSuffix = '_Downsampled-by-' + str(scaleFactor) + 'x'
+    
+    
+    if simulatedResolutionFactor != scaleFactor:
+        outputSuffix = outputSuffix + '_Simulated-Resolution-' + str(simulatedResolutionFactor) + 'x'
+
+    
+    (retImgList, orientImgList) = findSharedImages(retDir, orientDir);
+    
+    for i in range(0, np.size(retImgList,1)):
+        
+        (downsampledRetImg, downsampledOrientImg) = DownsampleRetardanceImage(retImgList[i].basePath, orientImgList[i].basePath, scaleFactor, simulatedResolutionFactor)
+        
+        saveTextImageWithSuffix(downsampledRetImg, retImgList(i).basePath, outputSuffix, outputDir);
+        saveTextImageWithSuffix(downsampledOrientImg, orientImgList(i).basePath, outputSuffix, outputDir);
