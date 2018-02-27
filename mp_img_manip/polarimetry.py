@@ -1,6 +1,6 @@
 import mp_img_manip.tiling as til
 import numpy as np
-import imageio as io
+import SimpleITK as sitk
 
 def  calculateRetardanceOverArea(retardance, orientation):
     
@@ -25,8 +25,13 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
     if not simulatedResolutionFactor:
         simulatedResolutionFactor = scalePixelFactor
 
-    retImg = io.imread(retImgPath)
-    orientImg = io.imread(orientImgPath)
+    retImgITK = sitk.ReadImage(retImgPath)
+    orientImgITK = sitk.ReadImage(orientImgPath)
+
+    retImg = sitk.GetArrayFromImage(retImgITK)
+    orientImg = sitk.GetArrayFromImage(orientImgITK)
+
+
 
     #if np.size(retImg) != np.size(orientImg):
      #   warn('The retardance and orientation image sizes do not match.  Please select inputs from the same image')    
@@ -45,14 +50,14 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
     downRet = np.zeros((xPixelNum, yPixelNum))
     downOrient = downRet
 
-    for y in range(1,yPixelNum+1):
-        for x in range(1, xPixelNum+1):
+    for y in range(0,yPixelNum):
+        for x in range(0, xPixelNum):
             
             (xStart, xEnd) = til.getTileStartEndIndex(x, scalePixelFactor, xOffset, simulatedResolutionFactor)
             (yStart, yEnd) = til.getTileStartEndIndex(y, scalePixelFactor, yOffset, simulatedResolutionFactor)
 
-            retNeighborhood = retImg(range(xStart,xEnd+1),range(yStart,yEnd+1))
-            orientNeighborhood = orientImg(range(xStart,xEnd+1),range(yStart,yEnd+1))
+            retNeighborhood = retImg[range(xStart,xEnd+1),range(yStart,yEnd+1)]
+            orientNeighborhood = orientImg[range(xStart,xEnd+1),range(yStart,yEnd+1)]
             
             (retPixel, orientPixel) = calculateRetardanceOverArea(retNeighborhood,orientNeighborhood)
            

@@ -11,8 +11,8 @@ def getTileStartEndIndex(tileNumber, tileSize, tileOffset = None, tileStepSize =
     if not tileOffset:
         tileOffset = 0
             
-    startIndex = ((tileNumber-1)*tileStepSize)+tileOffset
-    endIndex = startIndex + tileSize
+    startIndex = ((tileNumber-1)*tileStepSize)+tileOffset - 1
+    endIndex = startIndex + tileSize - 1
     
     return (startIndex, endIndex)
 
@@ -37,5 +37,5 @@ def calculateNumberOfTiles(sizeOfImageDimension, tileSize, tileStepSize = None):
     remainder = np.remainder(idxRange,tileStepSize)  
     offset = np.fix(remainder/2) + border
 
-    return (numberOfTiles, offset)
+    return (int(numberOfTiles), int(offset))
 
