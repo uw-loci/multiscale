@@ -5,17 +5,13 @@ def getBaseFileName(fileName):
     the string up until the first underscore, or until the extension if
     there is no underscore"""
     
-    #Eliminate the folder path, if there is any
-    (None, fullFileName) = os.path.split(fileName)
+    fullFileName = os.path.split(fileName)[1]
     
-    (nameStr, None) = os.path.splitext(fullFileName)
+    nameStr = os.path.splitext(fullFileName)[0]
     
     underscoreIndexes = nameStr.find('_')
     
     if underscoreIndexes:     
-        baseNameIndex = underscoreIndexes-1
-        baseName = nameStr[0:baseNameIndex]
+        return nameStr[0:underscoreIndexes]
     else:
-        baseName = nameStr
-
-    return baseName
+        return nameStr
