@@ -1,4 +1,5 @@
 import mp_img_manip.tiling as til
+import mp_img_manip.bulk_img_processing as blk
 import numpy as np
 import SimpleITK as sitk
 
@@ -32,7 +33,6 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
     orientImg = sitk.GetArrayFromImage(orientImgITK)
 
 
-
     #if np.size(retImg) != np.size(orientImg):
      #   warn('The retardance and orientation image sizes do not match.  Please select inputs from the same image')    
       #  return
@@ -47,8 +47,8 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
     (xPixelNum, xOffset) = til.calculateNumberOfTiles(imgSize[0], scalePixelFactor, simulatedResolutionFactor)
     (yPixelNum, yOffset) = til.calculateNumberOfTiles(imgSize[1], scalePixelFactor, simulatedResolutionFactor)
     
-    downRet = np.zeros((xPixelNum, yPixelNum))
-    downOrient = downRet
+    downRetImg = np.zeros((xPixelNum, yPixelNum))
+    downOrientImg = downRetImg
 
     for y in range(0,yPixelNum):
         for x in range(0, xPixelNum):
@@ -61,28 +61,27 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
             
             (retPixel, orientPixel) = calculateRetardanceOverArea(retNeighborhood,orientNeighborhood)
            
-            downRet[x,y] = retPixel
-            downOrient[x,y] = orientPixel
+            downRetImg[x,y] = retPixel
+            downOrientImg[x,y] = orientPixel
             
-    return (downRet, downOrient) 
+    downRetImgITK = sitk.GetImageFromArray(downRetImg)
+    downOrientImgITK = sitk.GetImageFromArray(downOrientImg)
+            
+    return (downRetImgITK, downOrientImgITK) 
 
 def BatchDownsampleRetardance(scaleFactor, retDir, orientDir, outputDir, simulatedResolutionFactor = None):
-    
-    if not simulatedResolutionFactor:
-        simulatedResolutionFactor = scaleFactor;
-    
     outputSuffix = '_Downsampled-by-' + str(scaleFactor) + 'x'
-    
-    
-    if simulatedResolutionFactor != scaleFactor:
+
+    if simulatedResolutionFactor and simulatedResolutionFactor != scaleFactor:
         outputSuffix = outputSuffix + '_Simulated-Resolution-' + str(simulatedResolutionFactor) + 'x'
 
+    (retImgPathList, orientImgPathList) = blk.findSharedImages(retDir, orientDir)
     
-    (retImgList, orientImgList) = findSharedImages(retDir, orientDir);
-    
-    for i in range(0, np.size(retImgList,1)):
+    for i in range(0, np.size(retImgPathList,1)):
+        (downRetImg, downOrientImg) = DownsampleRetardanceImage(retImgPathList[i], orientImgPathList[i], scaleFactor, simulatedResolutionFactor)
         
-        (downsampledRetImg, downsampledOrientImg) = DownsampleRetardanceImage(retImgList[i].basePath, orientImgList[i].basePath, scaleFactor, simulatedResolutionFactor)
+        downRetPath = blk.createNewImagePath(retImgPathList[i], outputDir, outputSuffix)
+        downOrientPath = blk.createNewImagePath(orientImgPathList[i], outputDir, outputSuffix)
         
-        saveTextImageWithSuffix(downsampledRetImg, retImgList(i).basePath, outputSuffix, outputDir);
-        saveTextImageWithSuffix(downsampledOrientImg, orientImgList(i).basePath, outputSuffix, outputDir);
+        sitk.WriteImage(downRetImg, downRetPath)
+        sitk.WriteImage(downOrientImg, downOrientPath)

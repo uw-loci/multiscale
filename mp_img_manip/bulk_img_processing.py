@@ -15,6 +15,17 @@ def getBaseFileName(fileName):
         return nameStr[0:underscoreIndexes]
     else:
         return nameStr
+    
+def createNewImagePath(baseImgPath, outputDir, outputSuffix):
+    """Create a new path string based on the pre-modification image path,
+    an output directory, and the new output suffix to rename the file with"""
+    baseName = getBaseFileName(baseImgPath)
+    
+    newName = baseName + outputSuffix + '.tif'
+        
+    newPath = os.path.join(outputDir, newName)
+    return newPath
+    
 
 def findSharedImages(dirOne, dirTwo):
     """Base image names derived from directory one, are mapped to images from
