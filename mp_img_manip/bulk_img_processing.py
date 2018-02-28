@@ -11,7 +11,7 @@ def getBaseFileName(fileName):
     
     underscoreIndexes = nameStr.find('_')
     
-    if underscoreIndexes:     
+    if underscoreIndexes > 0:     
         return nameStr[0:underscoreIndexes]
     else:
         return nameStr

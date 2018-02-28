@@ -29,8 +29,8 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
     retImgITK = sitk.ReadImage(retImgPath)
     orientImgITK = sitk.ReadImage(orientImgPath)
 
-    retImg = sitk.GetArrayFromImage(retImgITK)
-    orientImg = sitk.GetArrayFromImage(orientImgITK)
+    retArray= sitk.GetArrayFromImage(retImgITK)
+    orientArray = sitk.GetArrayFromImage(orientImgITK)
 
 
     #if np.size(retImg) != np.size(orientImg):
@@ -42,13 +42,13 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
       #  return
         #todo: allow non-integer resolution scaling
     
-    imgSize = np.shape(retImg)
+    arraySize = np.shape(retArray)
     
-    (xPixelNum, xOffset) = til.calculateNumberOfTiles(imgSize[0], scalePixelFactor, simulatedResolutionFactor)
-    (yPixelNum, yOffset) = til.calculateNumberOfTiles(imgSize[1], scalePixelFactor, simulatedResolutionFactor)
-    
-    downRetImg = np.zeros((xPixelNum, yPixelNum))
-    downOrientImg = downRetImg
+    (xPixelNum, xOffset) = til.calculateNumberOfTiles(arraySize[0], scalePixelFactor, simulatedResolutionFactor)
+    (yPixelNum, yOffset) = til.calculateNumberOfTiles(arraySize[1], scalePixelFactor, simulatedResolutionFactor)
+
+    downRetArray = 
+    downOrientArray = downRetArray
 
     for y in range(0,yPixelNum):
         for x in range(0, xPixelNum):
@@ -56,32 +56,37 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
             (xStart, xEnd) = til.getTileStartEndIndex(x, scalePixelFactor, xOffset, simulatedResolutionFactor)
             (yStart, yEnd) = til.getTileStartEndIndex(y, scalePixelFactor, yOffset, simulatedResolutionFactor)
 
-            retNeighborhood = retImg[range(xStart,xEnd+1),range(yStart,yEnd+1)]
-            orientNeighborhood = orientImg[range(xStart,xEnd+1),range(yStart,yEnd+1)]
+            retNeighborhood = retArray[range(xStart,xEnd+1),range(yStart,yEnd+1)]
+            orientNeighborhood = orientArray[range(xStart,xEnd+1),range(yStart,yEnd+1)]
             
             (retPixel, orientPixel) = calculateRetardanceOverArea(retNeighborhood,orientNeighborhood)
-           
-            downRetImg[x,y] = retPixel
-            downOrientImg[x,y] = orientPixel
+
+            downRetArray[x,y] = 10
+            downOrientArray[x,y] = orientPixel
             
-    downRetImgITK = sitk.GetImageFromArray(downRetImg)
-    downOrientImgITK = sitk.GetImageFromArray(downOrientImg)
+            if x == 100 and y == 100:
+                print(retPixel)
+                print(downRetArray[x,y])
+    
+    
+    downRetImg = sitk.GetImageFromArray(downRetArray)
+    downOrientImg = sitk.GetImageFromArray(downOrientArray)
             
-    return (downRetImgITK, downOrientImgITK) 
+    return (downRetArray, downOrientArray) 
 
 def BatchDownsampleRetardance(scaleFactor, retDir, orientDir, outputDir, simulatedResolutionFactor = None):
-    outputSuffix = '_Downsampled-by-' + str(scaleFactor) + 'x'
+    outputSuffix = '_DownsampledBy-' + str(scaleFactor) + 'x'
 
     if simulatedResolutionFactor and simulatedResolutionFactor != scaleFactor:
-        outputSuffix = outputSuffix + '_Simulated-Resolution-' + str(simulatedResolutionFactor) + 'x'
+        outputSuffix = outputSuffix + '_SimRes-' + str(simulatedResolutionFactor) + 'x'
 
     (retImgPathList, orientImgPathList) = blk.findSharedImages(retDir, orientDir)
     
-    for i in range(0, np.size(retImgPathList,1)):
+    for i in range(0, np.size(retImgPathList)):
         (downRetImg, downOrientImg) = DownsampleRetardanceImage(retImgPathList[i], orientImgPathList[i], scaleFactor, simulatedResolutionFactor)
         
-        downRetPath = blk.createNewImagePath(retImgPathList[i], outputDir, outputSuffix)
-        downOrientPath = blk.createNewImagePath(orientImgPathList[i], outputDir, outputSuffix)
+        downRetPath = blk.createNewImagePath(retImgPathList[i], outputDir, outputSuffix + '_Ret')
+        downOrientPath = blk.createNewImagePath(orientImgPathList[i], outputDir, outputSuffix + '_SlowAxis')
         
         sitk.WriteImage(downRetImg, downRetPath)
         sitk.WriteImage(downOrientImg, downOrientPath)
