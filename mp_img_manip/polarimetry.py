@@ -16,8 +16,14 @@ def calculateRetardanceOverArea(retardance, orientation):
     averageRetardance = np.sum(retardanceWeightedByOrientation)/numPixels;
     
     retMag = np.absolute(averageRetardance);
-    retAngle = np.angle(averageRetardance)/2; 
+    retBaseAngle= np.angle(averageRetardance, deg=True)
+    
+    if retBaseAngle < 0:
+        retBaseAngle += 360
+        
+    retAngle = retBaseAngle*100/2
 
+    
     #bug: retAngle does not give right value.
     
     return (retMag,retAngle)
