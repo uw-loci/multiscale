@@ -18,6 +18,8 @@ def calculateRetardanceOverArea(retardance, orientation):
     retMag = np.absolute(averageRetardance);
     retAngle = np.angle(averageRetardance)/2; 
 
+    #bug: retAngle does not give right value.
+    
     return (retMag,retAngle)
 
 
