@@ -21,16 +21,19 @@ def calculateRetardanceOverArea(retardance, orientation):
     return (retMag,retAngle)
 
 
+
+
+
 def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simulatedResolutionFactor = None):
 
     if not simulatedResolutionFactor:
         simulatedResolutionFactor = scalePixelFactor
 
-    retImgITK = sitk.ReadImage(retImgPath)
-    orientImgITK = sitk.ReadImage(orientImgPath)
+    retImg = sitk.ReadImage(retImgPath)
+    orientImg = sitk.ReadImage(orientImgPath)
 
-    retArray= sitk.GetArrayFromImage(retImgITK)
-    orientArray = sitk.GetArrayFromImage(orientImgITK)
+    retArray= sitk.GetArrayFromImage(retImg)
+    orientArray = sitk.GetArrayFromImage(orientImg)
 
 
     #if np.size(retImg) != np.size(orientImg):
@@ -47,10 +50,10 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
     (xPixelNum, xOffset) = til.calculateNumberOfTiles(arraySize[0], scalePixelFactor, simulatedResolutionFactor)
     (yPixelNum, yOffset) = til.calculateNumberOfTiles(arraySize[1], scalePixelFactor, simulatedResolutionFactor)
 
-    downRetArray = 
-    downOrientArray = downRetArray
-
-    for y in range(0,yPixelNum):
+    downRetArray = np.zeros((xPixelNum, yPixelNum))
+    downOrientArray = np.zeros((xPixelNum, yPixelNum))
+    
+    for y in range(0, yPixelNum):
         for x in range(0, xPixelNum):
             
             (xStart, xEnd) = til.getTileStartEndIndex(x, scalePixelFactor, xOffset, simulatedResolutionFactor)
@@ -60,19 +63,22 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
             orientNeighborhood = orientArray[range(xStart,xEnd+1),range(yStart,yEnd+1)]
             
             (retPixel, orientPixel) = calculateRetardanceOverArea(retNeighborhood,orientNeighborhood)
-
-            downRetArray[x,y] = 10
+                
+            downRetArray[x,y] = retPixel
             downOrientArray[x,y] = orientPixel
-            
-            if x == 100 and y == 100:
-                print(retPixel)
-                print(downRetArray[x,y])
-    
-    
+
     downRetImg = sitk.GetImageFromArray(downRetArray)
+    downRetImg = sitk.Cast(downRetImg, retImg.GetPixelID())
+    
     downOrientImg = sitk.GetImageFromArray(downOrientArray)
-            
-    return (downRetArray, downOrientArray) 
+    downOrientImg = sitk.Cast(downOrientImg, orientImg.GetPixelID())
+
+    return (downRetImg, downOrientImg) 
+
+
+
+
+
 
 def BatchDownsampleRetardance(scaleFactor, retDir, orientDir, outputDir, simulatedResolutionFactor = None):
     outputSuffix = '_DownsampledBy-' + str(scaleFactor) + 'x'

@@ -17,6 +17,7 @@ def getTileStartEndIndex(tileNumber, tileSize, tileOffset = None, tileStepSize =
     return (startIndex, endIndex)
 
 
+
 def calculateNumberOfTiles(sizeOfImageDimension, tileSize, tileStepSize = None):
     """Calculate the number of tiles that fit along an image dimension,
      given a certain tile size, and step size."""
