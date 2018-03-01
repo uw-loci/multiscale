@@ -88,7 +88,7 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
 
 
 
-def BatchDownsampleRetardance(scaleFactor, retDir, orientDir, outputDir, simulatedResolutionFactor = None):
+def BatchDownsampleRetardance(retDir, orientDir, outputDir, scaleFactor, simulatedResolutionFactor = None):
     outputSuffix = '_DownsampledBy-' + str(scaleFactor) + 'x'
 
     if simulatedResolutionFactor and simulatedResolutionFactor != scaleFactor:
