@@ -30,6 +30,25 @@ def calculateRetardanceOverArea(retardance, orientation):
 
 
 
+def convertIntensityToRetardance(itkImg, retCeiling, wavelength = 546, nmInput = True, degOutput = True):
+    """Convert retardance intensities that are scaled to the image input 
+    (e.g., 16 bit int) into to actual retardance values.  
+    
+    Input: 
+        itkImg: The image being converted, as an ITK Image object
+        retCeiling: The maximum retardance value corresponding to max intensity
+        wavelength: The wavelength of light used to image, for converting 
+            between degrees and retardance.  Defaults to 546 for the LOCI
+            PolScope wavelength
+        nmInput: The input retCeiling is in nm if true, degrees if false
+        degOutput: The output is in degrees if true, nm if false
+        
+    Output:
+        A new ITK image with retardance values either in degrees (default)
+        or in nm (if degOutput is set to False)
+    
+    """
+
 
 
 def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simulatedResolutionFactor = None):
