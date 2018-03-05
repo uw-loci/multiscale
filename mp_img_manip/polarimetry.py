@@ -31,7 +31,7 @@ def calculateRetardanceOverArea(retardance, orientation):
 
 
 def convertIntensityToRetardance(
-        itkImg, retCeiling, wavelength = 546, nmInput = True, degOutput = True):
+        itkImg, retCeiling = 35, wavelength = 546, nmInput = True, degOutput = True):
     """Convert retardance intensities that are scaled to the image input 
     (e.g., 16 bit int) into to actual retardance values.  
     
@@ -49,6 +49,26 @@ def convertIntensityToRetardance(
         or in nm (if degOutput is set to False)
     
     """
+    
+    inputArray = sitk.GetArrayFromImage(itkImg)
+    
+    #todo: implement a check for pixel type
+    
+    pixelTypeFactor = retCeiling/65535
+    
+    if nmInput and degOutput:
+        wavelengthFactor = 360/wavelength
+    elif nmInput == False and degOutput == False:
+        wavelengthFactor = wavelength/360
+    else:
+        wavelengthFactor = 1
+        
+    outputArray = inputArray*pixelTypeFactor*wavelengthFactor
+
+    outputImg = sitk.GetImageFromArray(outputArray)
+    
+    return outputImg
+    
 
 
 

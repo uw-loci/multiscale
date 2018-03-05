@@ -8,29 +8,30 @@ Created on Mon Mar  5 09:12:30 2018
 import mp_img_manip.polarimetry as pol
 import SimpleITK as sitk
 import unittest
+import numpy as np
 
 
 class convertIntensityToRetardance_TestSuite(unittest.TestCase):
 
     def test_nm_to_deg(self):
-        inputValue = 100
+        inputValue = np.array([[100, 200],[563,843]])
         inputImg = sitk.GetImageFromArray(inputValue)
-        inputImg.SetPixel(sitk.sitkUInt16)
+        inputImg = sitk.Cast(inputImg, sitk.sitkUInt16)
         
-        outputValue = inputValue * (35/65535) * (1/546) * 360
+        outputValue = inputValue * (35/65535) * (360/546)
         outputImg = sitk.GetImageFromArray(outputValue)
         
         self.assertEqual(pol.convertIntensityToRetardance(inputImg), 
                          outputImg)
         
     def test_nm_to_deg_diff_wavelength(self):
-        inputValue = 100
+        inputValue = np.array([[100, 200],[563,843]])
         inputImg = sitk.GetImageFromArray(inputValue)
-        inputImg.SetPixel(sitk.sitkUInt16)
+        inputImg = sitk.Cast(inputImg, sitk.sitkUInt16)
         
         wl = 600
         
-        outputValue = inputValue * (35/65535) * (1/600) * 360
+        outputValue = inputValue * (35/65535) * (360/600)
         outputImg = sitk.GetImageFromArray(outputValue)
         
         self.assertEqual(pol.convertIntensityToRetardance(
@@ -38,13 +39,13 @@ class convertIntensityToRetardance_TestSuite(unittest.TestCase):
                          outputImg)
         
     def test_nm_to_deg_diff_ceiling(self):
-        inputValue = 100
+        inputValue = np.array([[100, 200],[563,843]])
         inputImg = sitk.GetImageFromArray(inputValue)
-        inputImg.SetPixel(sitk.sitkUInt16)
+        inputImg = sitk.Cast(inputImg, sitk.sitkUInt16)
         
         ceiling = 50
         
-        outputValue = inputValue * (50/65535) * (1/546) * 360
+        outputValue = inputValue * (50/65535) * (360/546)
         outputImg = sitk.GetImageFromArray(outputValue)
         
         self.assertEqual(pol.convertIntensityToRetardance(
@@ -52,9 +53,9 @@ class convertIntensityToRetardance_TestSuite(unittest.TestCase):
                          outputImg)
             
     def test_nm_to_nm(self):
-        inputValue = 100
+        inputValue = np.array([[100, 200],[563,843]])
         inputImg = sitk.GetImageFromArray(inputValue)
-        inputImg.SetPixel(sitk.sitkUInt16)
+        inputImg = sitk.Cast(inputImg, sitk.sitkUInt16)
         
         outputValue = inputValue * (35/65535)
         outputImg = sitk.GetImageFromArray(outputValue)
@@ -64,9 +65,9 @@ class convertIntensityToRetardance_TestSuite(unittest.TestCase):
                 outputImg)
         
     def test_deg_to_deg(self):
-        inputValue = 100
+        inputValue = np.array([[100, 200],[563,843]])
         inputImg = sitk.GetImageFromArray(inputValue)
-        inputImg.SetPixel(sitk.sitkUInt16)
+        inputImg = sitk.Cast(inputImg, sitk.sitkUInt16)
         
         outputValue = inputValue * (35/65535)
         outputImg = sitk.GetImageFromArray(outputValue)
@@ -76,11 +77,11 @@ class convertIntensityToRetardance_TestSuite(unittest.TestCase):
                          outputImg)
         
     def test_deg_to_nm(self):
-        inputValue = 100
+        inputValue = np.array([[100, 200],[563,843]])
         inputImg = sitk.GetImageFromArray(inputValue)
-        inputImg.SetPixel(sitk.sitkUInt16)
+        inputImg = sitk.Cast(inputImg, sitk.sitkUInt16)
         
-        outputValue = inputValue * (35/65535) * 546 * (1/360)
+        outputValue = inputValue * (35/65535) * (546/360) 
         outputImg = sitk.GetImageFromArray(outputValue)
         
         self.assertEqual(pol.convertIntensityToRetardance(
