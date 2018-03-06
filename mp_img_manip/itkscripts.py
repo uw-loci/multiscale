@@ -4,6 +4,7 @@ Created on Mon Mar  5 09:04:51 2018
 
 @author: mpinkert
 """
+import mp_img_manip.bulk_img_processing as blk
 
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
@@ -136,7 +137,7 @@ def affineRegister(fixed_image, moving_image, scale = 4, fixedMask = None, movin
 
 
 def askIfGoodRegister():
-    """Query the user to see if the registration is good""""
+    """Query the user to see if the registration is good"""
     
 
 def setupImg(imgPath, setupOffset = False):
