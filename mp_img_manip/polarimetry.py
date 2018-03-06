@@ -72,7 +72,7 @@ def convertIntensityToRetardance(
 
 
 
-def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simulatedResolutionFactor = None):
+def downsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simulatedResolutionFactor = None):
 
     if not simulatedResolutionFactor:
         simulatedResolutionFactor = scalePixelFactor
@@ -128,7 +128,7 @@ def DownsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
 
 
 
-def BatchDownsampleRetardance(retDir, orientDir, outputDir, scaleFactor, simulatedResolutionFactor = None):
+def batchDownsampleRetardance(retDir, orientDir, outputDir, scaleFactor, simulatedResolutionFactor = None):
     outputSuffix = '_DownsampledBy-' + str(scaleFactor) + 'x'
 
     if simulatedResolutionFactor and simulatedResolutionFactor != scaleFactor:
@@ -137,7 +137,7 @@ def BatchDownsampleRetardance(retDir, orientDir, outputDir, scaleFactor, simulat
     (retImgPathList, orientImgPathList) = blk.findSharedImages(retDir, orientDir)
     
     for i in range(0, np.size(retImgPathList)):
-        (downRetImg, downOrientImg) = DownsampleRetardanceImage(retImgPathList[i], orientImgPathList[i], scaleFactor, simulatedResolutionFactor)
+        (downRetImg, downOrientImg) = downsampleRetardanceImage(retImgPathList[i], orientImgPathList[i], scaleFactor, simulatedResolutionFactor)
         
         downRetPath = blk.createNewImagePath(retImgPathList[i], outputDir, outputSuffix + '_Ret')
         downOrientPath = blk.createNewImagePath(orientImgPathList[i], outputDir, outputSuffix + '_SlowAxis')
