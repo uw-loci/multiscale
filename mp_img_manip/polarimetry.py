@@ -31,7 +31,7 @@ def calculateRetardanceOverArea(retardance, orientation):
 
 
 def convertIntensityToRetardance(
-        itkImg, retCeiling = 35, wavelength = 546, nmInput = True, degOutput = True):
+        itkImg, retCeiling = 35, wavelength = 549, nmInput = True, degOutput = True):
     """Convert retardance intensities that are scaled to the image input 
     (e.g., 16 bit int) into to actual retardance values.  
     
