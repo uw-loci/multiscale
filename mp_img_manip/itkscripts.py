@@ -133,3 +133,13 @@ def affineRegister(fixed_image, moving_image, scale = 4, fixedMask = None, movin
     #print('Optimizer\'s stopping condition, {0}'.format(registration_method.GetOptimizerStopConditionDescription()))
 
     return (registration_method.Execute(fixed_image,moving_image), registration_method.GetMetricValue(), registration_method.GetOptimizerStopConditionDescription())
+
+
+
+
+def readSpacingFile(imgPath):
+    """"Read in the .txt file that specifies the correct spacing for each
+    image.  ITK works in physical space, but it doesn't read or write 
+    microscopy images well since it works in mm/inches.  In addition, many
+    of these files do not have a spacing assigned beforehand."""
+    
