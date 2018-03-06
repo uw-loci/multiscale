@@ -154,3 +154,28 @@ def readSpacingFile(imgPath):
     microscopy images well since it works in mm/inches.  In addition, many
     of these files do not have a spacing assigned beforehand."""
     
+    
+def supervisedRegisterImages(fixedPath, movingPath):
+    
+    fixedImg = setupImg(fixedPath)
+    movingImg = setupImg(movingPath, setupOffset = True)
+    
+    goodRegister = False
+    
+    while not goodRegister:    
+        (transform, metric, optimizer) = affineRegister(fixedImg, movingImg)
+        goodRegister = askIfGoodRegister()
+        
+    registeredImg = sitk.Resample(movingImg, fixedImg, transform, sitk.sitkLinear, 0.0, movingImg.GetPixelID())    
+    
+    return registeredImg
+    
+
+def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix):
+    
+    (fixedImgPathList, movingImgPathList) = blk.findSharedImages(fixedDir, movingDir)
+    
+    for i in range(0, np.size(fixedImgPathList)):
+        registeredImg = supervisedRegisterImages(fixedImgPathList[i], movingImgPathList[i])
+        registeredPath = blk.createNewImagePath(movingImgPathList[i], outputDir, outputSuffix)
+        sitk.WriteImage(registeredImg, registeredPath)
