@@ -135,8 +135,19 @@ def affineRegister(fixed_image, moving_image, scale = 4, fixedMask = None, movin
     return (registration_method.Execute(fixed_image,moving_image), registration_method.GetMetricValue(), registration_method.GetOptimizerStopConditionDescription())
 
 
+def askIfGoodRegister():
+    """Query the user to see if the registration is good""""
+    
 
-
+def setupImg(imgPath, setupOffset = False):
+    """Set up the image spacing and optionally the registration offset"""
+    
+    
+def readOffsetFile(imgPath):
+    """"Read in the .txt file that specifies the correct offset for the moving
+    images.  This offset is an initial translation so that the registration
+    performs better and does not get stuck in a local optima."""
+    
 def readSpacingFile(imgPath):
     """"Read in the .txt file that specifies the correct spacing for each
     image.  ITK works in physical space, but it doesn't read or write 
