@@ -5,6 +5,7 @@ Created on Mon Mar  5 09:04:51 2018
 @author: mpinkert
 """
 import mp_img_manip.bulk_img_processing as blk
+import mp_img_manip.utility_functions as util
 
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
@@ -135,9 +136,6 @@ def affineRegister(fixed_image, moving_image, scale = 4, fixedMask = None, movin
 
     return (registration_method.Execute(fixed_image,moving_image), registration_method.GetMetricValue(), registration_method.GetOptimizerStopConditionDescription())
 
-
-def askIfGoodRegister():
-    """Query the user to see if the registration is good"""
     
 
 def setupImg(imgPath, setupOffset = False):
@@ -156,6 +154,21 @@ def readSpacingFile(imgPath):
     of these files do not have a spacing assigned beforehand."""
     
     
+def query_offset_change(offset):
+    change_offset = util.yes_no('Do you want to change the offset? ')
+    
+    if change_offset:
+        print('Current offset: '+str(offset))
+        newOffset_x = util.query_int('Enter new X offset: ')
+        newOffset_y = util.query_int('Enter new Y offset: ')
+        
+        newOffset = (newOffset_x, newOffset_y)
+        
+        return newOffset
+    else:
+        return offset
+    
+    
 def supervisedRegisterImages(fixedPath, movingPath):
     
     fixedImg = setupImg(fixedPath)
@@ -164,8 +177,9 @@ def supervisedRegisterImages(fixedPath, movingPath):
     goodRegister = False
     
     while not goodRegister:    
+        movingImg.SetOffest() = query_offset_change(movingImg.GetOffset())
         (transform, metric, optimizer) = affineRegister(fixedImg, movingImg)
-        goodRegister = askIfGoodRegister()
+        goodRegister = util.yes_no('Is this registration good?')
         
     registeredImg = sitk.Resample(movingImg, fixedImg, transform, sitk.sitkLinear, 0.0, movingImg.GetPixelID())    
     
