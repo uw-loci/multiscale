@@ -140,6 +140,14 @@ def affineRegister(fixed_image, moving_image, scale = 4, fixedMask = None, movin
 
 def setupImg(imgPath, setupOffset = False):
     """Set up the image spacing and optionally the registration offset"""
+    img = sitk.ReadImage(imgPath)
+    
+    img.SetSpcaing(readSpacingFiles(imgPath))
+    
+    if setupOffset:
+        img.SetOffset(readOffsetFile(imgPath))
+    
+    return img
     
     
 def readOffsetFile(imgPath):
@@ -155,6 +163,7 @@ def readSpacingFile(imgPath):
     
     
 def query_offset_change(offset):
+    """Ask if the user wants to set a new 2D ITK offset"""
     change_offset = util.yes_no('Do you want to change the offset? ')
     
     if change_offset:
