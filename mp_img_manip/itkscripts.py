@@ -37,6 +37,10 @@ def end_plot():
     # Close figure, we don't want to get a duplicate of the plot latter on.
     plt.close()
 
+def overlay_images_grayscale(fixed_image, moving_image, alpha = 0.7):
+    
+    return sitk.Cast((1.0 - alpha)*fixed_image + alpha*movingImg, sitk.sitkUInt8)
+
 # Callback invoked when the IterationEvent happens, update our data and display new figure.    
 def plot_values(registration_method, fixed_image, moving_image,transform):
     global metric_values, multires_iterations
@@ -46,26 +50,19 @@ def plot_values(registration_method, fixed_image, moving_image,transform):
     # Clear the output area (wait=True, to reduce flickering), and plot current data
     clear_output(wait=True)
     
-    alpha = 0.7
+    
     moving_transformed = sitk.Resample(moving_image, fixed_image, transform, 
                                        sitk.sitkLinear, 0.0, 
                                        moving_image.GetPixelIDValue()) 
     
     #Blend the registered and fixed images                                   
-    combined = (1.0 - alpha)*fixed_image + alpha*moving_transformed
-    combined_eightbit = sitk.Cast(sitk.RescaleIntensity(combined), sitk.sitkUInt8)  
+    combinedImg = overlay_images_grayscale(fixed_image, moving_image)
     
     #plot the current image
-    #plt.subplots(1,2)
     fig, (ax, ax2) = plt.subplots(ncols=2)
     
-    #plt.subplot(1,2,1)
-
-    ax.imshow(sitk.GetArrayFromImage(combined_eightbit),cmap=plt.cm.gray)
+    ax.imshow(sitk.GetArrayFromImage(combinedImg),cmap=plt.cm.gray)
     
-   # plt.title(multires_iterations)
-        # Plot the similarity metric values
-
     #plt.subplot(1,2,2)
     ax2.plot(metric_values, 'r')
     ax2.plot(multires_iterations, [metric_values[index] for index in multires_iterations], 'b*')
@@ -147,12 +144,11 @@ def setupImg(imgPath, setupOffset = False):
     
     spacing = blk.read_write_column_file(imgPath, 'PixelSpacing.csv')
     img.SetSpacing(spacing)
+    display('Spacing: ' + str(spacing))
     
     if setupOffset:
         offset = blk.read_write_column_file(imgPath, 'Offset.csv')
-        display('Current offset: ' + str(offset))
-        #Would like to change the above line to be further up in the function
-        # hierarchy, so it can show what the offset looks like....
+        display('Offset: ' + str(offset))
         
         img.SetOffset(offset)
     
@@ -161,16 +157,29 @@ def setupImg(imgPath, setupOffset = False):
                  
 
     
-def query_offset_change(offset):
+def query_offset_change(movingImg, fixedImg):
     """Ask if the user wants to set a new 2D ITK offset"""
+    
+
+    plt.imshow(overlay_images_grayscale(fixedImg, movingImg), cmap=plt.cm.gray)
     change_offset = util.yes_no('Do you want to change the offset? ')
     
+    #todo: have it change the offset file too....  
+    
+    
     if change_offset:
-        print('Current offset: '+str(offset))
-        newOffset_x = util.query_int('Enter new X offset: ')
-        newOffset_y = util.query_int('Enter new Y offset: ')
         
-        newOffset = (newOffset_x, newOffset_y)
+        while True:
+            print('Current offset: '+str(offset))
+            newOffset_x = util.query_int('Enter new X offset: ')
+            newOffset_y = util.query_int('Enter new Y offset: ')
+            
+            newOffset = (newOffset_x, newOffset_y)
+            
+            movingImg.SetOffset(newOffset)
+            plt.imshow(overlay_images_grayscale(fixedImg, movingImg), cmap=plt.cm.gray)
+            
+            if util.yes_no('Is this offset good?'): break
         
         return newOffset
     else:
