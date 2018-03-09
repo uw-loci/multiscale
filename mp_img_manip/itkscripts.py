@@ -145,10 +145,12 @@ def setupImg(imgPath, setupOffset = False):
     """Set up the image spacing and optionally the registration offset"""
     img = sitk.ReadImage(imgPath)
     
-    img.SetSpacing(readSpacingFiles(imgPath))
+    spacing = blk.read_write_column_file(imgPath, 'PixelSpacing.csv')
+    img.SetSpacing(spacing)
     
     if setupOffset:
-        img.SetOffset(readOffsetFile(imgPath))
+        offset = blk.read_write_column_file(imgPath, 'Offset.csv')
+        img.SetOffset(offset)
     
     return img
     
