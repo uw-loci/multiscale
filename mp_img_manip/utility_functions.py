@@ -44,7 +44,8 @@ def yes_no(question):
            print("Please respond with 'yes' or 'no'\n")
            
     
-def query_str_list(numStrs, strType = 'String'):
+def query_str_list(numStrs, message, strType = 'String'):
+    print(message)
     return [input(strType + ' ' + str(x+1) + ': ') for x in range(numStrs)]
     
 def query_float_list(valueNames):
