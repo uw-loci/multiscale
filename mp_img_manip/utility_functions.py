@@ -5,6 +5,7 @@ Created on Wed Mar  7 14:59:49 2018
 @author: mpinkert
 """
 import os
+import csv
 
 def query_int(message):
 
@@ -42,4 +43,11 @@ def yes_no(question):
         else:
            print("Please respond with 'yes' or 'no'\n")
            
+    
+def query_str_list(numStrs, strType = 'String'):
+    return [input(strType + ' ' + str(x+1) + ': ') for x in range(numStrs)]
+    
+def query_float_list(valueNames):
+    return [query_float(value + ': ') for value in valueNames]
+    
     
