@@ -4,6 +4,7 @@ Created on Wed Mar  7 14:59:49 2018
 
 @author: mpinkert
 """
+import os
 
 def query_int(message):
 
@@ -11,12 +12,22 @@ def query_int(message):
     try:
        user_input = int(input(message))       
     except ValueError:
-       print("Not an integer! Try again.")
+       print("Please enter a valid integer.")
        continue
     else:
        return user_input 
        break 
 
+def query_float(message):
+    
+    while True:
+        try:
+            user_input = float(input(message))
+        except ValueError:
+            print("Please enter a valid float.")
+        else:
+            return user_input
+            break
 
 def yes_no(question):
     yes = set(['yes','y', 'ye', ''])
@@ -30,3 +41,5 @@ def yes_no(question):
            return False
         else:
            print("Please respond with 'yes' or 'no'\n")
+           
+    
