@@ -152,36 +152,6 @@ def setupImg(imgPath, setupOffset = False):
     
     return img
     
-    
-def read_write_column_file(imgPath, fileName, numColumns = 3, defaultValue = 0):
-    """"Read in a file that specifies a name, and a number"""
-    
-    (imgDir, imgName) = os.path.split(imgPath)
-    
-    
-    try:
-        with open(imgDir + fileName, 'r+') as f:
-            header = f.readline().split()
-            for line in f:
-                columns = line.split()
-                if columns[0] == imgName:
-                    return columns
-           
-            print('There are no existing values for ' + imgName)
-            
-            new_line = '\n' + imgName 
-            
-            for i in range(1,numColumns):
-                new_line += '\t\t' + query_float(str(columns[i]) +': ')
-                
-            f.write('\n' + new_line)  #Wrong because lines is a list now...
-            
-            return new_line
-            
-    except OSError:
-        print('There is no ' + fileName + 'in the directory')
-        
-
                  
 
     
