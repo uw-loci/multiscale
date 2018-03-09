@@ -10,6 +10,9 @@ import mp_img_manip.utility_functions as util
 import SimpleITK as sitk
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+
+
 # GUI components (sliders, dropdown...).
 #from ipywidgets import interact
 
@@ -142,7 +145,7 @@ def setupImg(imgPath, setupOffset = False):
     """Set up the image spacing and optionally the registration offset"""
     img = sitk.ReadImage(imgPath)
     
-    img.SetSpcaing(readSpacingFiles(imgPath))
+    img.SetSpacing(readSpacingFiles(imgPath))
     
     if setupOffset:
         img.SetOffset(readOffsetFile(imgPath))
@@ -150,17 +153,37 @@ def setupImg(imgPath, setupOffset = False):
     return img
     
     
-def readOffsetFile(imgPath):
-    """"Read in the .txt file that specifies the correct offset for the moving
-    images.  This offset is an initial translation so that the registration
-    performs better and does not get stuck in a local optima."""
+def read_write_column_file(imgPath, fileName, numColumns = 3, defaultValue = 0):
+    """"Read in a file that specifies a name, and a number"""
     
-def readSpacingFile(imgPath):
-    """"Read in the .txt file that specifies the correct spacing for each
-    image.  ITK works in physical space, but it doesn't read or write 
-    microscopy images well since it works in mm/inches.  In addition, many
-    of these files do not have a spacing assigned beforehand."""
+    (imgDir, imgName) = os.path.split(imgPath)
     
+    
+    try:
+        with open(imgDir + fileName, 'r+') as f:
+            header = f.readline().split()
+            for line in f:
+                columns = line.split()
+                if columns[0] == imgName:
+                    return columns
+           
+            print('There are no existing values for ' + imgName)
+            
+            new_line = '\n' + imgName 
+            
+            for i in range(1,numColumns):
+                new_line += '\t\t' + query_float(str(columns[i]) +': ')
+                
+            f.write('\n' + new_line)  #Wrong because lines is a list now...
+            
+            return new_line
+            
+    except OSError:
+        print('There is no ' + fileName + 'in the directory')
+        
+
+                 
+
     
 def query_offset_change(offset):
     """Ask if the user wants to set a new 2D ITK offset"""
