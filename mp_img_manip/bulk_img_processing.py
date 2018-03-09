@@ -1,4 +1,4 @@
-import os as os
+import os
 import csv
 import mp_img_manip.utility_functions as util
 
@@ -7,26 +7,32 @@ def read_write_column_file(imgPath, fileName, numColumns = 3):
     
     (imgDir, imgName) = os.path.split(imgPath)
     
-    try:
-        with open(imgDir + fileName, 'r+') as f:
-            reader = csv.reader(f)
-            header = reader.next()
+    with open(imgDir + '/' + fileName, 'a+') as file:
+        reader = csv.reader(file)
+        writer = csv.writer(file)
+
+        file.seek(0)
+
+        try:
+            header = next(reader)
+        except StopIteration:
+            message = 'Creating new file ' + fileName + ' in ' + imgDir 
+            header = util.query_str_list(numColumns, message , 'Header')
+            writer.writerow(header)
             
-            for row in reader:
-                if row[0] == imgName:
-                    return row
-           
-            print('There are no existing values for ' + imgName)
-            
-            new_row = util.query_list_of_floats(header, 'Header column') 
-            writer = csv.writer(f)
-            writer.write(new_row)
-            
-            return new_row
-            
-    except OSError:
-        print('There is no ' + fileName + ' in the directory')
         
+        for row in reader:
+            if row[0] == imgName:
+                print(str(row))
+                return row
+       
+        print('There are no existing values for ' + imgName)
+        
+        new_row = [imgName]
+        new_row.extend(util.query_float_list(header[1:]) )
+        writer.writerow(new_row)
+        
+        return new_row
         
         
 def getBaseFileName(fileName):
