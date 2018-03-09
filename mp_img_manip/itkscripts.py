@@ -150,6 +150,10 @@ def setupImg(imgPath, setupOffset = False):
     
     if setupOffset:
         offset = blk.read_write_column_file(imgPath, 'Offset.csv')
+        display('Current offset: ' + str(offset))
+        #Would like to change the above line to be further up in the function
+        # hierarchy, so it can show what the offset looks like....
+        
         img.SetOffset(offset)
     
     return img
