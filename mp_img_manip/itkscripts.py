@@ -142,30 +142,30 @@ def setupImg(imgPath, setupOffset = False):
     """Set up the image spacing and optionally the registration offset"""
     img = sitk.ReadImage(imgPath)
     
-    spacing = blk.read_write_column_file(imgPath, 'PixelSpacing.csv')
+    spacingStr = blk.read_write_column_file(imgPath, 'PixelSpacing.csv')
+    spacing = [float(spacingStr[1]), float(spacingStr[2])]
     img.SetSpacing(spacing)
-    display('Spacing: ' + str(spacing))
+    print('Spacing: ' + str(spacing))
     
     if setupOffset:
         offset = blk.read_write_column_file(imgPath, 'Offset.csv')
-        display('Offset: ' + str(offset))
+        print('Offset: ' + str(offset))
         
         img.SetOffset(offset)
     
     return img
     
                  
-
     
 def query_offset_change(movingImg, fixedImg):
     """Ask if the user wants to set a new 2D ITK offset"""
     
-
     plt.imshow(overlay_images_grayscale(fixedImg, movingImg), cmap=plt.cm.gray)
     change_offset = util.yes_no('Do you want to change the offset? ')
+    offset = movingImg.GetOffset()
+    print(movingImg.GetOffset())
     
     #todo: have it change the offset file too....  
-    
     
     if change_offset:
         
@@ -194,7 +194,7 @@ def supervisedRegisterImages(fixedPath, movingPath):
     goodRegister = False
     
     while not goodRegister:    
-        movingImg.SetOffest() = query_offset_change(movingImg.GetOffset())
+        movingImg.SetOffest(query_offset_change(movingImg.GetOffset()))
         (transform, metric, optimizer) = affineRegister(fixedImg, movingImg)
         goodRegister = util.yes_no('Is this registration good?')
         
