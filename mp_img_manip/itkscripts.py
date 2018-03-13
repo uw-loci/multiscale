@@ -38,9 +38,17 @@ def end_plot():
     plt.close()
 
 def overlay_images_grayscale(fixed_image, moving_image, alpha = 0.7):
-    
-    return sitk.Cast((1.0 - alpha)*fixed_image + alpha*movingImg, sitk.sitkUInt8)
+    try:
+        return sitk.Cast((1.0 - alpha)*fixed_image + alpha*moving_image, sitk.sitkUInt8)
+    except:
+        initial_transform = sitk.Similarity2DTransform()
+        moving_resampled = sitk.Resample(moving_image, fixed_image, 
+                                         initial_transform, sitk.sitkLinear, 0.0, fixed_image.GetPixelID())
+        
+        return sitk.Cast((1.0 - alpha)*fixed_image + alpha*moving_resampled, sitk.sitkUInt8)
 
+        
+    
 # Callback invoked when the IterationEvent happens, update our data and display new figure.    
 def plot_values(registration_method, fixed_image, moving_image,transform):
     global metric_values, multires_iterations
@@ -56,12 +64,12 @@ def plot_values(registration_method, fixed_image, moving_image,transform):
                                        moving_image.GetPixelIDValue()) 
     
     #Blend the registered and fixed images                                   
-    combinedImg = overlay_images_grayscale(fixed_image, moving_image)
+    combined_image = overlay_images_grayscale(fixed_image, moving_transformed)
     
     #plot the current image
     fig, (ax, ax2) = plt.subplots(ncols=2)
     
-    ax.imshow(sitk.GetArrayFromImage(combinedImg),cmap=plt.cm.gray)
+    ax.imshow(sitk.GetArrayFromImage(combined_image),cmap=plt.cm.gray)
     
     #plt.subplot(1,2,2)
     ax2.plot(metric_values, 'r')
@@ -138,76 +146,77 @@ def affineRegister(fixed_image, moving_image, scale = 4, fixedMask = None, movin
 
     
 
-def setupImg(imgPath, setupOffset = False):
-    """Set up the image spacing and optionally the registration offset"""
+def setup_image(imgPath, setupOrigin = False):
+    """Set up the image spacing and optionally the registration origin"""
     img = sitk.ReadImage(imgPath)
     
-    spacingStr = blk.read_write_column_file(imgPath, 'PixelSpacing.csv')
-    spacing = [float(spacingStr[1]), float(spacingStr[2])]
+    spacingList = blk.read_write_column_file(imgPath, 'PixelSpacing.csv')
+    spacing = [float(spacingList[1]), float(spacingList[2])]
     img.SetSpacing(spacing)
-    print('Spacing: ' + str(spacing))
+    print('Spacing: ' + str(spacingList))
     
-    if setupOffset:
-        offset = blk.read_write_column_file(imgPath, 'Offset.csv')
-        print('Offset: ' + str(offset))
+    if setupOrigin:
+        originList = blk.read_write_column_file(imgPath, 'Origin.csv')
+        origin = [float(originList[1]), float(originList[2])]
+        print('Origin: ' + str(originList))
         
-        img.SetOffset(offset)
+        img.SetOrigin(origin)
     
     return img
     
                  
     
-def query_offset_change(movingImg, fixedImg):
-    """Ask if the user wants to set a new 2D ITK offset"""
+def query_origin_change(moving_image, fixed_image):
+    """Ask if the user wants to set a new 2D ITK origin"""
     
-    plt.imshow(overlay_images_grayscale(fixedImg, movingImg), cmap=plt.cm.gray)
-    change_offset = util.yes_no('Do you want to change the offset? ')
-    offset = movingImg.GetOffset()
-    print(movingImg.GetOffset())
+    plt.imshow(overlay_images_grayscale(fixed_image, moving_image), cmap=plt.cm.gray)
+    change_origin = util.yes_no('Do you want to change the origin? ')
+    origin = moving_image.GetOrigin()
+    print(moving_image.GetOrigin())
     
-    #todo: have it change the offset file too....  
+    #todo: have it change the origin file too....  
     
-    if change_offset:
+    if change_origin:
         
         while True:
-            print('Current offset: '+str(offset))
-            newOffset_x = util.query_int('Enter new X offset: ')
-            newOffset_y = util.query_int('Enter new Y offset: ')
+            print('Current origin: '+str(origin))
+            newOrigin_x = util.query_int('Enter new X origin: ')
+            newOrigin_y = util.query_int('Enter new Y origin: ')
             
-            newOffset = (newOffset_x, newOffset_y)
+            newOrigin = (newOrigin_x, newOrigin_y)
             
-            movingImg.SetOffset(newOffset)
-            plt.imshow(overlay_images_grayscale(fixedImg, movingImg), cmap=plt.cm.gray)
+            moving_image.SetOrigin(newOrigin)
+            plt.imshow(overlay_images_grayscale(fixed_image, moving_image), cmap=plt.cm.gray)
             
-            if util.yes_no('Is this offset good?'): break
+            if util.yes_no('Is this origin good?'): break
         
-        return newOffset
+        return newOrigin
     else:
-        return offset
+        return origin
     
     
 def supervisedRegisterImages(fixedPath, movingPath):
     
-    fixedImg = setupImg(fixedPath)
-    movingImg = setupImg(movingPath, setupOffset = True)
+    fixed_image = setup_image(fixedPath)
+    moving_image = setup_image(movingPath, setupOrigin = True)
     
     goodRegister = False
     
     while not goodRegister:    
-        movingImg.SetOffest(query_offset_change(movingImg.GetOffset()))
-        (transform, metric, optimizer) = affineRegister(fixedImg, movingImg)
+        moving_image.SetOrigin(query_origin_change(moving_image, fixed_image))
+        (transform, metric, optimizer) = affineRegister(fixed_image, moving_image)
         goodRegister = util.yes_no('Is this registration good?')
         
-    registeredImg = sitk.Resample(movingImg, fixedImg, transform, sitk.sitkLinear, 0.0, movingImg.GetPixelID())    
+    registered_image = sitk.Resample(moving_image, fixed_image, transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())    
     
-    return registeredImg
+    return registered_image
     
 
 def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix):
     
-    (fixedImgPathList, movingImgPathList) = blk.findSharedImages(fixedDir, movingDir)
+    (fixed_imagePathList, moving_imagePathList) = blk.findSharedImages(fixedDir, movingDir)
     
-    for i in range(0, np.size(fixedImgPathList)):
-        registeredImg = supervisedRegisterImages(fixedImgPathList[i], movingImgPathList[i])
-        registeredPath = blk.createNewImagePath(movingImgPathList[i], outputDir, outputSuffix)
-        sitk.WriteImage(registeredImg, registeredPath)
+    for i in range(0, np.size(fixed_imagePathList)):
+        registered_image = supervisedRegisterImages(fixed_imagePathList[i], moving_imagePathList[i])
+        registeredPath = blk.createNewImagePath(moving_imagePathList[i], outputDir, outputSuffix)
+        sitk.WriteImage(registered_image, registeredPath)

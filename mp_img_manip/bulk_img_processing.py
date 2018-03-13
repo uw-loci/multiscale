@@ -23,7 +23,6 @@ def read_write_column_file(imgPath, fileName, numColumns = 3):
         
         for row in reader:
             if row[0] == imgName:
-                print(str(row))
                 return row
        
         print('There are no existing values for ' + imgName)
