@@ -39,14 +39,17 @@ def end_plot():
 
 def overlay_images_grayscale(fixed_image, moving_image, alpha = 0.7):
     try:
-        return sitk.Cast((1.0 - alpha)*fixed_image + alpha*moving_image, sitk.sitkUInt8)
+        combined_image = sitk.Cast((1.0 - alpha)*fixed_image + alpha*moving_image, sitk.sitkUInt8)
+        combined_array = sitk.GetArrayFromImage(combined_image)
+        return combined_array
     except:
         initial_transform = sitk.Similarity2DTransform()
         moving_resampled = sitk.Resample(moving_image, fixed_image, 
                                          initial_transform, sitk.sitkLinear, 0.0, fixed_image.GetPixelID())
         
-        return sitk.Cast((1.0 - alpha)*fixed_image + alpha*moving_resampled, sitk.sitkUInt8)
-
+        combined_image = sitk.Cast((1.0 - alpha)*fixed_image + alpha*moving_resampled, sitk.sitkUInt8)
+        combined_array = sitk.GetArrayFromImage(combined_image)
+        return combined_array
         
     
 # Callback invoked when the IterationEvent happens, update our data and display new figure.    
@@ -64,12 +67,12 @@ def plot_values(registration_method, fixed_image, moving_image,transform):
                                        moving_image.GetPixelIDValue()) 
     
     #Blend the registered and fixed images                                   
-    combined_image = overlay_images_grayscale(fixed_image, moving_transformed)
+    combined_array = overlay_images_grayscale(fixed_image, moving_transformed)
     
     #plot the current image
     fig, (ax, ax2) = plt.subplots(ncols=2)
     
-    ax.imshow(sitk.GetArrayFromImage(combined_image),cmap=plt.cm.gray)
+    ax.imshow(combined_array,cmap=plt.cm.gray)
     
     #plt.subplot(1,2,2)
     ax2.plot(metric_values, 'r')
@@ -188,6 +191,7 @@ def query_origin_change(moving_image, fixed_image):
             moving_image.SetOrigin(newOrigin)
             plt.imshow(overlay_images_grayscale(fixed_image, moving_image), cmap=plt.cm.gray)
             
+            #bug: The image does not show up till after the question
             if util.yes_no('Is this origin good?'): break
         
         return newOrigin
