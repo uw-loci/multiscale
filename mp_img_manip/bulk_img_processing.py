@@ -28,7 +28,10 @@ def read_write_column_file(imgPath, fileName, numColumns = 3):
         print('There are no existing values for ' + imgName)
         
         new_row = [imgName]
-        new_row.extend(util.query_float_list(header[1:]) )
+        new_row.extend(util.query_float_list(header[1:]))
+        
+        #bug: This next line writes a blank row first.  
+        
         writer.writerow(new_row)
         
         return new_row
