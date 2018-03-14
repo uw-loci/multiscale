@@ -135,8 +135,8 @@ def affineRegister(fixed_image, moving_image, scale = 4, iterations = 200, fixed
         print('Warning, scale was set higher than the maximum value of 4')
 
         
-    registration_method.SetShrinkFactorsPerLevel(shrinkFactors[:scale])
-    registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas[:scale])
+    registration_method.SetShrinkFactorsPerLevel(shrinkFactors[(4-scale):])
+    registration_method.SetSmoothingSigmasPerLevel(smoothingSigmas[(4-scale):])
     registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
 
         #Redefining initial_transform so the function 
