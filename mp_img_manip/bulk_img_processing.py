@@ -5,6 +5,9 @@ import mp_img_manip.utility_functions as util
 def read_write_column_file(imgPath, fileName, numColumns = 3):
     """"Read in a file that specifies a name, and a number"""
     
+    #Bug: Writes an extra line before the new row
+    #todo: Add a way to update values
+    
     (imgDir, imgName) = os.path.split(imgPath)
     
     with open(imgDir + '/' + fileName, 'a+') as file:
@@ -35,6 +38,8 @@ def read_write_column_file(imgPath, fileName, numColumns = 3):
         writer.writerow(new_row)
         
         return new_row
+    
+    
         
         
 def getBaseFileName(fileName):

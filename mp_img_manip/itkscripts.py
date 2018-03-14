@@ -219,12 +219,16 @@ def supervisedRegisterImages(fixedPath, movingPath):
     fixed_image = setup_image(fixedPath)
     moving_image = setup_image(movingPath, setupOrigin = True)
     
-    goodRegister = False
-    
-    while not goodRegister:    
+    while True:    
         moving_image.SetOrigin(query_origin_change(moving_image, fixed_image))
-        (transform, metric, optimizer) = affineRegister(fixed_image, moving_image)
-        goodRegister = util.yes_no('Is this registration good? [y/n] >>> ')
+        (transform, metric, stop) = affineRegister(fixed_image, moving_image)
+        
+        print('Final metric value: {0}'.format(metric))
+        print('Optimizer\'s stopping condition, {0}'.format(stop))
+        print('Transform Matrix: {0}'.format(transform.GetMatrix()))
+        print('Transform Translation: {0}'.format(transform.GetTranslation()))
+        
+        if util.yes_no('Is this registration good? [y/n] >>> '): break
         
     registered_image = sitk.Resample(moving_image, fixed_image, transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())    
     
