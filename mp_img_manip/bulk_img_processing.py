@@ -1,6 +1,7 @@
 import os
 import csv
 import mp_img_manip.utility_functions as util
+import pandas as pd
 
 def read_write_column_file(imgPath, fileName, numColumns = 3):
     """"Read in a file that specifies a name, and a number"""
@@ -9,6 +10,7 @@ def read_write_column_file(imgPath, fileName, numColumns = 3):
     #todo: Add a way to update values
     
     (imgDir, imgName) = os.path.split(imgPath)
+    
     
     with open(imgDir + '/' + fileName, 'a+') as file:
         reader = csv.reader(file)
@@ -40,6 +42,29 @@ def read_write_column_file(imgPath, fileName, numColumns = 3):
         return new_row
     
     
+    
+def read_write_pandas_row(file_path, index, index_label, column_labels):
+        
+    (file_dir, file_name) = os.path.split(file_path)
+
+    try:
+        data = pd.read_csv(file_dir + '/' + file_name, index_col = index_label)
+        file_exists = True
+        try:
+            return data.loc[index]
+        except:
+            print('There are no existing entries for ' + index )
+    except:
+        file_exists = False
+        print('Creating new file ' + file_name + ' in ' + file_dir)
+        data = pd.DataFrame(index = pd.Index([], dtype='object', name=index_label),  columns = column_labels)
+    
+    print('Please enter in values for {0}'.format(index))
+    new_row = [input(x + ': ') for x in column_labels]
+    data.loc[index] = new_row 
+    
+    if not file_exists:
+        data.to_csv(file_path)
         
         
 def getBaseFileName(fileName):
