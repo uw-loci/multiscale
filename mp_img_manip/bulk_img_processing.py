@@ -3,45 +3,6 @@ import csv
 import mp_img_manip.utility_functions as util
 import pandas as pd
 
-def read_write_column_file(imgPath, fileName, numColumns = 3):
-    """"Read in a file that specifies a name, and a number"""
-    
-    #Bug: Writes an extra line before the new row
-    #todo: Add a way to update values
-    
-    (imgDir, imgName) = os.path.split(imgPath)
-    
-    
-    with open(imgDir + '/' + fileName, 'a+') as file:
-        reader = csv.reader(file)
-        writer = csv.writer(file)
-
-        file.seek(0)
-
-        try:
-            header = next(reader)
-        except StopIteration:
-            message = 'Creating new file ' + fileName + ' in ' + imgDir 
-            header = util.query_str_list(numColumns, message , 'Header')
-            writer.writerow(header)
-            
-        
-        for row in reader:
-            if row[0] == imgName:
-                return row
-       
-        print('There are no existing values for ' + imgName)
-        
-        new_row = [imgName]
-        new_row.extend(util.query_float_list(header[1:]))
-        
-        #bug: This next line writes a blank row first.  
-        
-        writer.writerow(new_row)
-        
-        return new_row
-    
-    
     
 def read_write_pandas_row(file_path, index, index_label, column_labels):
         
