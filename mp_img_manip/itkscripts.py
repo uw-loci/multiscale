@@ -37,18 +37,26 @@ def end_plot():
     # Close figure, we don't want to get a duplicate of the plot latter on.
     plt.close()
 
-def overlay_images_grayscale(fixed_image, moving_image, alpha = 0.7):
-    try:
-        combined_image = sitk.Cast((1.0 - alpha)*fixed_image + alpha*moving_image, sitk.sitkUInt8)
-        combined_array = sitk.GetArrayFromImage(combined_image)
+def overlay_images(fixed_image, moving_image, alpha = 0.7):
+    
+    fixed_array = sitk.GetArrayFromImage(fixed_image)
+    fixed_normalized = (fixed_array - np.amin(fixed_array))/(np.amax(fixed_array)+np.amin(fixed_array))
+
+    try: #Post-registration
+        moving_array = sitk.GetArrayFromImage(moving_image)
+        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
+        
+        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
         return combined_array
-    except:
+    except: #Pre-registration
         initial_transform = sitk.Similarity2DTransform()
         moving_resampled = sitk.Resample(moving_image, fixed_image, 
-                                         initial_transform, sitk.sitkLinear, 0.0, fixed_image.GetPixelID())
+                                         initial_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
         
-        combined_image = sitk.Cast((1.0 - alpha)*fixed_image + alpha*moving_resampled, sitk.sitkUInt8)
-        combined_array = sitk.GetArrayFromImage(combined_image)
+        moving_array = sitk.GetArrayFromImage(moving_resampled)
+        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
+
+        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
         return combined_array
         
     
@@ -67,7 +75,7 @@ def plot_values(registration_method, fixed_image, moving_image,transform):
                                        moving_image.GetPixelIDValue()) 
     
     #Blend the registered and fixed images                                   
-    combined_array = overlay_images_grayscale(fixed_image, moving_transformed)
+    combined_array = overlay_images(fixed_image, moving_transformed)
     
     #plot the current image
     fig, (ax, ax2) = plt.subplots(ncols=2)
@@ -172,7 +180,8 @@ def setup_image(imgPath, setupOrigin = False):
 def query_origin_change(moving_image, fixed_image):
     """Ask if the user wants to set a new 2D ITK origin"""
     
-    plt.imshow(overlay_images_grayscale(fixed_image, moving_image), cmap=plt.cm.gray)
+    plt.imshow(overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
+    plt.show()
     change_origin = util.yes_no('Do you want to change the origin? ')
     origin = moving_image.GetOrigin()
     print(moving_image.GetOrigin())
@@ -189,7 +198,8 @@ def query_origin_change(moving_image, fixed_image):
             newOrigin = (newOrigin_x, newOrigin_y)
             
             moving_image.SetOrigin(newOrigin)
-            plt.imshow(overlay_images_grayscale(fixed_image, moving_image), cmap=plt.cm.gray)
+            plt.imshow(overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
+            plt.show()
             
             #bug: The image does not show up till after the question
             if util.yes_no('Is this origin good?'): break
