@@ -9,6 +9,7 @@ import mp_img_manip.utility_functions as util
 
 import SimpleITK as sitk
 import numpy as np
+import os
 
 
 # GUI components (sliders, dropdown...).
@@ -163,19 +164,37 @@ def setup_image(imgPath, setupOrigin = False):
     """Set up the image spacing and optionally the registration origin"""
     img = sitk.ReadImage(imgPath)
     
-    spacingList = blk.read_write_column_file(imgPath, 'PixelSpacing.csv')
-    spacing = [float(spacingList[1]), float(spacingList[2])]
+    (imgDir, imgName) = os.path.split(imgPath)
+    file_path = imgDir + '/Image Parameters.csv'
+    
+    image_parameters = blk.read_write_pandas_row(file_path,imgName,'Image',
+                                                 ['X Spacing', 'Y Spacing', 'X Origin', 'Y Origin'])
+    
+    print(image_parameters)
+    print('')
+    
+    spacing = [float(image_parameters['X Spacing']), float(image_parameters['Y Spacing'])]
     img.SetSpacing(spacing)
-    print('Spacing: ' + str(spacingList))
     
     if setupOrigin:
-        originList = blk.read_write_column_file(imgPath, 'Origin.csv')
-        origin = [float(originList[1]), float(originList[2])]
-        print('Origin: ' + str(originList))
-        
+        origin = [float(image_parameters['X Origin']), float(image_parameters['Y Origin'])]
         img.SetOrigin(origin)
-    
+        
     return img
+    
+#    spacingList = blk.read_write_column_file(imgPath, 'PixelSpacing.csv')
+#    spacing = [float(spacingList[1]), float(spacingList[2])]
+#    img.SetSpacing(spacing)
+#    print('Spacing: ' + str(spacingList))
+#    
+#    if setupOrigin:
+#        originList = blk.read_write_column_file(imgPath, 'Origin.csv')
+#        origin = [float(originList[1]), float(originList[2])]
+#        print('Origin: ' + str(originList))
+#        
+#        img.SetOrigin(origin)
+#    
+#    return img
     
                  
     

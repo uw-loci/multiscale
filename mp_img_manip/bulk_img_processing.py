@@ -48,7 +48,7 @@ def read_write_pandas_row(file_path, index, index_label, column_labels):
     (file_dir, file_name) = os.path.split(file_path)
 
     try:
-        data = pd.read_csv(file_dir + '/' + file_name, index_col = index_label)
+        data = pd.read_csv(file_path, index_col = index_label)
         file_exists = True
         try:
             return data.loc[index]
@@ -65,6 +65,8 @@ def read_write_pandas_row(file_path, index, index_label, column_labels):
     
     if not file_exists:
         data.to_csv(file_path)
+        
+    return data.loc[index]
         
         
 def getBaseFileName(fileName):
