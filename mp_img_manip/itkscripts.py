@@ -102,7 +102,7 @@ def update_multires_iterations():
 
 
 
-def affineRegister(fixed_image, moving_image, scale = 4, fixedMask = None, movingMask = None):
+def affineRegister(fixed_image, moving_image, scale = 4, iterations = 200, fixedMask = None, movingMask = None):
     registration_method = sitk.ImageRegistrationMethod()
 
      # Similarity metric settings.|
@@ -120,7 +120,7 @@ def affineRegister(fixed_image, moving_image, scale = 4, fixedMask = None, movin
         registration_method.SetMetricMovingMask(movingMask)
     
         # Optimizer settings.
-    registration_method.SetOptimizerAsRegularStepGradientDescent(20.0, 0.01, 1)
+    registration_method.SetOptimizerAsRegularStepGradientDescent(20.0, 0.01, iterations)
     #registration_method.SetOptimizerAsOnePlusOneEvolutionary(numberOfIterations=100)
     #registration_method.SetOptimizerAsGradientDescent(learningRate=1.0, numberOfIterations=100, convergenceMinimumValue=1e-4, convergenceWindowSize=10)
     registration_method.SetOptimizerScalesFromPhysicalShift()
@@ -182,20 +182,6 @@ def setup_image(imgPath, setupOrigin = False):
         
     return img
     
-#    spacingList = blk.read_write_column_file(imgPath, 'PixelSpacing.csv')
-#    spacing = [float(spacingList[1]), float(spacingList[2])]
-#    img.SetSpacing(spacing)
-#    print('Spacing: ' + str(spacingList))
-#    
-#    if setupOrigin:
-#        originList = blk.read_write_column_file(imgPath, 'Origin.csv')
-#        origin = [float(originList[1]), float(originList[2])]
-#        print('Origin: ' + str(originList))
-#        
-#        img.SetOrigin(origin)
-#    
-#    return img
-    
                  
     
 def query_origin_change(moving_image, fixed_image):
@@ -230,14 +216,14 @@ def query_origin_change(moving_image, fixed_image):
         return origin
     
     
-def supervisedRegisterImages(fixedPath, movingPath):
+def supervisedRegisterImages(fixedPath, movingPath, iterations = 200):
     
     fixed_image = setup_image(fixedPath)
     moving_image = setup_image(movingPath, setupOrigin = True)
     
     while True:    
         moving_image.SetOrigin(query_origin_change(moving_image, fixed_image))
-        (transform, metric, stop) = affineRegister(fixed_image, moving_image)
+        (transform, metric, stop) = affineRegister(fixed_image, moving_image, iterations = iterations)
         
         print('Final metric value: {0}'.format(metric))
         print('Optimizer\'s stopping condition, {0}'.format(stop))
@@ -256,11 +242,11 @@ def supervisedRegisterImages(fixedPath, movingPath):
     return registered_image
     
 
-def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix):
+def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix, iterations = 200):
     
     (fixed_imagePathList, moving_imagePathList) = blk.findSharedImages(fixedDir, movingDir)
     
     for i in range(0, np.size(fixed_imagePathList)):
-        registered_image = supervisedRegisterImages(fixed_imagePathList[i], moving_imagePathList[i])
+        registered_image = supervisedRegisterImages(fixed_imagePathList[i], moving_imagePathList[i], iterations = iterations)
         registeredPath = blk.createNewImagePath(moving_imagePathList[i], outputDir, outputSuffix)
         sitk.WriteImage(registered_image, registeredPath)
