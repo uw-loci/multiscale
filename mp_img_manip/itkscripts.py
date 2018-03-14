@@ -8,9 +8,7 @@ import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.utility_functions as util
 
 import SimpleITK as sitk
-import matplotlib.pyplot as plt
 import numpy as np
-import os
 
 
 # GUI components (sliders, dropdown...).
@@ -19,6 +17,13 @@ import os
 # Enable display of HTML.
 from IPython.display import clear_output
 
+#Set up our plotting environment
+import matplotlib.pyplot as plt
+
+fig_size = plt.rcParams["figure.figsize"]
+fig_size[0] = fig_size[0]*2
+fig_size[1] = fig_size[1]*2
+plt.rcParams["figure.figsize"] = fig_size
 
 
 # Callback invoked when the StartEvent happens, sets up our new data.
@@ -182,7 +187,7 @@ def query_origin_change(moving_image, fixed_image):
     
     plt.imshow(overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
     plt.show()
-    change_origin = util.yes_no('Do you want to change the origin? [y/n] >>>')
+    change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
     origin = moving_image.GetOrigin()
     print(moving_image.GetOrigin())
     
@@ -202,7 +207,7 @@ def query_origin_change(moving_image, fixed_image):
             plt.show()
             
             #bug: The image does not show up till after the question
-            if util.yes_no('Is this origin good? [y/n] >>>'): break
+            if util.yes_no('Is this origin good? [y/n] >>> '): break
         
         return newOrigin
     else:
@@ -219,7 +224,7 @@ def supervisedRegisterImages(fixedPath, movingPath):
     while not goodRegister:    
         moving_image.SetOrigin(query_origin_change(moving_image, fixed_image))
         (transform, metric, optimizer) = affineRegister(fixed_image, moving_image)
-        goodRegister = util.yes_no('Is this registration good? [y/n] >>>')
+        goodRegister = util.yes_no('Is this registration good? [y/n] >>> ')
         
     registered_image = sitk.Resample(moving_image, fixed_image, transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())    
     
