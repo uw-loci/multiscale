@@ -19,12 +19,7 @@ from IPython.display import clear_output
 
 #Set up our plotting environment
 import matplotlib.pyplot as plt
-
-fig_size = plt.rcParams["figure.figsize"]
-fig_size[0] = fig_size[0]*2
-fig_size[1] = fig_size[1]*2
-plt.rcParams["figure.figsize"] = fig_size
-
+#from matplotlib import animation
 
 # Callback invoked when the StartEvent happens, sets up our new data.
 def start_plot():
@@ -69,11 +64,9 @@ def overlay_images(fixed_image, moving_image, alpha = 0.7):
 def plot_values(registration_method, fixed_image, moving_image,transform):
     global metric_values, multires_iterations
     
-
     metric_values.append(registration_method.GetMetricValue())                                       
     # Clear the output area (wait=True, to reduce flickering), and plot current data
     clear_output(wait=True)
-    
     
     moving_transformed = sitk.Resample(moving_image, fixed_image, transform, 
                                        sitk.sitkLinear, 0.0, 
@@ -84,18 +77,19 @@ def plot_values(registration_method, fixed_image, moving_image,transform):
     
     #plot the current image
     fig, (ax, ax2) = plt.subplots(ncols=2)
+    fig.tight_layout()
     
     ax.imshow(combined_array,cmap=plt.cm.gray)
+    ax.axis('off')
     
-    #plt.subplot(1,2,2)
     ax2.plot(metric_values, 'r')
     ax2.plot(multires_iterations, [metric_values[index] for index in multires_iterations], 'b*')
     ax2.set_xlabel('Iteration Number',fontsize=12)
-    #ax2.set_ylabel('Metric Value',fontsize=12, rotation='0')
+    ax2.set_ylabel('Metric Value',fontsize=12, rotation='90')
+    
     asp = np.diff(ax2.get_xlim())[0] / np.diff(ax2.get_ylim())[0]
     ax2.set_aspect(asp)
-
-    plt.show()
+    
   
     
 # Callback invoked when the sitkMultiResolutionIterationEvent happens, update the index into the 
@@ -103,6 +97,9 @@ def plot_values(registration_method, fixed_image, moving_image,transform):
 def update_multires_iterations():
     global metric_values, multires_iterations
     multires_iterations.append(len(metric_values))
+
+
+
 
 def affineRegister(fixed_image, moving_image, scale = 4, fixedMask = None, movingMask = None):
     registration_method = sitk.ImageRegistrationMethod()
@@ -122,7 +119,7 @@ def affineRegister(fixed_image, moving_image, scale = 4, fixedMask = None, movin
         registration_method.SetMetricMovingMask(movingMask)
     
         # Optimizer settings.
-    registration_method.SetOptimizerAsRegularStepGradientDescent(20.0, 0.01, 200)
+    registration_method.SetOptimizerAsRegularStepGradientDescent(20.0, 0.01, 1)
     #registration_method.SetOptimizerAsOnePlusOneEvolutionary(numberOfIterations=100)
     #registration_method.SetOptimizerAsGradientDescent(learningRate=1.0, numberOfIterations=100, convergenceMinimumValue=1e-4, convergenceWindowSize=10)
     registration_method.SetOptimizerScalesFromPhysicalShift()
@@ -225,13 +222,18 @@ def supervisedRegisterImages(fixedPath, movingPath):
         
         print('Final metric value: {0}'.format(metric))
         print('Optimizer\'s stopping condition, {0}'.format(stop))
-        print('Transform Matrix: {0}'.format(transform.GetMatrix()))
-        print('Transform Translation: {0}'.format(transform.GetTranslation()))
+        
+        transform_params = transform.GetParameters()
+        matrix = np.array([transform_params[0:2], transform_params[2:4]])
+        translation = np.array(transform_params[4:6])
+        print('Transform Matrix: {0}'.format(matrix))
+        print('Transform Translation: {0}'.format(translation))
         
         if util.yes_no('Is this registration good? [y/n] >>> '): break
-        
-    registered_image = sitk.Resample(moving_image, fixed_image, transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())    
+ 
     
+       
+    registered_image = sitk.Resample(moving_image, fixed_image, transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())       
     return registered_image
     
 
