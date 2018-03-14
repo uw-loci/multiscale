@@ -182,7 +182,7 @@ def query_origin_change(moving_image, fixed_image):
     
     plt.imshow(overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
     plt.show()
-    change_origin = util.yes_no('Do you want to change the origin? ')
+    change_origin = util.yes_no('Do you want to change the origin? [y/n] >>>')
     origin = moving_image.GetOrigin()
     print(moving_image.GetOrigin())
     
@@ -202,7 +202,7 @@ def query_origin_change(moving_image, fixed_image):
             plt.show()
             
             #bug: The image does not show up till after the question
-            if util.yes_no('Is this origin good?'): break
+            if util.yes_no('Is this origin good? [y/n] >>>'): break
         
         return newOrigin
     else:
@@ -219,7 +219,7 @@ def supervisedRegisterImages(fixedPath, movingPath):
     while not goodRegister:    
         moving_image.SetOrigin(query_origin_change(moving_image, fixed_image))
         (transform, metric, optimizer) = affineRegister(fixed_image, moving_image)
-        goodRegister = util.yes_no('Is this registration good?')
+        goodRegister = util.yes_no('Is this registration good? [y/n] >>>')
         
     registered_image = sitk.Resample(moving_image, fixed_image, transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())    
     
