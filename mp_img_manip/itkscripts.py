@@ -299,7 +299,9 @@ def supervisedRegisterImages(fixedPath, movingPath, iterations = 200, scale = 4)
     return registered_image, transform
     
 
-def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix, writeOutput = True, writeTransform = True, iterations = 200, scale = 4):
+def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix,
+                                 writeOutput = True, writeTransform = True,
+                                 iterations = 200, scale = 4):
     
     (fixed_imagePathList, moving_imagePathList) = blk.findSharedImages(fixedDir, movingDir)
     
