@@ -115,6 +115,8 @@ def update_multires_iterations():
     global metric_values, multires_iterations
     multires_iterations.append(len(metric_values))
 
+
+
 def affineRegister(fixed_image, moving_image, scale = 4, iterations = 200, fixedMask = None, movingMask = None):
     registration_method = sitk.ImageRegistrationMethod()
 
@@ -194,6 +196,8 @@ def setup_image(imgPath, setupOrigin = False):
         
     return img
     
+
+
 def overlay_images(fixed_image, moving_image, alpha = 0.7):
     
     fixed_array = sitk.GetArrayFromImage(fixed_image)
@@ -249,8 +253,38 @@ def query_origin_change(moving_image, fixed_image):
     else:
         return origin
     
-
     
+def query_good_registration(moving_image, fixed_image, transform, metric, stop):
+    moving_resampled = sitk.Resample(moving_image, fixed_image, transform, 
+                                       sitk.sitkLinear, 0.0, 
+                                       moving_image.GetPixelIDValue()) 
+                
+    plt.imshow(overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
+    plt.show()
+        
+    print('Final metric value: {0}'.format(metric))
+    print('Optimizer\'s stopping condition, {0}'.format(stop))
+        
+    transform_params = transform.GetParameters()
+    matrix = np.array([transform_params[0:2], transform_params[2:4]])
+    translation = np.array(transform_params[4:6])
+    print('Transform Matrix: {0}'.format(matrix))
+    print('Transform Translation: {0}'.format(translation))
+        
+    return util.yes_no('Is this registration good? [y/n] >>> ')
+    
+
+def write_transform(registered_path,transform):
+    
+    (outputDir, image_name) = os.path.split(registered_path)
+    
+    file_path = outputDir + '/Transforms.csv'
+    
+    column_labels =('Matrix Top Left', 'Matrix Top Right', 'Matrix Bottom Left', 'Matrix Bottom Right', 'X Translation', 'Y Translation')
+    
+    blk.write_pandas_row(file_path,image_name,'Image',column_labels,transform.GetParameters())
+    
+
 def supervisedRegisterImages(fixedPath, movingPath, iterations = 200, scale = 4):
     
     fixed_image = setup_image(fixedPath)
@@ -259,38 +293,22 @@ def supervisedRegisterImages(fixedPath, movingPath, iterations = 200, scale = 4)
     while True:    
         moving_image.SetOrigin(query_origin_change(moving_image, fixed_image))
         (transform, metric, stop) = affineRegister(fixed_image, moving_image, iterations = iterations, scale = scale)
-        
-        
-        moving_resampled = sitk.Resample(moving_image, fixed_image, transform, 
-                                       sitk.sitkLinear, 0.0, 
-                                       moving_image.GetPixelIDValue()) 
-                
-        plt.imshow(overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
-        plt.show()
-        
-        
-        print('Final metric value: {0}'.format(metric))
-        print('Optimizer\'s stopping condition, {0}'.format(stop))
-        
-        transform_params = transform.GetParameters()
-        matrix = np.array([transform_params[0:2], transform_params[2:4]])
-        translation = np.array(transform_params[4:6])
-        print('Transform Matrix: {0}'.format(matrix))
-        print('Transform Translation: {0}'.format(translation))
-        
-        if util.yes_no('Is this registration good? [y/n] >>> '): break
- 
-    
+        if query_good_registration(moving_image, fixed_image, transform, metric, stop): break
        
     registered_image = sitk.Resample(moving_image, fixed_image, transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())       
-    return registered_image
+    return registered_image, transform
     
 
-def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix, iterations = 200, scale = 4):
+def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix, writeOutput = True, writeTransform = True, iterations = 200, scale = 4):
     
     (fixed_imagePathList, moving_imagePathList) = blk.findSharedImages(fixedDir, movingDir)
     
     for i in range(0, np.size(fixed_imagePathList)):
-        registered_image = supervisedRegisterImages(fixed_imagePathList[i], moving_imagePathList[i], iterations = iterations, scale = scale)
+        registered_image, transform = supervisedRegisterImages(fixed_imagePathList[i], moving_imagePathList[i], iterations = iterations, scale = scale)
         registeredPath = blk.createNewImagePath(moving_imagePathList[i], outputDir, outputSuffix)
-        sitk.WriteImage(registered_image, registeredPath)
+
+        if writeOutput:
+            sitk.WriteImage(registered_image, registeredPath)
+            
+        if writeTransform:
+            write_transform(registeredPath,transform)
