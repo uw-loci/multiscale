@@ -20,7 +20,48 @@ from IPython.display import clear_output
 
 #Set up our plotting environment
 import matplotlib.pyplot as plt
-#from matplotlib import animation
+import matplotlib.animation as ani
+plt.ion()
+
+
+
+class registration_plot():
+    
+    def __init__(self):
+        self.metric_values = []
+        self.multires_iterations = []
+        
+        self.fig, self.ax = plt.subplots(ncols=2)
+        self.fig.tight_layout()
+        
+        self.ax[0].axis('off')
+    
+        self.ax[1].set_xlabel('Iteration Number',fontsize=12)
+        self.ax[1].set_ylabel('Metric Value',fontsize=12, rotation='90')
+        
+        ani.FuncAnimation(self.fig, )
+    
+    def update_iteration(self, new_metric_value, fixed_image, moving_image, transform):
+        metric_values.append(new_metric_value)                                       
+        
+        moving_image_transformed = sitk.Resample(moving_image, fixed_image, transform, 
+                                       sitk.sitkLinear, 0.0, 
+                                       moving_image.GetPixelIDValue()) 
+        
+        combined_array = overlay_images(fixed_image, moving_image_transformed)
+
+        self.ax[0].imshow(combined_array,cmap=plt.cm.gray)
+        self.ax[0].axis('off')
+        
+        self.ax[1].plot(self.metric_values, 'r')
+        self.ax[1].plot(self.multires_iterations, [self.metric_values[index] for index in self.multires_iterations], 'b*')
+   
+        asp = np.diff(self.ax[1].get_xlim())[0] / np.diff(self.ax[1].get_ylim())[0]
+        self.ax[1].set_aspect(asp)        
+        
+    def update_scale(self):
+        self.multires_iterations.append(len(self.metric_values))
+        
 
 # Callback invoked when the StartEvent happens, sets up our new data.
 def start_plot():
@@ -37,29 +78,6 @@ def end_plot():
     del multires_iterations
     # Close figure, we don't want to get a duplicate of the plot latter on.
     plt.close()
-
-def overlay_images(fixed_image, moving_image, alpha = 0.7):
-    
-    fixed_array = sitk.GetArrayFromImage(fixed_image)
-    fixed_normalized = (fixed_array - np.amin(fixed_array))/(np.amax(fixed_array)+np.amin(fixed_array))
-
-    try: #Post-registration
-        moving_array = sitk.GetArrayFromImage(moving_image)
-        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
-        
-        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
-        return combined_array
-    except: #Pre-registration
-        initial_transform = sitk.Similarity2DTransform()
-        moving_resampled = sitk.Resample(moving_image, fixed_image, 
-                                         initial_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
-        
-        moving_array = sitk.GetArrayFromImage(moving_resampled)
-        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
-
-        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
-        return combined_array
-        
     
 # Callback invoked when the IterationEvent happens, update our data and display new figure.    
 def plot_values(registration_method, fixed_image, moving_image,transform):
@@ -92,14 +110,34 @@ def plot_values(registration_method, fixed_image, moving_image,transform):
     ax2.set_aspect(asp)
     
   
-    
 # Callback invoked when the sitkMultiResolutionIterationEvent happens, update the index into the 
 # metric_values list. 
 def update_multires_iterations():
     global metric_values, multires_iterations
     multires_iterations.append(len(metric_values))
 
+def overlay_images(fixed_image, moving_image, alpha = 0.7):
+    
+    fixed_array = sitk.GetArrayFromImage(fixed_image)
+    fixed_normalized = (fixed_array - np.amin(fixed_array))/(np.amax(fixed_array)+np.amin(fixed_array))
 
+    try: #Post-registration
+        moving_array = sitk.GetArrayFromImage(moving_image)
+        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
+        
+        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
+        return combined_array
+    except: #Pre-registration
+        initial_transform = sitk.Similarity2DTransform()
+        moving_resampled = sitk.Resample(moving_image, fixed_image, 
+                                         initial_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
+        
+        moving_array = sitk.GetArrayFromImage(moving_resampled)
+        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
+
+        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
+        return combined_array
+        
 
 
 def affineRegister(fixed_image, moving_image, scale = 4, iterations = 200, fixedMask = None, movingMask = None):
@@ -216,14 +254,14 @@ def query_origin_change(moving_image, fixed_image):
         return origin
     
     
-def supervisedRegisterImages(fixedPath, movingPath, iterations = 200):
+def supervisedRegisterImages(fixedPath, movingPath, iterations = 200, scale = 4):
     
     fixed_image = setup_image(fixedPath)
     moving_image = setup_image(movingPath, setupOrigin = True)
     
     while True:    
         moving_image.SetOrigin(query_origin_change(moving_image, fixed_image))
-        (transform, metric, stop) = affineRegister(fixed_image, moving_image, iterations = iterations)
+        (transform, metric, stop) = affineRegister(fixed_image, moving_image, iterations = iterations, scale = scale)
         
         print('Final metric value: {0}'.format(metric))
         print('Optimizer\'s stopping condition, {0}'.format(stop))
@@ -242,11 +280,11 @@ def supervisedRegisterImages(fixedPath, movingPath, iterations = 200):
     return registered_image
     
 
-def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix, iterations = 200):
+def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix, iterations = 200, scale = 4):
     
     (fixed_imagePathList, moving_imagePathList) = blk.findSharedImages(fixedDir, movingDir)
     
     for i in range(0, np.size(fixed_imagePathList)):
-        registered_image = supervisedRegisterImages(fixed_imagePathList[i], moving_imagePathList[i], iterations = iterations)
+        registered_image = supervisedRegisterImages(fixed_imagePathList[i], moving_imagePathList[i], iterations = iterations, scale = scale)
         registeredPath = blk.createNewImagePath(moving_imagePathList[i], outputDir, outputSuffix)
         sitk.WriteImage(registered_image, registeredPath)
