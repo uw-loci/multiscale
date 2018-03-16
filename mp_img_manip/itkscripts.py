@@ -20,48 +20,48 @@ from IPython.display import clear_output
 
 #Set up our plotting environment
 import matplotlib.pyplot as plt
-import matplotlib.animation as ani
-plt.ion()
+#import matplotlib.animation as ani
+#plt.ion()
 
 
 
-class registration_plot():
-    
-    def __init__(self):
-        self.metric_values = []
-        self.multires_iterations = []
-        
-        self.fig, self.ax = plt.subplots(ncols=2)
-        self.fig.tight_layout()
-        
-        self.ax[0].axis('off')
-    
-        self.ax[1].set_xlabel('Iteration Number',fontsize=12)
-        self.ax[1].set_ylabel('Metric Value',fontsize=12, rotation='90')
-        
-        ani.FuncAnimation(self.fig, )
-    
-    def update_iteration(self, new_metric_value, fixed_image, moving_image, transform):
-        metric_values.append(new_metric_value)                                       
-        
-        moving_image_transformed = sitk.Resample(moving_image, fixed_image, transform, 
-                                       sitk.sitkLinear, 0.0, 
-                                       moving_image.GetPixelIDValue()) 
-        
-        combined_array = overlay_images(fixed_image, moving_image_transformed)
-
-        self.ax[0].imshow(combined_array,cmap=plt.cm.gray)
-        self.ax[0].axis('off')
-        
-        self.ax[1].plot(self.metric_values, 'r')
-        self.ax[1].plot(self.multires_iterations, [self.metric_values[index] for index in self.multires_iterations], 'b*')
-   
-        asp = np.diff(self.ax[1].get_xlim())[0] / np.diff(self.ax[1].get_ylim())[0]
-        self.ax[1].set_aspect(asp)        
-        
-    def update_scale(self):
-        self.multires_iterations.append(len(self.metric_values))
-        
+#class registration_plot(ani.FuncAnimation):
+#    
+#    def __init__(self):
+#        self.metric_values = []
+#        self.multires_iterations = []
+#        
+#        self.fig, self.ax = plt.subplots(ncols=2)
+#        self.fig.tight_layout()
+#        
+#        self.ax[0].axis('off')
+#    
+#        self.ax[1].set_xlabel('Iteration Number',fontsize=12)
+#        self.ax[1].set_ylabel('Metric Value',fontsize=12, rotation='90')
+#        
+#        ani.FuncAnimation(self.fig, self.update_iteration)
+#    
+#    def update_iteration(self, new_metric_value, fixed_image, moving_image, transform):
+#        metric_values.append(new_metric_value)                                       
+#        
+#        moving_image_transformed = sitk.Resample(moving_image, fixed_image, transform, 
+#                                       sitk.sitkLinear, 0.0, 
+#                                       moving_image.GetPixelIDValue()) 
+#        
+#        combined_array = overlay_images(fixed_image, moving_image_transformed)
+#
+#        self.ax[0].imshow(combined_array,cmap=plt.cm.gray)
+#        self.ax[0].axis('off')
+#        
+#        self.ax[1].plot(self.metric_values, 'r')
+#        self.ax[1].plot(self.multires_iterations, [self.metric_values[index] for index in self.multires_iterations], 'b*')
+#   
+#        asp = np.diff(self.ax[1].get_xlim())[0] / np.diff(self.ax[1].get_ylim())[0]
+#        self.ax[1].set_aspect(asp)        
+#        
+#    def update_scale(self):
+#        self.multires_iterations.append(len(self.metric_values))
+#        
 
 # Callback invoked when the StartEvent happens, sets up our new data.
 def start_plot():
@@ -184,11 +184,14 @@ def affineRegister(fixed_image, moving_image, scale = 4, iterations = 200, fixed
     # Don't optimize in-place, we would possibly like to run this cell multiple times.
     registration_method.SetInitialTransform(transform)
 
-        # Connect all of the observers so that we can perform plotting during registration.
-    registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
-    registration_method.AddCommand(sitk.sitkEndEvent, end_plot)
-    registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, update_multires_iterations) 
-    registration_method.AddCommand(sitk.sitkIterationEvent, lambda: plot_values(registration_method, fixed_image, moving_image,transform))
+    # Connect all of the observers so that we can perform plotting during registration.
+    
+  #  animation = registration_plot
+    
+    #registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
+    #registration_method.AddCommand(sitk.sitkEndEvent, end_plot)
+ #   registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, lambda: animation.update_scale) 
+#    registration_method.AddCommand(sitk.sitkIterationEvent, lambda: animation.update_iteration(registration_method.GetMetricValue(),fixed_image, moving_image, transform))
 
     #affine_transform = registration_method.Execute(fixed_image,moving_image)
     #print('Final metric value: {0}'.format(registration_method.GetMetricValue()))
