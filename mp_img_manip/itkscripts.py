@@ -22,9 +22,9 @@ from IPython.display import clear_output
 import matplotlib.pyplot as plt
 #import matplotlib.animation as ani
 #plt.ion()
-
-
-
+#
+#
+#
 #class registration_plot(ani.FuncAnimation):
 #    
 #    def __init__(self):
@@ -60,8 +60,7 @@ import matplotlib.pyplot as plt
 #        self.ax[1].set_aspect(asp)        
 #        
 #    def update_scale(self):
-#        self.multires_iterations.append(len(self.metric_values))
-#        
+#        self.multires_iterations.append(len(self.metric_values))  
 
 # Callback invoked when the StartEvent happens, sets up our new data.
 def start_plot():
@@ -116,30 +115,6 @@ def update_multires_iterations():
     global metric_values, multires_iterations
     multires_iterations.append(len(metric_values))
 
-def overlay_images(fixed_image, moving_image, alpha = 0.7):
-    
-    fixed_array = sitk.GetArrayFromImage(fixed_image)
-    fixed_normalized = (fixed_array - np.amin(fixed_array))/(np.amax(fixed_array)+np.amin(fixed_array))
-
-    try: #Post-registration
-        moving_array = sitk.GetArrayFromImage(moving_image)
-        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
-        
-        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
-        return combined_array
-    except: #Pre-registration
-        initial_transform = sitk.Similarity2DTransform()
-        moving_resampled = sitk.Resample(moving_image, fixed_image, 
-                                         initial_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
-        
-        moving_array = sitk.GetArrayFromImage(moving_resampled)
-        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
-
-        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
-        return combined_array
-        
-
-
 def affineRegister(fixed_image, moving_image, scale = 4, iterations = 200, fixedMask = None, movingMask = None):
     registration_method = sitk.ImageRegistrationMethod()
 
@@ -186,16 +161,12 @@ def affineRegister(fixed_image, moving_image, scale = 4, iterations = 200, fixed
 
     # Connect all of the observers so that we can perform plotting during registration.
     
-  #  animation = registration_plot
+    #animation = registration_plot
     
     #registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
     #registration_method.AddCommand(sitk.sitkEndEvent, end_plot)
  #   registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, lambda: animation.update_scale) 
 #    registration_method.AddCommand(sitk.sitkIterationEvent, lambda: animation.update_iteration(registration_method.GetMetricValue(),fixed_image, moving_image, transform))
-
-    #affine_transform = registration_method.Execute(fixed_image,moving_image)
-    #print('Final metric value: {0}'.format(registration_method.GetMetricValue()))
-    #print('Optimizer\'s stopping condition, {0}'.format(registration_method.GetOptimizerStopConditionDescription()))
 
     return (registration_method.Execute(fixed_image,moving_image), registration_method.GetMetricValue(), registration_method.GetOptimizerStopConditionDescription())
 
@@ -223,6 +194,28 @@ def setup_image(imgPath, setupOrigin = False):
         
     return img
     
+def overlay_images(fixed_image, moving_image, alpha = 0.7):
+    
+    fixed_array = sitk.GetArrayFromImage(fixed_image)
+    fixed_normalized = (fixed_array - np.amin(fixed_array))/(np.amax(fixed_array)+np.amin(fixed_array))
+
+    try: #Post-registration
+        moving_array = sitk.GetArrayFromImage(moving_image)
+        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
+        
+        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
+        return combined_array
+    except: #Pre-registration
+        initial_transform = sitk.Similarity2DTransform()
+        moving_resampled = sitk.Resample(moving_image, fixed_image, 
+                                         initial_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
+        
+        moving_array = sitk.GetArrayFromImage(moving_resampled)
+        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
+
+        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
+        return combined_array
+        
                  
     
 def query_origin_change(moving_image, fixed_image):
@@ -256,6 +249,7 @@ def query_origin_change(moving_image, fixed_image):
     else:
         return origin
     
+
     
 def supervisedRegisterImages(fixedPath, movingPath, iterations = 200, scale = 4):
     
@@ -265,6 +259,15 @@ def supervisedRegisterImages(fixedPath, movingPath, iterations = 200, scale = 4)
     while True:    
         moving_image.SetOrigin(query_origin_change(moving_image, fixed_image))
         (transform, metric, stop) = affineRegister(fixed_image, moving_image, iterations = iterations, scale = scale)
+        
+        
+        moving_resampled = sitk.Resample(moving_image, fixed_image, transform, 
+                                       sitk.sitkLinear, 0.0, 
+                                       moving_image.GetPixelIDValue()) 
+                
+        plt.imshow(overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
+        plt.show()
+        
         
         print('Final metric value: {0}'.format(metric))
         print('Optimizer\'s stopping condition, {0}'.format(stop))
