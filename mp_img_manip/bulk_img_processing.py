@@ -10,13 +10,11 @@ def read_write_pandas_row(file_path, index, index_label, column_labels):
 
     try:
         data = pd.read_csv(file_path, index_col = index_label)
-        file_exists = True
         try:
             return data.loc[index]
         except:
             print('There are no existing entries for ' + index )
     except:
-        file_exists = False
         print('Creating new file ' + file_name + ' in ' + file_dir)
         data = pd.DataFrame(index = pd.Index([], dtype='object', name=index_label),  columns = column_labels)
     
@@ -24,12 +22,26 @@ def read_write_pandas_row(file_path, index, index_label, column_labels):
     new_row = [input(x + ': ') for x in column_labels]
     data.loc[index] = new_row 
     
-    if not file_exists:
-        data.to_csv(file_path)
+    data.to_csv(file_path)
         
     return data.loc[index]
         
         
+def write_pandas_row(file_path, index, index_label, column_labels, column_values):
+        
+    (file_dir, file_name) = os.path.split(file_path)
+
+    try:
+        data = pd.read_csv(file_path, index_col = index_label)
+    except:
+        print('Creating new file ' + file_name + ' in ' + file_dir)
+        data = pd.DataFrame(index = pd.Index([], dtype='object', name=index_label),  columns = column_labels)
+    
+    data.loc[index] = column_values
+    data.to_csv(file_path)
+        
+
+
 def getBaseFileName(fileName):
     """This function extracts the 'base name' of a file, which is defined as
     the string up until the first underscore, or until the extension if
