@@ -274,6 +274,17 @@ def query_good_registration(moving_image, fixed_image, transform, metric, stop):
         
     return util.yes_no('Is this registration good? [y/n] >>> ')
     
+def write_image_parameters(image_path, spacing, origin):
+    (outputDir, image_name) = os.path.split(image_path)
+    
+    file_path = outputDir + '/Image Parameters.csv'
+    
+    column_labels = ['X Spacing', 'Y Spacing', 'X Origin', 'Y Origin']
+    
+    column_values = spacing + origin
+    
+    blk.write_pandas_row(file_path,image_name,'Image',column_labels,column_values)    
+    
 
 def write_transform(registered_path,transform):
     
@@ -283,7 +294,9 @@ def write_transform(registered_path,transform):
     
     column_labels =('Matrix Top Left', 'Matrix Top Right', 'Matrix Bottom Left', 'Matrix Bottom Right', 'X Translation', 'Y Translation')
     
-    blk.write_pandas_row(file_path,image_name,'Image',column_labels,transform.GetParameters())
+    column_values = transform.GetParameters()
+    
+    blk.write_pandas_row(file_path,image_name,'Image',column_labels,column_values)
     
 
 def supervisedRegisterImages(fixedPath, movingPath, iterations = 200, scale = 4):
@@ -317,9 +330,11 @@ def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix,
             write_transform(registeredPath,transform)
             
             
-def downsample_image(itkImg, currentRes, targetRes):
+def shrink_image(itkImg, currentRes, targetRes):
     scale = math.floor(targetRes/currentRes)
     endRes = currentRes*scale
+    
     shrunk = sitk.Shrink(itkImg,[scale,scale])
     shrunk.SetSpacing([endRes, endRes])
+    
     return shrunk
