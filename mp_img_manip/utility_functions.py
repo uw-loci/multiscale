@@ -51,5 +51,6 @@ def query_str_list(numStrs, message, strType = 'String'):
     
 def query_float_list(valueNames):
     return [query_float(value + ': ') for value in valueNames]
+
     
     

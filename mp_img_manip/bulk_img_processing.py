@@ -1,5 +1,4 @@
 import os
-import csv
 import mp_img_manip.utility_functions as util
 import pandas as pd
 
@@ -40,6 +39,28 @@ def write_pandas_row(file_path, index, index_label, column_labels, column_values
     data.loc[index] = column_values
     data.to_csv(file_path)
         
+
+def filename_parts(fileName):
+    fullFileName = os.path.split(fileName)[1]
+    
+    nameStr = os.path.splitext(fullFileName)[0]
+    
+    underscore_indices = util.character_indices(nameStr, '_')
+    
+    if underscore_indices[0] == -1:
+        print('The filename ' + nameStr + ' has only one part.')
+        return nameStr
+    
+    underscore_indices.append(len(nameStr))
+    
+    part_list = []
+    part_list.append(nameStr[:int(underscore_indices[0])])
+     
+    for i in range(1,len(underscore_indices)):
+        part_list.append(nameStr[(underscore_indices[i-1]+1):underscore_indices[i]])
+    
+    return part_list
+    
 
 
 def getBaseFileName(fileName):
