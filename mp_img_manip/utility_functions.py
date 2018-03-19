@@ -41,6 +41,9 @@ def yes_no(question):
         else:
            print("Please respond with 'yes' or 'no'\n")
            
+def character_indices(string, char):
+    return [i for i, ltr in enumerate(string) if ltr == char]
+    
     
 def query_str_list(numStrs, message, strType = 'String'):
     print(message)
