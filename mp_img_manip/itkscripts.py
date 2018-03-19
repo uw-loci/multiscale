@@ -175,7 +175,7 @@ def affineRegister(fixed_image, moving_image, scale = 4, iterations = 200, fixed
 
     
 
-def setup_image(imgPath, setupOrigin = False):
+def setup_image(imgPath, setupOrigin = False, return_img = True):
     """Set up the image spacing and optionally the registration origin"""
     img = sitk.ReadImage(imgPath)
     
@@ -194,8 +194,8 @@ def setup_image(imgPath, setupOrigin = False):
     if setupOrigin:
         origin = [float(image_parameters['X Origin']), float(image_parameters['Y Origin'])]
         img.SetOrigin(origin)
-        
-    return img
+    
+    if return_img: return img
     
 
 
@@ -334,11 +334,22 @@ def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix,
             write_transform(registered_path,transform)
             
             
-def shrink_image(itkImg, currentRes, targetRes):
+def resize_image(itkImg, outputSuffix, currentRes, targetRes):
     scale = math.floor(targetRes/currentRes)
     endRes = currentRes*scale
     
-    shrunk = sitk.Shrink(itkImg,[scale,scale])
-    shrunk.SetSpacing([endRes, endRes])
+    if currentRes < targetRes:      
+        
+        shrunk = sitk.Shrink(itkImg,[scale,scale])
+        shrunk.SetSpacing([endRes, endRes])
+        
+        return shrunk
     
-    return shrunk
+    
+    elif currentRes > targetRes:
+        
+        expand = sitk.Expand(itkImg,[scale,scale])
+        expand.SetSpacing([endRes, endRes])
+    
+        return expand
+        
