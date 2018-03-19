@@ -175,9 +175,8 @@ def affineRegister(fixed_image, moving_image, scale = 4, iterations = 200, fixed
 
     
 
-def setup_image(imgPath, setupOrigin = False, return_img = True):
+def setup_image(imgPath, setupOrigin = False, return_img = True, return_spacing = False):
     """Set up the image spacing and optionally the registration origin"""
-    img = sitk.ReadImage(imgPath)
     
     (imgDir, imgName) = os.path.split(imgPath)
     file_path = imgDir + '/Image Parameters.csv'
@@ -189,13 +188,20 @@ def setup_image(imgPath, setupOrigin = False, return_img = True):
     print('')
     
     spacing = [float(image_parameters['X Spacing']), float(image_parameters['Y Spacing'])]
-    img.SetSpacing(spacing)
     
     if setupOrigin:
         origin = [float(image_parameters['X Origin']), float(image_parameters['Y Origin'])]
-        img.SetOrigin(origin)
     
-    if return_img: return img
+    if return_img: 
+        img = sitk.ReadImage(imgPath)
+        img.SetSpacing(spacing)
+        img.SetOrigin(origin)
+
+        return img
+    
+    
+    elif return_spacing:
+        return spacing
     
 
 
@@ -334,22 +340,29 @@ def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix,
             write_transform(registered_path,transform)
             
             
-def resize_image(itkImg, outputSuffix, currentRes, targetRes):
+            
+            
+def resize_image(image_path, outputSuffix, currentRes, targetRes):
+    itkImg = setup_image(image_path, return_img = True)
+    
     scale = math.floor(targetRes/currentRes)
     endRes = currentRes*scale
     
     if currentRes < targetRes:      
-        
         shrunk = sitk.Shrink(itkImg,[scale,scale])
         shrunk.SetSpacing([endRes, endRes])
-        
         return shrunk
     
-    
     elif currentRes > targetRes:
-        
         expand = sitk.Expand(itkImg,[scale,scale])
         expand.SetSpacing([endRes, endRes])
-    
         return expand
+    
+    
+def bulk_resize_image(fixedDir, movingDir, outputDir, outputSuffix):
+    (fixed_imagePathList, moving_imagePathList) = blk.findSharedImages(fixedDir, movingDir)
+    
+    for i in range(0, np.size(fixed_imagePathList)):
         
+        
+        resized_image = resize_image(moving_imagePathList[i])
