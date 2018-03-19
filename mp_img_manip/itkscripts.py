@@ -341,21 +341,20 @@ def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix,
             
             
             
-            
-def resize_image(image_path, outputSuffix, currentRes, targetRes):
+def resize_image(image_path, outputSuffix, current_spacing, target_spacing):
     itkImg = setup_image(image_path, return_img = True)
     
-    scale = math.floor(targetRes/currentRes)
-    endRes = currentRes*scale
+    scale = math.floor(target_spacing/current_spacing)
+    endRes = current_spacing*scale
     
-    if currentRes < targetRes:      
+    if current_spacing < target_spacing:      
         shrunk = sitk.Shrink(itkImg,[scale,scale])
-        shrunk.SetSpacing([endRes, endRes])
+        shrunk.SetSpacing([endRes,endRes])
         return shrunk
     
-    elif currentRes > targetRes:
+    elif current_spacing > target_spacing:
         expand = sitk.Expand(itkImg,[scale,scale])
-        expand.SetSpacing([endRes, endRes])
+        expand.SetSpacing([endRes,endRes])
         return expand
     
     
@@ -363,6 +362,12 @@ def bulk_resize_image(fixedDir, movingDir, outputDir, outputSuffix):
     (fixed_imagePathList, moving_imagePathList) = blk.findSharedImages(fixedDir, movingDir)
     
     for i in range(0, np.size(fixed_imagePathList)):
+        current_spacing = setup_image(moving_imagePathList[i], return_img = False, return_spacing=True)[0]
+        target_spacing = setup_image(fixed_imagePathList[i], return_img = False, return_spacing=True)[0]
+
+        resized_image = resize_image(moving_imagePathList[i],outputSuffix,current_spacing,target_spacing)
         
-        
-        resized_image = resize_image(moving_imagePathList[i])
+        resized_path = blk.createNewImagePath(moving_imagePathList[i], outputDir, outputSuffix)
+
+        sitk.WriteImage(resized_image,resized_path)
+        write_image_parameters(resized_path, resized_image.GetSpacing(),resized_image.GetOrigin())
