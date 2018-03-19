@@ -275,6 +275,9 @@ def query_good_registration(moving_image, fixed_image, transform, metric, stop):
     return util.yes_no('Is this registration good? [y/n] >>> ')
     
 def write_image_parameters(image_path, spacing, origin):
+    """Write down the spacing and origin of an image file.  Used to generate 
+    a parameters file for processed images"""
+    
     (outputDir, image_name) = os.path.split(image_path)
     
     file_path = outputDir + '/Image Parameters.csv'
@@ -321,13 +324,14 @@ def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix,
     
     for i in range(0, np.size(fixed_imagePathList)):
         registered_image, transform = supervisedRegisterImages(fixed_imagePathList[i], moving_imagePathList[i], iterations = iterations, scale = scale)
-        registeredPath = blk.createNewImagePath(moving_imagePathList[i], outputDir, outputSuffix)
+        registered_path = blk.createNewImagePath(moving_imagePathList[i], outputDir, outputSuffix)
 
         if writeOutput:
-            sitk.WriteImage(registered_image, registeredPath)
+            sitk.WriteImage(registered_image, registered_path)
+            write_image_parameters(registered_path,registered_image.GetSpacing(),registered_image.GetOrigin())
             
         if writeTransform:
-            write_transform(registeredPath,transform)
+            write_transform(registered_path,transform)
             
             
 def shrink_image(itkImg, currentRes, targetRes):
