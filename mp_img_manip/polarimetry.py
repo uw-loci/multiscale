@@ -1,7 +1,9 @@
 import mp_img_manip.tiling as til
 import mp_img_manip.bulk_img_processing as blk
+import mp_img_manip.itkscripts as mitk
 import numpy as np
 import SimpleITK as sitk
+import os
 
 def calculateRetardanceOverArea(retardance, orientation):
     
@@ -129,7 +131,7 @@ def downsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simul
 
 
 def batchDownsampleRetardance(retDir, orientDir, outputDir, scaleFactor, simulatedResolutionFactor = None):
-    outputSuffix = '_DownsampledBy-' + str(scaleFactor) + 'x'
+    outputSuffix = 'DownSample-' + str(scaleFactor) + 'x'
 
     if simulatedResolutionFactor and simulatedResolutionFactor != scaleFactor:
         outputSuffix = outputSuffix + '_SimRes-' + str(simulatedResolutionFactor) + 'x'
@@ -139,8 +141,14 @@ def batchDownsampleRetardance(retDir, orientDir, outputDir, scaleFactor, simulat
     for i in range(0, np.size(retImgPathList)):
         (downRetImg, downOrientImg) = downsampleRetardanceImage(retImgPathList[i], orientImgPathList[i], scaleFactor, simulatedResolutionFactor)
         
-        downRetPath = blk.createNewImagePath(retImgPathList[i], outputDir, outputSuffix + '_Ret')
-        downOrientPath = blk.createNewImagePath(orientImgPathList[i], outputDir, outputSuffix + '_SlowAxis')
+        downRetDir = os.path.join(outputDir, outputSuffix, 'Ret',)
+        downOrientDir = os.path.join(outputDir, outputSuffix, 'SlowAxis',)
         
+        downRetPath = blk.createNewImagePath(retImgPathList[i], downRetDir, '_Ret_' + outputSuffix )
+        downOrientPath = blk.createNewImagePath(orientImgPathList[i], downOrientDir, '_SlowAxis_' + outputSuffix)
+      
         sitk.WriteImage(downRetImg, downRetPath)
+        mitk.write_image_parameters(downRetPath,downRetImg.GetSpacing(), downRetImg.GetOrigin())
+        
         sitk.WriteImage(downOrientImg, downOrientPath)
+        mitk.write_image_parameters(downOrientPath,downOrientImg.GetSpacing(), downOrientImg.GetOrigin())
