@@ -7,10 +7,11 @@ Created on Mon Mar  5 09:04:51 2018
 import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.utility_functions as util
 
+
 import SimpleITK as sitk
 import numpy as np
 import os
-
+import math
 
 # GUI components (sliders, dropdown...).
 #from ipywidgets import interact
@@ -314,3 +315,11 @@ def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix,
             
         if writeTransform:
             write_transform(registeredPath,transform)
+            
+            
+def downsample_image(itkImg, currentRes, targetRes):
+    scale = math.floor(targetRes/currentRes)
+    endRes = currentRes*scale
+    shrunk = sitk.Shrink(itkImg,[scale,scale])
+    shrunk.SetSpacing([endRes, endRes])
+    return shrunk
