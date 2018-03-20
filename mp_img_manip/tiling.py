@@ -1,7 +1,8 @@
 import numpy as np
 
-def get_tile_start_end_index(tile_number, tile_size, tile_offset = None, tile_step_size = None):
-    """Calculate the starting and ending index along a single dimension for a tile"""
+def get_tile_start_end_index(tile_number, tile_size,
+                             tile_offset = None, tile_step_size = None):
+    """Calculate the starting and ending index along a single dimension"""
 
     #todo: implement tests
 
@@ -18,11 +19,10 @@ def get_tile_start_end_index(tile_number, tile_size, tile_offset = None, tile_st
 
 
 
-def calculate_number_of_tiles(size_of_image_dimension, tile_size, tile_step_size = None):
+def calculate_number_of_tiles(size_of_image_dimension, tile_size,
+                              tile_step_size = None):
     """Calculate the number of tiles that fit along an image dimension,
      given a certain tile size, and step size."""
-    
-    #todo: Implement tests.  e.g., tile_size 10, step_size 9, number = 10, offset = 5
     
     border = 0
     
