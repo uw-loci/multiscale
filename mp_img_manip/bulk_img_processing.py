@@ -16,7 +16,9 @@ def read_write_pandas_row(file_path, index,
             print('There are no existing entries for ' + index )
     except:
         print('Creating new file ' + file_name + ' in ' + file_dir)
-        data = pd.DataFrame(index = pd.Index([], dtype='object', name=index_label),  columns = column_labels)
+        data = pd.DataFrame(
+                index = pd.Index([], dtype='object', name=index_label),
+                columns = column_labels)
     
     print('Please enter in values for {0}'.format(index))
     new_row = [input(x + ': ') for x in column_labels]
@@ -36,7 +38,9 @@ def write_pandas_row(file_path, index, column_values,
         data = pd.read_csv(file_path, index_col = index_label)
     except:
         print('Creating new file ' + file_name + ' in ' + file_dir)
-        data = pd.DataFrame(index = pd.Index([], dtype='object', name=index_label),  columns = column_labels)
+        data = pd.DataFrame(
+                index = pd.Index([], dtype='object', name=index_label),
+                columns = column_labels)
     
     data.loc[index] = column_values
     data.to_csv(file_path)
@@ -59,7 +63,9 @@ def file_name_parts(file_name):
     part_list.append(name_str[:int(underscore_indices[0])])
      
     for i in range(1,len(underscore_indices)):
-        part_list.append(name_str[(underscore_indices[i-1]+1):underscore_indices[i]])
+        
+        part_list.append(
+                name_str[(underscore_indices[i-1]+1):underscore_indices[i]])
     
     return part_list
     

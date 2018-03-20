@@ -70,6 +70,7 @@ def start_plot():
     metric_values = []
     multires_iterations = []
 
+
 # Callback invoked when the EndEvent happens, do cleanup of data and figure.
 def end_plot():
     global metric_values, multires_iterations
@@ -79,12 +80,15 @@ def end_plot():
     # Close figure, we don't want to get a duplicate of the plot latter on.
     plt.close()
     
-# Callback invoked when the IterationEvent happens, update our data and display new figure.    
+    
+# Callback invoked when the IterationEvent happens
+#update our data and display new figure.    
 def plot_values(registration_method, fixed_image, moving_image, transform):
     global metric_values, multires_iterations
     
-    metric_values.append(registration_method.GetMetricValue())                                       
-    # Clear the output area (wait=True, to reduce flickering), and plot current data
+    metric_values.append(registration_method.GetMetricValue())             
+                          
+    # Clear the output area (wait=True, to reduce flickering)
     clear_output(wait=True)
     
     moving_transformed = sitk.Resample(moving_image, fixed_image, transform, 
@@ -102,7 +106,9 @@ def plot_values(registration_method, fixed_image, moving_image, transform):
     ax.axis('off')
     
     ax2.plot(metric_values, 'r')
-    ax2.plot(multires_iterations, [metric_values[index] for index in multires_iterations], 'b*')
+    ax2.plot(multires_iterations, 
+             [metric_values[index] for index in multires_iterations], 'b*')
+    
     ax2.set_xlabel('Iteration Number',fontsize=12)
     ax2.set_ylabel('Metric Value',fontsize=12, rotation='90')
     
@@ -110,8 +116,9 @@ def plot_values(registration_method, fixed_image, moving_image, transform):
     ax2.set_aspect(asp)
     
   
-# Callback invoked when the sitkMultiResolutionIterationEvent happens, update the index into the 
-# metric_values list. 
+# Callback invoked when the sitkMultiResolutionIterationEvent happens,
+# update the index into the metric_values list. 
+    
 def update_multires_iterations():
     global metric_values, multires_iterations
     multires_iterations.append(len(metric_values))
@@ -139,7 +146,8 @@ def affine_register(fixed_image, moving_image,
         registration_method.SetMetricMovingMask(moving_mask)
     
         # Optimizer settings.
-    registration_method.SetOptimizerAsRegularStepGradientDescent(20.0, 0.01, iterations)
+    registration_method.SetOptimizerAsRegularStepGradientDescent(20.0, 0.01,
+                                                                 iterations)
     #registration_method.SetOptimizerAsOnePlusOneEvolutionary(numberOfIterations=100)
     #registration_method.SetOptimizerAsGradientDescent(learningRate=1.0, numberOfIterations=100, convergenceMinimumValue=1e-4, convergenceWindowSize=10)
     registration_method.SetOptimizerScalesFromPhysicalShift()
@@ -154,8 +162,10 @@ def affine_register(fixed_image, moving_image,
         print('Warning, scale was set higher than the maximum value of 4')
 
         
-    registration_method.SetShrinkFactorsPerLevel(shrink_factors[(4-scale):])
-    registration_method.SetSmoothingSigmasPerLevel(smoothing_sigmas[(4-scale):])
+    registration_method.SetShrinkFactorsPerLevel(
+            shrink_factors[(4-scale):])
+    registration_method.SetSmoothingSigmasPerLevel(
+            smoothing_sigmas[(4-scale):])
     registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
 
         #Redefining initial_transform so the function 
@@ -180,22 +190,27 @@ def affine_register(fixed_image, moving_image,
 
     
 
-def setup_image(image_path, setup_origin = False, return_image = True, return_spacing = False):
+def setup_image(image_path,
+                setup_origin = False,
+                return_image = True, return_spacing = False):
     """Set up the image spacing and optionally the registration origin"""
     
     (image_dir, image_name) = os.path.split(image_path)
     file_path = image_dir + '/Image Parameters.csv'
     
-    image_parameters = blk.read_write_pandas_row(file_path,image_name,'Image',
-                                                 ['X Spacing', 'Y Spacing', 'X Origin', 'Y Origin'])
+    image_parameters = blk.read_write_pandas_row(
+            file_path, image_name,
+            'Image', ['X Spacing', 'Y Spacing', 'X Origin', 'Y Origin'])
     
     print(image_parameters)
     print('')
     
-    spacing = [float(image_parameters['X Spacing']), float(image_parameters['Y Spacing'])]
+    spacing = [float(image_parameters['X Spacing']),
+               float(image_parameters['Y Spacing'])]
     
     if setup_origin:
-        origin = [float(image_parameters['X Origin']), float(image_parameters['Y Origin'])]
+        origin = [float(image_parameters['X Origin']),
+                  float(image_parameters['Y Origin'])]
     
     if return_image: 
         image = sitk.ReadImage(image_path)
@@ -213,23 +228,31 @@ def setup_image(image_path, setup_origin = False, return_image = True, return_sp
 def overlay_images(fixed_image, moving_image, alpha = 0.7):
     
     fixed_array = sitk.GetArrayFromImage(fixed_image)
-    fixed_normalized = (fixed_array - np.amin(fixed_array))/(np.amax(fixed_array)+np.amin(fixed_array))
+    fixed_normalized = (fixed_array - np.amin(fixed_array))/(
+            np.amax(fixed_array) + np.amin(fixed_array))
 
     try: #Post-registration
         moving_array = sitk.GetArrayFromImage(moving_image)
-        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
+        moving_normalized = (moving_array - np.amin(moving_array))/(
+                np.amax(moving_array)+np.amin(moving_array))
         
-        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
+        combined_array = ((1.0 - alpha)*fixed_normalized 
+                          + alpha*moving_normalized)
+        
         return combined_array
+    
     except: #Pre-registration
         initial_transform = sitk.Similarity2DTransform()
         moving_resampled = sitk.Resample(moving_image, fixed_image, 
-                                         initial_transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())
+                                         initial_transform, sitk.sitkLinear,
+                                         0.0, moving_image.GetPixelID())
         
         moving_array = sitk.GetArrayFromImage(moving_resampled)
-        moving_normalized = (moving_array - np.amin(moving_array))/(np.amax(moving_array)+np.amin(moving_array))
+        moving_normalized = (moving_array - np.amin(moving_array))/(
+                np.amax(moving_array)+np.amin(moving_array))
 
-        combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
+        combined_array = ((1.0 - alpha)*fixed_normalized 
+                          + alpha*moving_normalized)
         return combined_array
                  
     
@@ -254,7 +277,8 @@ def query_origin_change(moving_image, fixed_image):
             new_origin = (new_origin_x, new_origin_y)
             
             moving_image.SetOrigin(new_origin)
-            plt.imshow(overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
+            plt.imshow(overlay_images(fixed_image, moving_image),
+                       cmap=plt.cm.gray)
             plt.show()
             
             #bug: The image does not show up till after the question
@@ -308,7 +332,9 @@ def write_transform(registered_path,transform):
     
     file_path = output_dir + '/Transforms.csv'
     
-    column_labels =('Matrix Top Left', 'Matrix Top Right', 'Matrix Bottom Left', 'Matrix Bottom Right', 'X Translation', 'Y Translation')
+    column_labels =('Matrix Top Left', 'Matrix Top Right',
+                    'Matrix Bottom Left', 'Matrix Bottom Right',
+                    'X Translation', 'Y Translation')
     
     column_values = transform.GetParameters()
     
@@ -316,35 +342,49 @@ def write_transform(registered_path,transform):
                          'Image',column_labels)
     
 
-def supervised_register_images(fixed_path, moving_path, iterations = 200, scale = 4):
+def supervised_register_images(fixed_path, moving_path,
+                               iterations = 200, scale = 4):
     
     fixed_image = setup_image(fixed_path)
     moving_image = setup_image(moving_path, setup_origin = True)
     
     while True:    
         moving_image.SetOrigin(query_origin_change(moving_image, fixed_image))
-        (transform, metric, stop) = affine_register(fixed_image, moving_image, iterations = iterations, scale = scale)
-        if query_good_registration(moving_image, fixed_image, transform, metric, stop): break
+        (transform, metric, stop) = affine_register(
+                fixed_image, moving_image,
+                iterations = iterations, scale = scale)
+        
+        if query_good_registration(moving_image, fixed_image,
+                                   transform, metric, stop): break
        
-    registered_image = sitk.Resample(moving_image, fixed_image, transform, sitk.sitkLinear, 0.0, moving_image.GetPixelID())       
+    registered_image = sitk.Resample(moving_image, fixed_image,
+                                     transform, sitk.sitkLinear,
+                                     0.0, moving_image.GetPixelID())
+       
     return registered_image, transform
     
 
-def bulk_supervised_register_images(fixed_dir, moving_dir, output_dir, output_suffix,
-                                 writeOutput = True, writeTransform = True,
-                                 iterations = 200, scale = 4):
+def bulk_supervised_register_images(fixed_dir, moving_dir,
+                                    output_dir, output_suffix,
+                                    writeOutput = True, writeTransform = True,
+                                    iterations = 200, scale = 4):
     
-    (fixed_image_path_list, moving_image_path_list) = blk.find_shared_images(fixed_dir, moving_dir)
+    (fixed_image_path_list, moving_image_path_list) = blk.find_shared_images(
+            fixed_dir, moving_dir)
     
     for i in range(0, np.size(fixed_image_path_list)):
-        registered_image, transform = supervised_register_images(fixed_image_path_list[i], moving_image_path_list[i],
-                                                                 iterations = iterations, scale = scale)
+        registered_image, transform = supervised_register_images(
+                fixed_image_path_list[i], moving_image_path_list[i],
+                iterations = iterations, scale = scale)
         
-        registered_path = blk.create_new_image_path(moving_image_path_list[i], output_dir, output_suffix)
+        registered_path = blk.create_new_image_path(
+                moving_image_path_list[i], output_dir, output_suffix)
 
         if writeOutput:
             sitk.WriteImage(registered_image, registered_path)
-            write_image_parameters(registered_path,registered_image.GetSpacing(),registered_image.GetOrigin())
+            write_image_parameters(registered_path,
+                                   registered_image.GetSpacing(),
+                                   registered_image.GetOrigin())
             
         if writeTransform:
             write_transform(registered_path,transform)
@@ -369,22 +409,35 @@ def resize_image(image_path, output_suffix, current_spacing, target_spacing):
     
     
 def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
-    (fixed_image_path_list, moving_image_path_list) = blk.find_shared_images(fixed_dir, moving_dir)
+    (fixed_image_path_list, moving_image_path_list) = blk.find_shared_images(
+            fixed_dir, moving_dir)
     
     for i in range(0, np.size(fixed_image_path_list)):
-        current_spacing = setup_image(moving_image_path_list[i], return_image = False, return_spacing=True)[0]
-        target_spacing = setup_image(fixed_image_path_list[i], return_image = False, return_spacing=True)[0]
-
-        resized_image = resize_image(moving_image_path_list[i],output_suffix,current_spacing,target_spacing)
+        current_spacing = setup_image(moving_image_path_list[i],
+                                      return_image = False,
+                                      return_spacing=True)[0]
         
-        resized_path = blk.create_new_image_path(moving_image_path_list[i], output_dir, output_suffix)
+        target_spacing = setup_image(fixed_image_path_list[i],
+                                     return_image = False,
+                                     return_spacing=True)[0]
+
+        resized_image = resize_image(moving_image_path_list[i],
+                                     output_suffix,
+                                     current_spacing,target_spacing)
+        
+        resized_path = blk.create_new_image_path(moving_image_path_list[i],
+                                                 output_dir, output_suffix)
 
         sitk.WriteImage(resized_image,resized_path)
-        write_image_parameters(resized_path, resized_image.GetSpacing(),resized_image.GetOrigin())
+        write_image_parameters(resized_path,
+                               resized_image.GetSpacing(),
+                               resized_image.GetOrigin())
 
 
 def apply_transform(fixed_path, moving_path, transform):
     return
 
-def bulk_apply_transform(fixed_dir, moving_dir, output_dir, transform_dir, output_suffix,):
+def bulk_apply_transform(fixed_dir, moving_dir, output_dir,
+                         transform_dir,
+                         output_suffix,):
     return

@@ -7,7 +7,7 @@ import os
 
 def calculate_retardance_over_area(retardance, orientation):
     
-    # This gives me the orientation in 360 degrees, doubled to calculate alignment.
+    #Orientation doubled to calculate alignment.
     circular_orientation = (2*np.pi/180)*(orientation/100);
     complex_orientation = np.exp(1j*circular_orientation);
     
@@ -40,7 +40,7 @@ def convert_intensity_to_retardance(itk_image,
     
     Input: 
         itk_image: The image being converted, as an ITK _image object
-        ret_ceiling: The maximum retardance value corresponding to max intensity
+        ret_ceiling: The retardance value corresponding to max intensity
         wavelength: The wavelength of light used to image, for converting 
             between degrees and retardance.  Defaults to 546 for the LOCI
             PolScope wavelength
@@ -113,15 +113,21 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
         for x in range(0, x_pixel_num):
             
             (x_start, x_end) = til.get_tile_start_end_index(
-                    x, scale_pixel_factor, x_offset, simulated_resolution_factor)
+                    x, scale_pixel_factor,
+                    x_offset, simulated_resolution_factor)
             
             (y_start, y_end) = til.get_tile_start_end_index(
-                    y, scale_pixel_factor, y_offset, simulated_resolution_factor)
+                    y, scale_pixel_factor,
+                    y_offset, simulated_resolution_factor)
 
-            ret_neighborhood = ret_array[range(x_start,x_end+1),range(y_start,y_end+1)]
-            orient_neighborhood = orient_array[range(x_start,x_end+1),range(y_start,y_end+1)]
+            ret_neighborhood = ret_array[range(x_start,x_end+1),
+                                         range(y_start,y_end+1)]
             
-            (ret_pixel, orient_pixel) = calculate_retardance_over_area(ret_neighborhood,orient_neighborhood)
+            orient_neighborhood = orient_array[range(x_start,x_end+1),
+                                               range(y_start,y_end+1)]
+            
+            (ret_pixel, orient_pixel) = calculate_retardance_over_area(
+                    ret_neighborhood,orient_neighborhood)
                 
             down_ret_array[x,y] = ret_pixel
             down_orient_array[x,y] = orient_pixel
@@ -146,21 +152,34 @@ def batch_downsample_retardance(ret_dir, orient_dir, output_dir,
     output_suffix = 'DownSample-' + str(scale_factor) + 'x'
 
     if simulated_resolution_factor and simulated_resolution_factor != scale_factor:
-        output_suffix = output_suffix + '_SimRes-' + str(simulated_resolution_factor) + 'x'
+        output_suffix = (output_suffix + '_SimRes-' 
+                         + str(simulated_resolution_factor) + 'x')
 
-    (ret_image_path_list, orient_image_path_list) = blk.find_shared_images(ret_dir, orient_dir)
+    (ret_image_path_list, orient_image_path_list) = blk.find_shared_images(
+            ret_dir, orient_dir)
     
     for i in range(0, np.size(ret_image_path_list)):
-        (down_ret_image, down_orient_image) = downsample_retardance_image(ret_image_path_list[i], orient_image_path_list[i], scale_factor, simulated_resolution_factor)
+        (down_ret_image, down_orient_image) = downsample_retardance_image(
+                ret_image_path_list[i], orient_image_path_list[i],
+                scale_factor, simulated_resolution_factor)
         
         down_ret_dir = os.path.join(output_dir, output_suffix, '_ret',)
         down_orient_dir = os.path.join(output_dir, output_suffix, 'SlowAxis',)
         
-        down_ret_path = blk.create_new_image_path(ret_image_path_list[i], down_ret_dir, '__ret_' + output_suffix )
-        down_orient_path = blk.create_new_image_path(orient_image_path_list[i], down_orient_dir, '_SlowAxis_' + output_suffix)
+        down_ret_path = blk.create_new_image_path(ret_image_path_list[i],
+                                                  down_ret_dir,
+                                                  '__ret_' + output_suffix )
+        
+        down_orient_path = blk.create_new_image_path(orient_image_path_list[i],
+                                                     down_orient_dir,
+                                                     '_SlowAxis_' + output_suffix)
       
         sitk.Write_image(down_ret_image, down_ret_path)
-        mitk.write_image_parameters(down_ret_path,down_ret_image.GetSpacing(), down_ret_image.GetOrigin())
+        mitk.write_image_parameters(down_ret_path,
+                                    down_ret_image.GetSpacing(),
+                                    down_ret_image.GetOrigin())
         
         sitk.Write_image(down_orient_image, down_orient_path)
-        mitk.write_image_parameters(down_orient_path,down_orient_image.GetSpacing(), down_orient_image.GetOrigin())
+        mitk.write_image_parameters(down_orient_path,
+                                    down_orient_image.GetSpacing(),
+                                    down_orient_image.GetOrigin())
