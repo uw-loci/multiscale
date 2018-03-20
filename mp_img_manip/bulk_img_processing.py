@@ -5,7 +5,20 @@ import pandas as pd
     
 def read_write_pandas_row(file_path, index,
                           index_label, column_labels):
-        
+    """
+    Find a row in a .csv file corresponding to a certain index.
+    If the index does not exist, create a new file.
+    
+    Inputs:
+    file_path -- path and name of csv file
+    index -- the specific index you are looking for
+    index_label -- what is the first entry of the index column
+    column_labels -- labels for each column/variable
+    
+    Output:
+    The csv row in a list, absent the index.
+    """
+    
     (file_dir, file_name) = os.path.split(file_path)
 
     try:
@@ -31,7 +44,15 @@ def read_write_pandas_row(file_path, index,
         
 def write_pandas_row(file_path, index, column_values,
                      index_label, column_labels):
-        
+    """Write a new row to a .csv file, or create it does not exist
+    
+    Inputs:
+    file_path -- path and name of csv file
+    index -- the specific index you are looking for
+    column_values -- the values for each variable
+    index_label -- what is the first entry of the index column
+    column_labels -- labels for each column/variable
+    """    
     (file_dir, file_name) = os.path.split(file_path)
 
     try:
@@ -47,6 +68,7 @@ def write_pandas_row(file_path, index, column_values,
         
 
 def file_name_parts(file_name):
+    """Extract strings seperated by underscores in a file name"""
     full_file_name = os.path.split(file_name)[1]
     
     name_str = os.path.splitext(full_file_name)[0]
@@ -72,9 +94,7 @@ def file_name_parts(file_name):
 
 
 def get_base_file_name(file_name):
-    """This function extracts the 'base name' of a file, which is defined as
-    the string up until the first underscore, or until the extension if
-    there is no underscore"""
+    """This function extracts the file string up until the first underscore"""
     
     full_file_name = os.path.split(file_name)[1]
     
@@ -89,8 +109,17 @@ def get_base_file_name(file_name):
     
 	
 def create_new_image_path(base_image_path, output_dir, output_suffix):
-    """Create a new path string based on the pre-modification image path,
-    an output directory, and the new output suffix to rename the file with"""
+    """Create a new path for an image that has been modified
+    
+    Inputs:
+    base_image_path -- The path to the original image
+    output_dir -- The directory for the new image
+    output_suffix -- How the new file is named in text
+    
+    Output:
+    new_path -- A path for the new image
+    """
+    
     base_name = get_base_file_name(base_image_path)
     
     new_name = base_name + '_' + output_suffix + '.tif'
@@ -100,8 +129,15 @@ def create_new_image_path(base_image_path, output_dir, output_suffix):
     
 
 def find_shared_images(dir_one, dir_two):
-    """Base image names derived from directory one, are mapped to images from
-    directory two."""
+    """images from two directories are paired based on base names
+    
+    Input:
+    dir_one -- Directory for the first set of images
+    dir_two -- Directory for the second set of images.
+    
+    Outputs:
+    Two lists, where same index corresponds to paired images
+    """
     
     #todo: modify dir_one_baseFile_names into a list of names, and then
     #implement a .txt file?
