@@ -84,7 +84,7 @@ def createNewImagePath(baseImgPath, outputDir, outputSuffix):
     an output directory, and the new output suffix to rename the file with"""
     baseName = getBaseFileName(baseImgPath)
     
-    newName = baseName + outputSuffix + '.tif'
+    newName = baseName + '_' + outputSuffix + '.tif'
         
     newPath = os.path.join(outputDir, newName)
     return newPath
