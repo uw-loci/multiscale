@@ -7,9 +7,24 @@ Created on Tue Mar  6 15:52:18 2018
 
 
 import os
-import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.itkscripts as mitk
 
+
+
+def perform_registrations():
+    """Overall script to perform both mmp and shg registrations, along with mask"""
+    
+    dir_dict = create_dir_dictionary()
+      
+    resize_images(dir_dict)
+
+    register_small_images(dir_dict)
+    crop_small_images(dir_dict)
+
+    apply_transform_to_large_images(dir_dict)
+    crop_large_images(dir_dict)
+    
+    
 
 def create_dir_dictionary(base_dir = os.path.normpath('F:\Box Sync\Research\Polarimetry'),
                           prep_dir = '02 - Python prepped images',
@@ -38,67 +53,59 @@ def create_dir_dictionary(base_dir = os.path.normpath('F:\Box Sync\Research\Pola
     "mmp_dir_large_registered_cropped" : os.path.join(base_dir,reg_crop_dir,'MMP_Large_Registered_Cropped'),
     "shg_dir_large_registered_cropped" : os.path.join(base_dir,reg_crop_dir,'SHG_Large_Registered_Cropped')}
 
-    return dir_dict
-
-def perform_registrations():
-    """Overall script to perform both mmp and shg registrations, along with mask"""
-    
-
-    
-    
-    #Resize images
-    mitk.bulk_resize_image(mmp_dir,ps_dir,ps_dir_small,'PS_Small')
-    mitk.bulk_resize_image(ps_dir_small,shg_dir,shg_dir_small,'SHG_Small')
-    mitk.bulk_resize_image(ps_dir,mmp_dir,mmp_dir_large,'MMP_Large')
-    
-    
-    #Register small images
-    mitk.bulk_supervised_register_images(ps_dir_small,mmp_dir,mmp_dir_small_registered, 'MMP_Small_Registered')
-    mitk.bulk_supervised_register_images(ps_dir_small,shg_dir_small,shg_dir_small_registered,'SHG_Small_Registered')
+    return dir_dict    
 
 
-    #Crop small images
-
-
-    #Register large images
-    mitk.bulk_apply_transform(ps_dir,mmp_dir_large,mmp_dir_small_registered,mmp_dir_large_registered,'MMP_Large_Registered')
-    mitk.bulk_apply_transform(ps_dir,shg_dir,shg_dir_small_registered, shg_dir_large_registereed, 'SHG_Large_Registered')
-
-
-
-    #Crop large images
-
-
-
-def resize_images(base_dir, prep_dir, resize_dir)
-    
-def register_small_to_large(mmp_dir, ps_dir, crop = None):
-    """Register MMP images to PS images.
-    
-    Output: A transform file
-            Small registered MMP images
-            Large registered MMP images
-            cropped PS images
-        """
-    return
-
-def register_large_to_small(shg_dir,ps_dir):
-    """Register SHG images to PS images.
-    
-    Output: A transform file
+def resize_images(dir_dict):
+    """Resize the small MMP images to be of similar resolution to the large PS images.
+        Resize the large PS images to be of similar resolution to the small MMP images
+        Resize the large SHG images to be of similar resolution to the small MMP images"""
         
-            Small registered and cropped SHG images
-            Large registered and cropped SHG images
-        """
+    mitk.bulk_resize_image(dir_dict["mmp_dir_small"],
+                           dir_dict["ps_dir_large"],dir_dict["ps_dir_small"],
+                           'PS_Small')
+    
+    mitk.bulk_resize_image(dir_dict["ps_dir_small"],
+                           dir_dict["shg_dir_large"],dir_dict["shg_dir_small"],
+                           'SHG_Small')
+    
+    mitk.bulk_resize_image(dir_dict["ps_dir_large"],
+                           dir_dict["mmp_dir_small"],dir_dict["mmp_dir_large"],
+                           'MMP_Large')    
+
+
+
+def register_small_images(dir_dict):
+    """Register the small MMP to small PS.  Small SHG to small PS"""
+    mitk.bulk_supervised_register_images(dir_dict["ps_dir_small"],
+                                         dir_dict["mmp_dir_small"], dir_dict["mmp_dir_small_registered"],
+                                         'MMP_Small_Registered')
+    
+    mitk.bulk_supervised_register_images(dir_dict["ps_dir_small"],
+                                         dir_dict["shg_dir_small"],dir_dict["shg_dir_small_registered"],
+                                         'SHG_Small_Registered')
+
+
+def crop_small_images(dir_dict):
     return
 
-def compare_ssim(dirOne, dirTwo):
-    """Compare SSIM between two file directories
-    """
+
+def apply_transform_to_large_images(dir_dict):
+    mitk.bulk_apply_transform(dir_dict["ps_dir_large"],
+                              dir_dict["mmp_dir_large"], dir_dict["mmp_dir_large_registered"],
+                              dir_dict["mmp_dir_small_registered"],
+                              'MMP_Large_Registered')
+    
+    mitk.bulk_apply_transform(dir_dict["ps_dir_large"],
+                              dir_dict["shg_dir_large"], dir_dict["shg_dir_large_registered"],
+                              dir_dict["shg_dir_small_registered"], 
+                              'SHG_Large_Registered')
+
+
+def crop_large_images(dir_dict):
     return
 
-def downsample_ps_and_shg():
-    return
+
 
 
     

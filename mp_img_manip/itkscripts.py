@@ -374,5 +374,5 @@ def bulk_resize_image(fixedDir, movingDir, outputDir, outputSuffix):
 def apply_transform(fixed_path, moving_path, transform):
     return
 
-def bulk_apply_transform(fixed_dir, moving_dir, transform_dir, output_dir, output_suffix,):
+def bulk_apply_transform(fixed_dir, moving_dir, output_dir, transform_dir, output_suffix,):
     return
