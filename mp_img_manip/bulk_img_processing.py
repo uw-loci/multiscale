@@ -1,9 +1,10 @@
 import os
-import mp_img_manip.utility_functions as util
+import mp_image_manip.utility_functions as util
 import pandas as pd
 
     
-def read_write_pandas_row(file_path, index, index_label, column_labels):
+def read_write_pandas_row(file_path, index,
+                          index_label, column_labels):
         
     (file_dir, file_name) = os.path.split(file_path)
 
@@ -26,7 +27,8 @@ def read_write_pandas_row(file_path, index, index_label, column_labels):
     return data.loc[index]
         
         
-def write_pandas_row(file_path, index, index_label, column_labels, column_values):
+def write_pandas_row(file_path, index, column_values,
+                     index_label, column_labels):
         
     (file_dir, file_name) = os.path.split(file_path)
 
@@ -40,81 +42,82 @@ def write_pandas_row(file_path, index, index_label, column_labels, column_values
     data.to_csv(file_path)
         
 
-def filename_parts(fileName):
-    fullFileName = os.path.split(fileName)[1]
+def file_name_parts(file_name):
+    full_file_name = os.path.split(file_name)[1]
     
-    nameStr = os.path.splitext(fullFileName)[0]
+    name_str = os.path.splitext(full_file_name)[0]
     
-    underscore_indices = util.character_indices(nameStr, '_')
+    underscore_indices = util.character_indices(name_str, '_')
     
     if underscore_indices[0] == -1:
-        print('The filename ' + nameStr + ' has only one part.')
-        return nameStr
+        print('The file name ' + name_str + ' has only one part.')
+        return name_str
     
-    underscore_indices.append(len(nameStr))
+    underscore_indices.append(len(name_str))
     
     part_list = []
-    part_list.append(nameStr[:int(underscore_indices[0])])
+    part_list.append(name_str[:int(underscore_indices[0])])
      
     for i in range(1,len(underscore_indices)):
-        part_list.append(nameStr[(underscore_indices[i-1]+1):underscore_indices[i]])
+        part_list.append(name_str[(underscore_indices[i-1]+1):underscore_indices[i]])
     
     return part_list
     
 
 
-def getBaseFileName(fileName):
+def get_base_file_name(file_name):
     """This function extracts the 'base name' of a file, which is defined as
     the string up until the first underscore, or until the extension if
     there is no underscore"""
     
-    fullFileName = os.path.split(fileName)[1]
+    full_file_name = os.path.split(file_name)[1]
     
-    nameStr = os.path.splitext(fullFileName)[0]
+    name_str = os.path.splitext(full_file_name)[0]
     
-    underscoreIndexes = nameStr.find('_')
+    underscore_index = name_str.find('_')
     
-    if underscoreIndexes > 0:     
-        return nameStr[0:underscoreIndexes]
+    if underscore_index > 0:     
+        return name_str[0:underscore_index]
     else:
-        return nameStr
+        return name_str
     
-def createNewImagePath(baseImgPath, outputDir, outputSuffix):
+	
+def create_new_image_path(base_image_path, output_dir, output_suffix):
     """Create a new path string based on the pre-modification image path,
     an output directory, and the new output suffix to rename the file with"""
-    baseName = getBaseFileName(baseImgPath)
+    base_name = get_base_file_name(base_image_path)
     
-    newName = baseName + '_' + outputSuffix + '.tif'
+    new_name = base_name + '_' + output_suffix + '.tif'
         
-    newPath = os.path.join(outputDir, newName)
-    return newPath
+    new_path = os.path.join(output_dir, new_name)
+    return new_path
     
 
-def findSharedImages(dirOne, dirTwo):
+def find_shared_images(dir_one, dir_two):
     """Base image names derived from directory one, are mapped to images from
     directory two."""
     
-    #todo: modify dirOne_baseFileNames into a list of names, and then
+    #todo: modify dir_one_baseFile_names into a list of names, and then
     #implement a .txt file?
     
     #todo: make a check for different categories of name, if there are multiple instances of a single name?
     
-    fileListOne = [f for f in os.listdir(dirOne) if f.endswith('.tif')]
-    fileListTwo = [f for f in os.listdir(dirTwo) if f.endswith('.tif')]
+    file_list_one = [f for f in os.listdir(dir_one) if f.endswith('.tif')]
+    file_list_two = [f for f in os.listdir(dir_two) if f.endswith('.tif')]
         
-    dirOneImagePaths = list()
-    dirTwoImagePaths = list()
+    dir_one_image_paths = list()
+    dir_two_image_paths = list()
 
-    for i in range(0,len(fileListOne)):
-        baseNameOne = getBaseFileName(fileListOne[i])
+    for i in range(0,len(file_list_one)):
+        base_nameOne = get_base_file_name(file_list_one[i])
         
-        for j  in range(0,len(fileListTwo)):
-            baseNameTwo = getBaseFileName(fileListTwo[j])
+        for j  in range(0,len(file_list_two)):
+            base_nameTwo = get_base_file_name(file_list_two[j])
           
-            if baseNameOne == baseNameTwo:
+            if base_nameOne == base_nameTwo:
                 
-                dirOneImagePaths.append(dirOne + fileListOne[i])
-                dirTwoImagePaths.append(dirTwo + fileListTwo[j])
+                dir_one_image_paths.append(dir_one + file_list_one[i])
+                dir_two_image_paths.append(dir_two + file_list_two[j])
 
     
-    return (dirOneImagePaths, dirTwoImagePaths)
+    return (dir_one_image_paths, dir_two_image_paths)

@@ -28,8 +28,8 @@ def perform_registrations():
 
 def create_dir_dictionary(base_dir = os.path.normpath('F:\Box Sync\Research\Polarimetry'),
                           prep_dir = '02 - Python prepped images',
-                          resize_dir = '01 - Resizing images',
-                          reg_crop_dir = '02 - Registered and cropped images'):
+                          resize_dir = '03 - Mid-python analysis images\\01 - Resizing images',
+                          reg_crop_dir = '03 - Mid-python analysis images\\02 - Registered and cropped images'):
     dir_dict = {
     "ps_dir_large" : os.path.join(base_dir, prep_dir, 'PS_BasicCorrected'),
     "mmp_dir_small" : os.path.join(base_dir, prep_dir, 'MMP'),

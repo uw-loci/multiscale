@@ -1,42 +1,42 @@
 import numpy as np
 
-def getTileStartEndIndex(tileNumber, tileSize, tileOffset = None, tileStepSize = None):
+def get_tile_start_end_index(tile_number, tile_size, tile_offset = None, tile_step_size = None):
     """Calculate the starting and ending index along a single dimension for a tile"""
 
     #todo: implement tests
 
-    if not tileStepSize:
-        tileStepSize = tileSize
+    if not tile_step_size:
+        tile_step_size = tile_size
         
-    if not tileOffset:
-        tileOffset = 0
+    if not tile_offset:
+        tile_offset = 0
             
-    startIndex = ((tileNumber-1)*tileStepSize)+tileOffset - 1
-    endIndex = startIndex + tileSize - 1
+    start_index = ((tile_number-1)*tile_step_size)+tile_offset - 1
+    end_index = start_index + tile_size - 1
     
-    return (startIndex, endIndex)
+    return (start_index, end_index)
 
 
 
-def calculateNumberOfTiles(sizeOfImageDimension, tileSize, tileStepSize = None):
+def calculate_number_of_tiles(size_of_image_dimension, tile_size, tile_step_size = None):
     """Calculate the number of tiles that fit along an image dimension,
      given a certain tile size, and step size."""
     
-    #todo: Implement tests.  e.g., tileSize 10, stepSize 9, number = 10, offset = 5
+    #todo: Implement tests.  e.g., tile_size 10, step_size 9, number = 10, offset = 5
     
     border = 0
     
-    if not tileStepSize:
-        tileStepSize = tileSize
+    if not tile_step_size:
+        tile_step_size = tile_size
             
-    if tileSize > tileStepSize:
-        border = (tileSize - tileStepSize)
+    if tile_size > tile_step_size:
+        border = (tile_size - tile_step_size)
 
-    idxRange = sizeOfImageDimension-2*border
+    idx_range = size_of_image_dimension-2*border
 
-    numberOfTiles = np.fix(idxRange/tileStepSize)
-    remainder = np.remainder(idxRange,tileStepSize)  
+    number_of_tiles = np.fix(idx_range/tile_step_size)
+    remainder = np.remainder(idx_range,tile_step_size)  
     offset = np.fix(remainder/2) + border
 
-    return (int(numberOfTiles), int(offset))
+    return (int(number_of_tiles), int(offset))
 

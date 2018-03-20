@@ -1,154 +1,166 @@
-import mp_img_manip.tiling as til
-import mp_img_manip.bulk_img_processing as blk
-import mp_img_manip.itkscripts as mitk
+import mp_image_manip.tiling as til
+import mp_image_manip.bulk_image_processing as blk
+import mp_image_manip.itkscripts as mitk
 import numpy as np
 import SimpleITK as sitk
 import os
 
-def calculateRetardanceOverArea(retardance, orientation):
+def calculate_retardance_over_area(retardance, orientation):
     
     # This gives me the orientation in 360 degrees, doubled to calculate alignment.
-    circularOrientation = (2*np.pi/180)*(orientation/100);
-    complexOrientation = np.exp(1j*circularOrientation);
+    circular_orientation = (2*np.pi/180)*(orientation/100);
+    complex_orientation = np.exp(1j*circular_orientation);
     
-    retardanceWeightedByOrientation = retardance*complexOrientation;
+    retardance_weighted_by_orientation = retardance*complex_orientation;
     
-    numPixels = np.size(retardance);
+    num_pixels = np.size(retardance);
     
-    averageRetardance = np.sum(retardanceWeightedByOrientation)/numPixels;
+    average_retardance = np.sum(retardance_weighted_by_orientation)/num_pixels;
     
-    retMag = np.absolute(averageRetardance);
-    retBaseAngle= np.angle(averageRetardance, deg=True)
+    ret_mag = np.absolute(average_retardance);
+    ret_base_angle= np.angle(average_retardance, deg=True)
     
-    if retBaseAngle < 0:
-        retBaseAngle += 360
+    if ret_base_angle < 0:
+        ret_base_angle += 360
         
-    retAngle = retBaseAngle*100/2
+    ret_angle = ret_base_angle*100/2
 
     
-    #bug: retAngle does not give right value.
+    #bug: ret_angle does not give right value.
     
-    return (retMag,retAngle)
+    return (ret_mag,ret_angle)
 
 
 
-def convertIntensityToRetardance(
-        itkImg, retCeiling = 35, wavelength = 549, nmInput = True, degOutput = True):
+def convert_intensity_to_retardance(itk_image, 
+                                  ret_ceiling = 35, wavelength = 549, 
+                                  nm_input = True, deg_output = True):
     """Convert retardance intensities that are scaled to the image input 
     (e.g., 16 bit int) into to actual retardance values.  
     
     Input: 
-        itkImg: The image being converted, as an ITK Image object
-        retCeiling: The maximum retardance value corresponding to max intensity
+        itk_image: The image being converted, as an ITK _image object
+        ret_ceiling: The maximum retardance value corresponding to max intensity
         wavelength: The wavelength of light used to image, for converting 
             between degrees and retardance.  Defaults to 546 for the LOCI
             PolScope wavelength
-        nmInput: The input retCeiling is in nm if true, degrees if false
-        degOutput: The output is in degrees if true, nm if false
+        nm_input: The input ret_ceiling is in nm if true, degrees if false
+        deg_output: The output is in degrees if true, nm if false
         
     Output:
         A new ITK image with retardance values either in degrees (default)
-        or in nm (if degOutput is set to False)
+        or in nm (if deg_output is set to False)
     
     """
     
-    inputArray = sitk.GetArrayFromImage(itkImg)
+    input_array = sitk.GetArrayFromImage(itk_image)
     
     #todo: implement a check for pixel type
     
-    pixelTypeFactor = retCeiling/65535
+    pixel_type_factor = ret_ceiling/65535
     
-    if nmInput and degOutput:
-        wavelengthFactor = 360/wavelength
-    elif nmInput == False and degOutput == False:
-        wavelengthFactor = wavelength/360
+    if nm_input and deg_output:
+        wavelength_factor = 360/wavelength
+    elif nm_input == False and deg_output == False:
+        wavelength_factor = wavelength/360
     else:
-        wavelengthFactor = 1
+        wavelength_factor = 1
         
-    outputArray = inputArray*pixelTypeFactor*wavelengthFactor
+    output_array = input_array*pixel_type_factor*wavelength_factor
 
-    outputImg = sitk.GetImageFromArray(outputArray)
+    output_image = sitk.GetImageFromArray(output_array)
     
-    return outputImg
+    return output_image
     
 
 
 
-def downsampleRetardanceImage(retImgPath, orientImgPath, scalePixelFactor, simulatedResolutionFactor = None):
+def downsample_retardance_image(ret_image_path, orient_image_path, 
+                               scale_pixel_factor, 
+                               simulated_resolution_factor = None):
 
-    if not simulatedResolutionFactor:
-        simulatedResolutionFactor = scalePixelFactor
+    if not simulated_resolution_factor:
+        simulated_resolution_factor = scale_pixel_factor
 
-    retImg = sitk.ReadImage(retImgPath)
-    orientImg = sitk.ReadImage(orientImgPath)
+    ret_image = sitk.ReadImage(ret_image_path)
+    orient_image = sitk.ReadImage(orient_image_path)
 
-    retArray= sitk.GetArrayFromImage(retImg)
-    orientArray = sitk.GetArrayFromImage(orientImg)
+    ret_array= sitk.GetArrayFromImage(ret_image)
+    orient_array = sitk.GetArrayFromImage(orient_image)
 
 
-    #if np.size(retImg) != np.size(orientImg):
+    #if np.size(ret_image) != np.size(orient_image):
      #   warn('The retardance and orientation image sizes do not match.  Please select inputs from the same image')    
       #  return
 
-    #if (np.remainder(scalePixelFactor,1) != 0) or (np.remainder(simulatedResolutionFactor,1) != 0):
+    #if (np.remainder(scale_pixel_factor,1) != 0) or (np.remainder(simulated_resolution_factor,1) != 0):
      #   warn('The scale factor(s) needs to be a positive integer, representing the number of pixels that compose the new pixel value')
       #  return
         #todo: allow non-integer resolution scaling
     
-    arraySize = np.shape(retArray)
+    array_size = np.shape(ret_array)
     
-    (xPixelNum, xOffset) = til.calculateNumberOfTiles(arraySize[0], scalePixelFactor, simulatedResolutionFactor)
-    (yPixelNum, yOffset) = til.calculateNumberOfTiles(arraySize[1], scalePixelFactor, simulatedResolutionFactor)
-
-    downRetArray = np.zeros((xPixelNum, yPixelNum))
-    downOrientArray = np.zeros((xPixelNum, yPixelNum))
+    (x_pixel_num, x_offset) = til.calculate_number_of_tiles(
+            array_size[0], scale_pixel_factor, simulated_resolution_factor)
     
-    for y in range(0, yPixelNum):
-        for x in range(0, xPixelNum):
-            
-            (xStart, xEnd) = til.getTileStartEndIndex(x, scalePixelFactor, xOffset, simulatedResolutionFactor)
-            (yStart, yEnd) = til.getTileStartEndIndex(y, scalePixelFactor, yOffset, simulatedResolutionFactor)
+    (y_pixel_num, y_offset) = til.calculate_number_of_tiles(
+            array_size[1], scale_pixel_factor, simulated_resolution_factor)
 
-            retNeighborhood = retArray[range(xStart,xEnd+1),range(yStart,yEnd+1)]
-            orientNeighborhood = orientArray[range(xStart,xEnd+1),range(yStart,yEnd+1)]
+    down_ret_array = np.zeros((x_pixel_num, y_pixel_num))
+    down_orient_array = np.zeros((x_pixel_num, y_pixel_num))
+    
+    for y in range(0, y_pixel_num):
+        for x in range(0, x_pixel_num):
             
-            (retPixel, orientPixel) = calculateRetardanceOverArea(retNeighborhood,orientNeighborhood)
+            (x_start, x_end) = til.get_tile_start_end_index(
+                    x, scale_pixel_factor, x_offset, simulated_resolution_factor)
+            
+            (y_start, y_end) = til.get_tile_start_end_index(
+                    y, scale_pixel_factor, y_offset, simulated_resolution_factor)
+
+            ret_neighborhood = ret_array[range(x_start,x_end+1),range(y_start,y_end+1)]
+            orient_neighborhood = orient_array[range(x_start,x_end+1),range(y_start,y_end+1)]
+            
+            (ret_pixel, orient_pixel) = calculate_retardance_over_area(ret_neighborhood,orient_neighborhood)
                 
-            downRetArray[x,y] = retPixel
-            downOrientArray[x,y] = orientPixel
+            down_ret_array[x,y] = ret_pixel
+            down_orient_array[x,y] = orient_pixel
 
-    downRetImg = sitk.GetImageFromArray(downRetArray)
-    downRetImg = sitk.Cast(downRetImg, retImg.GetPixelID())
+    down_ret_image = sitk.GetImageFromArray(down_ret_array)
+    down_ret_image = sitk.Cast(down_ret_image, ret_image.GetPixelID())
     
-    downOrientImg = sitk.GetImageFromArray(downOrientArray)
-    downOrientImg = sitk.Cast(downOrientImg, orientImg.GetPixelID())
+    down_orient_image = sitk.GetImageFromArray(down_orient_array)
+    down_orient_image = sitk.Cast(down_orient_image, orient_image.GetPixelID())
 
-    return (downRetImg, downOrientImg) 
-
-
+    return (down_ret_image, down_orient_image) 
 
 
 
 
-def batchDownsampleRetardance(retDir, orientDir, outputDir, scaleFactor, simulatedResolutionFactor = None):
-    outputSuffix = 'DownSample-' + str(scaleFactor) + 'x'
 
-    if simulatedResolutionFactor and simulatedResolutionFactor != scaleFactor:
-        outputSuffix = outputSuffix + '_SimRes-' + str(simulatedResolutionFactor) + 'x'
 
-    (retImgPathList, orientImgPathList) = blk.findSharedImages(retDir, orientDir)
+def batch_downsample_retardance(ret_dir, orient_dir, output_dir,
+                               scale_factor,
+                               simulated_resolution_factor = None):
     
-    for i in range(0, np.size(retImgPathList)):
-        (downRetImg, downOrientImg) = downsampleRetardanceImage(retImgPathList[i], orientImgPathList[i], scaleFactor, simulatedResolutionFactor)
+    output_suffix = 'DownSample-' + str(scale_factor) + 'x'
+
+    if simulated_resolution_factor and simulated_resolution_factor != scale_factor:
+        output_suffix = output_suffix + '_SimRes-' + str(simulated_resolution_factor) + 'x'
+
+    (ret_image_path_list, orient_image_path_list) = blk.find_shared_images(ret_dir, orient_dir)
+    
+    for i in range(0, np.size(ret_image_path_list)):
+        (down_ret_image, down_orient_image) = downsample_retardance_image(ret_image_path_list[i], orient_image_path_list[i], scale_factor, simulated_resolution_factor)
         
-        downRetDir = os.path.join(outputDir, outputSuffix, 'Ret',)
-        downOrientDir = os.path.join(outputDir, outputSuffix, 'SlowAxis',)
+        down_ret_dir = os.path.join(output_dir, output_suffix, '_ret',)
+        down_orient_dir = os.path.join(output_dir, output_suffix, 'SlowAxis',)
         
-        downRetPath = blk.createNewImagePath(retImgPathList[i], downRetDir, '_Ret_' + outputSuffix )
-        downOrientPath = blk.createNewImagePath(orientImgPathList[i], downOrientDir, '_SlowAxis_' + outputSuffix)
+        down_ret_path = blk.create_new_image_path(ret_image_path_list[i], down_ret_dir, '__ret_' + output_suffix )
+        down_orient_path = blk.create_new_image_path(orient_image_path_list[i], down_orient_dir, '_SlowAxis_' + output_suffix)
       
-        sitk.WriteImage(downRetImg, downRetPath)
-        mitk.write_image_parameters(downRetPath,downRetImg.GetSpacing(), downRetImg.GetOrigin())
+        sitk.Write_image(down_ret_image, down_ret_path)
+        mitk.write_image_parameters(down_ret_path,down_ret_image.GetSpacing(), down_ret_image.GetOrigin())
         
-        sitk.WriteImage(downOrientImg, downOrientPath)
-        mitk.write_image_parameters(downOrientPath,downOrientImg.GetSpacing(), downOrientImg.GetOrigin())
+        sitk.Write_image(down_orient_image, down_orient_path)
+        mitk.write_image_parameters(down_orient_path,down_orient_image.GetSpacing(), down_orient_image.GetOrigin())
