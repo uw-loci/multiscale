@@ -226,7 +226,6 @@ def overlay_images(fixed_image, moving_image, alpha = 0.7):
 
         combined_array = (1.0 - alpha)*fixed_normalized + alpha*moving_normalized
         return combined_array
-        
                  
     
 def query_origin_change(moving_image, fixed_image):
@@ -322,7 +321,7 @@ def supervisedRegisterImages(fixedPath, movingPath, iterations = 200, scale = 4)
     return registered_image, transform
     
 
-def bulkSupervisedRegisterImages(fixedDir, movingDir, outputDir, outputSuffix,
+def bulk_supervised_register_images(fixedDir, movingDir, outputDir, outputSuffix,
                                  writeOutput = True, writeTransform = True,
                                  iterations = 200, scale = 4):
     
@@ -371,3 +370,9 @@ def bulk_resize_image(fixedDir, movingDir, outputDir, outputSuffix):
 
         sitk.WriteImage(resized_image,resized_path)
         write_image_parameters(resized_path, resized_image.GetSpacing(),resized_image.GetOrigin())
+
+def apply_transform(fixed_path, moving_path, transform):
+    return
+
+def bulk_apply_transform(fixed_dir, moving_dir, transform_dir, output_dir, output_suffix,):
+    return
