@@ -106,7 +106,8 @@ def find_shared_images(dir_one, dir_two):
     #todo: modify dir_one_baseFile_names into a list of names, and then
     #implement a .txt file?
     
-    #todo: make a check for different categories of name, if there are multiple instances of a single name?
+    #todo: make a check for different categories of name,
+    #   if there are multiple instances of a single name?
     
     file_list_one = [f for f in os.listdir(dir_one) if f.endswith('.tif')]
     file_list_two = [f for f in os.listdir(dir_two) if f.endswith('.tif')]

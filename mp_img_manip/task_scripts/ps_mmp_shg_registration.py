@@ -16,7 +16,7 @@ def perform_registrations():
     Produces images at each step 
         01 - Resized images 
         02 - Registered images
-        03 - Registered images that have been cropped to MMP boundaries"""
+        03 - Registered images cropped to MMP boundaries"""
     
     dir_dict = create_dictionary()
       

@@ -90,11 +90,14 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
 
 
     #if np.size(ret_image) != np.size(orient_image):
-     #   warn('The retardance and orientation image sizes do not match.  Please select inputs from the same image')    
+     #   warn('The retardance and orientation image sizes do not match.
+     #Please select inputs from the same image')    
       #  return
 
-    #if (np.remainder(scale_pixel_factor,1) != 0) or (np.remainder(simulated_resolution_factor,1) != 0):
-     #   warn('The scale factor(s) needs to be a positive integer, representing the number of pixels that compose the new pixel value')
+    #if ((np.remainder(scale_pixel_factor,1) != 0) 
+    #or (np.remainder(simulated_resolution_factor,1) != 0)):
+     #   warn('The scale factor(s) needs to be a positive integer,
+     #representing the number of pixels that compose the new pixel value')
       #  return
         #todo: allow non-integer resolution scaling
     
@@ -151,7 +154,9 @@ def batch_downsample_retardance(ret_dir, orient_dir, output_dir,
     
     output_suffix = 'DownSample-' + str(scale_factor) + 'x'
 
-    if simulated_resolution_factor and simulated_resolution_factor != scale_factor:
+    if (simulated_resolution_factor 
+        and simulated_resolution_factor != scale_factor):
+        
         output_suffix = (output_suffix + '_SimRes-' 
                          + str(simulated_resolution_factor) + 'x')
 
@@ -170,9 +175,10 @@ def batch_downsample_retardance(ret_dir, orient_dir, output_dir,
                                                   down_ret_dir,
                                                   '__ret_' + output_suffix )
         
-        down_orient_path = blk.create_new_image_path(orient_image_path_list[i],
-                                                     down_orient_dir,
-                                                     '_SlowAxis_' + output_suffix)
+        down_orient_path = blk.create_new_image_path(
+                orient_image_path_list[i],
+                down_orient_dir,
+                '_SlowAxis_' + output_suffix)
       
         sitk.Write_image(down_ret_image, down_ret_path)
         mitk.write_image_parameters(down_ret_path,

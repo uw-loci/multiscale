@@ -42,10 +42,12 @@ import matplotlib.pyplot as plt
 #        
 #        ani.FuncAnimation(self.fig, self.update_iteration)
 #    
-#    def update_iteration(self, new_metric_value, fixed_image, moving_image, transform):
+#    def update_iteration(self, new_metric_value,
+#                            fixed_image, moving_image, transform):
 #        metric_values.append(new_metric_value)                                       
 #        
-#        moving_image_transformed = sitk.Resample(moving_image, fixed_image, transform, 
+#        moving_image_transformed = sitk.Resample(
+                            #moving_image, fixed_image, transform, 
 #                                       sitk.sitkLinear, 0.0, 
 #                                       moving_image.GetPixelIDValue()) 
 #        
@@ -55,9 +57,12 @@ import matplotlib.pyplot as plt
 #        self.ax[0].axis('off')
 #        
 #        self.ax[1].plot(self.metric_values, 'r')
-#        self.ax[1].plot(self.multires_iterations, [self.metric_values[index] for index in self.multires_iterations], 'b*')
+#        self.ax[1].plot(self.multires_iterations,
+#                        [self.metric_values[index] for index 
+                        # in self.multires_iterations], 'b*')
 #   
-#        asp = np.diff(self.ax[1].get_xlim())[0] / np.diff(self.ax[1].get_ylim())[0]
+#        asp = np.diff(self.ax[1].get_xlim())[0] 
+                        #/ np.diff(self.ax[1].get_ylim())[0]
 #        self.ax[1].set_aspect(asp)        
 #        
 #    def update_scale(self):
@@ -131,8 +136,7 @@ def affine_register(fixed_image, moving_image,
     
     registration_method = sitk.ImageRegistrationMethod()
 
-     # Similarity metric settings.|
-    #registration_method.SetMetricAsMeanSquares()
+    # Similarity metric settings.|
     registration_method.SetMetricAsMattesMutualInformation()
     registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
     registration_method.SetMetricSamplingPercentage(1)
@@ -145,11 +149,14 @@ def affine_register(fixed_image, moving_image,
     if moving_mask:
         registration_method.SetMetricMovingMask(moving_mask)
     
-        # Optimizer settings.
+    # Optimizer settings.
     registration_method.SetOptimizerAsRegularStepGradientDescent(20.0, 0.01,
                                                                  iterations)
-    #registration_method.SetOptimizerAsOnePlusOneEvolutionary(numberOfIterations=100)
-    #registration_method.SetOptimizerAsGradientDescent(learningRate=1.0, numberOfIterations=100, convergenceMinimumValue=1e-4, convergenceWindowSize=10)
+    #registration_method.SetOptimizerAsOnePlusOneEvolutionary(
+    #       numberOfIterations=100)
+    #registration_method.SetOptimizerAsGradientDescent(
+    #       learningRate=1.0, numberOfIterations=100,
+    #       convergenceMinimumValue=1e-4, convergenceWindowSize=10)
     registration_method.SetOptimizerScalesFromPhysicalShift()
 
         # Setup for the multi-resolution framework.
@@ -168,21 +175,23 @@ def affine_register(fixed_image, moving_image,
             smoothing_sigmas[(4-scale):])
     registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
 
-        #Redefining initial_transform so the function 
-    transform = sitk.AffineTransform(2)
-    #transform = sitk.TranslationTransform(2)
-    
-    # Don't optimize in-place, we would possibly like to run this cell multiple times.
+    transform = sitk.AffineTransform(2)    
     registration_method.SetInitialTransform(transform)
 
-    # Connect all of the observers so that we can perform plotting during registration.
+    # Connect all of the observers so that we can plot during registration.
     
     #animation = registration_plot
     
     #registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
     #registration_method.AddCommand(sitk.sitkEndEvent, end_plot)
- #   registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, lambda: animation.update_scale) 
-#    registration_method.AddCommand(sitk.sitkIterationEvent, lambda: animation.update_iteration(registration_method.GetMetricValue(),fixed_image, moving_image, transform))
+ #   registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent,
+    #                               lambda: animation.update_scale) 
+#    registration_method.AddCommand(
+        #sitk.sitkIterationEvent,
+        #lambda: animation.update_iteration(
+        #   registration_method.GetMetricValue(),
+        #   fixed_image, moving_image,
+        #   transform))
 
     return (registration_method.Execute(fixed_image,moving_image),
             registration_method.GetMetricValue(),
