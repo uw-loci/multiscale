@@ -11,6 +11,13 @@ import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.itkscripts as mitk
 
 
+def create_dir_dictionary():
+    base_dir = os.path.normpath('F:\Box Sync\Research\Polarimetry')
+    
+                                
+    
+    return dir_dict
+
 def perform_registrations(base_dir = os.path.normpath('F:\Box Sync\Research\Polarimetry'),
                           prep_dir = '02 - Python prepped images',
                           resize_dir = '01 - Resizing images',
@@ -46,14 +53,16 @@ def perform_registrations(base_dir = os.path.normpath('F:\Box Sync\Research\Pola
     mmp_dir_small_registered_cropped = os.path.join(os.path.join(base_dir,reg_crop_dir,'MMP_Small_Registered_Cropped'))
     shg_dir_small_registered_cropped = os.path.join(base_dir,reg_crop_dir,'SHG_Small_Registered_Cropped')
 
-    
+        
 
 
     #Register large images
     mmp_dir_large_registered = os.path.join(base_dir,reg_crop_dir,'MMP_Large_Registered')
     shg_dir_large_registered = os.path.join(base_dir,reg_crop_dir,'SHG_Large_Registered_Cropped')
     
-    
+    mitk.bulk_apply_transform(ps_dir,mmp_dir_large,mmp_dir_small_registered,mmp_dir_large_registered,'MMP_Large_Registered')
+    mitk.bulk_apply_transform(ps_dir,shg_dir,shg_dir_small_registered, shg_dir_large_registereed, 'SHG_Large_Registered')
+
 
 
     #Crop large images
