@@ -42,9 +42,9 @@ def create_dictionary(
     
     
     dir_dict = {
-    "ps_large" : os.path.join(base_dir, prep_dir, 'PS_BasicCorrected'),
-    "mmp_small" : os.path.join(base_dir, prep_dir, 'MMP'),
-    "shg_large" : os.path.join(base_dir, prep_dir, 'SHG'),
+    "ps_large" : os.path.join(base_dir, prep_dir, 'PS_Large'),
+    "mmp_small" : os.path.join(base_dir, prep_dir, 'MMP_Small'),
+    "shg_large" : os.path.join(base_dir, prep_dir, 'SHG_Large'),
     
     "ps_small" : os.path.join(base_dir,resize_dir,'PS_Small'),
     "shg_small" : os.path.join(base_dir,resize_dir,'SHG_Small'),
