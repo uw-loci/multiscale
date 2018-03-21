@@ -20,6 +20,8 @@ def read_write_pandas_row(file_path, index,
     The csv row in a list, absent the index.
     """
     
+    #todo: make it query based on the type, and not just a str
+    
     (file_dir, file_name) = os.path.split(file_path)
     try:
         data = pd.read_csv(file_path, index_col = index_label)
@@ -38,12 +40,12 @@ def read_write_pandas_row(file_path, index,
                     
             else: column_values = data.loc[index]            
     except:
-        print('Creating new file ' + file_name + ' in ' + file_dir)
+        print('\n Creating new file ' + file_name + ' in ' + file_dir)
         data = pd.DataFrame(
                 index = pd.Index([], dtype='object', name=index_label),
                 columns = column_labels)
             
-    if column_values:
+    if column_values is not None:
         data.loc[index] = column_values
     else:
         print('Please enter in values for {0}'.format(index))
@@ -186,8 +188,10 @@ def find_shared_images(dir_one, dir_two):
           
             if base_nameOne == base_nameTwo:
                 
-                dir_one_image_paths.append(dir_one + file_list_one[i])
-                dir_two_image_paths.append(dir_two + file_list_two[j])
+                dir_one_image_paths.append(
+                        os.path.join(dir_one, file_list_one[i]))
+                dir_two_image_paths.append(
+                        os.path.join(dir_two, file_list_two[j]))
 
     
     return (dir_one_image_paths, dir_two_image_paths)
