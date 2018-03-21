@@ -13,7 +13,7 @@ import os
 import math
 
 def write_transform(registered_path,transform, metric, stop):
-    
+    """Write affine transform parameters to a csv file"""
     (output_dir, image_name) = os.path.split(registered_path)
     
     file_path = output_dir + '/Transforms.csv'
@@ -30,8 +30,22 @@ def write_transform(registered_path,transform, metric, stop):
     blk.write_pandas_row(file_path,image_name,column_values,
                          'Image',column_labels)
     
+
+def apply_transform(fixed_path, moving_path, transform):
     
+    
+    
+    return
+
+def bulk_apply_transform(fixed_dir, moving_dir, output_dir,
+                         transform_dir,
+                         output_suffix,):
+    
+    return
+
+
 def resize_image(image_path, output_suffix, current_spacing, target_spacing):
+    """Resize an image by an integer factor towards target spacing"""
     itkImg = meta.setup_image(image_path, return_image = True)
     
     scale = math.floor(target_spacing/current_spacing)
@@ -49,6 +63,7 @@ def resize_image(image_path, output_suffix, current_spacing, target_spacing):
     
     
 def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
+    """Resize multiple images to corresponding reference size"""
     (fixed_image_path_list, moving_image_path_list) = blk.find_shared_images(
             fixed_dir, moving_dir)
     
@@ -73,11 +88,14 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
                                resized_image.GetSpacing(),
                                resized_image.GetOrigin())
         
-def apply_transform(fixed_path, moving_path, transform):
+        
+def crop_to_nonzero_boundary(image_path, output_dir, output_suffix,
+                             reference_path = None):
+    
     
     return
 
-def bulk_apply_transform(fixed_dir, moving_dir, output_dir,
-                         transform_dir,
-                         output_suffix,):
+
+def bulk_crop_to_nonzero_boundary(image_dir, output_dir, output_suffix,
+                                  reference_dir = None):
     return
