@@ -4,10 +4,9 @@ import pandas as pd
 
     
 def read_write_pandas_row(file_path, index,
-                          index_label, column_labels):
+                          index_label, column_labels, column_values = None):
     """
-    Find a row in a .csv file corresponding to a certain index.
-    If the index does not exist, create a new file.
+    Read a row from a csv file, or create it if it does not exist.
     
     Inputs:
     file_path -- path and name of csv file
@@ -20,22 +19,26 @@ def read_write_pandas_row(file_path, index,
     """
     
     (file_dir, file_name) = os.path.split(file_path)
-
     try:
         data = pd.read_csv(file_path, index_col = index_label)
-        try:
-            return data.loc[index]
-        except:
-            print('There are no existing entries for ' + index )
+        if (data.index == index).any():
+            
+            if util.yes_no('Do you want to replace the file values with your'
+                           'newly entered values'):
+                column_values = data[index]
+                
     except:
         print('Creating new file ' + file_name + ' in ' + file_dir)
         data = pd.DataFrame(
                 index = pd.Index([], dtype='object', name=index_label),
                 columns = column_labels)
-    
-    print('Please enter in values for {0}'.format(index))
-    new_row = [input(x + ': ') for x in column_labels]
-    data.loc[index] = new_row 
+            
+    if column_values:
+        data.loc[index] = column_values
+    else:
+        print('Please enter in values for {0}'.format(index))
+        new_row = [input(x + ': ') for x in column_labels]
+        data.loc[index] = new_row 
     
     data.to_csv(file_path)
         
@@ -66,7 +69,10 @@ def write_pandas_row(file_path, index, column_values,
     data.loc[index] = column_values
     data.to_csv(file_path)
         
+    
 def read_pandas_row(file_path, index, index_label):
+    """Read a row from a .csv file"""
+    
     (file_dir, file_name) = os.path.split(file_path)
     
     try:
