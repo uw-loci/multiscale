@@ -1,6 +1,6 @@
 import mp_img_manip.tiling as til
 import mp_img_manip.bulk_img_processing as blk
-import mp_img_manip.itkscripts as mitk
+import mp_img_manip.itk.metadata as meta
 import numpy as np
 import SimpleITK as sitk
 import os
@@ -190,11 +190,11 @@ def batch_downsample_retardance(ret_dir, orient_dir, output_dir,
                 '_SlowAxis_' + output_suffix)
       
         sitk.Write_image(down_ret_image, down_ret_path)
-        mitk.write_image_parameters(down_ret_path,
+        meta.write_image_parameters(down_ret_path,
                                     down_ret_image.GetSpacing(),
                                     down_ret_image.GetOrigin())
         
         sitk.Write_image(down_orient_image, down_orient_path)
-        mitk.write_image_parameters(down_orient_path,
+        meta.write_image_parameters(down_orient_path,
                                     down_orient_image.GetSpacing(),
                                     down_orient_image.GetOrigin())
