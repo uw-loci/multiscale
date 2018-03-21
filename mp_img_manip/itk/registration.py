@@ -13,6 +13,7 @@ import mp_img_manip.itk.process as proc
 
 import SimpleITK as sitk
 import numpy as np
+import os
 
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
@@ -171,7 +172,7 @@ def query_good_registration(fixed_image, moving_image,
     
     moving_resampled = sitk.Resample(moving_image, fixed_image, transform, 
                                        sitk.sitkLinear, 0.0, 
-                                       moving_image.GetPixelIDValue()) 
+                                       fixed_image.GetPixelIDValue()) 
                 
     plt.imshow(proc.overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
     plt.show()
@@ -185,7 +186,7 @@ def query_good_registration(fixed_image, moving_image,
     print('Transform Matrix: {0}'.format(matrix))
     print('Transform Translation: {0}'.format(translation))
         
-    return util.yes_no('Is this registration good? [y/n] >>> ')
+    return util.yes_no('\n Is this registration good? [y/n] >>> ')
 
 
 def supervised_register_images(fixed_path, moving_path,
@@ -193,6 +194,9 @@ def supervised_register_images(fixed_path, moving_path,
     
     fixed_image = meta.setup_image(fixed_path)
     moving_image = meta.setup_image(moving_path, setup_origin = True)
+    
+    print('Registering ' + os.path.basename(moving_path) + ' to '
+          + os.path.basename(fixed_path))
     
     while True:    
         moving_image.SetOrigin(meta.query_origin_change(fixed_image, moving_image))

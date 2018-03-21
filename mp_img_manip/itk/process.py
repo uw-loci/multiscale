@@ -8,7 +8,7 @@ import mp_img_manip.bulk_img_processing as blk
 
 import SimpleITK as sitk
 import numpy as np
-
+import os
 
 def overlay_images(fixed_image, moving_image, alpha = 0.7):
     """Create a numpy array that is an 8bit combination of two images
@@ -59,6 +59,9 @@ def bulk_apply_mask(image_dir, mask_dir,
         
         image = sitk.ReadImage(image_path_list[i])
         mask = sitk.ReadImage(mask_path_list[i])
+        
+        print('Masking ' + os.path.basename(image_path_list[i]) + ' with '
+          + os.path.basename(mask_path_list[i]))
         
         masked_image = image * (mask > 0)
         

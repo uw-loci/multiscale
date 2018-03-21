@@ -48,6 +48,10 @@ def resize_image(image_path, output_suffix, current_spacing, target_spacing):
     """Resize an image by an integer factor towards target spacing"""
     itkImg = meta.setup_image(image_path, return_image = True, print_parameters = False)
     
+    image_name = os.path.basename(image_path)
+    
+    print('Resizing ' + image_name + ' from pixel spacing of ' 
+          + str(current_spacing) + ' to ' + str(target_spacing))
     
     
     if current_spacing < target_spacing: 
