@@ -7,16 +7,19 @@ Created on Tue Mar  6 15:52:18 2018
 
 
 import os
-import mp_img_manip.itkscripts as mitk
+import mp_img_manip.itk.registration as reg
+import mp_img_manip.itk.transform as trans
 
 
 
 def perform_registrations():
     """Overall script to perform both mmp and shg registrations
+    
     Produces images at each step 
-        01 - Resized images 
-        02 - Registered images
-        03 - Registered images cropped to MMP boundaries"""
+    
+    01 - Resized images 
+    02 - Registered images
+    03 - Registered images cropped to MMP boundaries"""
     
     dir_dict = create_dictionary()
       
@@ -69,15 +72,15 @@ def resize_images(dir_dict):
         Resize the large PS images to ~ small MMP resolution
         Resize the large SHG images to ~ small MMP resolution"""
         
-    mitk.bulk_resize_image(dir_dict["mmp_small"],
+    trans.bulk_resize_image(dir_dict["mmp_small"],
                            dir_dict["ps_large"],dir_dict["ps_small"],
                            'PS_Small')
     
-    mitk.bulk_resize_image(dir_dict["ps_small"],
+    trans.bulk_resize_image(dir_dict["ps_small"],
                            dir_dict["shg_large"],dir_dict["shg_small"],
                            'SHG_Small')
     
-    mitk.bulk_resize_image(dir_dict["ps_large"],
+    trans.bulk_resize_image(dir_dict["ps_large"],
                            dir_dict["mmp_small"],dir_dict["mmp_large"],
                            'MMP_Large')    
 
@@ -85,12 +88,12 @@ def resize_images(dir_dict):
 
 def register_small_images(dir_dict):
     """Register the small MMP to small PS.  Small SHG to small PS"""
-    mitk.bulk_supervised_register_images(dir_dict["ps_small"],
+    reg.bulk_supervised_register_images(dir_dict["ps_small"],
                                          dir_dict["mmp_small"],
                                          dir_dict["mmp_small_reg"],
                                          'MMP_Small_Reg')
     
-    mitk.bulk_supervised_register_images(dir_dict["ps_small"],
+    reg.bulk_supervised_register_images(dir_dict["ps_small"],
                                          dir_dict["shg_small"],
                                          dir_dict["shg_small_reg"],
                                          'SHG_Small_Reg')
@@ -101,13 +104,13 @@ def crop_small_images(dir_dict):
 
 
 def apply_transform_to_large_images(dir_dict):
-    mitk.bulk_apply_transform(dir_dict["ps_large"],
+    reg.bulk_apply_transform(dir_dict["ps_large"],
                               dir_dict["mmp_large"],
                               dir_dict["mmp_large_reg"],
                               dir_dict["mmp_small_reg"],
                               'MMP_Large_Reg')
     
-    mitk.bulk_apply_transform(dir_dict["ps_large"],
+    reg.bulk_apply_transform(dir_dict["ps_large"],
                               dir_dict["shg_large"],
                               dir_dict["shg_large_reg"],
                               dir_dict["shg_small_reg"], 
