@@ -376,7 +376,7 @@ def write_image_parameters(image_path, spacing, origin):
                          'Image',column_labels)    
     
 
-def write_transform(registered_path,transform):
+def write_transform(registered_path,transform, metric, stop):
     
     (output_dir, image_name) = os.path.split(registered_path)
     
@@ -384,9 +384,12 @@ def write_transform(registered_path,transform):
     
     column_labels =('Matrix Top Left', 'Matrix Top Right',
                     'Matrix Bottom Left', 'Matrix Bottom Right',
-                    'X Translation', 'Y Translation')
+                    'X Translation', 'Y Translation',
+                    'Mutual Information', 'Stop Condition')
     
     column_values = transform.GetParameters()
+    column_values.append(metric)
+    column_values.append(stop)
     
     blk.write_pandas_row(file_path,image_name,column_values,
                          'Image',column_labels)
@@ -411,7 +414,7 @@ def supervised_register_images(fixed_path, moving_path,
                                      transform, sitk.sitkLinear,
                                      0.0, moving_image.GetPixelID())
        
-    return registered_image, transform
+    return registered_image, transform, metric, stop
     
 
 def bulk_supervised_register_images(fixed_dir, moving_dir,
@@ -423,7 +426,7 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
             fixed_dir, moving_dir)
     
     for i in range(0, np.size(fixed_image_path_list)):
-        registered_image, transform = supervised_register_images(
+        registered_image, transform, metric, stop = supervised_register_images(
                 fixed_image_path_list[i], moving_image_path_list[i],
                 iterations = iterations, scale = scale)
         
@@ -437,7 +440,7 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
                                    registered_image.GetOrigin())
             
         if writeTransform:
-            write_transform(registered_path,transform)
+            write_transform(registered_path, transform, metric, stop)
             
             
             
