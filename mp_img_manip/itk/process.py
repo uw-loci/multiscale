@@ -4,7 +4,7 @@ Created on Wed Mar 21 10:06:55 2018
 
 @author: mpinkert
 """
-import mp_img_manip.bulk_image_processing as blk
+import mp_img_manip.bulk_img_processing as blk
 
 import SimpleITK as sitk
 import numpy as np

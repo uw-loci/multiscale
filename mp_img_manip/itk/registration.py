@@ -4,7 +4,7 @@ Created on Wed Mar 21 09:38:19 2018
 
 @author: mpinkert
 """
-import mp_img_manip.bulk_image_processing as blk
+import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.utility_functions as util
 
 import mp_img_manip.itk.metadata as meta

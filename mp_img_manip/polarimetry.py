@@ -1,5 +1,5 @@
 import mp_img_manip.tiling as til
-import mp_img_manip.bulk_image_processing as blk
+import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.itkscripts as mitk
 import numpy as np
 import SimpleITK as sitk

@@ -4,7 +4,7 @@ Created on Wed Mar 21 09:39:34 2018
 
 @author: mpinkert
 """
-import mp_img_manip.bulk_image_processing as blk
+import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.itk.metadata as meta 
 
 import SimpleITK as sitk
