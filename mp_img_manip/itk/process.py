@@ -58,12 +58,12 @@ def bulk_apply_mask(image_dir, mask_dir,
     for i in range(0, np.size(image_path_list)):
         
         image = sitk.ReadImage(image_path_list[i])
-        mask = sitk.ReadImage(mask_path_list[i])
+        mask = sitk.ReadImage(mask_path_list[i]) > 0
         
         print('Masking ' + os.path.basename(image_path_list[i]) + ' with '
           + os.path.basename(mask_path_list[i]))
         
-        masked_image = image * (mask > 0)
+        masked_image = sitk.Mask(image,mask)
         
         masked_path = blk.create_new_image_path(
                 image_path_list[i], output_dir, output_suffix)
