@@ -66,6 +66,17 @@ def write_pandas_row(file_path, index, column_values,
     data.loc[index] = column_values
     data.to_csv(file_path)
         
+def read_pandas_row(file_path, index, index_label):
+    (file_dir, file_name) = os.path.split(file_path)
+    
+    try:
+        data = pd.read_csv(file_path, index_col = index_label)
+        return data.loc[index]
+    except:
+        print('The file does not exist')
+        return []
+    
+
 
 def file_name_parts(file_name):
     """Extract strings seperated by underscores in a file name"""
