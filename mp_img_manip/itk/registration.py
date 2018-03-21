@@ -180,16 +180,16 @@ def query_good_registration(fixed_image, moving_image,
     plt.imshow(proc.overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
     plt.show()
         
-    print('Final metric value: {0}'.format(metric))
-    print('Optimizer\'s stopping condition, {0}'.format(stop))
+    print('\nFinal metric value: {0}'.format(metric))
+    print('\n{0}'.format(stop))
         
     transform_params = transform.GetParameters()
     matrix = np.array([transform_params[0:2], transform_params[2:4]])
     translation = np.array(transform_params[4:6])
-    print('Transform Matrix: {0}'.format(matrix))
-    print('Transform Translation: {0}'.format(translation))
+    print('\nTransform Matrix: \n{0}'.format(matrix))
+    print('\nTransform Translation: \n{0}'.format(translation))
         
-    return util.yes_no('\n Is this registration good? [y/n] >>> ')
+    return util.yes_no('Is this registration good? [y/n] >>> ')
 
 
 def supervised_register_images(fixed_path, moving_path,
