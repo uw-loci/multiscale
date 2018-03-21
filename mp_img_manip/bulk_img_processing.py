@@ -22,11 +22,19 @@ def read_write_pandas_row(file_path, index,
     try:
         data = pd.read_csv(file_path, index_col = index_label)
         if (data.index == index).any():
-            
-            if util.yes_no('Do you want to replace the file values with your'
-                           'newly entered values'):
-                column_values = data[index]
+            if column_values:
+                print('Row values in ' + file_name + ':')
+                print('\t' + data.loc[index])
                 
+                print('User entered row values:')
+                print('\t' + str(column_values))
+                
+                if not util.yes_no(
+                        'Do you want to replace the file values with your '
+                        'newly entered values'):
+                    column_values = data.loc[index]
+                    
+            else: column_values = data.loc[index]            
     except:
         print('Creating new file ' + file_name + ' in ' + file_dir)
         data = pd.DataFrame(
