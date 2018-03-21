@@ -4,7 +4,8 @@ import pandas as pd
 
     
 def read_write_pandas_row(file_path, index,
-                          index_label, column_labels, column_values = None):
+                          index_label, column_labels,
+                          column_values = None):
     """
     Read a row from a csv file, or create it if it does not exist.
     
@@ -13,6 +14,7 @@ def read_write_pandas_row(file_path, index,
     index -- the specific index you are looking for
     index_label -- what is the first entry of the index column
     column_labels -- labels for each column/variable
+    column_values -- optional manual user input of values
     
     Output:
     The csv row in a list, absent the index.
