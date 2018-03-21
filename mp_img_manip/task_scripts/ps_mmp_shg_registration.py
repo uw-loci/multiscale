@@ -9,6 +9,7 @@ Created on Tue Mar  6 15:52:18 2018
 import os
 import mp_img_manip.itk.registration as reg
 import mp_img_manip.itk.transform as trans
+import mp_img_manip.itk.process as proc
 
 
 
@@ -100,6 +101,13 @@ def register_small_images(dir_dict):
 
 
 def mask_small_images(dir_dict):
+    """Set all pixels outside the MMP ROI as 0 for PS and SHG"""
+    proc.bulk_apply_mask(dir_dict["ps_small"], dir_dict['mmp_small_reg'],
+                         dir_dict["ps_small_mask"], 'PS_Small_Masked')
+    
+    proc.bulk_apply_mask(dir_dict["shg_small_reg"], dir_dict['mmp_small_reg'],
+                         dir_dict["shg_small_mask"], 'SHG_Small_Masked')
+
     return
 
 
@@ -118,6 +126,13 @@ def apply_transform_to_large_images(dir_dict):
 
 
 def mask_large_images(dir_dict):
+    """Set all pixels outside the MMP ROI as 0 for PS and SHG"""
+    proc.bulk_apply_mask(dir_dict["ps_large"], dir_dict['mmp_large_reg'],
+                         dir_dict["ps_large_mask"], 'PS_Large_Masked')
+    
+    proc.bulk_apply_mask(dir_dict["shg_large_reg"], dir_dict['mmp_large_reg'],
+                         dir_dict["shg_large_mask"], 'SHG_Large_Masked')
+    
     return
 
 
