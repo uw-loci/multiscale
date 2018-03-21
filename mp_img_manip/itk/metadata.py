@@ -7,7 +7,8 @@ Created on Wed Mar 21 09:40:25 2018
 
 import mp_image_manip.bulk_image_processing as blk
 import mp_image_manip.utility_functions as util
-import mp_image_manip.itk.registration as ritk
+
+import mp_image_manip.itk.process as proc
 
 import SimpleITK as sitk
 import os
@@ -68,7 +69,7 @@ def setup_image(image_path,
 def query_origin_change(fixed_image, moving_image):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
     
-    plt.imshow(ritk.overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
+    plt.imshow(proc.overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
     plt.show()
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
     origin = moving_image.GetOrigin()
@@ -86,7 +87,7 @@ def query_origin_change(fixed_image, moving_image):
             new_origin = (new_origin_x, new_origin_y)
             
             moving_image.SetOrigin(new_origin)
-            plt.imshow(ritk.overlay_images(fixed_image, moving_image),
+            plt.imshow(proc.overlay_images(fixed_image, moving_image),
                        cmap=plt.cm.gray)
             plt.show()
             
@@ -97,7 +98,7 @@ def query_origin_change(fixed_image, moving_image):
     else:
         return origin
 
-    
+
     
 def write_image_parameters(image_path, spacing, origin):
     """Write down the spacing and origin of an image file to csv metadata"""

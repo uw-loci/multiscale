@@ -7,50 +7,16 @@ Created on Wed Mar 21 09:38:19 2018
 import mp_image_manip.bulk_image_processing as blk
 import mp_image_manip.utility_functions as util
 
+import mp_image_manip.itk.metadata as meta
+import mp_image_manip.itk.transform as tran
+import mp_image_manip.itk.process as proc
+
 import SimpleITK as sitk
 import numpy as np
 
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
-
-def overlay_images(fixed_image, moving_image, alpha = 0.7):
-    """Create a numpy array that is an 8bit combination of two images
-    
-    Inputs:
-    fixed_image -- Image one, using registration nomenclature
-    moving_image -- Image two, using registration nomeclature
-    alpha -- degree of weighting towards the moving image
-    
-    """
-    
-    fixed_array = sitk.GetArrayFromImage(fixed_image)
-    fixed_normalized = (fixed_array - np.amin(fixed_array))/(
-            np.amax(fixed_array) + np.amin(fixed_array))
-
-    try: #Post-registration
-        moving_array = sitk.GetArrayFromImage(moving_image)
-        moving_normalized = (moving_array - np.amin(moving_array))/(
-                np.amax(moving_array)+np.amin(moving_array))
-        
-        combined_array = ((1.0 - alpha)*fixed_normalized 
-                          + alpha*moving_normalized)
-        
-        return combined_array
-    
-    except: #Pre-registration
-        initial_transform = sitk.Similarity2DTransform()
-        moving_resampled = sitk.Resample(moving_image, fixed_image, 
-                                         initial_transform, sitk.sitkLinear,
-                                         0.0, moving_image.GetPixelID())
-        
-        moving_array = sitk.GetArrayFromImage(moving_resampled)
-        moving_normalized = (moving_array - np.amin(moving_array))/(
-                np.amax(moving_array)+np.amin(moving_array))
-
-        combined_array = ((1.0 - alpha)*fixed_normalized 
-                          + alpha*moving_normalized)
-        return combined_array
     
 def start_plot():
     """Event: Initialize global values for graphing registration values"""
@@ -58,7 +24,7 @@ def start_plot():
     
     metric_values = []
     multires_iterations = []
-
+    
 
 def end_plot():
     """Event: Delete global values for graphing registration values"""
@@ -85,7 +51,7 @@ def plot_values(registration_method, fixed_image, moving_image, transform):
                                        moving_image.GetPixelIDValue()) 
     
     #Blend the registered and fixed images                                   
-    combined_array = overlay_images(fixed_image, moving_transformed)
+    combined_array = proc.overlay_images(fixed_image, moving_transformed)
     
     #plot the current image
     fig, (ax, ax2) = plt.subplots(ncols=2)
@@ -207,7 +173,7 @@ def query_good_registration(fixed_image, moving_image,
                                        sitk.sitkLinear, 0.0, 
                                        moving_image.GetPixelIDValue()) 
                 
-    plt.imshow(overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
+    plt.imshow(proc.overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
     plt.show()
         
     print('Final metric value: {0}'.format(metric))
@@ -225,11 +191,11 @@ def query_good_registration(fixed_image, moving_image,
 def supervised_register_images(fixed_path, moving_path,
                                iterations = 200, scale = 4):
     
-    fixed_image = setup_image(fixed_path)
-    moving_image = setup_image(moving_path, setup_origin = True)
+    fixed_image = meta.setup_image(fixed_path)
+    moving_image = meta.setup_image(moving_path, setup_origin = True)
     
     while True:    
-        moving_image.SetOrigin(query_origin_change(fixed_image, moving_image))
+        moving_image.SetOrigin(meta.query_origin_change(fixed_image, moving_image))
         (transform, metric, stop) = affine_register(
                 fixed_image, moving_image,
                 iterations = iterations, scale = scale)
@@ -262,14 +228,13 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
 
         if writeOutput:
             sitk.WriteImage(registered_image, registered_path)
-            write_image_parameters(registered_path,
+            meta.write_image_parameters(registered_path,
                                    registered_image.GetSpacing(),
                                    registered_image.GetOrigin())
             
         if writeTransform:
-            write_transform(registered_path, transform, metric, stop)
+            tran.write_transform(registered_path, transform, metric, stop)
 
-    
     
 #class registration_plot(ani.FuncAnimation):
 #    

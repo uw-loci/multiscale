@@ -12,7 +12,6 @@ import numpy as np
 import os
 import math
 
-
 def write_transform(registered_path,transform, metric, stop):
     
     (output_dir, image_name) = os.path.split(registered_path)
