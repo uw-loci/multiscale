@@ -382,7 +382,7 @@ def write_transform(registered_path,transform, metric, stop):
     
     file_path = output_dir + '/Transforms.csv'
     
-    column_labels =('Matrix Top Left', 'Matrix Top Right',
+    column_labels = ('Matrix Top Left', 'Matrix Top Right',
                     'Matrix Bottom Left', 'Matrix Bottom Right',
                     'X Translation', 'Y Translation',
                     'Mutual Information', 'Stop Condition')
@@ -394,6 +394,22 @@ def write_transform(registered_path,transform, metric, stop):
     blk.write_pandas_row(file_path,image_name,column_values,
                          'Image',column_labels)
     
+    
+def read_transform(registered_path):
+    (input_dir, image_name) = os.path.split(registered_path)
+    
+    transform = sitk.AffineTransform(2)
+    
+    file_name = 'Transforms.csv'
+    file_path = os.path.join(input_dir,file_name)
+    
+    transform_params = blk.read_pandas_row(file_path,image_name,'Image')
+    
+    transform.SetMatrix(transform_params[:4])
+    transform.SetTranslation(transform_params[4:6])
+
+    return transform    
+
 
 def supervised_register_images(fixed_path, moving_path,
                                iterations = 200, scale = 4):
