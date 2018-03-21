@@ -19,17 +19,17 @@ def perform_registrations():
     
     01 - Resized images 
     02 - Registered images
-    03 - Registered images cropped to MMP boundaries"""
+    03 - Registered images maskped to MMP boundaries"""
     
     dir_dict = create_dictionary()
       
     resize_images(dir_dict)
 
     register_small_images(dir_dict)
-    crop_small_images(dir_dict)
+    mask_small_images(dir_dict)
 
     apply_transform_to_large_images(dir_dict)
-    crop_large_images(dir_dict)
+    mask_large_images(dir_dict)
     
     
 
@@ -38,7 +38,7 @@ def create_dictionary(
         prep_dir = '02 - Python prepped images',
         resize_dir = '03 - Mid-python analysis images\\01 - Resizing images',
         reg_dir = '03 - Mid-python analysis images\\02 - Registered images',
-        crop_dir = '03 - Mid-python analysis images\\02 - Cropped images'):
+        mask_dir = '03 - Mid-python analysis images\\02 - Cropped images'):
     
     
     dir_dict = {
@@ -56,13 +56,13 @@ def create_dictionary(
     "mmp_large_reg" : os.path.join(base_dir,reg_dir,'MMP_Large_Reg'),
     "shg_large_reg" : os.path.join(base_dir,reg_dir,'SHG_Large_Reg_Crop'),
 
-    "ps_small_crop" : os.path.join(base_dir,crop_dir,'PS_Small_Crop'),
-    "mmp_small_crop" : os.path.join(base_dir,crop_dir,'MMP_Small_Reg_Crop'),
-    "shg_small_crop" : os.path.join(base_dir,crop_dir,'SHG_Small_Reg_Crop'),
+    "ps_small_mask" : os.path.join(base_dir,mask_dir,'PS_Small_Crop'),
+    "mmp_small_mask" : os.path.join(base_dir,mask_dir,'MMP_Small_Reg_Crop'),
+    "shg_small_mask" : os.path.join(base_dir,mask_dir,'SHG_Small_Reg_Crop'),
 
-    "ps_large_crop" : os.path.join(base_dir,crop_dir,'PS_Large_Crop'),
-    "mmp_large_crop" : os.path.join(base_dir,crop_dir,'MMP_Large_Reg_Crop'),
-    "shg_large_crop" : os.path.join(base_dir,crop_dir,'SHG_Large_Reg_Crop')}
+    "ps_large_mask" : os.path.join(base_dir,mask_dir,'PS_Large_Crop'),
+    "mmp_large_mask" : os.path.join(base_dir,mask_dir,'MMP_Large_Reg_Crop'),
+    "shg_large_mask" : os.path.join(base_dir,mask_dir,'SHG_Large_Reg_Crop')}
 
     return dir_dict    
 
@@ -99,7 +99,7 @@ def register_small_images(dir_dict):
                                          'SHG_Small_Reg')
 
 
-def crop_small_images(dir_dict):
+def mask_small_images(dir_dict):
     return
 
 
@@ -117,7 +117,7 @@ def apply_transform_to_large_images(dir_dict):
                               'SHG_Large_Reg')
 
 
-def crop_large_images(dir_dict):
+def mask_large_images(dir_dict):
     return
 
 
