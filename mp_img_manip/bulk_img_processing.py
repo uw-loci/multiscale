@@ -122,7 +122,7 @@ def file_name_parts(file_name):
     
 
 
-def get_base_file_name(file_name):
+def get_core_file_name(file_name):
     """This function extracts the file string up until the first underscore"""
     
     full_file_name = os.path.split(file_name)[1]
@@ -137,11 +137,11 @@ def get_base_file_name(file_name):
         return name_str
     
 	
-def create_new_image_path(base_image_path, output_dir, output_suffix):
+def create_new_image_path(core_image_path, output_dir, output_suffix):
     """Create a new path for an image that has been modified
     
     Inputs:
-    base_image_path -- The path to the original image
+    core_image_path -- The path to the original image
     output_dir -- The directory for the new image
     output_suffix -- How the new file is named in text
     
@@ -149,9 +149,9 @@ def create_new_image_path(base_image_path, output_dir, output_suffix):
     new_path -- A path for the new image
     """
     
-    base_name = get_base_file_name(base_image_path)
+    core_name = get_core_file_name(core_image_path)
     
-    new_name = base_name + '_' + output_suffix + '.tif'
+    new_name = core_name + '_' + output_suffix + '.tif'
         
     new_path = os.path.join(output_dir, new_name)
     return new_path
@@ -181,12 +181,12 @@ def find_shared_images(dir_one, dir_two):
     dir_two_image_paths = list()
 
     for i in range(0,len(file_list_one)):
-        base_nameOne = get_base_file_name(file_list_one[i])
+        core_nameOne = get_core_file_name(file_list_one[i])
         
         for j  in range(0,len(file_list_two)):
-            base_nameTwo = get_base_file_name(file_list_two[j])
+            core_nameTwo = get_core_file_name(file_list_two[j])
           
-            if base_nameOne == base_nameTwo:
+            if core_nameOne == core_nameTwo:
                 
                 dir_one_image_paths.append(
                         os.path.join(dir_one, file_list_one[i]))
