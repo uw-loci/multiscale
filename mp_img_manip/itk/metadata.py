@@ -18,7 +18,8 @@ import matplotlib.pyplot as plt
 
 def setup_image(image_path,
                 setup_origin = False,
-                return_image = True, return_spacing = False):
+                return_image = True, return_spacing = False,
+                print_parameters = False):
     """Set up the image spacing and optionally the registration origin
     
     This function is necessary because ITK cannot save in microns, making
@@ -43,9 +44,9 @@ def setup_image(image_path,
     image_parameters = blk.read_write_pandas_row(
             file_path, image_name,
             'Image', ['X Spacing', 'Y Spacing', 'X Origin', 'Y Origin'])
+    if print_parameters: 
+        print('\n ' + image_parameters)
     
-    print(image_parameters)
-    print('')
     
     spacing = [float(image_parameters['X Spacing']),
                float(image_parameters['Y Spacing'])]
@@ -57,7 +58,7 @@ def setup_image(image_path,
     if return_image: 
         image = sitk.ReadImage(image_path)
         image.SetSpacing(spacing)
-        image.SetOrigin(origin)
+        if setup_origin: image.SetOrigin(origin)
 
         return image
     
