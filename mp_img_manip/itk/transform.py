@@ -23,7 +23,7 @@ def write_transform(registered_path,transform, metric, stop):
                     'X Translation', 'Y Translation',
                     'Mutual Information', 'Stop Condition')
     
-    column_values = transform.GetParameters()
+    column_values = [transform.GetParameters()[:]]
     column_values.append(metric)
     column_values.append(stop)
     
@@ -50,26 +50,28 @@ def resize_image(image_path, output_suffix, current_spacing, target_spacing):
     
     image_name = os.path.basename(image_path)
     
-    print('Resizing ' + image_name + ' from pixel spacing of ' 
-          + str(current_spacing) + ' to ' + str(target_spacing))
+    
     
     
     if current_spacing < target_spacing: 
         scale = math.floor(target_spacing/current_spacing)
-        endRes = current_spacing*scale
+        end_res = current_spacing*scale
         
-        shrunk = sitk.Shrink(itkImg,[scale,scale])
-        shrunk.SetSpacing([endRes,endRes])
-        return shrunk
+        resized_image = sitk.Shrink(itkImg,[scale,scale])
+        resized_image.SetSpacing([end_res,end_res])
     
     elif current_spacing > target_spacing:
         scale = math.floor(current_spacing/target_spacing)
-        endRes = current_spacing*scale
+        end_res = current_spacing/scale
         
-        expand = sitk.Expand(itkImg,[scale,scale])
-        expand.SetSpacing([endRes,endRes])
-        return expand
+        resized_image = sitk.Expand(itkImg,[scale,scale])
+        resized_image.SetSpacing([end_res,end_res])
     
+    print('Resizing ' + image_name + ' from ' 
+          + str(current_spacing) + ' to ' + str(end_res) 
+          + ' (Target = ' + str(target_spacing) + ')')
+    
+    return resized_image
     
 def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
     """Resize multiple images to corresponding reference size"""
