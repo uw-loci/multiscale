@@ -72,9 +72,9 @@ def query_origin_change(fixed_image, moving_image):
     
     plt.imshow(proc.overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
     plt.show()
+    print('Current origin: ' + str(moving_image.GetOrigin()))
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
     origin = moving_image.GetOrigin()
-    print(moving_image.GetOrigin())
     
     #todo: have it change the origin file too....  
     
