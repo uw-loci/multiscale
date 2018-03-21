@@ -215,16 +215,16 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
                                     writeOutput = True, writeTransform = True,
                                     iterations = 200, scale = 4):
     
-    (fixed_image_path_list, moving_image_path_list) = blk.find_shared_images(
+    (fixed_path_list, moving_path_list) = blk.find_shared_images(
             fixed_dir, moving_dir)
     
-    for i in range(0, np.size(fixed_image_path_list)):
+    for i in range(0, np.size(fixed_path_list)):
         registered_image, transform, metric, stop = supervised_register_images(
-                fixed_image_path_list[i], moving_image_path_list[i],
+                fixed_path_list[i], moving_path_list[i],
                 iterations = iterations, scale = scale)
         
         registered_path = blk.create_new_image_path(
-                moving_image_path_list[i], output_dir, output_suffix)
+                moving_path_list[i], output_dir, output_suffix)
 
         if writeOutput:
             sitk.WriteImage(registered_image, registered_path)
