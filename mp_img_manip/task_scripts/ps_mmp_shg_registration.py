@@ -63,7 +63,11 @@ def create_dictionary(
     "mmp_large_mask" : os.path.join(base_dir,mask_dir,'MMP_Large_Reg_Crop'),
     "shg_large_mask" : os.path.join(base_dir,mask_dir,'SHG_Large_Reg_Crop')}
 
+
+    for key in dir_dict: os.makedirs(dir_dict[key], exist_ok = True)
+    
     return dir_dict    
+
 
 
 def resize_images(dir_dict):
@@ -75,7 +79,7 @@ def resize_images(dir_dict):
                            dir_dict["ps_large"],dir_dict["ps_small"],
                            'PS_Small')
     
-    trans.bulk_resize_image(dir_dict["ps_small"],
+    trans.bulk_resize_image(dir_dict["mmp_small"],
                            dir_dict["shg_large"],dir_dict["shg_small"],
                            'SHG_Small')
     
