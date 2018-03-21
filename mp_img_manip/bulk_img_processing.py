@@ -1,5 +1,5 @@
 import os
-import mp_image_manip.utility_functions as util
+import mp_img_manip.utility_functions as util
 import pandas as pd
 
     

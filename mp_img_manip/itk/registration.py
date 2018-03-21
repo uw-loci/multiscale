@@ -4,12 +4,12 @@ Created on Wed Mar 21 09:38:19 2018
 
 @author: mpinkert
 """
-import mp_image_manip.bulk_image_processing as blk
-import mp_image_manip.utility_functions as util
+import mp_img_manip.bulk_image_processing as blk
+import mp_img_manip.utility_functions as util
 
-import mp_image_manip.itk.metadata as meta
-import mp_image_manip.itk.transform as tran
-import mp_image_manip.itk.process as proc
+import mp_img_manip.itk.metadata as meta
+import mp_img_manip.itk.transform as tran
+import mp_img_manip.itk.process as proc
 
 import SimpleITK as sitk
 import numpy as np
