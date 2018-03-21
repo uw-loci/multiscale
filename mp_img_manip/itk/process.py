@@ -4,6 +4,7 @@ Created on Wed Mar 21 10:06:55 2018
 
 @author: mpinkert
 """
+import mp_image_manip.bulk_image_processing as blk
 
 import SimpleITK as sitk
 import numpy as np
@@ -46,4 +47,24 @@ def overlay_images(fixed_image, moving_image, alpha = 0.7):
         combined_array = ((1.0 - alpha)*fixed_normalized 
                           + alpha*moving_normalized)
         return combined_array    
+    
+
+def bulk_apply_mask(image_dir, mask_dir,
+                    output_dir, output_suffix):
+    
+    (image_path_list, mask_path_list) = blk.find_shared_images(
+            image_dir, mask_dir)
+    
+    for i in range(0, np.size(image_path_list)):
+        
+        image = sitk.ReadImage(image_path_list[i])
+        mask = sitk.ReadImage(mask_path_list[i])
+        
+        masked_image = image * (mask > 0)
+        
+        masked_path = blk.create_new_image_path(
+                image_path_list[i], output_dir, output_suffix)
+        
+        sitk.WriteImage(masked_image, masked_path)
+                
     
