@@ -103,6 +103,9 @@ def affine_register(fixed_image, moving_image,
     stop -- the stopping condition of the optimizer
     """
     
+    fixed_image = sitk.Cast(fixed_image,sitk.sitkFloat32)
+    moving_image = sitk.Cast(moving_image,sitk.sitkFloat32)
+    
     registration_method = sitk.ImageRegistrationMethod()
 
     # Similarity metric settings.|
@@ -172,7 +175,7 @@ def query_good_registration(fixed_image, moving_image,
     
     moving_resampled = sitk.Resample(moving_image, fixed_image, transform, 
                                        sitk.sitkLinear, 0.0, 
-                                       fixed_image.GetPixelIDValue()) 
+                                       moving_image.GetPixelIDValue()) 
                 
     plt.imshow(proc.overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
     plt.show()
