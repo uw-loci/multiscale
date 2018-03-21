@@ -11,8 +11,6 @@ import mp_img_manip.itk.registration as reg
 import mp_img_manip.itk.transform as trans
 import mp_img_manip.itk.process as proc
 
-
-
 def perform_registrations():
     """Overall script to perform both mmp and shg registrations
     
@@ -137,5 +135,6 @@ def mask_large_images(dir_dict):
 
 
 
+perform_registrations()
 
     
