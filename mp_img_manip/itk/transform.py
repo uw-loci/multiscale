@@ -46,17 +46,22 @@ def bulk_apply_transform(fixed_dir, moving_dir, output_dir,
 
 def resize_image(image_path, output_suffix, current_spacing, target_spacing):
     """Resize an image by an integer factor towards target spacing"""
-    itkImg = meta.setup_image(image_path, return_image = True)
+    itkImg = meta.setup_image(image_path, return_image = True, print_parameters = False)
     
-    scale = math.floor(target_spacing/current_spacing)
-    endRes = current_spacing*scale
     
-    if current_spacing < target_spacing:      
+    
+    if current_spacing < target_spacing: 
+        scale = math.floor(target_spacing/current_spacing)
+        endRes = current_spacing*scale
+        
         shrunk = sitk.Shrink(itkImg,[scale,scale])
         shrunk.SetSpacing([endRes,endRes])
         return shrunk
     
     elif current_spacing > target_spacing:
+        scale = math.floor(current_spacing/target_spacing)
+        endRes = current_spacing*scale
+        
         expand = sitk.Expand(itkImg,[scale,scale])
         expand.SetSpacing([endRes,endRes])
         return expand
