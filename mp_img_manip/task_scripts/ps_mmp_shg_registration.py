@@ -37,7 +37,7 @@ def create_dictionary(
         prep_dir = '02 - Python prepped images',
         resize_dir = '03 - Mid-python analysis images\\01 - Resizing images',
         reg_dir = '03 - Mid-python analysis images\\02 - Registered images',
-        mask_dir = '03 - Mid-python analysis images\\02 - Cropped images'):
+        mask_dir = '03 - Mid-python analysis images\\03 - Masked images'):
     
     
     dir_dict = {
@@ -53,15 +53,15 @@ def create_dictionary(
     "shg_small_reg" : os.path.join(base_dir,reg_dir,'SHG_Small_Reg'),
 
     "mmp_large_reg" : os.path.join(base_dir,reg_dir,'MMP_Large_Reg'),
-    "shg_large_reg" : os.path.join(base_dir,reg_dir,'SHG_Large_Reg_Crop'),
+    "shg_large_reg" : os.path.join(base_dir,reg_dir,'SHG_Large_Reg'),
 
-    "ps_small_mask" : os.path.join(base_dir,mask_dir,'PS_Small_Crop'),
-    "mmp_small_mask" : os.path.join(base_dir,mask_dir,'MMP_Small_Reg_Crop'),
-    "shg_small_mask" : os.path.join(base_dir,mask_dir,'SHG_Small_Reg_Crop'),
+    "ps_small_mask" : os.path.join(base_dir,mask_dir,'PS_Small_Mask'),
+    "mmp_small_mask" : os.path.join(base_dir,mask_dir,'MMP_Small_Mask'),
+    "shg_small_mask" : os.path.join(base_dir,mask_dir,'SHG_Small_Mask'),
 
-    "ps_large_mask" : os.path.join(base_dir,mask_dir,'PS_Large_Crop'),
-    "mmp_large_mask" : os.path.join(base_dir,mask_dir,'MMP_Large_Reg_Crop'),
-    "shg_large_mask" : os.path.join(base_dir,mask_dir,'SHG_Large_Reg_Crop')}
+    "ps_large_mask" : os.path.join(base_dir,mask_dir,'PS_Large_Mask'),
+    "mmp_large_mask" : os.path.join(base_dir,mask_dir,'MMP_Large_Mask'),
+    "shg_large_mask" : os.path.join(base_dir,mask_dir,'SHG_Large_Mask')}
 
 
     for key in dir_dict: os.makedirs(dir_dict[key], exist_ok = True)
@@ -114,13 +114,13 @@ def mask_small_images(dir_dict):
 
 
 def apply_transform_to_large_images(dir_dict):
-    reg.bulk_apply_transform(dir_dict["ps_large"],
+    trans.bulk_apply_transform(dir_dict["ps_large"],
                               dir_dict["mmp_large"],
                               dir_dict["mmp_large_reg"],
                               dir_dict["mmp_small_reg"],
                               'MMP_Large_Reg')
     
-    reg.bulk_apply_transform(dir_dict["ps_large"],
+    trans.bulk_apply_transform(dir_dict["ps_large"],
                               dir_dict["shg_large"],
                               dir_dict["shg_large_reg"],
                               dir_dict["shg_small_reg"], 
