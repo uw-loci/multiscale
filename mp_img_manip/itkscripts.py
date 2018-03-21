@@ -68,16 +68,16 @@ import matplotlib.pyplot as plt
 #    def update_scale(self):
 #        self.multires_iterations.append(len(self.metric_values))  
 
-# Callback invoked when the StartEvent happens, sets up our new data.
 def start_plot():
+    """Event: Initialize global values for graphing registration values"""
     global metric_values, multires_iterations
     
     metric_values = []
     multires_iterations = []
 
 
-# Callback invoked when the EndEvent happens, do cleanup of data and figure.
 def end_plot():
+    """Event: Delete global values for graphing registration values"""
     global metric_values, multires_iterations
     
     del metric_values
@@ -85,10 +85,10 @@ def end_plot():
     # Close figure, we don't want to get a duplicate of the plot latter on.
     plt.close()
     
-    
-# Callback invoked when the IterationEvent happens
-#update our data and display new figure.    
+     
 def plot_values(registration_method, fixed_image, moving_image, transform):
+    """Event: Update and plot new registration values"""
+    
     global metric_values, multires_iterations
     
     metric_values.append(registration_method.GetMetricValue())             
@@ -125,6 +125,7 @@ def plot_values(registration_method, fixed_image, moving_image, transform):
 # update the index into the metric_values list. 
     
 def update_multires_iterations():
+    """Event: Add the index for when the registration switches scales"""
     global metric_values, multires_iterations
     multires_iterations.append(len(metric_values))
 
@@ -133,6 +134,23 @@ def update_multires_iterations():
 def affine_register(fixed_image, moving_image,
                     scale = 4, iterations = 200,
                     fixed_mask = None, moving_mask = None):
+    """Perform an affine registration using MI and RSGD over up to 4 scales
+    
+    Uses mutual information and regular step gradient descent
+    
+    Inputs:
+    fixed_image -- The image that is registered to
+    moving_image -- The image that is being registered
+    scale -- how many resolution scales the function uses
+    iterations -- Iterations per scale before the function stops
+    fixed_mask -- Forces calculations over part of the fixed image
+    moving_mask -- Forces calculations over part of the moving image
+    
+    Outputs:
+    transform -- The calculated image transform for registration
+    metric -- The mutual information value at the stopping poin
+    stop -- the stopping condition of the optimizer
+    """
     
     registration_method = sitk.ImageRegistrationMethod()
 
@@ -193,16 +211,31 @@ def affine_register(fixed_image, moving_image,
         #   fixed_image, moving_image,
         #   transform))
 
-    return (registration_method.Execute(fixed_image,moving_image),
+    return (registration_method.Execute(fixed_image, moving_image),
             registration_method.GetMetricValue(),
             registration_method.GetOptimizerStopConditionDescription())
 
-    
 
 def setup_image(image_path,
                 setup_origin = False,
                 return_image = True, return_spacing = False):
-    """Set up the image spacing and optionally the registration origin"""
+    """Set up the image spacing and optionally the registration origin
+    
+    This function is necessary because ITK cannot save in microns, making
+    external metadata necessary.  It references, or creates, a csv file to
+    handle this metadata
+    
+    Inputs:
+    image_path -- The path to the image being setup
+    setup_origin -- Set values for the origin or leaves at 0,0
+    return_image -- Return the whole setup image
+    return_scacing -- Return the spacing values
+    
+    Outputs:
+    image -- The setup image if return_image is True
+    spacing -- The spacing of the image if return_spacing is True
+    
+    """
     
     (image_dir, image_name) = os.path.split(image_path)
     file_path = image_dir + '/Image Parameters.csv'
@@ -235,6 +268,14 @@ def setup_image(image_path,
 
 
 def overlay_images(fixed_image, moving_image, alpha = 0.7):
+    """Create a numpy array that is an 8bit combination of two images
+    
+    Inputs:
+    fixed_image -- Image one, using registration nomenclature
+    moving_image -- Image two, using registration nomeclature
+    alpha -- degree of weighting towards the moving image
+    
+    """
     
     fixed_array = sitk.GetArrayFromImage(fixed_image)
     fixed_normalized = (fixed_array - np.amin(fixed_array))/(
@@ -265,8 +306,9 @@ def overlay_images(fixed_image, moving_image, alpha = 0.7):
         return combined_array
                  
     
-def query_origin_change(moving_image, fixed_image):
-    """Ask if the user wants to set a new 2D ITK origin"""
+    
+def query_origin_change(fixed_image, moving_image):
+    """Ask if the user wants a new 2D ITK origin based on image overlay"""
     
     plt.imshow(overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
     plt.show()
@@ -298,7 +340,7 @@ def query_origin_change(moving_image, fixed_image):
         return origin
     
     
-def query_good_registration(moving_image, fixed_image,
+def query_good_registration(fixed_image, moving_image,
                             transform, metric, stop):
     
     moving_resampled = sitk.Resample(moving_image, fixed_image, transform, 
@@ -320,8 +362,7 @@ def query_good_registration(moving_image, fixed_image,
     return util.yes_no('Is this registration good? [y/n] >>> ')
     
 def write_image_parameters(image_path, spacing, origin):
-    """Write down the spacing and origin of an image file.  Used to generate 
-    a parameters file for processed images"""
+    """Write down the spacing and origin of an image file to csv metadata"""
     
     (output_dir, image_name) = os.path.split(image_path)
     
@@ -358,12 +399,12 @@ def supervised_register_images(fixed_path, moving_path,
     moving_image = setup_image(moving_path, setup_origin = True)
     
     while True:    
-        moving_image.SetOrigin(query_origin_change(moving_image, fixed_image))
+        moving_image.SetOrigin(query_origin_change(fixed_image, moving_image))
         (transform, metric, stop) = affine_register(
                 fixed_image, moving_image,
                 iterations = iterations, scale = scale)
         
-        if query_good_registration(moving_image, fixed_image,
+        if query_good_registration(fixed_image, moving_image,
                                    transform, metric, stop): break
        
     registered_image = sitk.Resample(moving_image, fixed_image,

@@ -6,7 +6,16 @@ import SimpleITK as sitk
 import os
 
 def calculate_retardance_over_area(retardance, orientation):
+    """Calculate the average retardance in an neighborhood
     
+    Retardance has a directional component, so it has to be weighted by
+    the slow-axis orientation.  This function performs that weighting by
+    doubling the orientation angle, and then turning it into a complex
+    number which holds both magnitude and angle
+    
+    Inputs:
+    Equally sized retardance and orientation neighborhoods holding
+    corresponding pixels"""
     #Orientation doubled to calculate alignment.
     circular_orientation = (2*np.pi/180)*(orientation/100);
     complex_orientation = np.exp(1j*circular_orientation);
@@ -39,17 +48,17 @@ def convert_intensity_to_retardance(itk_image,
     (e.g., 16 bit int) into to actual retardance values.  
     
     Input: 
-        itk_image: The image being converted, as an ITK _image object
-        ret_ceiling: The retardance value corresponding to max intensity
-        wavelength: The wavelength of light used to image, for converting 
-            between degrees and retardance.  Defaults to 546 for the LOCI
-            PolScope wavelength
-        nm_input: The input ret_ceiling is in nm if true, degrees if false
-        deg_output: The output is in degrees if true, nm if false
+    itk_image -- The image being converted, as an ITK _image object
+    ret_ceiling -- The retardance value corresponding to max intensity
+    wavelength -- The wavelength of light used to image, for converting 
+    between degrees and retardance.  Defaults to 546 for the LOCI
+    PolScope wavelength
+    nm_input -- The input ret_ceiling is in nm if true, degrees if false
+    deg_output -- The output is in degrees if true, nm if false
         
     Output:
-        A new ITK image with retardance values either in degrees (default)
-        or in nm (if deg_output is set to False)
+    A new ITK image with retardance values either in degrees (default)
+    or in nm (if deg_output is set to False)
     
     """
     
