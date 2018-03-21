@@ -23,7 +23,7 @@ def write_transform(registered_path,transform, metric, stop):
                     'X Translation', 'Y Translation',
                     'Mutual Information', 'Stop Condition')
     
-    column_values = [transform.GetParameters()[:]]
+    column_values = list(transform.GetParameters())
     column_values.append(metric)
     column_values.append(stop)
     
