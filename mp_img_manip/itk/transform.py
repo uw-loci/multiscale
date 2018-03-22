@@ -31,11 +31,31 @@ def write_transform(registered_path,transform, metric, stop):
                          'Image',column_labels)
     
 
-def apply_transform(fixed_path, moving_path, transform):
+def apply_transform(fixed_path, moving_path, reference_path):
+    
+    fixed_image = meta.setup_image(fixed_path)
+    moving_image = meta.setup_image(moving_path, setup_origin = True)
+    
+    (reference_dir, reference_name) = os.path.split(reference_path)
+    
+    transform_path = os.path.join(reference_dir,'Transforms.csv')
+    
+    transform_params = blk.read_pandas_row(transform_path,
+                                           reference_name,'Image')
+    
+    transform = sitk.AffineTransform(2)
+    transform.SetMatrix(transform_params['Matrix Top Left'],
+                        transform_params['Matrix Top Right'],
+                        transform_params['Matrix Bottom Left'],
+                        transform_params['Matrix Bottom Right'])
+    
+    transform.SetOrigin(transform_params['X Translation'],
+                        transform_params['Y Translation'])
+    
+    return sitk.Resample(moving_image, fixed_image, transform, 
+                         sitk.sitkLinear, 0.0, moving_image.GetPixelID())
     
     
-    
-    return
 
 def bulk_apply_transform(fixed_dir, moving_dir, output_dir,
                          transform_dir,
