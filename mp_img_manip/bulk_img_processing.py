@@ -95,6 +95,22 @@ def read_pandas_row(file_path, index, index_label):
         return []
     
 
+def write_pandas_value(file_path, index, value, 
+                       index_label, column, column_labels):
+    
+    (file_dir, file_name) = os.path.split(file_path)
+    
+    try:
+        data = pd.read_csv(file_path, index_col = index_label)
+    except: 
+        print('Creating new file ' + file_name + ' in ' + file_dir)
+        data = pd.DataFrame(
+                index = pd.Index([], dtype='object', name=index_label),
+                columns = column_labels)
+        
+    data.loc[column, index_label] = value
+    data.to_csv(file_path)
+    
 
 def file_name_parts(file_name):
     """Extract strings seperated by underscores in a file name"""
