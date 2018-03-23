@@ -120,13 +120,13 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
                                resized_image.GetOrigin())
         
         
-def crop_to_nonzero_boundary(image_path, output_dir, output_suffix,
-                             reference_path = None):
-    
-    
-    return
-
-
-def bulk_crop_to_nonzero_boundary(image_dir, output_dir, output_suffix,
-                                  reference_dir = None):
-    return
+#def crop_to_nonzero_boundary(image_path, output_dir, output_suffix,
+#                             reference_path = None):
+#    """Not yet implemented"""
+#    
+#    return
+#
+#
+#def bulk_crop_to_nonzero_boundary(image_dir, output_dir, output_suffix,
+#                                  reference_dir = None):
+#    return
