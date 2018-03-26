@@ -11,11 +11,12 @@ import os
 
 def create_dictionary(
         base_dir = os.path.normpath('F:\Box Sync\Research\Polarimetry'),
-        prep_dir = '02 - Python prepped images',
-        resize_dir = '03 - Mid-python analysis images\\01 - Resizing images',
-        reg_dir = '03 - Mid-python analysis images\\02 - Registered images',
-        mask_dir = '03 - Mid-python analysis images\\03 - Masked images'):
+        prep_dir = 'Data 02 - Python prepped images',
+        analysis_dir = 'Data 03 - Mid-python analysis images'):
     
+    resize_dir = analysis_dir + '\\Step 01 - Resizing images'
+    reg_dir = analysis_dir + '\\Step 02 - Registered images'
+    mask_dir = analysis_dir + '\\Step 03 - Masked images'
     
     dir_dict = {
     "ps_large" : os.path.join(base_dir, prep_dir, 'PS_Large'),
