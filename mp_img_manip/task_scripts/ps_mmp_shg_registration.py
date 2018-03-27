@@ -6,22 +6,26 @@ Created on Tue Mar  6 15:52:18 2018
 """
 
 
-import os
 import mp_img_manip.itk.registration as reg
 import mp_img_manip.itk.transform as trans
 import mp_img_manip.itk.process as proc
 import mp_img_manip.dir_dictionary as dird
+import mp_img_manip.polarimetry as pol
 
 def perform_registrations():
     """Overall script to perform both mmp and shg registrations
     
     Produces images at each step 
-    
+    00 - Polscope intensity to retardance
     01 - Resized images 
     02 - Registered images
     03 - Registered images maskped to MMP boundaries"""
     
     dir_dict = dird.create_dictionary()
+    
+    pol.bulk_intensity_to_retardance(dir_dict['ps_large'], 
+                                     dir_dict['ps_large_ret'],
+                                     'PS_Large_Ret')
       
     resize_images(dir_dict)
 
@@ -32,8 +36,7 @@ def perform_registrations():
     mask_large_images(dir_dict)
     
     
-
-
+    
 
 def resize_images(dir_dict):
     """Resize the small MMP to ~ PS resolution.
@@ -41,7 +44,7 @@ def resize_images(dir_dict):
         Resize the large SHG images to ~ small MMP resolution"""
         
     trans.bulk_resize_image(dir_dict["mmp_small"],
-                           dir_dict["ps_large"],dir_dict["ps_small"],
+                           dir_dict["ps_large_ret"],dir_dict["ps_small"],
                            'PS_Small')
     
     trans.bulk_resize_image(dir_dict["mmp_small"],
