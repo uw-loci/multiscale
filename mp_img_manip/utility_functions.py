@@ -6,16 +6,25 @@ Created on Wed Mar  7 14:59:49 2018
 """
 import os
 
-def item_present_all_lists(item, list_of_lists):
+def item_present_all_lists(item, lists):
     """Check if an item is present in all lists"""
-    for index in range(len(list_of_lists)):
-        if item not in list_of_lists[index]:
+    for index in range(len(lists)):
+        if item not in lists[index]:
             return False
         
     return True
 
-def file_type_in_dir(file_dir, file_ext):
-    """Given a directory path, return all tifs in the directory as a list"""
+#def append_item_index_to_lists(item, lists, index_lists):
+#    
+#    for index in range(len(lists)):
+#        item_index = lists[index].index(item)
+#        index_lists[index].append(item_index)
+#        
+#    return index_lists
+
+
+def list_filetype_in_dir(file_dir, file_ext):
+    """Given a directory path, return all files of given file type as a list"""
     return [os.path.join(file_dir, f) for
                   f in os.listdir(file_dir) if f.endswith(file_ext)]  
     

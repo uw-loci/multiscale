@@ -95,8 +95,8 @@ def read_pandas_row(file_path, index, index_label):
         return []
     
 
-def write_pandas_value(file_path, index, value, 
-                       index_label, column, column_labels):
+def write_pandas_value(file_path, index, value, column,
+                       index_label, column_labels):
     
     (file_dir, file_name) = os.path.split(file_path)
     
@@ -183,10 +183,6 @@ def find_shared_images(dir_one, dir_two):
     Outputs:
     Two lists, where same index corresponds to paired images
     """
-    
-    #todo: modify dir_one_baseFile_names into a list of names, and then
-    #implement a .txt file?
-    
     #todo: make a check for different categories of name,
     #   if there are multiple instances of a single name?
     
@@ -211,3 +207,81 @@ def find_shared_images(dir_one, dir_two):
 
     
     return (dir_one_image_paths, dir_two_image_paths)
+  
+
+def core_names_in_list(path_list):
+    """Return a list of the core names for each item in the path list"""
+    return [get_core_file_name(item) for item in path_list]
+
+
+def find_bulk_shared_images(dir_list):
+    """images from two or more directories are paired based on core names
+    
+    Input:
+    dir_list - list of the directories to be compared
+    
+    Outputs:
+    A list of lists, for corresponding images
+    """
+    
+    
+    #todo: make a check for different categories of name,
+    #   if there are multiple instances of a single name?
+    
+    
+    num_dirs = len(dir_list)
+    
+    file_list = [util.list_filetype_in_dir(dir_list[index], '.tif') for
+                 index in range(num_dirs)]
+
+    core_names = [core_names_in_list(file_list[index]) for
+                  index in range(num_dirs)]
+    
+    path_lists = []
+    for i in range(num_dirs):
+        path_lists.append([])
+    
+    for item in core_names[0]:
+        if util.item_present_all_lists(item, core_names[1:]):   
+            for index in range(num_dirs):
+                item_index = core_names[index].index(item)
+                path_lists[index].append(file_list[index][item_index])
+
+    return path_lists
+
+        
+        
+#        item_index = core_names[0].index(item)
+#        item_path = file_list[0][item_index]
+#        temp_path_list = []
+#        temp_path_list.append([item_path])
+#        
+#        for index in range(1,num_dirs):
+#            if item in core_names[index]:
+#                temp_path_list.append([file_list[core_names[index].index(item)]])
+#            else:
+#                break
+#        
+#        if len(temp_path_list) == num_dirs:
+#            for index in range(num_dirs):
+#                path_list[index].append(temp_path_list[index])
+#                
+                                     
+    
+    
+    #If core name in dir 0 exists in all other dirs
+    # append the appropriate path to each path list
+    
+    
+    
+    
+    
+    
+#    for dir_one_index in range(0, len(file_list[0])):
+#        for compare_dir in range(1, len(dir_list)):
+#            for index in range(0, len(file_list[compare_dir])):
+#                if core_names[compare_dir, index] == core_names[0, dir_one_index]
+
+
+
+    
