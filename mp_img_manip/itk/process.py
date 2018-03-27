@@ -5,6 +5,7 @@ Created on Wed Mar 21 10:06:55 2018
 @author: mpinkert
 """
 import mp_img_manip.bulk_img_processing as blk
+import mp_img_manip.itk.metadata as meta
 
 import SimpleITK as sitk
 import numpy as np
@@ -57,8 +58,8 @@ def bulk_apply_mask(image_dir, mask_dir,
     
     for i in range(0, np.size(image_path_list)):
         
-        image = sitk.ReadImage(image_path_list[i])
-        mask = sitk.ReadImage(mask_path_list[i]) > 0
+        image = meta.setup_image(image_path_list[i])
+        mask = meta.setup_image(mask_path_list[i]) > 0
         
         print('Masking ' + os.path.basename(image_path_list[i]) + ' with '
           + os.path.basename(mask_path_list[i]))
