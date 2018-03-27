@@ -40,9 +40,9 @@ def create_dictionary(
     "shg_small_mask" : os.path.join(base_dir,mask_dir,'SHG_Small_Mask'),
 
     "ps_large_mask" : os.path.join(base_dir,mask_dir,'PS_Large_Mask'),
-    "shg_large_mask" : os.path.join(base_dir,mask_dir,'SHG_Large_Mask')}
+    "shg_large_mask" : os.path.join(base_dir,mask_dir,'SHG_Large_Mask'),
 
-    "ssim" : os.path.join(base_dir, ssim_dir)
+    "ssim" : os.path.join(base_dir, ssim_dir)}
     
     for key in dir_dict: os.makedirs(dir_dict[key], exist_ok = True)
     
