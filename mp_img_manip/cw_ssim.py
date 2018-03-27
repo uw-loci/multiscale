@@ -8,9 +8,7 @@ Created on Tue Mar 20 10:50:24 2018
 
 import mp_img_manip.bulk_img_processing as blk
 
-import numpy as np
 import os
-import matplotlib.pyplot as plt
 
 from PIL import Image
 
@@ -26,28 +24,46 @@ def compare_ssim(one_path, two_path):
     one = Image.open(one_path)
     two = Image.open(two_path)
     
-    print('Calculating CW-SSIM between {0} and {1}'.format(
-            os.path.basename(one), os.path.basename(two)))
+    print('\n Calculating CW-SSIM between {0} and {1}'.format(
+            os.path.basename(one_path), 
+            os.path.basename(two_path)))
     
     ssim = SSIM(one).cw_ssim_value(two)
     
     print('The CW-SSIM between {0} and {1} = {2}'.format(
-            os.path.basename(one), os.path.basename(two), str(ssim)))
+            os.path.basename(one_path), 
+            os.path.basename(two_path),
+            str(ssim)))
     
     return ssim
 
 
-def bulk_compare_ssim(one_dir, two_dir):
+def bulk_compare_ssim(dir_list, output_dir):
     """Calculate CW-SSIM between images in several file directories
     """
-    (one_path_list, two_path_list) = blk.find_shared_images(
-            one_dir, two_dir)
+    path_lists = blk.find_bulk_shared_images(dir_list)
+    num_images = len(path_lists[0])
+    num_dirs = len(dir_list)
     
-    for i in range(0, np.size(one_path_list)):
-        ssim = compare_ssim(one_path_list[i], two_path_list[i])
+    file_path = os.path.join(output_dir, 'CW-SSIM Values.csv')
     
+    for image_index in range(num_images):
         
+        core_name = blk.get_core_file_name(path_lists[0][image_index])
+        
+        for index_one in range(num_dirs - 1):
+            for index_two in range(index_one + 1, num_dirs):
+                ssim = compare_ssim(path_lists[index_one][image_index],
+                                   path_lists[index_two][image_index])
+                
+                modality_one = blk.file_name_parts(
+                        path_lists[index_one][image_index])[1]
+                modality_two = blk.file_name_parts(
+                        path_lists[index_two][image_index])[1]
+            
+                column = modality_one + '-' + modality_two
+                
+                blk.write_pandas_value(file_path, core_name, ssim, column,
+                               'Sample')
     
-    return
-
 
