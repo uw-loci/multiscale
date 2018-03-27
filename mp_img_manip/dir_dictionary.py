@@ -14,17 +14,22 @@ def create_dictionary(
         prep_dir = 'Data 02 - Python prepped images',
         mid_analysis_dir = 'Data 03 - Mid-python analysis images',
         post_analysis_dir = 'Data 04 - Analysis results and graphics'):
+        
+    retardance_dir = mid_analysis_dir + '\\Step 00 - PS Intensity to Retardance'
     
     resize_dir = mid_analysis_dir + '\\Step 01 - Resizing images'
     reg_dir = mid_analysis_dir + '\\Step 02 - Registered images'
     mask_dir = mid_analysis_dir + '\\Step 03 - Masked images'
     
+
     ssim_dir = post_analysis_dir + '\\CW-SSIM Values'
     
     dir_dict = {
     "ps_large" : os.path.join(base_dir, prep_dir, 'PS_Large'),
     "mmp_small" : os.path.join(base_dir, prep_dir, 'MMP_Small'),
     "shg_large" : os.path.join(base_dir, prep_dir, 'SHG_Large'),
+    
+    "ps_large_ret" : os.path.join(base_dir, retardance_dir), 
     
     "ps_small" : os.path.join(base_dir,resize_dir,'PS_Small'),
     "shg_small" : os.path.join(base_dir,resize_dir,'SHG_Small'),

@@ -1,6 +1,7 @@
 import mp_img_manip.tiling as til
 import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.itk.metadata as meta
+import mp_img_manip.utility_functions as util
 import numpy as np
 import SimpleITK as sitk
 import os
@@ -82,7 +83,21 @@ def convert_intensity_to_retardance(itk_image,
     return output_image
     
 
-
+def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix):
+    
+    path_list = util.list_filetype_in_dir(input_dir, '.tif')
+    
+    for i in range(len(path_list)):
+        int_image = sitk.ReadImage(path_list[i])
+        ret_image = convert_intensity_to_retardance(int_image)
+        
+        output_path = blk.create_new_image_path(
+                path_list[i], output_dir, output_suffix)
+        
+        meta.write_image_parameters(output_path, 
+                                    ret_image.GetSpacing(),
+                                    ret_image.GetOrigin())
+    
 
 def downsample_retardance_image(ret_image_path, orient_image_path, 
                                scale_pixel_factor, 
