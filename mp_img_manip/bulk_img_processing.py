@@ -96,7 +96,10 @@ def read_pandas_row(file_path, index, index_label):
     
 
 def write_pandas_value(file_path, index, value, column,
-                       index_label, column_labels):
+                       index_label, column_labels = None):
+    
+    if column_labels is None:
+        column_labels = column
     
     (file_dir, file_name) = os.path.split(file_path)
     
@@ -221,12 +224,9 @@ def find_bulk_shared_images(dir_list):
     dir_list - list of the directories to be compared
     
     Outputs:
-    A list of lists, for corresponding images
+    A list of path lists, for corresponding images
     """
-    
-    
-    #todo: make a check for different categories of name,
-    #   if there are multiple instances of a single name?
+
     
     
     num_dirs = len(dir_list)
@@ -248,39 +248,6 @@ def find_bulk_shared_images(dir_list):
                 path_lists[index].append(file_list[index][item_index])
 
     return path_lists
-
-        
-        
-#        item_index = core_names[0].index(item)
-#        item_path = file_list[0][item_index]
-#        temp_path_list = []
-#        temp_path_list.append([item_path])
-#        
-#        for index in range(1,num_dirs):
-#            if item in core_names[index]:
-#                temp_path_list.append([file_list[core_names[index].index(item)]])
-#            else:
-#                break
-#        
-#        if len(temp_path_list) == num_dirs:
-#            for index in range(num_dirs):
-#                path_list[index].append(temp_path_list[index])
-#                
-                                     
-    
-    
-    #If core name in dir 0 exists in all other dirs
-    # append the appropriate path to each path list
-    
-    
-    
-    
-    
-    
-#    for dir_one_index in range(0, len(file_list[0])):
-#        for compare_dir in range(1, len(dir_list)):
-#            for index in range(0, len(file_list[compare_dir])):
-#                if core_names[compare_dir, index] == core_names[0, dir_one_index]
 
 
 
