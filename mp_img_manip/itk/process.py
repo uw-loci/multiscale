@@ -5,6 +5,7 @@ Created on Wed Mar 21 10:06:55 2018
 @author: mpinkert
 """
 import mp_img_manip.bulk_img_processing as blk
+import mp_img_manip.utility_functions as util
 import mp_img_manip.itk.metadata as meta
 
 import SimpleITK as sitk
@@ -56,7 +57,7 @@ def bulk_apply_mask(image_dir, mask_dir,
     (image_path_list, mask_path_list) = blk.find_shared_images(
             image_dir, mask_dir)
     
-    for i in range(0, np.size(image_path_list)):
+    for i in range(np.size(image_path_list)):
         
         image = meta.setup_image(image_path_list[i])
         mask = meta.setup_image(mask_path_list[i]) > 0
@@ -69,6 +70,31 @@ def bulk_apply_mask(image_dir, mask_dir,
         masked_path = blk.create_new_image_path(
                 image_path_list[i], output_dir, output_suffix)
         
+        meta.write_image_parameters(masked_path,
+                                    image.GetSpacing(),
+                                    image.GetOrigin())
         sitk.WriteImage(masked_image, masked_path)
                 
     
+def convert_to_eightbit(itk_image, image_name):
+    print('Converting {0} to 8-bit grayscale'.format(image_name))
+    return sitk.Cast(sitk.RescaleIntensity(itk_image),
+                               sitk.sitkUInt8)
+    
+def bulk_convert_to_eightbit(input_dir, output_dir, output_suffix):
+    
+    path_list = util.list_filetype_in_dir(input_dir, '.tif')
+    
+    for i in range(len(path_list)):
+        original = meta.setup_image(path_list[i])
+        new_image = convert_to_eightbit(original, 
+                                        os.path.basename(path_list[i]))
+        
+        new_path = blk.create_new_image_path(path_list[i],
+                                             output_dir, output_suffix)
+    
+        meta.write_image_parameters(new_path, 
+                                    original.GetSpacing(),
+                                    original.GetOrigin())
+        
+        sitk.WriteImage(new_image, new_path)
