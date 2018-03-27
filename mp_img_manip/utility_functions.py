@@ -4,6 +4,13 @@ Created on Wed Mar  7 14:59:49 2018
 
 @author: mpinkert
 """
+def item_present_all_lists(item, list_of_lists):
+    """Check if an item is present in all lists"""
+    for index in range(len(list_of_lists)):
+        if item not in list_of_lists[index]:
+            return False
+        
+    return True
 
 def query_int(message):
   """Ask the user for an integer"""
