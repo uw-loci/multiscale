@@ -17,7 +17,6 @@ import matplotlib.pyplot as plt
 
 
 def setup_image(image_path,
-                setup_origin = False,
                 return_image = True, return_spacing = False,
                 print_parameters = False):
     """Set up the image spacing and optionally the registration origin
@@ -51,14 +50,13 @@ def setup_image(image_path,
     spacing = [float(image_parameters['X Spacing']),
                float(image_parameters['Y Spacing'])]
     
-    if setup_origin:
-        origin = [float(image_parameters['X Origin']),
-                  float(image_parameters['Y Origin'])]
+    origin = [float(image_parameters['X Origin']),
+              float(image_parameters['Y Origin'])]
     
     if return_image: 
         image = sitk.ReadImage(image_path)
         image.SetSpacing(spacing)
-        if setup_origin: image.SetOrigin(origin)
+        image.SetOrigin(origin)
 
         return image
     
