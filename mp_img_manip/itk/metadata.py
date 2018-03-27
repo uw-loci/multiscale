@@ -6,14 +6,10 @@ Created on Wed Mar 21 09:40:25 2018
 """
 
 import mp_img_manip.bulk_img_processing as blk
-import mp_img_manip.utility_functions as util
-
-import mp_img_manip.itk.process as proc
 
 import SimpleITK as sitk
 import os
 
-import matplotlib.pyplot as plt
 
 
 def setup_image(image_path,
@@ -64,38 +60,7 @@ def setup_image(image_path,
     elif return_spacing:
         return spacing
     
-    
-def query_origin_change(fixed_image, moving_image):
-    """Ask if the user wants a new 2D ITK origin based on image overlay"""
-    
-    plt.imshow(proc.overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
-    plt.show()
-    print('Current origin: ' + str(moving_image.GetOrigin()))
-    change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
-    origin = moving_image.GetOrigin()
-    
-    #todo: have it change the origin file too....  
-    
-    if change_origin:
-        
-        while True:
-            print('Current origin: '+str(origin))
-            new_origin_x = util.query_int('Enter new X origin: ')
-            new_origin_y = util.query_int('Enter new Y origin: ')
-            
-            new_origin = (new_origin_x, new_origin_y)
-            
-            moving_image.SetOrigin(new_origin)
-            plt.imshow(proc.overlay_images(fixed_image, moving_image),
-                       cmap=plt.cm.gray)
-            plt.show()
-            
-            #bug: The image does not show up till after the question
-            if util.yes_no('Is this origin good? [y/n] >>> '): break
-        
-        return new_origin
-    else:
-        return origin
+
 
 
     

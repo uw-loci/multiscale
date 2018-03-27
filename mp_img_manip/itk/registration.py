@@ -202,7 +202,7 @@ def supervised_register_images(fixed_path, moving_path,
           + os.path.basename(fixed_path))
     
     while True:    
-        moving_image.SetOrigin(meta.query_origin_change(fixed_image, moving_image))
+        moving_image.SetOrigin(query_origin_change(fixed_image, moving_image))
         (transform, metric, stop) = affine_register(
                 fixed_image, moving_image,
                 iterations = iterations, scale = scale)
@@ -242,7 +242,39 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
         if writeTransform:
             tran.write_transform(registered_path, transform, metric, stop)
 
+
     
+def query_origin_change(fixed_image, moving_image):
+    """Ask if the user wants a new 2D ITK origin based on image overlay"""
+    
+    plt.imshow(proc.overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
+    plt.show()
+    print('Current origin: ' + str(moving_image.GetOrigin()))
+    change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
+    origin = moving_image.GetOrigin()
+    
+    #todo: have it change the origin file too....  
+    
+    if change_origin:
+        
+        while True:
+            print('Current origin: '+str(origin))
+            new_origin_x = util.query_int('Enter new X origin: ')
+            new_origin_y = util.query_int('Enter new Y origin: ')
+            
+            new_origin = (new_origin_x, new_origin_y)
+            
+            moving_image.SetOrigin(new_origin)
+            plt.imshow(proc.overlay_images(fixed_image, moving_image),
+                       cmap=plt.cm.gray)
+            plt.show()
+            
+            #bug: The image does not show up till after the question
+            if util.yes_no('Is this origin good? [y/n] >>> '): break
+        
+        return new_origin
+    else:
+        return origin  
 #class registration_plot(ani.FuncAnimation):
 #    
 #    def __init__(self):
