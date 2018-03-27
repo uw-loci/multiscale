@@ -21,7 +21,7 @@ def create_dictionary(
     reg_dir = mid_analysis_dir + '\\Step 02 - Registered images'
     mask_dir = mid_analysis_dir + '\\Step 03 - Masked images'
     
-
+    eight_bit_dir = mid_analysis_dir + '\\Step 04 - Eight-bit images'
     ssim_dir = post_analysis_dir + '\\CW-SSIM Values'
     
     dir_dict = {
@@ -47,6 +47,10 @@ def create_dictionary(
     "ps_large_mask" : os.path.join(base_dir,mask_dir,'PS_Large_Mask'),
     "shg_large_mask" : os.path.join(base_dir,mask_dir,'SHG_Large_Mask'),
 
+    "ps_large_8bit" : os.path.join(base_dir, eight_bit_dir,'PS_Large_8Bit'),
+    "shg_large_8bit" : os.path.join(base_dir, eight_bit_dir,'SGH_Large_8Bit'),
+    "mmp_large_8bit" : os.path.join(base_dir, eight_bit_dir,'MMP_Large_8Bit'),
+    
     "ssim" : os.path.join(base_dir, ssim_dir)}
     
     for key in dir_dict: os.makedirs(dir_dict[key], exist_ok = True)
