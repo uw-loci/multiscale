@@ -96,10 +96,7 @@ def read_pandas_row(file_path, index, index_label):
     
 
 def write_pandas_value(file_path, index, value, column,
-                       index_label, column_labels = None):
-    
-    if column_labels is None:
-        column_labels = column
+                       index_label):
     
     (file_dir, file_name) = os.path.split(file_path)
     
@@ -108,10 +105,9 @@ def write_pandas_value(file_path, index, value, column,
     except: 
         print('Creating new file ' + file_name + ' in ' + file_dir)
         data = pd.DataFrame(
-                index = pd.Index([], dtype='object', name=index_label),
-                columns = column_labels)
+                index = pd.Index([], dtype='object', name=index_label))
         
-    data.loc[column, index_label] = value
+    data.loc[index, column] = value
     data.to_csv(file_path)
     
 
