@@ -12,11 +12,14 @@ import os
 def create_dictionary(
         base_dir = os.path.normpath('F:\Box Sync\Research\Polarimetry'),
         prep_dir = 'Data 02 - Python prepped images',
-        analysis_dir = 'Data 03 - Mid-python analysis images'):
+        mid_analysis_dir = 'Data 03 - Mid-python analysis images',
+        post_analysis_dir = 'Data 04 - Analysis results and graphics'):
     
-    resize_dir = analysis_dir + '\\Step 01 - Resizing images'
-    reg_dir = analysis_dir + '\\Step 02 - Registered images'
-    mask_dir = analysis_dir + '\\Step 03 - Masked images'
+    resize_dir = mid_analysis_dir + '\\Step 01 - Resizing images'
+    reg_dir = mid_analysis_dir + '\\Step 02 - Registered images'
+    mask_dir = mid_analysis_dir + '\\Step 03 - Masked images'
+    
+    ssim_dir = post_analysis_dir + '\\CW-SSIM Values'
     
     dir_dict = {
     "ps_large" : os.path.join(base_dir, prep_dir, 'PS_Large'),
@@ -39,7 +42,8 @@ def create_dictionary(
     "ps_large_mask" : os.path.join(base_dir,mask_dir,'PS_Large_Mask'),
     "shg_large_mask" : os.path.join(base_dir,mask_dir,'SHG_Large_Mask')}
 
-
+    "ssim" : os.path.join(base_dir, ssim_dir)
+    
     for key in dir_dict: os.makedirs(dir_dict[key], exist_ok = True)
     
     return dir_dict    
