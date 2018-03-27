@@ -4,6 +4,8 @@ Created on Wed Mar  7 14:59:49 2018
 
 @author: mpinkert
 """
+import os
+
 def item_present_all_lists(item, list_of_lists):
     """Check if an item is present in all lists"""
     for index in range(len(list_of_lists)):
@@ -12,6 +14,11 @@ def item_present_all_lists(item, list_of_lists):
         
     return True
 
+def file_type_in_dir(file_dir, file_ext):
+    """Given a directory path, return all tifs in the directory as a list"""
+    return [os.path.join(file_dir, f) for
+                  f in os.listdir(file_dir) if f.endswith(file_ext)]  
+    
 def query_int(message):
   """Ask the user for an integer"""
   while True:
