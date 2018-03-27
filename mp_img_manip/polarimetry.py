@@ -79,6 +79,7 @@ def convert_intensity_to_retardance(itk_image,
     output_array = input_array*pixel_type_factor*wavelength_factor
 
     output_image = sitk.GetImageFromArray(output_array)
+    output_image = sitk.Cast(output_image, sitk.sitkFloat32)
     
     return output_image
     
@@ -88,15 +89,17 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix):
     path_list = util.list_filetype_in_dir(input_dir, '.tif')
     
     for i in range(len(path_list)):
-        int_image = sitk.ReadImage(path_list[i])
+        int_image = meta.setup_image(path_list[i])
         ret_image = convert_intensity_to_retardance(int_image)
         
         output_path = blk.create_new_image_path(
                 path_list[i], output_dir, output_suffix)
         
+        sitk.WriteImage(ret_image, output_path)
+        
         meta.write_image_parameters(output_path, 
-                                    ret_image.GetSpacing(),
-                                    ret_image.GetOrigin())
+                                    int_image.GetSpacing(),
+                                    int_image.GetOrigin())
     
 
 def downsample_retardance_image(ret_image_path, orient_image_path, 
