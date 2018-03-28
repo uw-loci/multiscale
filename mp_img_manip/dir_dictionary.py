@@ -51,6 +51,10 @@ def create_dictionary(
     "shg_large_8bit" : os.path.join(base_dir, eight_bit_dir,'SGH_Large_8Bit'),
     "mmp_large_8bit" : os.path.join(base_dir, eight_bit_dir,'MMP_Large_8Bit'),
     
+    "ps_small_8bit" : os.path.join(base_dir, eight_bit_dir,'PS_Small_8Bit'),
+    "shg_small_8bit" : os.path.join(base_dir, eight_bit_dir,'SGH_Small_8Bit'),
+    "mmp_small_8bit" : os.path.join(base_dir, eight_bit_dir,'MMP_Small_8Bit'),
+    
     "ssim" : os.path.join(base_dir, ssim_dir)}
     
     for key in dir_dict: os.makedirs(dir_dict[key], exist_ok = True)
