@@ -84,15 +84,13 @@ def mask_small_images(dir_dict):
 def apply_transform_to_large_images(dir_dict):
     trans.bulk_apply_transform(dir_dict["ps_large"],
                               dir_dict["mmp_large"],
-                              dir_dict["mmp_large_reg"],
                               dir_dict["mmp_small_reg"],
-                              'MMP_Large_Reg')
+                              dir_dict["mmp_large_reg"],'MMP_Large_Reg')
     
     trans.bulk_apply_transform(dir_dict["ps_large"],
                               dir_dict["shg_large"],
-                              dir_dict["shg_large_reg"],
-                              dir_dict["shg_small_reg"], 
-                              'SHG_Large_Reg')
+                              dir_dict["shg_small_reg"],
+                              dir_dict["shg_large_reg"], 'SHG_Large_Reg')
 
 
 def mask_large_images(dir_dict):
@@ -105,7 +103,30 @@ def mask_large_images(dir_dict):
     
     return
 
+def make_eightbit_images(dir_dict):
+    proc.bulk_convert_to_eightbit(dir_dict["ps_large_mask"],
+                                  dir_dict['ps_large_8bit'],
+                                  'PS_Large_8Bit')
 
+    proc.bulk_convert_to_eightbit(dir_dict["shg_large_mask"],
+                                  dir_dict['shg_large_8bit'],
+                                  'SHG_Large_8Bit')
+    
+    proc.bulk_convert_to_eightbit(dir_dict["mmp_large_reg"],
+                                  dir_dict['mmp_large_8bit'],
+                                  'MMP_Large_8Bit')
+
+    proc.bulk_convert_to_eightbit(dir_dict["ps_small_mask"],
+                                  dir_dict['ps_small_8bit'],
+                                  'PS_Small_8Bit')
+
+    proc.bulk_convert_to_eightbit(dir_dict["shg_small_mask"],
+                                  dir_dict['shg_small_8bit'],
+                                  'SHG_Small_8Bit')
+    
+    proc.bulk_convert_to_eightbit(dir_dict["mmp_small_reg"],
+                                  dir_dict['mmp_small_8bit'],
+                                  'MMP_Small_8Bit')
 
 perform_registrations()
 
