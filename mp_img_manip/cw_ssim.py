@@ -38,14 +38,15 @@ def compare_ssim(one_path, two_path):
     return ssim
 
 
-def bulk_compare_ssim(dir_list, output_dir):
+def bulk_compare_ssim(dir_list, 
+                      output_dir, output_name = 'CW-SSIM Values.csv'):
     """Calculate CW-SSIM between images in several file directories
     """
     path_lists = blk.find_bulk_shared_images(dir_list)
     num_images = len(path_lists[0])
     num_dirs = len(dir_list)
     
-    file_path = os.path.join(output_dir, 'CW-SSIM Values.csv')
+    file_path = os.path.join(output_dir, output_name)
     
     for image_index in range(num_images):
         
