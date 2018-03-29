@@ -22,6 +22,9 @@ def create_dictionary(
     mask_dir = mid_analysis_dir + '\\Step 03 - Masked images'
     
     eight_bit_dir = mid_analysis_dir + '\\Step 04 - Eight-bit images'
+    
+    tile_dir = mid_analysis_dir + '\\Step 05 - Tiling images'
+    
     ssim_dir = post_analysis_dir + '\\CW-SSIM Values'
     
     dir_dict = {
@@ -54,6 +57,14 @@ def create_dictionary(
     "ps_small_8bit" : os.path.join(base_dir, eight_bit_dir,'PS_Small_8Bit'),
     "shg_small_8bit" : os.path.join(base_dir, eight_bit_dir,'SGH_Small_8Bit'),
     "mmp_small_8bit" : os.path.join(base_dir, eight_bit_dir,'MMP_Small_8Bit'),
+    
+    "ps_large_tile" : os.path.join(base_dir, tile_dir,'PS_Large_Tiles'),
+    "shg_large_tile" : os.path.join(base_dir, tile_dir,'SGH_Large_Tiles'),
+    "mmp_large_tile" : os.path.join(base_dir, tile_dir,'MMP_Large_Tiles'),
+    
+    "ps_small_tile" : os.path.join(base_dir, tile_dir,'PS_Small_Tiles'),
+    "shg_small_tile" : os.path.join(base_dir, tile_dir,'SGH_Small_Tiles'),
+    "mmp_small_tile" : os.path.join(base_dir, tile_dir,'MMP_Small_Tiles'),
     
     "ssim" : os.path.join(base_dir, ssim_dir)}
     
