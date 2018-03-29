@@ -10,6 +10,22 @@ import unittest
 import mp_img_manip.tiling as til
 import numpy as np
 
+
+class calculate_number_of_tiles_test_suite(unittest.TestCase):
+    
+    def test_no_remainder(self):
+        tiles_and_offset = til.calculate_number_of_tiles(10,5)
+        self.assertEqual(tiles_and_offset,(2,0))
+
+    def test_one_more_than_evenly_divisible(self):
+        tiles_and_offset = til.calculate_number_of_tiles(11,5)
+        self.assertEqual(tiles_and_offset,(2,0))
+        
+    def test_one_less_than_evenly_divisible(self): 
+        tiles_and_offset = til.calculate_number_of_tiles(9,5)
+        self.assertEqual(tiles_and_offset,(1,2))
+        
+
 class tile_passes_threshold_test_suite(unittest.TestCase):
     """Basic test cases."""
 

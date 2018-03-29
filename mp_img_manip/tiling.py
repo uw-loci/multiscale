@@ -39,7 +39,7 @@ def calculate_number_of_tiles(size_of_image_dimension, tile_size,
     remainder = np.remainder(idx_range,tile_step_size)  
     offset = np.fix(remainder/2) + border
 
-    return (int(number_of_tiles), int(offset))
+    return int(number_of_tiles), int(offset)
 
 def tile_passes_threshold(tile, val_threshold, num_threshold):
     """Given a np array, check if it has enough entries larger than a value"""
