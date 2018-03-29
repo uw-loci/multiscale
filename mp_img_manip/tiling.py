@@ -95,18 +95,26 @@ def query_tile_thresholds():
 
 def extract_image_tiles(image_path, output_dir, output_suffix,
                         diff_separation = False,
-                        tile_size = None, separation = None):
+                        tile_size = None, separation = None,
+                        intensity_threshold = None,
+                        number_threshold = None):
     
+
     basename = os.path.basename(image_path)
     print('Extracting tiles from {0}'.format(basename))
+    
+    if not tile_size or not separation:
+        tile_size, separation = query_tile_size_and_separation(diff_separation)
+        
+    if not intensity_threshold or not number_threshold:
+        intensity_threshold, number_threshold = query_tile_thresholds()
+    
     
     input_image = sitk.ReadImage(image_path)
     input_array = sitk.GetArrayFromImage(input_image)
     
     image_dimens = np.shape(input_array)
-    if not tile_size or not separation:
-        tile_size, separation = query_tile_size_and_separation(diff_separation)
-        
+
     num_x, offset_x = calculate_number_of_tiles(image_dimens[0], tile_size)
     num_y, offset_y = calculate_number_of_tiles(image_dimens[1], tile_size)
 
@@ -126,27 +134,38 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
                     offset = offset_y, tile_separation = separation)
             
             tile = input_array[start_y:end_y, start_x:end_x]
-            tile_image = sitk.GetImageFromArray(tile)
+            if tile_passes_threshold(tile, 
+                                     intensity_threshold, 
+                                     number_threshold):
             
-            tile_suffix = output_suffix + '-' + str(tile_number)
-            
-            tile_path = blk.create_new_image_path(image_path, output_dir,
-                                                  tile_suffix)
-            
-            sitk.WriteImage(tile_image, tile_path)
+                tile_image = sitk.GetImageFromArray(tile)
+                
+                tile_suffix = output_suffix + '-' + str(tile_number)
+                tile_path = blk.create_new_image_path(image_path, output_dir,
+                                                      tile_suffix)
+                sitk.WriteImage(tile_image, tile_path)
             
             tile_number += 1
             
             
 def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
                              diff_separation = False,
-                             tile_size = None, separation = None):
+                             tile_size = None, separation = None,
+                             intensity_threshold = None,
+                             number_threshold = None):
     
+    if not tile_size or not separation:
+        tile_size, separation = query_tile_size_and_separation(diff_separation)
+        
+    if not intensity_threshold or not number_threshold:
+        intensity_threshold, number_threshold = query_tile_thresholds()
+        
     image_path_list = util.list_filetype_in_dir(input_dir, '.tif')
     
     for path in image_path_list:
         
         extract_image_tiles(path, output_dir, output_suffix,
-                            diff_separation, tile_size, separation)
+                            diff_separation, tile_size, separation,
+                            intensity_threshold, number_threshold)
             
         
