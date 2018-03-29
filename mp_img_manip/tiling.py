@@ -48,6 +48,7 @@ def calculate_number_of_tiles(size_of_image_dimension, tile_size,
 def tile_passes_threshold(tile, val_threshold, num_threshold):
     """Given a np array, check if it has enough entries larger than a value"""
     
+    #broken
     thresholded_tile = np.ma.masked_less_equal(tile, val_threshold)
         
     num_values = np.ma.count(thresholded_tile)
@@ -59,7 +60,7 @@ def tile_passes_threshold(tile, val_threshold, num_threshold):
     
     
 def query_tile_size_and_separation(diff_separation = False):
-    message_tile_size = 'How many pixels should the tile width/height be?'
+    message_tile_size = 'How many pixels should the tile width/height be? >>>'
     tile_size = util.query_int(message_tile_size)
 
 
@@ -74,8 +75,8 @@ def query_tile_size_and_separation(diff_separation = False):
 
 
 def query_tile_thresholds():
-    message_intensity = 'What percentage intensity is the value threshold?'
-    message_number = 'What percentage of pixels need to be above the threshold?'
+    message_intensity = 'What percentage intensity is the value threshold? >>>'
+    message_number = 'What percentage of pixels above the threshold? >>>'
     
     intensity_threshold = util.query_int(message_intensity)
     number_threshold = util.query_int(message_number)
@@ -104,7 +105,7 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
     basename = os.path.basename(image_path)
     print('Extracting tiles from {0}'.format(basename))
     
-    if not tile_size or not separation:
+    if not tile_size or ((not separation) and diff_separation):
         tile_size, separation = query_tile_size_and_separation(diff_separation)
         
     if not intensity_threshold or not number_threshold:
@@ -127,11 +128,11 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
         for y in range(num_y):
             start_x, end_x = get_tile_start_end_index(
                     tile_number, tile_size, 
-                    offset = offset_x, tile_separation = separation)
+                    tile_offset = offset_x, tile_separation = separation)
 
             start_y, end_y = get_tile_start_end_index(
                     tile_number, tile_size, 
-                    offset = offset_y, tile_separation = separation)
+                    tile_offset = offset_y, tile_separation = separation)
             
             tile = input_array[start_x:end_x, start_y:end_y]
             if tile_passes_threshold(tile, 
@@ -154,8 +155,11 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
                              intensity_threshold = None,
                              number_threshold = None):
     
-    if not tile_size or not separation:
+    if not tile_size:
         tile_size, separation = query_tile_size_and_separation(diff_separation)
+        
+    if not separation:
+        separation = tile_size
         
     if not intensity_threshold or not number_threshold:
         intensity_threshold, number_threshold = query_tile_thresholds()
@@ -167,6 +171,7 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
         stem_name = Path(path).stem
         
         output_dir_sub = os.path.join(output_dir, stem_name)
+        os.makedirs(output_dir_sub, exist_ok = True)
         
         extract_image_tiles(path, output_dir_sub, output_suffix,
                             diff_separation, tile_size, separation,
