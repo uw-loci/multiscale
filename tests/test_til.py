@@ -33,22 +33,22 @@ class get_tile_start_end_index_test_suite(unittest.TestCase):
         
     def test_first_tile_small_step_size(self):
         start_end = til.get_tile_start_end_index(0, 5,
-                                                 tile_step_size = 2)
+                                                 tile_separation = 2)
         self.assertEqual(start_end, (0, 5))
  
     def test_second_tile_small_step_size(self):
         start_end = til.get_tile_start_end_index(1, 5,
-                                                 tile_step_size = 2)
+                                                 tile_separation = 2)
         self.assertEqual(start_end, (2, 7))
     
     def test_first_tile_large_step_size(self):
         start_end = til.get_tile_start_end_index(0, 5,        
-                                         tile_step_size = 7)
+                                         tile_separation = 7)
         self.assertEqual(start_end, (0, 5))
  
     def test_second_tile_large_step_size(self):
         start_end = til.get_tile_start_end_index(1, 5,
-                                                 tile_step_size = 7)
+                                                 tile_separation = 7)
         self.assertEqual(start_end, (7, 12))        
        
         
@@ -66,15 +66,15 @@ class calculate_number_of_tiles_test_suite(unittest.TestCase):
         tiles_and_offset = til.calculate_number_of_tiles(9,5)
         self.assertEqual(tiles_and_offset,(1,2))
         
-    def test_tile_step_size_smaller(self):
+    def test_tile_separation_smaller(self):
         tiles_and_offset = til.calculate_number_of_tiles(
-                15, 5, tile_step_size = 2)
+                15, 5, tile_separation = 2)
         
         self.assertEqual(tiles_and_offset,(4,3))
         
     def test_tss_smaller_dim_odd_remainder(self):
         tiles_and_offset = til.calculate_number_of_tiles(
-                16, 5, tile_step_size = 2)
+                16, 5, tile_separation = 2)
         
         self.assertEqual(tiles_and_offset,(5,3))
 
