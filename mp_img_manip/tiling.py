@@ -3,6 +3,7 @@ import SimpleITK as sitk
 import os
 import mp_img_manip.utility_functions as util
 import mp_img_manip.bulk_img_processing as blk
+from pathlib import Path
 
 def get_tile_start_end_index(tile_number, tile_size,
                              tile_offset = None, tile_separation = None):
@@ -121,7 +122,6 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
     tile_number = 0
     
     # still need to do csv saving and
-    # still need to do thresholding
     
     for x in range(num_x):
         for y in range(num_y):
@@ -133,7 +133,7 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
                     tile_number, tile_size, 
                     offset = offset_y, tile_separation = separation)
             
-            tile = input_array[start_y:end_y, start_x:end_x]
+            tile = input_array[start_x:end_x, start_y:end_y]
             if tile_passes_threshold(tile, 
                                      intensity_threshold, 
                                      number_threshold):
@@ -164,7 +164,11 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
     
     for path in image_path_list:
         
-        extract_image_tiles(path, output_dir, output_suffix,
+        stem_name = Path(path).stem
+        
+        output_dir_sub = os.path.join(output_dir, stem_name)
+        
+        extract_image_tiles(path, output_dir_sub, output_suffix,
                             diff_separation, tile_size, separation,
                             intensity_threshold, number_threshold)
             
