@@ -13,8 +13,8 @@ def get_tile_start_end_index(tile_number, tile_size,
     if not tile_offset:
         tile_offset = 0
             
-    start_index = ((tile_number-1)*tile_step_size)+tile_offset - 1
-    end_index = start_index + tile_size - 1
+    start_index = (tile_number*tile_step_size)+tile_offset
+    end_index = start_index + tile_size
     
     return (start_index, end_index)
 
