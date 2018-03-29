@@ -150,11 +150,11 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
                     y, scale_pixel_factor,
                     y_offset, simulated_resolution_factor)
 
-            ret_neighborhood = ret_array[range(x_start,x_end+1),
-                                         range(y_start,y_end+1)]
+            ret_neighborhood = ret_array[range(x_start,x_end),
+                                         range(y_start,y_end)]
             
-            orient_neighborhood = orient_array[range(x_start,x_end+1),
-                                               range(y_start,y_end+1)]
+            orient_neighborhood = orient_array[range(x_start,x_end),
+                                               range(y_start,y_end)]
             
             (ret_pixel, orient_pixel) = calculate_retardance_over_area(
                     ret_neighborhood,orient_neighborhood)
