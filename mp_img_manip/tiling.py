@@ -96,6 +96,8 @@ def query_tile_thresholds():
 #    
 #    return start_index_list
 
+def write_tiling_parameters():
+    return
 
 def extract_image_tiles(image_path, output_dir, output_suffix,
                         diff_separation = False,
@@ -121,34 +123,31 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
 
     num_x, offset_x = calculate_number_of_tiles(image_dimens[0], tile_size)
     num_y, offset_y = calculate_number_of_tiles(image_dimens[1], tile_size)
-
-    tile_number = 0
     
     # still need to do csv saving and
     
     for x in range(num_x):
         for y in range(num_y):
             start_x, end_x = get_tile_start_end_index(
-                    tile_number, tile_size, 
+                    x, tile_size, 
                     tile_offset = offset_x, tile_separation = separation)
 
             start_y, end_y = get_tile_start_end_index(
-                    tile_number, tile_size, 
+                    y, tile_size, 
                     tile_offset = offset_y, tile_separation = separation)
             
             tile = input_array[start_x:end_x, start_y:end_y]
+            
             if tile_passes_threshold(tile, 
                                      intensity_threshold, 
                                      number_threshold):
             
                 tile_image = sitk.GetImageFromArray(tile)
                 
-                tile_suffix = output_suffix + '-' + str(tile_number)
+                tile_suffix = output_suffix + '-' + str(x) + 'x-' +str(y) + 'y'
                 tile_path = blk.create_new_image_path(image_path, output_dir,
                                                       tile_suffix)
                 sitk.WriteImage(tile_image, tile_path)
-            
-            tile_number += 1
             
             
 def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
