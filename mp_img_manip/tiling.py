@@ -45,15 +45,17 @@ def calculate_number_of_tiles(size_of_image_dimension, tile_size,
     return int(number_of_tiles), int(offset)
 
 
-def tile_passes_threshold(tile, val_threshold, num_threshold):
+def tile_passes_threshold(tile, intensity_threshold, number_threshold,
+                          input_max_value = 255):
     """Given a np array, check if it has enough entries larger than a value"""
     
-    #broken
-    thresholded_tile = np.ma.masked_less_equal(tile, val_threshold)
+    perc_int = input_max_value*0.01*intensity_threshold 
+    perc_num = np.size(tile)*0.01*number_threshold
         
+    thresholded_tile = np.ma.masked_less_equal(tile, perc_int)   
     num_values = np.ma.count(thresholded_tile)
         
-    if num_values > num_threshold:
+    if num_values >= perc_num:
         return True
     else:
         return False
