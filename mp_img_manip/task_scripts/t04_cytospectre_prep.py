@@ -18,21 +18,21 @@ def extract_tiles_from_8bit_images(tile_size = 512,
     
     til.bulk_extract_image_tiles(dir_dict['ps_large_8bit'], 
                                  dir_dict['ps_large_tile'], 
-                                 'PS_Large_Tile',
+                                 'PS',
                                  tile_size = tile_size, 
                                  intensity_threshold = intensity_threshold, 
                                  number_threshold = number_threshold)
     
     til.bulk_extract_image_tiles(dir_dict['shg_large_8bit'], 
                                  dir_dict['shg_large_tile'], 
-                                 'SHG_Large_Tile',
+                                 'SHG',
                                  tile_size = tile_size, 
                                  intensity_threshold = intensity_threshold, 
                                  number_threshold = number_threshold)
     
     til.bulk_extract_image_tiles(dir_dict['mmp_large_8bit'], 
                                  dir_dict['mmp_large_tile'], 
-                                 'MMP_Large_Tile',
+                                 'MMP',
                                  tile_size = tile_size, 
                                  intensity_threshold = intensity_threshold, 
                                  number_threshold = number_threshold)
