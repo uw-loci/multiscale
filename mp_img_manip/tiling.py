@@ -132,12 +132,16 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
     basename = os.path.basename(image_path)
     print('Extracting tiles from {0}'.format(basename))
     
-    if not tile_size or ((not separation) and diff_separation):
+    if not tile_size:
         tile_size, separation = query_tile_size_and_separation(diff_separation)
         
     if not intensity_threshold or not number_threshold:
         intensity_threshold, number_threshold = query_tile_thresholds()
     
+    output_suffix_with_thresholds = (output_suffix + 
+                                     '_IntThesh-{0}_NumThresh{1}'.format(
+                                             intensity_threshold, 
+                                             number_threshold))
 
     input_image = sitk.ReadImage(image_path)
     input_array = sitk.GetArrayFromImage(input_image)
@@ -162,7 +166,9 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
                                      intensity_threshold, 
                                      number_threshold):
                 
-                write_tile(tile, image_path, output_dir, output_suffix, x, y)
+                write_tile(tile, image_path, output_dir, 
+                           output_suffix_with_thresholds,
+                           x, y)
 
             
             
@@ -183,11 +189,6 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
         
     image_path_list = util.list_filetype_in_dir(input_dir, '.tif')
     
-    output_suffix_with_thresholds = (output_suffix + 
-                                     '_IntThesh-{0}_NumThresh{1}'.format(
-                                             intensity_threshold, 
-                                             number_threshold))
-    
     for path in image_path_list:
         
         stem_name = Path(path).stem
@@ -196,7 +197,7 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
         os.makedirs(output_dir_sub, exist_ok = True)
         
         extract_image_tiles(path, output_dir_sub, 
-                            output_suffix_with_thresholds,
+                            output_suffix,
                             diff_separation, tile_size, separation,
                             intensity_threshold, number_threshold)
             
