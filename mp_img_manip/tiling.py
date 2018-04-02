@@ -23,6 +23,21 @@ def get_tile_start_end_index(tile_number, tile_size,
     return (start_index, end_index)
 
 
+def generate_tile_start_end_index(tile_number, tile_size,
+                                  tile_offset = None, tile_separation = None):
+
+    if not tile_separation:
+        tile_separation = tile_size
+        
+    if not tile_offset:
+        tile_offset = 0
+        
+    start_index = (tile_number*tile_separation)+tile_offset
+    end_index = start_index + tile_size
+    
+    yield start_index, end_index 
+    
+
 def calculate_number_of_tiles(size_of_image_dimension, tile_size,
                               tile_separation = None):
     """Calculate the number of tiles that fit along an image dimension,
@@ -42,7 +57,7 @@ def calculate_number_of_tiles(size_of_image_dimension, tile_size,
     remainder = np.remainder(idx_range,tile_separation)  
     offset = np.fix(remainder/2) + border
 
-    return int(number_of_tiles), int(offset)
+    return number_of_tiles, offset
 
 
 def tile_passes_threshold(tile, intensity_threshold, number_threshold,
@@ -96,7 +111,15 @@ def query_tile_thresholds():
 #    
 #    return start_index_list
 
-def write_tiling_parameters():
+def write_tile(tile, image_path, output_dir, output_suffix, x, y):
+    
+    tile_image = sitk.GetImageFromArray(tile)
+                
+    tile_suffix = output_suffix + '-' + str(x) + 'x-' +str(y) + 'y'
+    tile_path = blk.create_new_image_path(image_path, output_dir,
+                                                      tile_suffix)
+    sitk.WriteImage(tile_image, tile_path)
+    
     return
 
 def extract_image_tiles(image_path, output_dir, output_suffix,
@@ -115,39 +138,32 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
     if not intensity_threshold or not number_threshold:
         intensity_threshold, number_threshold = query_tile_thresholds()
     
-    
+
     input_image = sitk.ReadImage(image_path)
     input_array = sitk.GetArrayFromImage(input_image)
     
     image_dimens = np.shape(input_array)
 
-    num_x, offset_x = calculate_number_of_tiles(image_dimens[0], tile_size)
-    num_y, offset_y = calculate_number_of_tiles(image_dimens[1], tile_size)
+    total_num_tiles, offset = calculate_number_of_tiles(image_dimens, tile_size)
     
     # still need to do csv saving and
     
-    for x in range(num_x):
-        for y in range(num_y):
-            start_x, end_x = get_tile_start_end_index(
-                    x, tile_size, 
-                    tile_offset = offset_x, tile_separation = separation)
+    for x in range(total_num_tiles[0]):
+        for y in range(total_num_tiles[1]):
+            start, end = get_tile_start_end_index(
+                    np.array([x, y]), tile_size, 
+                    tile_offset = offset,
+                    tile_separation = separation)
 
-            start_y, end_y = get_tile_start_end_index(
-                    y, tile_size, 
-                    tile_offset = offset_y, tile_separation = separation)
             
-            tile = input_array[start_x:end_x, start_y:end_y]
+            tile = input_array[start[0]:end[0], start[1]:end[1]]
             
             if tile_passes_threshold(tile, 
                                      intensity_threshold, 
                                      number_threshold):
-            
-                tile_image = sitk.GetImageFromArray(tile)
                 
-                tile_suffix = output_suffix + '-' + str(x) + 'x-' +str(y) + 'y'
-                tile_path = blk.create_new_image_path(image_path, output_dir,
-                                                      tile_suffix)
-                sitk.WriteImage(tile_image, tile_path)
+                write_tile(tile, image_path, output_dir, output_suffix, x, y)
+
             
             
 def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
@@ -167,6 +183,11 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
         
     image_path_list = util.list_filetype_in_dir(input_dir, '.tif')
     
+    output_suffix_with_thresholds = (output_suffix + 
+                                     '_IntThesh-{0}_NumThresh{1}'.format(
+                                             intensity_threshold, 
+                                             number_threshold))
+    
     for path in image_path_list:
         
         stem_name = Path(path).stem
@@ -174,7 +195,8 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
         output_dir_sub = os.path.join(output_dir, stem_name)
         os.makedirs(output_dir_sub, exist_ok = True)
         
-        extract_image_tiles(path, output_dir_sub, output_suffix,
+        extract_image_tiles(path, output_dir_sub, 
+                            output_suffix_with_thresholds,
                             diff_separation, tile_size, separation,
                             intensity_threshold, number_threshold)
             
