@@ -11,24 +11,39 @@ import mp_img_manip.utility_functions as util
 import pandas as pd
 
 
-def parse_roi_number(roi_str):
+def parse_index(roi_str):
     return
 
-def clean_up_dataframes(analysis_list):
+
+def dataframe_generator(analysis_list):
+    
     index = 'Image'
     relevant_cols = ['Mean orientation', 'Circ. variance']
     
     #read in the dataframes
-    dataframe_generator = (
-            pd.read_csv(item, usecols = relevant_cols, index_col = index) for
-            item in analysis_list)
+    for item in analysis_list:
+           yield pd.read_csv(item, usecols = relevant_cols, index_col = index)
     
-    column_labels = ['Variable', 'PS', 'SHG', 'MMP']
         
-    clean_dataframe = pd.DataFrame(
-            index = pd.Index([], dtype='object', name=index),
-            columns = column_labels)
+
+
+
+
+def clean_up_dataframes(analysis_list):
+    dirty_dataframes = dataframe_generator(analysis_list)
+
+    index = ['ROI', 'Variable']
+    column_labels = ['PS', 'SHG', 'MMP']
+        
+    clean_dataframe = pd.DataFrame(columns = column_labels)
+    clean_dataframe.set_index(index)
     
+    for frame in dirty_dataframes:
+        for index, row in frame.iterrows():
+            sample, modality, roi = parse_index(index)
+            clean_dataframe.loc[(roi, 'Orientation'), modality] = roi[0]
+            clean_dataframe.loc[(roi, 'Alignment'), modality] = roi[1]
+            
     return clean_dataframe
     
 def write_roi_comparison_file(sample_dir, output_dir, output_suffix):
