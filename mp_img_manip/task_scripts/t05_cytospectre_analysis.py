@@ -12,17 +12,19 @@ import pandas as pd
 
 
 def parse_index(roi_str):
-    return
+    
+    
+    return sample, modality, roi
 
 
 def dataframe_generator(analysis_list):
     
     index = 'Image'
-    relevant_cols = ['Mean orientation', 'Circ. variance']
+    relevant_cols = ['Image', 'Mean orientation', 'Circ. variance']
     
     #read in the dataframes
     for item in analysis_list:
-           yield pd.read_csv(item, usecols = relevant_cols, index_col = index)
+           yield pd.read_excel(item, usecols = relevant_cols, index_col = index)
     
         
 
@@ -32,7 +34,7 @@ def dataframe_generator(analysis_list):
 def clean_up_dataframes(analysis_list):
     dirty_dataframes = dataframe_generator(analysis_list)
 
-    index = ['ROI', 'Variable']
+    index = ['Sample', 'ROI', 'Variable']
     column_labels = ['PS', 'SHG', 'MMP']
         
     clean_dataframe = pd.DataFrame(columns = column_labels)
@@ -41,8 +43,8 @@ def clean_up_dataframes(analysis_list):
     for frame in dirty_dataframes:
         for index, row in frame.iterrows():
             sample, modality, roi = parse_index(index)
-            clean_dataframe.loc[(roi, 'Orientation'), modality] = roi[0]
-            clean_dataframe.loc[(roi, 'Alignment'), modality] = roi[1]
+            clean_dataframe.loc[(sample, roi,'Orientation'), modality] = roi[0]
+            clean_dataframe.loc[(sample, roi,'Alignment'), modality] = roi[1]
             
     return clean_dataframe
     
