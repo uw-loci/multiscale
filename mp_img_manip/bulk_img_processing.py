@@ -3,6 +3,29 @@ import mp_img_manip.utility_functions as util
 import pandas as pd
 
     
+
+
+def dataframe_generator(analysis_list, index, relevant_cols = None):
+    """
+    
+    
+    relevant_cols = subset of dataframe, should include index
+    """
+    
+    
+    if relevant_cols is None:
+        for item in analysis_list:
+            yield pd.read_excel(item, index_col = index)
+    else:
+        if index not in relevant_cols:
+            relevant_cols[len(relevant_cols)] = index
+        
+        for item in analysis_list:
+            yield pd.read_excel(item, 
+                                columns = relevant_cols, index_col = index)
+            
+           
+
 def read_write_pandas_row(file_path, index,
                           index_label, column_labels,
                           column_values = None):
