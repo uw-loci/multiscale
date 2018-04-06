@@ -142,21 +142,7 @@ def file_name_parts(file_name):
     
     name_str = os.path.splitext(full_file_name)[0]
     
-    underscore_indices = util.character_indices(name_str, '_')
-    
-    if underscore_indices[0] == -1:
-        print('The file name ' + name_str + ' has only one part.')
-        return name_str
-    
-    underscore_indices.append(len(name_str))
-    
-    part_list = []
-    part_list.append(name_str[:int(underscore_indices[0])])
-     
-    for i in range(1,len(underscore_indices)):
-        
-        part_list.append(
-                name_str[(underscore_indices[i-1]+1):underscore_indices[i]])
+    part_list = str(name_str).split('_')
     
     return part_list
     
@@ -169,12 +155,9 @@ def get_core_file_name(file_name):
     
     name_str = os.path.splitext(full_file_name)[0]
     
-    underscore_index = name_str.find('_')
-    
-    if underscore_index > 0:     
-        return name_str[0:underscore_index]
-    else:
-        return name_str
+    part_list = str(name_str).split('_')
+
+    return part_list[0]
     
 	
 def create_new_image_path(core_image_path, output_dir, output_suffix):
