@@ -32,7 +32,7 @@ def dataframe_generator(analysis_list):
 
 
 def clean_up_dataframes(analysis_list):
-    dirty_dataframes = dataframe_generator(analysis_list)
+    dirty_dataframes = blk.dataframe_generator_excel(analysis_list)
 
     index = ['Sample', 'ROI', 'Variable']
     column_labels = ['PS', 'SHG', 'MMP']
@@ -43,8 +43,8 @@ def clean_up_dataframes(analysis_list):
     for frame in dirty_dataframes:
         for index, row in frame.iterrows():
             sample, modality, roi = parse_index(index)
-            clean_dataframe.loc[(sample, roi,'Orientation'), modality] = roi[0]
-            clean_dataframe.loc[(sample, roi,'Alignment'), modality] = roi[1]
+            clean_dataframe.loc[(sample, roi,'Orientation'), modality] = row[0]
+            clean_dataframe.loc[(sample, roi,'Alignment'), modality] = row[1]
             
     return clean_dataframe
     

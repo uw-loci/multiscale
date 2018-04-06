@@ -5,10 +5,12 @@ import pandas as pd
     
 
 
-def dataframe_generator(analysis_list, index, relevant_cols = None):
+def dataframe_generator_excel(analysis_list, index, relevant_cols = None):
     """
+    Generator to yield dataframes from a list of excel docs, one at a time
     
-    
+    analysis_list = the list of excel docs
+    index = index column of the excel doc
     relevant_cols = subset of dataframe, should include index
     """
     
