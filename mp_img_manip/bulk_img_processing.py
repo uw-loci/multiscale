@@ -1,6 +1,7 @@
 import os
 import mp_img_manip.utility_functions as util
 import pandas as pd
+from pathlib import Path
 
     
 
@@ -138,9 +139,7 @@ def write_pandas_value(file_path, index, value, column,
 
 def file_name_parts(file_name):
     """Extract strings seperated by underscores in a file name"""
-    full_file_name = os.path.split(file_name)[1]
-    
-    name_str = os.path.splitext(full_file_name)[0]
+    name_str = Path(file_name).stem
     
     part_list = str(name_str).split('_')
     
@@ -151,10 +150,7 @@ def file_name_parts(file_name):
 def get_core_file_name(file_name):
     """This function extracts the file string up until the first underscore"""
     
-    full_file_name = os.path.split(file_name)[1]
-    
-    name_str = os.path.splitext(full_file_name)[0]
-    
+    name_str = Path(file_name).stem
     part_list = str(name_str).split('_')
 
     return part_list[0]
@@ -193,8 +189,8 @@ def find_shared_images(dir_one, dir_two):
     #todo: make a check for different categories of name,
     #   if there are multiple instances of a single name?
     
-    file_list_one = [f for f in os.listdir(dir_one) if f.endswith('.tif')]
-    file_list_two = [f for f in os.listdir(dir_two) if f.endswith('.tif')]
+    file_list_one = [Path(f) for f in os.listdir(dir_one) if f.endswith('.tif')]
+    file_list_two = [Path(f) for f in os.listdir(dir_two) if f.endswith('.tif')]
         
     dir_one_image_paths = list()
     dir_two_image_paths = list()
@@ -207,10 +203,8 @@ def find_shared_images(dir_one, dir_two):
           
             if core_nameOne == core_nameTwo:
                 
-                dir_one_image_paths.append(
-                        os.path.join(dir_one, file_list_one[i]))
-                dir_two_image_paths.append(
-                        os.path.join(dir_two, file_list_two[j]))
+                dir_one_image_paths.append(file_list_one[i])
+                dir_two_image_paths.append(file_list_two[j])
 
     
     return (dir_one_image_paths, dir_two_image_paths)
@@ -249,7 +243,8 @@ def find_bulk_shared_images(dir_list):
         if util.item_present_all_lists(item, core_names[1:]):   
             for index in range(num_dirs):
                 item_index = core_names[index].index(item)
-                path_lists[index].append(file_list[index][item_index])
+                new_path = Path(file_list[index][item_index])
+                path_lists[index].append(new_path)
 
     return path_lists
 
