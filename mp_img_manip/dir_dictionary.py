@@ -8,11 +8,16 @@ My personal directories
 """
 
 import os
-import pathlib.path as Path
 
-def creat_test_dictionary(test_dir = Path('test_files')):
+def create_test_dictionary(test_dir = 'tests'):
+    
+    test_files_dir = os.path.join(test_dir, 'test_files')
+    
     test_dict = {
-            'test_cyto' : os.path.join(test_dir,'test_cyto')
+            
+            'test_dir' : test_dir,
+            'test_files_dir' : test_files_dir,
+            'test_cyto' : os.path.join(test_files_dir,'test_cyto')
             
             
             
