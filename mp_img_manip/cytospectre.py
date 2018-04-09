@@ -24,49 +24,34 @@ def bulk_parse_index(roi_list):
     parsed_indices = np.array(indices_list)
     return parsed_indices
 
-def create_empty_cytospectre_dataframe(parsed_indices):
-    index = ['Sample', 'ROI', 'Variable']
-    variables = ['Orientation', 'Alignment']
 
-    new_index = pd.MultiIndex.from_product([parsed_indices[:, 0],
-                                            parsed_indices[:, 2],
-                                            variables],
-                                           names = index)
-
-    column_labels = ['PS', 'SHG', 'MMP']     
-    clean_dataframe = pd.DataFrame(columns = column_labels)
-    clean_dataframe.set_index(new_index)
+def clean_indices(parsed_indices):
     
-    return clean_dataframe
+    pre_variable_sort_index = ['Sample', 'Modality', 'ROI']
+    transposed_indices = np.transpose(parsed_indices)
+    mid_clean_index = pd.MultiIndex.from_arrays(transposed_indices,
+                                          names = pre_variable_sort_index)
+    
+    return mid_clean_index
 
 
 def clean_single_dataframe(dirty_frame):
+    """Takes a raw cytospectre dataframe and resorts it for easy analysis"""
     
-    dirty_index = 'Image'
-    relevant_cols = ['Image', 'Mean orientation', 'Circ. variance']
-
-    parsed_indices = bulk_parse_index(dirty_frame[dirty_index])
-    
-    clean_dataframe = create_empty_cytospectre_dataframe(parsed_indices)
-
-
-    
-    
-    
-    #Problem is with this structure I need to loop over everything....
-
+    new_label_dict = {'Mean orientation' : 'Orientation', 
+                       'Circ. variance' : 'Alignment'}
+    relabeled_frame = dirty_frame.rename(columns = new_label_dict)
         
+    parsed_indices = bulk_parse_index(list(relabeled_frame.index))  
+    clean_index = clean_indices(parsed_indices)  
+    clean_frame_stacked = relabeled_frame.set_index(clean_index)
     
-    #The current loop is low efficiency, as it is value-wise changes and pandas
-    #Copies the whole dataframe every operation
+    clean_frame = clean_frame_stacked.unstack(1)
     
-    
-#    for index, row in dirty_frame.iterrows():
-#        sample, modality, roi = parse_index(index)
-#        clean_dataframe.loc[(sample, roi,'Orientation'), modality] = row[0]
-#        clean_dataframe.loc[(sample, roi,'Alignment'), modality] = row[1]
-        
-    return clean_dataframe
+    return clean_frame
+
+
+
 
 def clean_up_dataframes(analysis_list):
     
