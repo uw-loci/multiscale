@@ -12,7 +12,7 @@ def dataframe_generator_excel(analysis_list, index, relevant_cols = None):
     
     analysis_list = the list of excel docs
     index = index column of the excel doc
-    relevant_cols = subset of dataframe, should include index
+    relevant_cols = subset of dataframe to return
     """
     
     
@@ -20,12 +20,10 @@ def dataframe_generator_excel(analysis_list, index, relevant_cols = None):
         for item in analysis_list:
             yield pd.read_excel(item, index_col = index)
     else:
-        if index not in relevant_cols:
-            relevant_cols[len(relevant_cols)] = index
-        
         for item in analysis_list:
-            yield pd.read_excel(item, 
-                                columns = relevant_cols, index_col = index)
+            df = pd.read_excel(item, index_col = index)
+            output_df = df[relevant_cols]
+            yield output_df
             
            
 
@@ -147,7 +145,7 @@ def file_name_parts(file_name):
     return part_list
     
 
-def list_filename_parts(file_list):
+def file_name_parts_list(file_list):
     """Extract underscore separated parts in a list of file names"""
     parts_list = [file_name_parts(file_name) for file_name in file_list]
     return parts_list
