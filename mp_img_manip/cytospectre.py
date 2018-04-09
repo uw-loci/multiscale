@@ -10,6 +10,7 @@ import mp_img_manip.dir_dictionary as dird
 import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.utility_functions as util
 import pandas as pd
+import numpy as np
 import os
 
 
@@ -18,25 +19,43 @@ def parse_index(roi_str):
     sample, modality, roi = blk.file_name_parts(roi_str)
     return sample, modality, roi
 
+def bulk_parse_index(roi_list):
+    indices_list = blk.file_name_parts_list(roi_list)
+    parsed_indices = np.array(indices_list)
+    return parsed_indices
 
-def dataframe_generator(analysis_list):
-    
+def create_empty_cytospectre_dataframe(parsed_indices):
+    index = ['Sample', 'ROI', 'Variable']
+    variables = ['Orientation', 'Alignment']
 
-    #read in the dataframes
-    for item in analysis_list:
-           yield pd.read_excel(item, usecols = relevant_cols, index_col = index)
+    new_index = pd.MultiIndex.from_product([parsed_indices[:, 0],
+                                            parsed_indices[:, 2],
+                                            variables],
+                                           names = index)
+
+    column_labels = ['PS', 'SHG', 'MMP']     
+    clean_dataframe = pd.DataFrame(columns = column_labels)
+    clean_dataframe.set_index(new_index)
     
-        
+    return clean_dataframe
+
 
 def clean_single_dataframe(dirty_frame):
     
     dirty_index = 'Image'
     relevant_cols = ['Image', 'Mean orientation', 'Circ. variance']
+
+    parsed_indices = bulk_parse_index(dirty_frame[dirty_index])
     
-    index = ['Sample', 'ROI', 'Variable']
-    column_labels = ['PS', 'SHG', 'MMP']     
-    clean_dataframe = pd.DataFrame(columns = column_labels)
-    clean_dataframe.set_index(index)
+    clean_dataframe = create_empty_cytospectre_dataframe(parsed_indices)
+
+
+    
+    
+    
+    #Problem is with this structure I need to loop over everything....
+
+        
     
     #The current loop is low efficiency, as it is value-wise changes and pandas
     #Copies the whole dataframe every operation
