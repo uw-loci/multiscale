@@ -8,6 +8,16 @@ My personal directories
 """
 
 import os
+import pathlib.path as Path
+
+def creat_test_dictionary(test_dir = Path('test_files')):
+    test_dict = {
+            'test_cyto' : os.path.join(test_dir,'test_cyto')
+            
+            
+            
+            }
+    return test_dict
 
 def create_dictionary(
         base_dir = os.path.normpath('F:\Box Sync\Research\Polarimetry'),
@@ -20,12 +30,12 @@ def create_dictionary(
     resize_dir = mid_analysis_dir + '\\Step 01 - Resizing images'
     reg_dir = mid_analysis_dir + '\\Step 02 - Registered images'
     mask_dir = mid_analysis_dir + '\\Step 03 - Masked images'
-    
     eight_bit_dir = mid_analysis_dir + '\\Step 04 - Eight-bit images'
-    
     tile_dir = mid_analysis_dir + '\\Step 05 - Tiling images'
     
     ssim_dir = post_analysis_dir + '\\CW-SSIM Values'
+    
+    
     
     dir_dict = {
     "ps_large" : os.path.join(base_dir, prep_dir, 'PS_Large'),
