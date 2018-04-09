@@ -139,6 +139,7 @@ def write_pandas_value(file_path, index, value, column,
 
 def file_name_parts(file_name):
     """Extract strings seperated by underscores in a file name"""
+    
     name_str = Path(file_name).stem
     
     part_list = str(name_str).split('_')
@@ -146,6 +147,11 @@ def file_name_parts(file_name):
     return part_list
     
 
+def list_filename_parts(file_list):
+    """Extract underscore separated parts in a list of file names"""
+    parts_list = [file_name_parts(file_name) for file_name in file_list]
+    return parts_list
+    
 
 def get_core_file_name(file_name):
     """This function extracts the file string up until the first underscore"""
