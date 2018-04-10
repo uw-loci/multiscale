@@ -173,6 +173,7 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
             
             
 def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
+                             search_subdirs = False,
                              diff_separation = False,
                              tile_size = None, separation = None,
                              intensity_threshold = None,
@@ -187,7 +188,12 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
     if not intensity_threshold or not number_threshold:
         intensity_threshold, number_threshold = query_tile_thresholds()
         
-    image_path_list = util.list_filetype_in_dir(input_dir, '.tif')
+    if search_subdirs:    
+        image_path_list = util.list_filetype_in_subdirs(input_dir, '.tif')
+        
+    else:
+        image_path_list = util.list_filetype_in_dir(input_dir, '.tif')
+
     
     for path in image_path_list:
         

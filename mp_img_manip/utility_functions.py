@@ -22,6 +22,19 @@ def item_present_all_lists(item, lists):
 #        
 #    return index_lists
 
+def list_filetype_in_subdirs(base_dir, file_ext):
+    """Find all files in the immediate subdirectores with a given extension"""
+    dir_list = [d[0] for d in os.walk(base_dir)]
+    
+    file_list = []
+    
+    for subdir in dir_list:
+        subdir_list = list_filetype_in_dir(subdir, file_ext)
+        file_list.extend(subdir_list)
+     
+    return file_list
+    
+    
 
 def list_filetype_in_dir(file_dir, file_ext):
     """Given a directory path, return all files of given file type as a list"""
