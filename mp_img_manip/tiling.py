@@ -143,10 +143,10 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
     if not intensity_threshold or not number_threshold:
         intensity_threshold, number_threshold = query_tile_thresholds()
     
-#    output_suffix_with_thresholds = (output_suffix + 
-#                                     '_IntThesh-{0}_NumThresh{1}'.format(
-#                                             intensity_threshold, 
-#                                             number_threshold))
+    output_suffix_with_thresholds = (output_suffix + 
+                                     '_IntThesh-{0}-NumThresh{1}'.format(
+                                             intensity_threshold, 
+                                             number_threshold))
 
     input_image = sitk.ReadImage(str(image_path))
     input_array = sitk.GetArrayFromImage(input_image)
@@ -173,7 +173,7 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
                                      number_threshold):
                 
                 write_tile(tile, image_path, output_dir, 
-                           output_suffix,
+                           output_suffix_with_thresholds,
                            x, y)
 
             
