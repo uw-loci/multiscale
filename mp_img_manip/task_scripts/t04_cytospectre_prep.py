@@ -37,3 +37,5 @@ def extract_tiles_from_8bit_images(tile_size = 512,
                                  intensity_threshold = intensity_threshold, 
                                  number_threshold = number_threshold)
     
+
+extract_tiles_from_8bit_images()
