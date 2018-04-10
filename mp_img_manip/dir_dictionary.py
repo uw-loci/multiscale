@@ -66,20 +66,20 @@ def create_dictionary(
     "shg_large_mask" : os.path.join(base_dir,mask_dir,'SHG_Large_Mask'),
 
     "ps_large_8bit" : os.path.join(base_dir, eight_bit_dir,'PS_Large_8Bit'),
-    "shg_large_8bit" : os.path.join(base_dir, eight_bit_dir,'SGH_Large_8Bit'),
+    "shg_large_8bit" : os.path.join(base_dir, eight_bit_dir,'SHG_Large_8Bit'),
     "mmp_large_8bit" : os.path.join(base_dir, eight_bit_dir,'MMP_Large_8Bit'),
     
     "ps_small_8bit" : os.path.join(base_dir, eight_bit_dir,'PS_Small_8Bit'),
-    "shg_small_8bit" : os.path.join(base_dir, eight_bit_dir,'SGH_Small_8Bit'),
+    "shg_small_8bit" : os.path.join(base_dir, eight_bit_dir,'SHG_Small_8Bit'),
     "mmp_small_8bit" : os.path.join(base_dir, eight_bit_dir,'MMP_Small_8Bit'),
     
     "ps_large_tile" : os.path.join(base_dir, tile_dir,'PS_Large_Tiles'),
-    "shg_large_tile" : os.path.join(base_dir, tile_dir,'SGH_Large_Tiles'),
+    "shg_large_tile" : os.path.join(base_dir, tile_dir,'SHG_Large_Tiles'),
     "mmp_large_tile" : os.path.join(base_dir, tile_dir,'MMP_Large_Tiles'),
     
-    "ps_small_tile" : os.path.join(base_dir, tile_dir,'PS_Small_Tiles'),
-    "shg_small_tile" : os.path.join(base_dir, tile_dir,'SGH_Small_Tiles'),
-    "mmp_small_tile" : os.path.join(base_dir, tile_dir,'MMP_Small_Tiles'),
+    #"ps_small_tile" : os.path.join(base_dir, tile_dir,'PS_Small_Tiles'),
+    #"shg_small_tile" : os.path.join(base_dir, tile_dir,'SHG_Small_Tiles'),
+    #"mmp_small_tile" : os.path.join(base_dir, tile_dir,'MMP_Small_Tiles'),
     
     "ssim" : os.path.join(base_dir, ssim_dir)}
     
