@@ -51,11 +51,16 @@ def calculate_number_of_tiles(size_of_image_dimension, tile_size,
     if tile_size > tile_separation:
         border = (tile_size - tile_separation)
 
-    idx_range = size_of_image_dimension-2*border
+    number_of_tiles = []
 
-    number_of_tiles = np.fix(idx_range/tile_separation)
-    remainder = np.remainder(idx_range,tile_separation)  
-    offset = np.fix(remainder/2) + border
+    for i in range(2):
+        idx_range = size_of_image_dimension[i]-2*border
+        
+        num_tiles = np.fix(idx_range/tile_separation)
+        number_of_tiles.append(int(num_tiles))
+        
+        remainder = np.remainder(idx_range,tile_separation)  
+        offset = int(np.fix(remainder/2) + border)
 
     return number_of_tiles, offset
 
@@ -143,12 +148,13 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
                                              intensity_threshold, 
                                              number_threshold))
 
-    input_image = sitk.ReadImage(image_path)
+    input_image = sitk.ReadImage(str(image_path))
     input_array = sitk.GetArrayFromImage(input_image)
     
     image_dimens = np.shape(input_array)
-
-    total_num_tiles, offset = calculate_number_of_tiles(image_dimens, tile_size)
+    
+    total_num_tiles, offset = calculate_number_of_tiles(
+            image_dimens, tile_size)
     
     # still need to do csv saving and
     
@@ -181,25 +187,19 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
     
     if not tile_size:
         tile_size, separation = query_tile_size_and_separation(diff_separation)
-        
     if not separation:
         separation = tile_size
-        
     if not intensity_threshold or not number_threshold:
         intensity_threshold, number_threshold = query_tile_thresholds()
         
     if search_subdirs:    
         image_path_list = util.list_filetype_in_subdirs(input_dir, '.tif')
-        
     else:
         image_path_list = util.list_filetype_in_dir(input_dir, '.tif')
 
     
-    for path in image_path_list:
-        
-        stem_name = Path(path).stem
-        
-        output_dir_sub = os.path.join(output_dir, stem_name)
+    for path in image_path_list:   
+        output_dir_sub = os.path.join(output_dir, path.stem)
         os.makedirs(output_dir_sub, exist_ok = True)
         
         extract_image_tiles(path, output_dir_sub, 
