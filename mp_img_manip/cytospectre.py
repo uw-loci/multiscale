@@ -40,10 +40,11 @@ def clean_single_dataframe(dirty_frame):
     new_label_dict = {'Mean orientation' : 'Orientation', 
                        'Circ. variance' : 'Alignment'}
     relabeled_frame = dirty_frame.rename(columns = new_label_dict)
+    cutdown_frame = relabeled_frame[['Orientation', 'Alignment']]
         
-    parsed_indices = bulk_parse_index(list(relabeled_frame.index))  
+    parsed_indices = bulk_parse_index(list(cutdown_frame.index))  
     clean_index = clean_indices(parsed_indices)  
-    clean_frame_stacked = relabeled_frame.set_index(clean_index)
+    clean_frame_stacked = cutdown_frame.set_index(clean_index)
     
     clean_frame = clean_frame_stacked.unstack(1)
     
@@ -52,7 +53,7 @@ def clean_single_dataframe(dirty_frame):
 
 
 
-def clean_multiple_dataframes(analysis_list):
+def clean_multiple_dataframes(analysis_list, clean_dataframe):
     
     dirty_index = 'Image'
     relevant_cols = ['Mean orientation', 'Circ. variance']
@@ -60,11 +61,10 @@ def clean_multiple_dataframes(analysis_list):
                                                      dirty_index,
                                                      relevant_cols)
 
-    clean_dataframe = pd.DataFrame
 
     for dirty_frame in dirty_dataframes:
         dataframe = clean_single_dataframe(dirty_frame)
-        pd.concat(clean_dataframe, dataframe) 
+        pd.concat([clean_dataframe, dataframe]) 
         
         
         
@@ -87,13 +87,11 @@ def write_roi_comparison_file(sample_dir, output_dir = None,
         clean_dataframe = pd.read_csv(output_path)
     except:
         dirty_frame = pd.read_excel(analysis_list[0],
-                                    index_col = 'Image',
-                                    columns = ['Mean orientation',
-                                               'Circ. variance'])
+                                    index_col = 'Image')
         clean_dataframe = clean_single_dataframe(dirty_frame)
         analysis_list.pop(0)        
     
-    new_frames = clean_multiple_dataframes(analysis_list)
+    new_frames = clean_multiple_dataframes(analysis_list, clean_dataframe)
     
     output_dataframe = pd.concat([clean_dataframe, new_frames])
     
