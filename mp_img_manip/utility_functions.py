@@ -5,6 +5,7 @@ Created on Wed Mar  7 14:59:49 2018
 @author: mpinkert
 """
 import os
+from pathlib import Path
 
 def item_present_all_lists(item, lists):
     """Check if an item is present in all lists"""
@@ -23,7 +24,12 @@ def item_present_all_lists(item, lists):
 #    return index_lists
 
 def list_filetype_in_subdirs(base_dir, file_ext):
-    """Find all files in the immediate subdirectores with a given extension"""
+    """Find all files in the immediate subdirectores with a given extension
+    
+    base_dir - immediate dir to find subdirs of
+    file_ext - the file extension to search for
+    
+    output: file_list - a list of the relevant file paths """
     dir_list = [d[0] for d in os.walk(base_dir)]
     
     file_list = []
@@ -38,7 +44,7 @@ def list_filetype_in_subdirs(base_dir, file_ext):
 
 def list_filetype_in_dir(file_dir, file_ext):
     """Given a directory path, return all files of given file type as a list"""
-    return [os.path.join(file_dir, f) for
+    return [Path(file_dir, f) for
                   f in os.listdir(file_dir) if f.endswith(file_ext)]  
     
 def query_int(message):
