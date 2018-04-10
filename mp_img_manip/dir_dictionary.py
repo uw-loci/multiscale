@@ -39,7 +39,7 @@ def create_dictionary(
     tile_dir = mid_analysis_dir + '\\Step 05 - Tiling images'
     
     ssim_dir = post_analysis_dir + '\\CW-SSIM Values'
-    
+    cyto_dir = post_analysis_dir + '\\Cytospectre'
     
     
     dir_dict = {
@@ -81,7 +81,9 @@ def create_dictionary(
     #"shg_small_tile" : os.path.join(base_dir, tile_dir,'SHG_Small_Tiles'),
     #"mmp_small_tile" : os.path.join(base_dir, tile_dir,'MMP_Small_Tiles'),
     
-    "ssim" : os.path.join(base_dir, ssim_dir)}
+    "ssim" : os.path.join(base_dir, ssim_dir),
+    "cyto" : os.path.join(base_dir, cyto_dir)
+    }
     
     for key in dir_dict: os.makedirs(dir_dict[key], exist_ok = True)
     
