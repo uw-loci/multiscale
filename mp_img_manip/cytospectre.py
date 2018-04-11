@@ -64,7 +64,9 @@ def clean_multiple_dataframes(analysis_list, clean_dataframe):
 
     for dirty_frame in dirty_dataframes:
         dataframe = clean_single_dataframe(dirty_frame)
-        pd.concat([clean_dataframe, dataframe]) 
+        clean_dataframe = pd.merge(clean_dataframe, dataframe, 
+                  left_index = True, right_index = True,
+                  how = 'outer') 
         
         
         
@@ -84,18 +86,21 @@ def write_roi_comparison_file(sample_dir, output_dir = None,
         output_path = Path(output_dir, output_suffix)
     
     try:
-        clean_dataframe = pd.read_csv(output_path)
+        clean_dataframe = pd.read_csv(output_path,
+                                      index = ['Sample', 'Thresholds', 'ROI'])
     except:
         dirty_frame = pd.read_excel(analysis_list[0],
                                     index_col = 'Image')
         clean_dataframe = clean_single_dataframe(dirty_frame)
         analysis_list.pop(0)        
     
-    new_frames = clean_multiple_dataframes(analysis_list, clean_dataframe)
     
-    output_dataframe = pd.concat([clean_dataframe, new_frames])
+    output_frame = clean_multiple_dataframes(analysis_list, clean_dataframe)
+#    output_dataframe = pd.merge(clean_dataframe, new_frames, 
+#                                left_index = True, right_index = True,
+#                                how = 'outer')
     
-    output_dataframe.to_csv(output_path)
+    output_frame.to_csv(output_path)
 
 
 def plot_roi_comparison():

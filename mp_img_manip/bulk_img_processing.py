@@ -18,10 +18,10 @@ def dataframe_generator_excel(analysis_list, index, relevant_cols = None):
     
     if relevant_cols is None:
         for item in analysis_list:
-            yield pd.read_excel(item, index_col = index)
+            yield pd.read_excel(str(item), index_col = index)
     else:
         for item in analysis_list:
-            df = pd.read_excel(item, index_col = index)
+            df = pd.read_excel(str(item), index_col = index)
             output_df = df[relevant_cols]
             yield output_df
             
