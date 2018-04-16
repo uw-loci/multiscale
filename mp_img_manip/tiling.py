@@ -52,6 +52,7 @@ def calculate_number_of_tiles(size_of_image_dimension, tile_size,
         border = (tile_size - tile_separation)
 
     number_of_tiles = []
+    offset = []
 
     for i in range(2):
         idx_range = size_of_image_dimension[i]-2*border
@@ -60,7 +61,7 @@ def calculate_number_of_tiles(size_of_image_dimension, tile_size,
         number_of_tiles.append(int(num_tiles))
         
         remainder = np.remainder(idx_range,tile_separation)  
-        offset = int(np.fix(remainder/2) + border)
+        offset.append(int(np.fix(remainder/2) + border))
 
     return number_of_tiles, offset
 
@@ -151,6 +152,8 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
     input_image = sitk.ReadImage(str(image_path))
     input_array = sitk.GetArrayFromImage(input_image)
     
+    input_max_value = np.max(input_array)
+    
     image_dimens = np.shape(input_array)
     
     total_num_tiles, offset = calculate_number_of_tiles(
@@ -170,7 +173,8 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
             
             if tile_passes_threshold(tile, 
                                      intensity_threshold, 
-                                     number_threshold):
+                                     number_threshold,
+                                     input_max_value = input_max_value):
                 
                 write_tile(tile, image_path, output_dir, 
                            output_suffix_with_thresholds,
