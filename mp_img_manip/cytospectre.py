@@ -78,7 +78,7 @@ def clean_multiple_dataframes(analysis_list, clean_dataframe):
 def write_roi_comparison_file(sample_dir, output_dir = None,
                               output_suffix = 'Cleaned data.csv'):
     
-    analysis_list = util.list_filetype_in_subdirs(sample_dir, '.xls')
+    analysis_list = util.list_filetype_in_dir(sample_dir, '.xls')
     
     if output_dir is None:
         output_path = Path(sample_dir, output_suffix)
@@ -86,8 +86,8 @@ def write_roi_comparison_file(sample_dir, output_dir = None,
         output_path = Path(output_dir, output_suffix)
     
     try:
-        clean_dataframe = pd.read_csv(output_path,
-                                      index = ['Sample', 'Thresholds', 'ROI'])
+        clean_dataframe = pd.read_csv(output_path, 
+                                      header = [0, 1], index_col = [0, 1, 2])
     except:
         dirty_frame = pd.read_excel(analysis_list[0],
                                     index_col = 'Image')
@@ -96,11 +96,7 @@ def write_roi_comparison_file(sample_dir, output_dir = None,
     
     
     output_frame = clean_multiple_dataframes(analysis_list, clean_dataframe)
-#    output_dataframe = pd.merge(clean_dataframe, new_frames, 
-#                                left_index = True, right_index = True,
-#                                how = 'outer')
-    
-    output_frame.to_csv(output_path)
+
 
 
 def plot_roi_comparison():
