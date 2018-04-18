@@ -18,11 +18,14 @@ def dataframe_generator_excel(analysis_list, index, relevant_cols = None):
     
     if relevant_cols is None:
         for item in analysis_list:
-            yield pd.read_excel(str(item), index_col = index)
+            dataframe = pd.read_excel(str(item), index_col = index)
+            dataframe.name = item.stem
+            yield dataframe
     else:
         for item in analysis_list:
             df = pd.read_excel(str(item), index_col = index)
             output_df = df[relevant_cols]
+            output_df.name = item.stem
             yield output_df
             
            
