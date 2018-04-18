@@ -61,6 +61,7 @@ def recast_max_diff_90deg(row):
     
     return new_value, value_two
 
+
 def three_modality_regression(three_modality_dataframe):
     index_label = 'Regression Modalities'
     column_labels = ['slope', 'intercept', 'r value', 'p value', 'std error']
@@ -81,6 +82,10 @@ def three_modality_regression(three_modality_dataframe):
     shg_cast_to_ps = three_modality_dataframe[['SHG', 'PS']].apply(
             recast_max_diff_90deg, axis = 1)
     linear_regression_results.loc['SHG to PS'] = regress(shg_cast_to_ps)
+    
+    
+    linear_regression_results['r squared'] = linear_regression_results[
+            'r value'].apply(lambda x: x**2)
     
     return linear_regression_results
     
