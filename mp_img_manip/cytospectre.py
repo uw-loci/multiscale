@@ -53,7 +53,7 @@ def clean_single_dataframe(dirty_frame):
 
 
 
-def clean_multiple_dataframes(analysis_list, clean_dataframe):
+def clean_multiple_dataframes(analysis_list, output_dir, output_suffix):
     
     dirty_index = 'Image'
     relevant_cols = ['Mean orientation', 'Circ. variance']
@@ -63,39 +63,36 @@ def clean_multiple_dataframes(analysis_list, clean_dataframe):
 
 
     for dirty_frame in dirty_dataframes:
-        dataframe = clean_single_dataframe(dirty_frame)
-        clean_dataframe = pd.merge(clean_dataframe, dataframe, 
-                  left_index = True, right_index = True,
-                  how = 'outer') 
-        
-        
-        
-        
-    return clean_dataframe
-    
-
-
-def write_roi_comparison_file(sample_dir, output_dir = None,
-                              output_suffix = 'Cleaned data.csv'):
-    
-    analysis_list = util.list_filetype_in_dir(sample_dir, '.xls')
-    
-    if output_dir is None:
-        output_path = Path(sample_dir, output_suffix)
-    else:    
-        output_path = Path(output_dir, output_suffix)
-    
-    try:
-        clean_dataframe = pd.read_csv(output_path, 
-                                      header = [0, 1], index_col = [0, 1, 2])
-    except:
-        dirty_frame = pd.read_excel(analysis_list[0],
-                                    index_col = 'Image')
         clean_dataframe = clean_single_dataframe(dirty_frame)
-        analysis_list.pop(0)        
+        output_path = Path(output_dir, clean_dataframe.name, 
+                           '-', output_suffix)
+        
+        clean_dataframe.to_csv(output_path)
     
-    
-    output_frame = clean_multiple_dataframes(analysis_list, clean_dataframe)
+
+
+#
+#def write_roi_comparison_file(sample_dir, output_dir = None,
+#                              output_suffix = 'Cleaned data.csv'):
+#    """Deprecated"""
+#    analysis_list = util.list_filetype_in_dir(sample_dir, '.xls')
+#    
+#    if output_dir is None:
+#        output_path = Path(sample_dir, output_suffix)
+#    else:    
+#        output_path = Path(output_dir, output_suffix)
+#    
+#    try:
+#        clean_dataframe = pd.read_csv(output_path, 
+#                                      header = [0, 1], index_col = [0, 1, 2])
+#    except:
+#        dirty_frame = pd.read_excel(analysis_list[0],
+#                                    index_col = 'Image')
+#        clean_dataframe = clean_single_dataframe(dirty_frame)
+#        analysis_list.pop(0)        
+#    
+#    
+#    output_frame = clean_multiple_dataframes(analysis_list, clean_dataframe)
 
 
 
