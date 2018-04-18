@@ -24,28 +24,29 @@ def analyze_data(dir_dict):
     clean_df = pd.read_csv(clean_path, header = [0, 1], index_col = [0, 1, 2])
     
     orient = clean_df['Orientation'].dropna()
-#    align = all_data['Alignment'].dropna()
-    
-    index_label = 'Regression Modalities'
-    column_labels = ['slope', 'intercept', 'r value', 'p value', 'std error']
-    
-    linear_regression_results = pd.DataFrame(
-            index = pd.Index([], dtype='object', name=index_label), 
-            columns = column_labels)
-    
-    mmp_cast_to_ps = orient[['MMP', 'PS']].apply(
-            recast_max_diff_90deg, axis = 1)
-    linear_regression_results.loc['MMP to PS'] = regress(mmp_cast_to_ps)
 
+    all_sample_regression = three_modality_regression(orient)
     
-    mmp_cast_to_shg = orient[['MMP', 'SHG']].apply(
-            recast_max_diff_90deg, axis = 1)
-    linear_regression_results.loc['MMP to SHG'] = regress(mmp_cast_to_shg)
+    sample_wise_regression = sample_differentiated_regression(orient)
+    
 
-    shg_cast_to_ps = orient[['SHG', 'PS']].apply(
-            recast_max_diff_90deg, axis = 1)
-    linear_regression_results.loc['SHG to PS'] = regress(shg_cast_to_ps)
 
+
+def sample_differentiated_regression(input_dataframe):
+    
+    sample_list = []
+    sample_df_list = []
+    
+    for sample, sample_df in input_dataframe.groupby(level = 0):
+        sample_regression = three_modality_regression(sample_df)
+        
+        sample_list.append(sample)
+        sample_df_list.append(sample_regression)
+        
+        
+    sample_wise_dataframe = pd.concat(sample_df_list, keys = sample_list)
+        
+    return sample_wise_dataframe
 
 
 def recast_max_diff_90deg(row):
@@ -60,6 +61,29 @@ def recast_max_diff_90deg(row):
     
     return new_value, value_two
 
+def three_modality_regression(three_modality_dataframe):
+    index_label = 'Regression Modalities'
+    column_labels = ['slope', 'intercept', 'r value', 'p value', 'std error']
+    
+    linear_regression_results = pd.DataFrame(
+            index = pd.Index([], dtype='object', name=index_label), 
+            columns = column_labels)
+    
+    mmp_cast_to_ps = three_modality_dataframe[['MMP', 'PS']].apply(
+            recast_max_diff_90deg, axis = 1)
+    linear_regression_results.loc['MMP to PS'] = regress(mmp_cast_to_ps)
+
+    
+    mmp_cast_to_shg = three_modality_dataframe[['MMP', 'SHG']].apply(
+            recast_max_diff_90deg, axis = 1)
+    linear_regression_results.loc['MMP to SHG'] = regress(mmp_cast_to_shg)
+
+    shg_cast_to_ps = three_modality_dataframe[['SHG', 'PS']].apply(
+            recast_max_diff_90deg, axis = 1)
+    linear_regression_results.loc['SHG to PS'] = regress(shg_cast_to_ps)
+    
+    return linear_regression_results
+    
 
 def regress(two_column_df):
     original_columns = two_column_df.columns.tolist()
