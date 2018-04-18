@@ -5,89 +5,69 @@ Created on Mon Apr  2 16:03:35 2018
 @author: mpinkert
 """
 
+import mp_img_manip.cytospectre as cyto
 import mp_img_manip.dir_dictionary as dird
-import mp_img_manip.bulk_img_processing as blk
-import mp_img_manip.utility_functions as util
+import matplotlib.pyplot as plt
 import pandas as pd
-import os
+from pathlib import Path
+import numpy as np
+from scipy import stats
+
+dir_dict = dird.create_dictionary()
+
+def process_raw_data(dir_dict):
+    cyto.write_roi_comparison_file(dir_dict['cyto'])
 
 
-def parse_index(roi_str):
+def analyze_data(dir_dict):
+    clean_path = Path(dir_dict['cyto'] + '/Cleaned data.csv')
+    clean_df = pd.read_csv(clean_path, header = [0, 1], index_col = [0, 1, 2])
     
-    sample, modality, roi = blk.file_name_parts(roi_str)
-    return sample, modality, roi
+    orient = clean_df['Orientation'].dropna()
+#    align = all_data['Alignment'].dropna()
+    
+    index_label = 'Regression Modalities'
+    column_labels = ['slope', 'intercept', 'r value', 'p value', 'std error']
+    
+    linear_regression_results = pd.DataFrame(
+            index = pd.Index([], dtype='object', name=index_label), 
+            columns = column_labels)
+    
+    mmp_cast_to_ps = orient[['MMP', 'PS']].apply(
+            recast_max_diff_90deg, axis = 1)
+    linear_regression_results.loc['MMP to PS'] = regress(mmp_cast_to_ps)
+
+    
+    mmp_cast_to_shg = orient[['MMP', 'SHG']].apply(
+            recast_max_diff_90deg, axis = 1)
+    linear_regression_results.loc['MMP to SHG'] = regress(mmp_cast_to_shg)
+
+    shg_cast_to_ps = orient[['SHG', 'PS']].apply(
+            recast_max_diff_90deg, axis = 1)
+    linear_regression_results.loc['SHG to PS'] = regress(shg_cast_to_ps)
 
 
-def dataframe_generator(analysis_list):
-    
 
-    #read in the dataframes
-    for item in analysis_list:
-           yield pd.read_excel(item, usecols = relevant_cols, index_col = index)
+def recast_max_diff_90deg(row):
+    value_one, value_two = row.values
+    diff = value_one - value_two
+    if diff > 90:
+        new_value = value_one - 180.0
+    elif diff < -90:
+        new_value = value_one + 180.0
+    else:
+        new_value = value_one + 0
     
-        
-
-def clean_single_dataframe(dirty_frame):
-    index = ['Sample', 'ROI', 'Variable']
-    column_labels = ['PS', 'SHG', 'MMP']     
-    clean_dataframe = pd.DataFrame(columns = column_labels)
-    clean_dataframe.set_index(index)
-    
-    
-    
-    
-    #The current loop is low efficiency, as it is value-wise changes and pandas
-    #Copies the whole dataframe every operation
-    
-    
-    for index, row in dirty_frame.iterrows():
-        sample, modality, roi = parse_index(index)
-        clean_dataframe.loc[(sample, roi,'Orientation'), modality] = row[0]
-        clean_dataframe.loc[(sample, roi,'Alignment'), modality] = row[1]
-        
-    return clean_dataframe
-
-def clean_up_dataframes(analysis_list):
-    
-    dirty_index = 'Image'
-    relevant_cols = ['Image', 'Mean orientation', 'Circ. variance']
-    dirty_dataframes = blk.dataframe_generator_excel(analysis_list, 
-                                                     dirty_index,
-                                                     relevant_cols)
-
-    index = ['Sample', 'ROI', 'Variable']
-    column_labels = ['PS', 'SHG', 'MMP']     
-    clean_dataframes = pd.DataFrame(columns = column_labels)
-    clean_dataframes.set_index(index)
-
-    for dirty_frame in dirty_dataframes:
-        dataframe = clean_single_dataframe(dirty_frame)
-        clean_dataframes.append(dataframe)   
-        
-    return clean_dataframes
-    
+    return new_value, value_two
 
 
-def write_roi_comparison_file(sample_dir, output_dir, output_suffix):
-    
-    analysis_list = util.list_filetype_in_dir(sample_dir, '.csv')
-    
-    clean_dataframe = clean_up_dataframes(analysis_list)
-    
-    
-        #Find the ROI string
-        
-    
-    return
+def regress(two_column_df):
+    original_columns = two_column_df.columns.tolist()
+    x = two_column_df[original_columns[1]]
+    y = two_column_df[original_columns[0]]
 
-def bulk_write_roi_comparison_file():
-    #For each sample
-    #write roi comparison file
-    return
+    results = stats.linregress(x,y)
+    
+    return results
 
-def plot_roi_comparison():
-    return
-
-def r2_roi_comparison():
-    return
-
+    
