@@ -70,6 +70,7 @@ def three_modality_regression(three_modality_dataframe):
             index = pd.Index([], dtype='object', name=index_label), 
             columns = column_labels)
     
+    
     mmp_cast_to_ps = three_modality_dataframe[['MMP', 'PS']].apply(
             recast_max_diff_90deg, axis = 1)
     linear_regression_results.loc['MMP to PS'] = regress(mmp_cast_to_ps)
@@ -79,14 +80,15 @@ def three_modality_regression(three_modality_dataframe):
             recast_max_diff_90deg, axis = 1)
     linear_regression_results.loc['MMP to SHG'] = regress(mmp_cast_to_shg)
 
+
     shg_cast_to_ps = three_modality_dataframe[['SHG', 'PS']].apply(
             recast_max_diff_90deg, axis = 1)
     linear_regression_results.loc['SHG to PS'] = regress(shg_cast_to_ps)
     
-    
-    linear_regression_results['r squared'] = linear_regression_results[
-            'r value'].apply(lambda x: x**2)
-    
+    n = len(three_modality_dataframe.index)
+    linear_regression_results['r2 adjusted'] = linear_regression_results[
+            'r value'].apply(lambda x: 1-(1-x**2)*(n-1)/(n-2))
+ 
     return linear_regression_results
     
 
