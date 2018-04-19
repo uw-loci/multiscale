@@ -24,16 +24,13 @@ def compare_ssim(one_path, two_path):
     one = Image.open(one_path)
     two = Image.open(two_path)
     
-    print('\n Calculating CW-SSIM between {0} and {1}'.format(
+    print('Calculating CW-SSIM between {0} and {1}'.format(
             os.path.basename(one_path), 
             os.path.basename(two_path)))
     
     ssim = SSIM(one).cw_ssim_value(two)
     
-    print('The CW-SSIM between {0} and {1} = {2}'.format(
-            os.path.basename(one_path), 
-            os.path.basename(two_path),
-            str(ssim)))
+    print('CW-SSIM  = {0}'.format(str(ssim)))
     
     return ssim
 
