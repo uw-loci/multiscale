@@ -24,11 +24,16 @@ def analyze_data(dir_dict):
     clean_df = pd.read_csv(clean_path, header = [0, 1], index_col = [0, 1, 2])
     
     orient = clean_df['Orientation'].dropna()
-
+    
     all_sample_regression = three_modality_regression(orient)
     
     sample_wise_regression = sample_differentiated_regression(orient)
     
+    align = clean_df['Alignment'].dropna()
+    
+    all_alignment = three_modality_regression(align)
+    
+    sample_alignment= sample_differentiated_regression(align)
 
 
 
@@ -84,6 +89,7 @@ def three_modality_regression(three_modality_dataframe):
     shg_cast_to_ps = three_modality_dataframe[['SHG', 'PS']].apply(
             recast_max_diff_90deg, axis = 1)
     linear_regression_results.loc['SHG to PS'] = regress(shg_cast_to_ps)
+    
     
     n = len(three_modality_dataframe.index)
     linear_regression_results['r2 adjusted'] = linear_regression_results[

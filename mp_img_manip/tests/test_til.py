@@ -51,9 +51,18 @@ class get_tile_start_end_index_test_suite(unittest.TestCase):
                                                  tile_separation = 7)
         self.assertEqual(start_end, (7, 12))        
        
+    def test_2d_same_number(self):
+        start_end = til.get_tile_start_end_index([0,0], 5)
+        self.assertEqual(start_end, ([0, 0], [5, 5]))
+        
+    def test_2d_diff_dumber(self):
+        start_end = til.get_tile_start_end_index([0, 1], 5)
+        self.assertEqual(start_end, ([0,5], [5,10]))
+
+            
         
 class calculate_number_of_tiles_test_suite(unittest.TestCase):
-    
+    #Need to make tests for multidimensional
     def test_no_remainder(self):
         tiles_and_offset = til.calculate_number_of_tiles(10,5)
         self.assertEqual(tiles_and_offset,(2,0))

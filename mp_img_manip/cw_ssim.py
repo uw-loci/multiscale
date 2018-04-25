@@ -15,9 +15,6 @@ from PIL import Image
 from ssim import SSIM
 
 
-def write_ssim(ssim):
-    return
-
 def compare_ssim(one_path, two_path):
     """Calculate the complex wavelet structural similarity metric
     """
