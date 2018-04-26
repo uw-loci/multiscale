@@ -17,7 +17,15 @@ from ssim import SSIM
 
 def compare_ssim(one_path, two_path):
     """Calculate the complex wavelet structural similarity metric
+    
+    Inputs:
+    one_path -- Path to image one
+    two_path -- Path to image two
+    
+    Output:
+    ssim -- The Complex wavelet structural similarity metric
     """
+    
     one = Image.open(one_path)
     two = Image.open(two_path)
     
@@ -35,6 +43,11 @@ def compare_ssim(one_path, two_path):
 def bulk_compare_ssim(dir_list, 
                       output_dir, output_name = 'CW-SSIM Values.csv'):
     """Calculate CW-SSIM between images in several file directories
+    
+    Inputs:
+    dir_list -- The list of dirs to compare between
+    output_dir -- Directory to save the cw-ssim values
+    output_name -- Filename for the CW-SSIM value file
     """
     path_lists = blk.find_bulk_shared_images(dir_list)
     num_images = len(path_lists[0])

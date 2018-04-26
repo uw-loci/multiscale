@@ -13,13 +13,15 @@ import numpy as np
 import os
 
 def overlay_images(fixed_image, moving_image, alpha = 0.7):
-    """Create a numpy array that is an 8bit combination of two images
+    """Create a numpy array that is a combination of two images
     
     Inputs:
     fixed_image -- Image one, using registration nomenclature
     moving_image -- Image two, using registration nomeclature
     alpha -- degree of weighting towards the moving image
     
+    Output:
+    combined_array -- A numpy array of overlaid images
     """
     
     fixed_array = sitk.GetArrayFromImage(fixed_image)
@@ -53,6 +55,15 @@ def overlay_images(fixed_image, moving_image, alpha = 0.7):
 
 def bulk_apply_mask(image_dir, mask_dir,
                     output_dir, output_suffix):
+    """Find corresponding images between dirs and apply the second as a mask
+    
+    Inputs:
+    image_dir -- Directory of images to-be-masked
+    mask_dir -- Directory of images that will be used as the mask
+    output_dir -- Directory where the masked images will be saved
+    ouptut_suffix -- Filename text after the core/sample name of the image file
+    """
+    
     
     (image_path_list, mask_path_list) = blk.find_shared_images(
             image_dir, mask_dir)
@@ -77,11 +88,22 @@ def bulk_apply_mask(image_dir, mask_dir,
                 
     
 def convert_to_eightbit(itk_image, image_name):
+    """Convert an itk image to 8 bit integer pixels"""
+    
     print('Converting {0} to 8-bit grayscale'.format(image_name))
     return sitk.Cast(sitk.RescaleIntensity(itk_image),
                                sitk.sitkUInt8)
     
 def bulk_convert_to_eightbit(input_dir, output_dir, output_suffix):
+    """Convert all tif images in a directory to 8bit and save in new directory
+    
+    Inputs:
+    input_dir -- Directory of images to convert
+    output_dir -- Directory to save converted images
+    output_suffix -- Text in output image name after the core/sample name
+    
+    """
+    
     
     path_list = util.list_filetype_in_dir(input_dir, '.tif')
     
