@@ -1,9 +1,12 @@
+import os
+
 import numpy as np
 import SimpleITK as sitk
-import os
+from pathlib import Path
+
 import mp_img_manip.utility_functions as util
 import mp_img_manip.bulk_img_processing as blk
-from pathlib import Path
+
 
 def get_tile_start_end_index(tile_number, tile_size,
                              tile_offset = None, tile_separation = None):
@@ -134,9 +137,7 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
                         intensity_threshold = None,
                         number_threshold = None):
     
-
-    basename = os.path.basename(image_path)
-    print('Extracting tiles from {0}'.format(basename))
+    print('Extracting tiles from {0}'.format(image_path.name))
     
     if not tile_size:
         tile_size, separation = query_tile_size_and_separation(diff_separation)
