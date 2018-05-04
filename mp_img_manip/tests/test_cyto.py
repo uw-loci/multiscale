@@ -13,7 +13,7 @@ import os
 test_dict = dird.creat_test_dictionary()
 
 
-class parse_index(unittest.TestCase):
+class parse_index_testsuite(unittest.TestCase):
     """Basic test cases."""
 
     def test_correct_input(self):
@@ -27,6 +27,7 @@ class parse_index(unittest.TestCase):
         
     def test_too_few_parts(self):
         assert True
+        
         
 class Clean_single_dataframe_testsuite(unittest.TestCase):
     """Basic test cases."""

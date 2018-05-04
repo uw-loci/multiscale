@@ -163,7 +163,7 @@ def get_core_file_name(file_name):
     return part_list[0]
     
 	
-def create_new_image_path(core_image_path, output_dir, output_suffix,
+def create_new_image_path(core_image_path, output_dir, output_suffix = None,
                           extension = '.tif'):
     """Create a new path for an image that has been modified
     
@@ -176,9 +176,15 @@ def create_new_image_path(core_image_path, output_dir, output_suffix,
     new_path -- A path for the new image
     """
     
+    
+    
     core_name = get_core_file_name(core_image_path)
     
-    new_name = core_name + '_' + output_suffix + extension
+    if output_suffix is not None:
+        new_name = core_name + '_' + output_suffix + extension
+    else:
+        new_name = core_name + extension
+        
         
     new_path = Path(output_dir, new_name)
     return new_path
