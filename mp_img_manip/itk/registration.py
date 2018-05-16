@@ -81,7 +81,6 @@ def update_multires_iterations():
     multires_iterations.append(len(metric_values))
 
 
-
 def affine_register(fixed_image, moving_image,
                     scale = 4, iterations = 200,
                     fixed_mask = None, moving_mask = None):
@@ -131,7 +130,7 @@ def affine_register(fixed_image, moving_image,
     #       convergenceMinimumValue=1e-4, convergenceWindowSize=10)
     registration_method.SetOptimizerScalesFromPhysicalShift()
 
-        # Setup for the multi-resolution framework.
+    # Setup for the multi-resolution framework.
 
     shrink_factors = [8,4,2,1]
     smoothing_sigmas = [2,2,1,1]
@@ -140,7 +139,6 @@ def affine_register(fixed_image, moving_image,
         scale = 4
         print('Warning, scale was set higher than the maximum value of 4')
 
-        
     registration_method.SetShrinkFactorsPerLevel(
             shrink_factors[(4-scale):])
     registration_method.SetSmoothingSigmasPerLevel(
@@ -174,8 +172,8 @@ def query_good_registration(fixed_image, moving_image,
                             transform, metric, stop):
     
     moving_resampled = sitk.Resample(moving_image, fixed_image, transform, 
-                                       sitk.sitkLinear, 0.0, 
-                                       moving_image.GetPixelIDValue()) 
+                                     sitk.sitkLinear, 0.0,
+                                     moving_image.GetPixelIDValue())
                 
     plt.imshow(proc.overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
     plt.show()
@@ -205,7 +203,7 @@ def supervised_register_images(fixed_path, moving_path,
         moving_image.SetOrigin(query_origin_change(fixed_image, moving_image))
         (transform, metric, stop) = affine_register(
                 fixed_image, moving_image,
-                iterations = iterations, scale = scale)
+                iterations=iterations, scale=scale)
         
         if query_good_registration(fixed_image, moving_image,
                                    transform, metric, stop): break
@@ -219,8 +217,8 @@ def supervised_register_images(fixed_path, moving_path,
 
 def bulk_supervised_register_images(fixed_dir, moving_dir,
                                     output_dir, output_suffix,
-                                    writeOutput = True, writeTransform = True,
-                                    iterations = 200, scale = 4):
+                                    write_output=True, write_transform=True,
+                                    iterations=200, scale=4):
     
     (fixed_path_list, moving_path_list) = blk.find_shared_images(
             fixed_dir, moving_dir)
@@ -233,15 +231,14 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
         registered_path = blk.create_new_image_path(
                 moving_path_list[i], output_dir, output_suffix)
 
-        if writeOutput:
+        if write_output:
             sitk.WriteImage(registered_image, registered_path)
             meta.write_image_parameters(registered_path,
                                    registered_image.GetSpacing(),
                                    registered_image.GetOrigin())
             
-        if writeTransform:
+        if write_transform:
             tran.write_transform(registered_path, transform, metric, stop)
-
 
     
 def query_origin_change(fixed_image, moving_image):
