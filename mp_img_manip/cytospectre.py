@@ -70,8 +70,8 @@ def clean_single_dataframe(dirty_frame):
     and with orientation/alignment columns corresponding to each modality
     """
     
-    new_label_dict = {'Mean orientation' : 'Orientation', 
-                       'Circ. variance' : 'Alignment'}
+    new_label_dict = {'Mean orientation': 'Orientation',
+                      'Circ. variance': 'Alignment'}
     relabeled_frame = dirty_frame.rename(columns = new_label_dict)
     cutdown_frame = relabeled_frame[['Orientation', 'Alignment']]
         
@@ -91,7 +91,6 @@ def clean_multiple_dataframes(analysis_list, output_dir, output_suffix):
     dirty_dataframes = blk.dataframe_generator_excel(analysis_list, 
                                                      dirty_index,
                                                      relevant_cols)
-
 
     for dirty_frame in dirty_dataframes:
         clean_dataframe = clean_single_dataframe(dirty_frame)

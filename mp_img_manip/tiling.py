@@ -12,7 +12,7 @@ def get_tile_start_end_index(tile_number, tile_size,
                              tile_offset = None, tile_separation = None):
     """Calculate the starting and ending index along a single dimension"""
 
-    #todo: implement tests
+    # todo: implement tests
 
     if not tile_separation:
         tile_separation = tile_size
@@ -23,11 +23,11 @@ def get_tile_start_end_index(tile_number, tile_size,
     start_index = (tile_number*tile_separation) + tile_offset
     end_index = start_index + tile_size
     
-    return (start_index, end_index)
+    return start_index, end_index
 
 
 def generate_tile_start_end_index(tile_number, tile_size,
-                                  tile_offset = None, tile_separation = None):
+                                  tile_offset=None, tile_separation=None):
 
     if not tile_separation:
         tile_separation = tile_size
@@ -42,7 +42,7 @@ def generate_tile_start_end_index(tile_number, tile_size,
     
 
 def calculate_number_of_tiles(size_of_image_dimension, tile_size,
-                              tile_separation = None):
+                              tile_separation=None):
     """Calculate the number of tiles that fit along an image dimension,
      given a certain tile size, and step size."""
     
@@ -70,7 +70,7 @@ def calculate_number_of_tiles(size_of_image_dimension, tile_size,
 
 
 def tile_passes_threshold(tile, intensity_threshold, number_threshold,
-                          input_max_value = 255):
+                          input_max_value=255):
     """Given a np array, check if it has enough entries larger than a value"""
     
     perc_int = input_max_value*0.01*intensity_threshold 
@@ -85,17 +85,15 @@ def tile_passes_threshold(tile, intensity_threshold, number_threshold,
         return False
     
     
-def query_tile_size_and_separation(diff_separation = False):
+def query_tile_size_and_separation(diff_separation=False):
     message_tile_size = 'How many pixels should the tile width/height be? >>>'
     tile_size = util.query_int(message_tile_size)
-
 
     if diff_separation:       
         message_separation = 'What is the separation between tiles?'
         separation = util.query_int(message_separation)
     else:
         separation = tile_size
-
     
     return tile_size, separation
 
@@ -109,8 +107,7 @@ def query_tile_thresholds():
     
     return intensity_threshold, number_threshold
 
-
-#def calculate_tile_start_indexes(image_dimens, tile_size, separation = None):
+# def calculate_tile_start_indexes(image_dimens, tile_size, separation = None):
 #    
 #    num_tiles = [calculate_number_of_tiles(image_dimens[i], tile_size) for
 #                 i in range(len(image_dimens))]
@@ -119,6 +116,7 @@ def query_tile_thresholds():
 #                  i in range(len(image_dimens))]
 #    
 #    return start_index_list
+
 
 def write_tile(tile, image_path, output_dir, output_suffix, x, y):
     
@@ -130,6 +128,7 @@ def write_tile(tile, image_path, output_dir, output_suffix, x, y):
     sitk.WriteImage(tile_image, tile_path)
     
     return
+
 
 def extract_image_tiles(image_path, output_dir, output_suffix,
                         diff_separation = False,
@@ -182,13 +181,12 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
                            x, y)
 
             
-            
 def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
-                             search_subdirs = False,
-                             diff_separation = False,
-                             tile_size = None, separation = None,
-                             intensity_threshold = None,
-                             number_threshold = None):
+                             search_subdirs=False,
+                             diff_separation=False,
+                             tile_size=None, separation=None,
+                             intensity_threshold=None,
+                             number_threshold=None):
     
     if not tile_size:
         tile_size, separation = query_tile_size_and_separation(diff_separation)
@@ -201,7 +199,6 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
         image_path_list = util.list_filetype_in_subdirs(input_dir, '.tif')
     else:
         image_path_list = util.list_filetype_in_dir(input_dir, '.tif')
-
     
     for path in image_path_list:   
         output_dir_sub = os.path.join(output_dir, path.stem)

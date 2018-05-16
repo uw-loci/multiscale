@@ -7,6 +7,7 @@ Created on Wed Mar  7 14:59:49 2018
 import os
 from pathlib import Path
 
+
 def item_present_all_lists(item, lists):
     """Check if an item is present in all lists"""
     for index in range(len(lists)):
@@ -15,13 +16,14 @@ def item_present_all_lists(item, lists):
         
     return True
 
-#def append_item_index_to_lists(item, lists, index_lists):
+# def append_item_index_to_lists(item, lists, index_lists):
 #    
 #    for index in range(len(lists)):
 #        item_index = lists[index].index(item)
 #        index_lists[index].append(item_index)
 #        
 #    return index_lists
+
 
 def list_filetype_in_subdirs(base_dir, file_ext):
     """Find all files in the immediate subdirectores with a given extension
@@ -39,25 +41,26 @@ def list_filetype_in_subdirs(base_dir, file_ext):
         file_list.extend(subdir_list)
      
     return file_list
-    
-    
+
 
 def list_filetype_in_dir(file_dir, file_ext):
     """Given a directory path, return all files of given file type as a list"""
     return [Path(file_dir, f) for
                   f in os.listdir(file_dir) if f.endswith(file_ext)]  
-    
+
+
 def query_int(message):
-  """Ask the user for an integer"""
-  while True:
-    try:
-       user_input = int(input(message))       
-    except ValueError:
-       print("Please enter a valid integer.")
-       continue
-    else:
-       return user_input 
-       break 
+    """Ask the user for an integer"""
+    while True:
+        try:
+            user_input = int(input(message))
+        except ValueError:
+            print("Please enter a valid integer.")
+            continue
+        else:
+            return user_input
+            break
+
 
 def query_float(message):
     """Ask the user for a float"""
@@ -70,6 +73,7 @@ def query_float(message):
         else:
             return user_input
             break
+
 
 def yes_no(question):
     """Ask the user a yes/no question"""
@@ -85,7 +89,8 @@ def yes_no(question):
            return False
         else:
            print("Please respond with 'yes' or 'no'\n")
-           
+
+
 def character_indices(string, char):
     """Find all indices in a string corresponding to a character"""
     return [i for i, ltr in enumerate(string) if ltr == char]
@@ -95,7 +100,8 @@ def query_str_list(numStrs, message, strType = 'String'):
     """Ask the user for multiple strings"""
     print(message)
     return [input(strType + ' ' + str(x+1) + ': ') for x in range(numStrs)]
-    
+
+
 def query_float_list(valueNames):
     """Ask the user for a list of floats"""
     return [query_float(value + ': ') for value in valueNames]

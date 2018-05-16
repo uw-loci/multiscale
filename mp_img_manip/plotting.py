@@ -7,6 +7,7 @@ Created on Thu Apr 12 09:25:11 2018
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def bland_altman_plot(data1, data2, *args, **kwargs):
     data1     = np.asarray(data1)
     data2     = np.asarray(data2)

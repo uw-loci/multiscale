@@ -7,11 +7,8 @@ Created on Tue Mar 20 10:50:24 2018
 
 
 import mp_img_manip.bulk_img_processing as blk
-
 import os
-
 from PIL import Image
-
 from ssim import SSIM
 
 
@@ -62,7 +59,7 @@ def bulk_compare_ssim(dir_list,
         for index_one in range(num_dirs - 1):
             for index_two in range(index_one + 1, num_dirs):
                 ssim = compare_ssim(path_lists[index_one][image_index],
-                                   path_lists[index_two][image_index])
+                                    path_lists[index_two][image_index])
                 
                 modality_one = blk.file_name_parts(
                         path_lists[index_one][image_index])[1]
@@ -72,6 +69,6 @@ def bulk_compare_ssim(dir_list,
                 column = modality_one + '-' + modality_two
                 
                 blk.write_pandas_value(file_path, core_name, ssim, column,
-                               'Sample')
+                                       'Sample')
     
 

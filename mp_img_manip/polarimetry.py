@@ -6,6 +6,7 @@ import numpy as np
 import SimpleITK as sitk
 import os
 
+
 def calculate_retardance_over_area(retardance, orientation):
     """Calculate the average retardance in an neighborhood
     
@@ -17,17 +18,18 @@ def calculate_retardance_over_area(retardance, orientation):
     Inputs:
     Equally sized retardance and orientation neighborhoods holding
     corresponding pixels"""
-    #Orientation doubled to calculate alignment.
-    circular_orientation = (2*np.pi/180)*(orientation/100);
-    complex_orientation = np.exp(1j*circular_orientation);
+
+    # Orientation doubled to calculate alignment.
+    circular_orientation = (2*np.pi/180)*(orientation/100)
+    complex_orientation = np.exp(1j*circular_orientation)
     
-    retardance_weighted_by_orientation = retardance*complex_orientation;
+    retardance_weighted_by_orientation = retardance*complex_orientation
     
-    num_pixels = np.size(retardance);
+    num_pixels = np.size(retardance)
     
-    average_retardance = np.sum(retardance_weighted_by_orientation)/num_pixels;
+    average_retardance = np.sum(retardance_weighted_by_orientation)/num_pixels
     
-    ret_mag = np.absolute(average_retardance);
+    ret_mag = np.absolute(average_retardance)
     ret_base_angle= np.angle(average_retardance, deg=True)
     
     if ret_base_angle < 0:
@@ -35,16 +37,14 @@ def calculate_retardance_over_area(retardance, orientation):
         
     ret_angle = ret_base_angle*100/2
 
+    # bug: ret_angle does not give right value.
     
-    #bug: ret_angle does not give right value.
-    
-    return (ret_mag,ret_angle)
-
+    return ret_mag, ret_angle
 
 
 def convert_intensity_to_retardance(itk_image, 
-                                  ret_ceiling = 35, wavelength = 549, 
-                                  nm_input = True, deg_output = True):
+                                    ret_ceiling=35, wavelength=549,
+                                    nm_input=True, deg_output=True):
     """Convert retardance intensities that are scaled to the image input 
     (e.g., 16 bit int) into to actual retardance values.  
     
@@ -65,13 +65,13 @@ def convert_intensity_to_retardance(itk_image,
     
     input_array = sitk.GetArrayFromImage(itk_image)
     
-    #todo: implement a check for pixel type
+    # todo: implement a check for pixel type
     
     pixel_type_factor = ret_ceiling/65535
     
     if nm_input and deg_output:
         wavelength_factor = 360/wavelength
-    elif nm_input == False and deg_output == False:
+    elif nm_input is False and deg_output is False:
         wavelength_factor = wavelength/360
     else:
         wavelength_factor = 1
@@ -103,8 +103,8 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix):
     
 
 def downsample_retardance_image(ret_image_path, orient_image_path, 
-                               scale_pixel_factor, 
-                               simulated_resolution_factor = None):
+                                scale_pixel_factor,
+                                simulated_resolution_factor = None):
 
     if not simulated_resolution_factor:
         simulated_resolution_factor = scale_pixel_factor
@@ -168,16 +168,12 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
     down_orient_image = sitk.GetImageFromArray(down_orient_array)
     down_orient_image = sitk.Cast(down_orient_image, orient_image.GetPixelID())
 
-    return (down_ret_image, down_orient_image) 
-
-
-
-
+    return down_ret_image, down_orient_image
 
 
 def batch_downsample_retardance(ret_dir, orient_dir, output_dir,
-                               scale_factor,
-                               simulated_resolution_factor = None):
+                                scale_factor,
+                                simulated_resolution_factor = None):
     
     output_suffix = 'DownSample-' + str(scale_factor) + 'x'
 

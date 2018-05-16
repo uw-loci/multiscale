@@ -3,10 +3,8 @@ import mp_img_manip.utility_functions as util
 import pandas as pd
 from pathlib import Path
 
-    
 
-
-def dataframe_generator_excel(analysis_list, index, relevant_cols = None):
+def dataframe_generator_excel(analysis_list, index, relevant_cols=None):
     """
     Generator to yield dataframes from a list of excel docs, one at a time
     
@@ -14,8 +12,7 @@ def dataframe_generator_excel(analysis_list, index, relevant_cols = None):
     index = index column of the excel doc
     relevant_cols = subset of dataframe to return
     """
-    
-    
+
     if relevant_cols is None:
         for item in analysis_list:
             dataframe = pd.read_excel(str(item), index_col = index)
@@ -27,12 +24,11 @@ def dataframe_generator_excel(analysis_list, index, relevant_cols = None):
             output_df = df[relevant_cols]
             output_df.name = item.stem
             yield output_df
-            
-           
+
 
 def read_write_pandas_row(file_path, index,
                           index_label, column_labels,
-                          column_values = None):
+                          column_values=None):
     """
     Read a row from a csv file, or create it if it does not exist.
     
@@ -47,7 +43,7 @@ def read_write_pandas_row(file_path, index,
     The csv row in a list, absent the index.
     """
     
-    #todo: make it query based on the type, and not just a str
+    # todo: make it query based on the type, and not just a str
     
     (file_dir, file_name) = os.path.split(file_path)
     try:
@@ -111,9 +107,7 @@ def write_pandas_row(file_path, index, column_values,
     
 def read_pandas_row(file_path, index, index_label):
     """Read a row from a .csv file"""
-    
-    (file_dir, file_name) = os.path.split(file_path)
-    
+
     try:
         data = pd.read_csv(file_path, index_col = index_label)
         return data.loc[index]
@@ -162,9 +156,9 @@ def get_core_file_name(file_name):
 
     return part_list[0]
     
-	
-def create_new_image_path(core_image_path, output_dir, output_suffix = None,
-                          extension = '.tif'):
+
+def create_new_image_path(core_image_path, output_dir, output_suffix=None,
+                          extension='.tif'):
     """Create a new path for an image that has been modified
     
     Inputs:
@@ -175,17 +169,14 @@ def create_new_image_path(core_image_path, output_dir, output_suffix = None,
     Output:
     new_path -- A path for the new image
     """
-    
-    
-    
+
     core_name = get_core_file_name(core_image_path)
     
     if output_suffix is not None:
         new_name = core_name + '_' + output_suffix + extension
     else:
         new_name = core_name + extension
-        
-        
+
     new_path = Path(output_dir, new_name)
     return new_path
     
@@ -200,7 +191,7 @@ def find_shared_images(dir_one, dir_two):
     Outputs:
     Two lists, where same index corresponds to paired images
     """
-    #todo: make a check for different categories of name,
+    # todo: make a check for different categories of name,
     #   if there are multiple instances of a single name?
     
     file_list_one = [Path(f) for f in os.listdir(dir_one) if f.endswith('.tif')]
@@ -210,18 +201,17 @@ def find_shared_images(dir_one, dir_two):
     dir_two_image_paths = list()
 
     for i in range(0,len(file_list_one)):
-        core_nameOne = get_core_file_name(file_list_one[i])
+        core_name_one = get_core_file_name(file_list_one[i])
         
         for j  in range(0,len(file_list_two)):
-            core_nameTwo = get_core_file_name(file_list_two[j])
+            core_name_two = get_core_file_name(file_list_two[j])
           
-            if core_nameOne == core_nameTwo:
+            if core_name_one == core_name_two:
                 
                 dir_one_image_paths.append(file_list_one[i])
                 dir_two_image_paths.append(file_list_two[j])
 
-    
-    return (dir_one_image_paths, dir_two_image_paths)
+    return dir_one_image_paths, dir_two_image_paths
   
 
 def core_names_in_list(path_list):
@@ -239,8 +229,6 @@ def find_bulk_shared_images(dir_list):
     A list of path lists, for corresponding images
     """
 
-    
-    
     num_dirs = len(dir_list)
     
     file_list = [util.list_filetype_in_dir(dir_list[index], '.tif') for
@@ -261,7 +249,3 @@ def find_bulk_shared_images(dir_list):
                 path_lists[index].append(new_path)
 
     return path_lists
-
-
-
-    
