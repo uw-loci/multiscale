@@ -1,6 +1,6 @@
-sitk
+SimpleITK
 numpy
-math
 matplotlib
 scipy
+pandas
 ipywidgets
