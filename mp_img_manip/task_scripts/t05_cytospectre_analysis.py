@@ -15,6 +15,7 @@ from scipy import stats
 
 dir_dict = dird.create_dictionary()
 
+
 def process_raw_data(dir_dict):
     cyto.write_roi_comparison_file(dir_dict['cyto'])
 
@@ -36,7 +37,6 @@ def analyze_data(dir_dict):
     sample_alignment= sample_differentiated_regression(align)
 
 
-
 def sample_differentiated_regression(input_dataframe):
     
     sample_list = []
@@ -47,8 +47,7 @@ def sample_differentiated_regression(input_dataframe):
         
         sample_list.append(sample)
         sample_df_list.append(sample_regression)
-        
-        
+
     sample_wise_dataframe = pd.concat(sample_df_list, keys = sample_list)
         
     return sample_wise_dataframe
@@ -74,22 +73,18 @@ def three_modality_regression(three_modality_dataframe):
     linear_regression_results = pd.DataFrame(
             index = pd.Index([], dtype='object', name=index_label), 
             columns = column_labels)
-    
-    
+
     mmp_cast_to_ps = three_modality_dataframe[['MMP', 'PS']].apply(
             recast_max_diff_90deg, axis = 1)
     linear_regression_results.loc['MMP to PS'] = regress(mmp_cast_to_ps)
 
-    
     mmp_cast_to_shg = three_modality_dataframe[['MMP', 'SHG']].apply(
             recast_max_diff_90deg, axis = 1)
     linear_regression_results.loc['MMP to SHG'] = regress(mmp_cast_to_shg)
 
-
     shg_cast_to_ps = three_modality_dataframe[['SHG', 'PS']].apply(
             recast_max_diff_90deg, axis = 1)
     linear_regression_results.loc['SHG to PS'] = regress(shg_cast_to_ps)
-    
     
     n = len(three_modality_dataframe.index)
     linear_regression_results['r2 adjusted'] = linear_regression_results[
