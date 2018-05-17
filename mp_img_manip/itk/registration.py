@@ -82,8 +82,8 @@ def update_multires_iterations():
 
 
 def affine_register(fixed_image, moving_image,
-                    scale = 4, iterations = 200,
-                    fixed_mask = None, moving_mask = None):
+                    scale=4, iterations=200,
+                    fixed_mask=None, moving_mask=None):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -191,7 +191,7 @@ def query_good_registration(fixed_image, moving_image,
 
 
 def supervised_register_images(fixed_path, moving_path,
-                               iterations = 200, scale = 4):
+                               iterations=200, scale=4):
     
     fixed_image = meta.setup_image(fixed_path)
     moving_image = meta.setup_image(moving_path)

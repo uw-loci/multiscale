@@ -69,7 +69,6 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
     fixed_paths, moving_paths, transform_paths = blk.find_bulk_shared_images(
         [fixed_dir, moving_dir, transform_dir])
 
-
     for i in range(0, np.size(fixed_paths)):
 
         registered_image = apply_transform(fixed_paths[i],
@@ -91,7 +90,7 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
 def resize_image(image_path, current_spacing, target_spacing):
     """Resize an image by an integer factor towards target spacing"""
     itk_image = meta.setup_image(image_path,
-                                 return_image = True, print_parameters = False)
+                                 return_image=True, print_parameters=False)
 
     image_name = os.path.basename(image_path)
 

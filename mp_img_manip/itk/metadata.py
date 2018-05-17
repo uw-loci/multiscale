@@ -11,7 +11,6 @@ import SimpleITK as sitk
 import os
 
 
-
 def setup_image(image_path,
                 return_image = True, return_spacing = False,
                 print_parameters = False):
