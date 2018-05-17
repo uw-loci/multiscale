@@ -12,9 +12,9 @@ import SimpleITK as sitk
 import numpy as np
 import os
 import math
+from pathlib import Path
 
-
-def write_transform(registered_path,transform, metric, stop):
+def write_transform(registered_path, transform, metric, stop):
     """Write affine transform parameters to a csv file"""
     (output_dir, image_name) = os.path.split(registered_path)
 
@@ -29,8 +29,8 @@ def write_transform(registered_path,transform, metric, stop):
     column_values.append(metric)
     column_values.append(stop)
 
-    blk.write_pandas_row(file_path,image_name,column_values,
-                         'Image',column_labels)
+    blk.write_pandas_row(file_path, image_name, column_values,
+                         'Image', column_labels)
 
 
 def apply_transform(fixed_path, moving_path, reference_path):
@@ -38,16 +38,14 @@ def apply_transform(fixed_path, moving_path, reference_path):
     fixed_image = meta.setup_image(fixed_path)
     moving_image = meta.setup_image(moving_path)
 
-    (reference_dir, reference_name) = os.path.split(reference_path)
-
     print('Applying transform onto {0} based on transform on {1}'.format(
-        os.path.basename(moving_path),
-        reference_name))
+        moving_path.name,
+        reference_path.name))
 
-    transform_path = os.path.join(reference_dir,'Transforms.csv')
+    transform_path = os.path.join(reference_path.folder, 'Transforms.csv')
 
     transform_params = blk.read_pandas_row(transform_path,
-                                           reference_name,'Image')
+                                           reference_path.name, 'Image')
 
     transform = sitk.AffineTransform(2)
     matrix = [transform_params['Matrix Top Left'],
@@ -98,16 +96,16 @@ def resize_image(image_path, current_spacing, target_spacing):
         scale = math.floor(target_spacing/current_spacing)
         end_res = current_spacing*scale
 
-        resized_image = sitk.Shrink(itk_image,[scale,scale])
-        resized_image.SetSpacing([end_res,end_res])
+        resized_image = sitk.Shrink(itk_image, [scale, scale])
+        resized_image.SetSpacing([end_res, end_res])
         resized_image.SetOrigin(itk_image.GetOrigin())
 
     elif current_spacing > target_spacing:
         scale = math.floor(current_spacing/target_spacing)
         end_res = current_spacing/scale
 
-        resized_image = sitk.Expand(itk_image,[scale,scale])
-        resized_image.SetSpacing([end_res,end_res])
+        resized_image = sitk.Expand(itk_image,[scale, scale])
+        resized_image.SetSpacing([end_res, end_res])
         resized_image.SetOrigin(itk_image.GetOrigin())
 
     print('Resizing ' + image_name + ' from '
@@ -132,12 +130,12 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
                                           return_spacing=True)[0]
 
         resized_image = resize_image(moving_image_path_list[i],
-                                     current_spacing,target_spacing)
+                                     current_spacing, target_spacing)
 
         resized_path = blk.create_new_image_path(moving_image_path_list[i],
                                                  output_dir, output_suffix)
 
-        sitk.WriteImage(resized_image,resized_path)
+        sitk.WriteImage(resized_image, resized_path)
         meta.write_image_parameters(resized_path,
                                     resized_image.GetSpacing(),
                                     resized_image.GetOrigin())
