@@ -45,3 +45,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+*.pyc
+*.ini
+*.ini
+.spyproject/workspace.ini
+.spyproject/workspace.ini

@@ -12,13 +12,13 @@ with open('LICENSE') as f:
     license = f.read()
 
 setup(
-    name='sample',
+    name='mp_img_manip',
     version='0.1.0',
-    description='Sample package for Python-Guide.org',
+    description='An image processing library for the Laboratory of Optical and Computational Instrumentation',
     long_description=readme,
-    author='Kenneth Reitz',
-    author_email='me@kennethreitz.com',
-    url='https://github.com/kennethreitz/samplemod',
+    author='Michael Pinkert',
+    author_email='mpinkert@wisc.edu',
+    url='https://github.com/uw-loci/mp-python-modules',
     license=license,
     packages=find_packages(exclude=('tests', 'docs'))
 )
