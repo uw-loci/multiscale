@@ -41,8 +41,7 @@ def setup_image(image_path,
             'Image', ['X Spacing', 'Y Spacing', 'X Origin', 'Y Origin'])
     if print_parameters: 
         print('\n ' + image_parameters)
-    
-    
+
     spacing = [float(image_parameters['X Spacing']),
                float(image_parameters['Y Spacing'])]
     
@@ -59,9 +58,6 @@ def setup_image(image_path,
     
     elif return_spacing:
         return spacing
-    
-
-
 
     
 def write_image_parameters(image_path, spacing, origin):
