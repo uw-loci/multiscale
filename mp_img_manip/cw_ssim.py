@@ -9,7 +9,7 @@ Created on Tue Mar 20 10:50:24 2018
 import mp_img_manip.bulk_img_processing as blk
 import os
 from PIL import Image
-from ssim import SSIM
+from ssim.ssimlib import SSIM
 
 
 def compare_ssim(one_path, two_path):
