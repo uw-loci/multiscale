@@ -14,6 +14,7 @@ import os
 import math
 from pathlib import Path
 
+
 def write_transform(registered_path, transform, metric, stop):
     """Write affine transform parameters to a csv file"""
     (output_dir, image_name) = os.path.split(registered_path)
@@ -33,7 +34,8 @@ def write_transform(registered_path, transform, metric, stop):
                          'Image', column_labels)
 
 
-def apply_transform(fixed_path, moving_path, reference_path):
+def apply_transform(fixed_path, moving_path, reference_path,
+                    transform_path=None):
 
     fixed_image = meta.setup_image(fixed_path)
     moving_image = meta.setup_image(moving_path)
@@ -83,6 +85,9 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                                     registered_image.GetOrigin())
 
     return
+
+
+#def apply_transform_to_whole_folder(fixed_dir, moving_dir_list)
 
 
 def resize_image(image_path, current_spacing, target_spacing):

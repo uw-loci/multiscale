@@ -21,3 +21,7 @@ Calculate the transform
 Bulk apply it to images.  
 
 """
+
+
+def bulk_apply_angle_transforms():
+    print('Not yet implemented')
