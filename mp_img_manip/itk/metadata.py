@@ -48,7 +48,7 @@ def setup_image(image_path,
               float(image_parameters['Y Origin'])]
     
     if return_image: 
-        image = sitk.ReadImage(image_path)
+        image = sitk.ReadImage(str(image_path))
         image.SetSpacing(spacing)
         image.SetOrigin(origin)
 

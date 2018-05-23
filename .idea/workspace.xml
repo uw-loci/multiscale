@@ -2,13 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5875f1a4-dd91-4d04-a89c-8fd921649052" name="Default" comment="fixed(?) reference to SSIM">
-      <change beforePath="$PROJECT_DIR$/mp_img_manip/itk/transform.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/itk/transform.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mp_img_manip/task_scripts/stereo_pol_registration.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/task_scripts/stereo_pol_registration.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
-    </list>
-    <list id="c129faaf-a8d5-46db-9638-b1e3d29a9606" name="Revert &quot;fixed(?) reference to SSIM class, was no longer recognizing&quot;" comment="Revert &quot;fixed(?) reference to SSIM class, was no longer recognizing&quot;&#10;&#10;This reverts commit 8fece0e">
+      <change afterPath="$PROJECT_DIR$/mp_img_manip/stereo_pol.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.spyproject/workspace.ini" beforeDir="false" afterPath="$PROJECT_DIR$/.spyproject/workspace.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mp_img_manip/itk/metadata.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/itk/metadata.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mp_img_manip/itk/transform.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/itk/transform.py" afterDir="false" />
     </list>
+    <list id="c129faaf-a8d5-46db-9638-b1e3d29a9606" name="Revert &quot;fixed(?) reference to SSIM class, was no longer recognizing&quot;" comment="Revert &quot;fixed(?) reference to SSIM class, was no longer recognizing&quot;&#10;&#10;This reverts commit 8fece0e" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -21,17 +21,31 @@
       <file leaf-file-name="registration.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/itk/registration.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="855">
+            <state relative-caret-position="3791">
               <caret line="235" column="56" selection-start-line="235" selection-start-column="56" selection-end-line="235" selection-end-column="56" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="SimpleITK.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="SimpleITK.py" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/AppData/Local/Continuum/anaconda3/Lib/site-packages/SimpleITK-1.0.1-py3.6-win-amd64.egg/SimpleITK/SimpleITK.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-469">
-              <caret line="8334" selection-start-line="8334" selection-end-line="8334" />
+            <state relative-caret-position="238">
+              <caret line="8347" column="39" selection-start-line="8347" selection-start-column="39" selection-end-line="8347" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="stereo_pol.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/mp_img_manip/stereo_pol.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="340">
+              <caret line="20" column="46" selection-start-line="20" selection-start-column="46" selection-end-line="20" selection-end-column="46" />
+              <folding>
+                <marker date="1527087372068" expanded="true" signature="478:480" ph="..." />
+                <marker date="1527087372068" expanded="true" signature="526:529" ph="..." />
+                <marker date="1527087372068" expanded="true" signature="585:588" ph="..." />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -39,7 +53,7 @@
       <file leaf-file-name="transform.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/itk/transform.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="906">
+            <state relative-caret-position="1377">
               <caret line="89" column="1" selection-start-line="89" selection-start-column="1" selection-end-line="89" selection-end-column="1" />
               <folding>
                 <element signature="e#87#133#0" expanded="true" />
@@ -85,6 +99,7 @@
         <option value="$PROJECT_DIR$/setup.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/cw_ssim.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/itk/transform.py" />
+        <option value="$PROJECT_DIR$/mp_img_manip/stereo_pol.py" />
       </list>
     </option>
   </component>
@@ -99,6 +114,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -118,31 +134,12 @@
             </path>
             <path>
               <item name="mp-python-modules" type="b2602c69:ProjectViewProjectNode" />
-              <item name="mp-python-modules" type="462c0819:PsiDirectoryNode" />
-              <item name="mp_img_manip" type="462c0819:PsiDirectoryNode" />
-              <item name="itk" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="mp-python-modules" type="b2602c69:ProjectViewProjectNode" />
-              <item name="mp-python-modules" type="462c0819:PsiDirectoryNode" />
-              <item name="mp_img_manip" type="462c0819:PsiDirectoryNode" />
-              <item name="task_scripts" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="mp-python-modules" type="b2602c69:ProjectViewProjectNode" />
-              <item name="mp-python-modules" type="462c0819:PsiDirectoryNode" />
-              <item name="mp_img_manip" type="462c0819:PsiDirectoryNode" />
-              <item name="tests" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="mp-python-modules" type="b2602c69:ProjectViewProjectNode" />
               <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -253,15 +250,16 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.18020834" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.18020834" />
       <window_info anchor="bottom" id="TODO" order="10" />
       <window_info anchor="right" id="R Packages" order="2" />
       <window_info anchor="right" id="R Graphics" order="0" />
       <window_info anchor="bottom" id="Event Log" order="1" sideWeight="0.50104165" side_tool="true" weight="0.32943678" />
       <window_info anchor="bottom" x="-1920" y="23" width="1920" height="1017" id="Version Control" order="2" type="WINDOWED" weight="0.21679065" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="3" sideWeight="0.49895832" visible="true" weight="0.32943678" />
+      <window_info anchor="bottom" id="Python Console" order="3" sideWeight="0.49895832" visible="true" weight="0.32943678" />
       <window_info anchor="bottom" id="Run" order="6" />
       <window_info id="Structure" order="2" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="0" />
@@ -334,13 +332,58 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/itk/registration.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3791">
+          <caret line="235" column="56" selection-start-line="235" selection-start-column="56" selection-end-line="235" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/itk/transform.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1377">
+          <caret line="89" column="1" selection-start-line="89" selection-start-column="1" selection-end-line="89" selection-end-column="1" />
+          <folding>
+            <element signature="e#87#133#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Continuum/anaconda3/Lib/site-packages/SimpleITK-1.0.1-py3.6-win-amd64.egg/SimpleITK/SimpleITK.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="141899">
+          <caret line="8347" column="39" lean-forward="true" selection-start-line="8347" selection-start-column="39" selection-end-line="8347" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/itk/registration.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3791">
+          <caret line="235" column="56" selection-start-line="235" selection-start-column="56" selection-end-line="235" selection-end-column="56" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/itk/transform.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1377">
+          <caret line="89" column="1" selection-start-line="89" selection-start-column="1" selection-end-line="89" selection-end-column="1" />
+          <folding>
+            <element signature="e#87#133#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Continuum/anaconda3/Lib/site-packages/SimpleITK-1.0.1-py3.6-win-amd64.egg/SimpleITK/SimpleITK.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="141678">
+          <caret line="8334" selection-start-line="8334" selection-end-line="8334" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/stereo_pol_registration.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
           <caret line="26" column="32" lean-forward="true" selection-start-line="26" selection-start-column="32" selection-end-line="26" selection-end-column="32" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -355,9 +398,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
           <caret line="11" column="8" lean-forward="true" selection-start-line="11" selection-start-column="8" selection-end-line="11" selection-end-column="8" />
-          <folding>
-            <element signature="e#89#135#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -365,9 +405,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
           <caret line="8" selection-start-line="8" selection-end-line="12" selection-end-column="38" />
-          <folding>
-            <element signature="e#89#132#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -508,9 +545,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="442">
           <caret line="26" column="32" selection-start-line="26" selection-start-column="32" selection-end-line="26" selection-end-column="32" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -518,20 +552,11 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="391">
           <caret line="26" column="30" lean-forward="true" selection-start-line="26" selection-start-column="30" selection-end-line="26" selection-end-column="30" />
-          <folding>
-            <element signature="e#89#135#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/AppData/Local/Continuum/anaconda3/Lib/site-packages/ssim/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <folding>
-            <element signature="e#0#46#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$USER_HOME$/AppData/Local/Continuum/anaconda3/Lib/site-packages/ssim/ssimlib.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -554,12 +579,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2805">
           <caret line="165" selection-start-line="165" selection-end-line="165" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-            <element signature="e#4822#6377#0" />
-            <element signature="e#6726#10162#0" />
-            <element signature="e#13007#18281#0" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -567,9 +586,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
           <caret line="8" selection-start-line="8" selection-end-line="12" selection-end-column="38" />
-          <folding>
-            <element signature="e#89#132#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -582,7 +598,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/mp_img_manip/itk/transform.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="906">
+        <state relative-caret-position="1377">
           <caret line="89" column="1" selection-start-line="89" selection-start-column="1" selection-end-line="89" selection-end-column="1" />
           <folding>
             <element signature="e#87#133#0" expanded="true" />
@@ -592,15 +608,27 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/mp_img_manip/itk/registration.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="855">
+        <state relative-caret-position="3791">
           <caret line="235" column="56" selection-start-line="235" selection-start-column="56" selection-end-line="235" selection-end-column="56" />
         </state>
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/AppData/Local/Continuum/anaconda3/Lib/site-packages/SimpleITK-1.0.1-py3.6-win-amd64.egg/SimpleITK/SimpleITK.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-469">
-          <caret line="8334" selection-start-line="8334" selection-end-line="8334" />
+        <state relative-caret-position="238">
+          <caret line="8347" column="39" selection-start-line="8347" selection-start-column="39" selection-end-line="8347" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/stereo_pol.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="20" column="46" selection-start-line="20" selection-start-column="46" selection-end-line="20" selection-end-column="46" />
+          <folding>
+            <marker date="1527087372068" expanded="true" signature="478:480" ph="..." />
+            <marker date="1527087372068" expanded="true" signature="526:529" ph="..." />
+            <marker date="1527087372068" expanded="true" signature="585:588" ph="..." />
+          </folding>
         </state>
       </provider>
     </entry>

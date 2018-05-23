@@ -41,10 +41,10 @@ def apply_transform(fixed_path, moving_path, reference_path,
     moving_image = meta.setup_image(moving_path)
 
     print('Applying transform onto {0} based on transform on {1}'.format(
-        moving_path.name,
-        reference_path.name))
+        str(moving_path.name),
+        str(reference_path.name)))
 
-    transform_path = os.path.join(reference_path.folder, 'Transforms.csv')
+    transform_path = os.path.join(reference_path.parent, 'Transforms.csv')
 
     transform_params = blk.read_pandas_row(transform_path,
                                            reference_path.name, 'Image')
