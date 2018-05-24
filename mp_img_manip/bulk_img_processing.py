@@ -208,8 +208,8 @@ def find_shared_images(dir_one, dir_two):
           
             if core_name_one == core_name_two:
                 
-                dir_one_image_paths.append(file_list_one[i])
-                dir_two_image_paths.append(file_list_two[j])
+                dir_one_image_paths.append(Path(dir_one, file_list_one[i]))
+                dir_two_image_paths.append(Path(dir_two, file_list_two[j]))
 
     return dir_one_image_paths, dir_two_image_paths
   

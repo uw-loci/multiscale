@@ -95,8 +95,8 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix):
         output_path = blk.create_new_image_path(
                 path_list[i], output_dir, output_suffix)
         
-        sitk.WriteImage(ret_image, output_path)
-        
+        sitk.WriteImage(ret_image, str(output_path))
+
         meta.write_image_parameters(output_path, 
                                     int_image.GetSpacing(),
                                     int_image.GetOrigin())

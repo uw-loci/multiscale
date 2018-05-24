@@ -140,7 +140,7 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
         resized_path = blk.create_new_image_path(moving_image_path_list[i],
                                                  output_dir, output_suffix)
 
-        sitk.WriteImage(resized_image, resized_path)
+        sitk.WriteImage(resized_image, str(resized_path))
         meta.write_image_parameters(resized_path,
                                     resized_image.GetSpacing(),
                                     resized_image.GetOrigin())

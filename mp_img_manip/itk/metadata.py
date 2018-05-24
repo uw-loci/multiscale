@@ -32,11 +32,10 @@ def setup_image(image_path,
     
     """
     
-    (image_dir, image_name) = os.path.split(image_path)
-    file_path = image_dir + '/Image Parameters.csv'
-    
+    file_path = str(image_path.parent) + '/Image Parameters.csv'
+
     image_parameters = blk.read_write_pandas_row(
-            file_path, image_name,
+            str(file_path), str(image_path.name),
             'Image', ['X Spacing', 'Y Spacing', 'X Origin', 'Y Origin'])
     if print_parameters: 
         print('\n ' + image_parameters)
