@@ -79,7 +79,7 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                                                     output_dir,
                                                     output_suffix)
 
-        sitk.WriteImage(registered_image, registered_path)
+        sitk.WriteImage(registered_image, str(registered_path))
         meta.write_image_parameters(registered_path,
                                     registered_image.GetSpacing(),
                                     registered_image.GetOrigin())

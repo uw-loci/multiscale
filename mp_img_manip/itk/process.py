@@ -119,4 +119,4 @@ def bulk_convert_to_eightbit(input_dir, output_dir, output_suffix):
                                     original.GetSpacing(),
                                     original.GetOrigin())
         
-        sitk.WriteImage(new_image, new_path)
+        sitk.WriteImage(new_image, str(new_path))
