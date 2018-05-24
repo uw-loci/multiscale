@@ -175,6 +175,7 @@ def query_good_registration(fixed_image, moving_image,
                                      sitk.sitkLinear, 0.0,
                                      moving_image.GetPixelIDValue())
 
+    plt.close()
     plt.imshow(proc.overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
     plt.show()
 
@@ -232,7 +233,7 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
             moving_path_list[i], output_dir, output_suffix)
 
         if write_output:
-            sitk.WriteImage(registered_image, registered_path)
+            sitk.WriteImage(registered_image, str(registered_path))
             meta.write_image_parameters(registered_path,
                                         registered_image.GetSpacing(),
                                         registered_image.GetOrigin())
@@ -248,6 +249,7 @@ def query_origin_change(fixed_image, moving_image):
     plt.show()
     print('Current origin: ' + str(moving_image.GetOrigin()))
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
+    plt.close()
     origin = moving_image.GetOrigin()
 
     #todo: have it change the origin file too....  

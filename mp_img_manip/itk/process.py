@@ -84,7 +84,7 @@ def bulk_apply_mask(image_dir, mask_dir,
         meta.write_image_parameters(masked_path,
                                     image.GetSpacing(),
                                     image.GetOrigin())
-        sitk.WriteImage(masked_image, masked_path)
+        sitk.WriteImage(masked_image, str(masked_path))
                 
     
 def convert_to_eightbit(itk_image, image_name):
