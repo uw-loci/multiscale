@@ -43,16 +43,21 @@ def create_dictionary(
         "ps_large": os.path.join(base_dir, prep_dir, 'PS_Large'),
         "mmp_small": os.path.join(base_dir, prep_dir, 'MMP_Small'),
         "shg_large": os.path.join(base_dir, prep_dir, 'SHG_Large'),
+        "ster_hr_small": os.path.join(base_dir, prep_dir, 'SterHR_Small'),
+
 
         "ps_large_ret": os.path.join(base_dir, retardance_dir),
 
         "ps_small": os.path.join(base_dir,resize_dir,'PS_Small'),
         "shg_small": os.path.join(base_dir,resize_dir,'SHG_Small'),
         "mmp_large": os.path.join(base_dir,resize_dir,'MMP_Large'),
+        "ster_hr_large": os.path.join(base_dir, resize_dir, 'SterHR_Large'),
 
+        "ster_hr_small_reg": os.path.join(base_dir,reg_dir,'SterHR_Small_Reg'),
         "mmp_small_reg": os.path.join(base_dir,reg_dir,'MMP_Small_Reg'),
         "shg_small_reg": os.path.join(base_dir,reg_dir,'SHG_Small_Reg'),
 
+        "ster_hr_large_reg": os.path.join(base_dir,reg_dir,'SterHR_Large_Reg'),
         "mmp_large_reg": os.path.join(base_dir,reg_dir,'MMP_Large_Reg'),
         "shg_large_reg": os.path.join(base_dir,reg_dir,'SHG_Large_Reg'),
 
@@ -65,10 +70,15 @@ def create_dictionary(
         "ps_large_8bit": os.path.join(base_dir, eight_bit_dir,'PS_Large_8Bit'),
         "shg_large_8bit": os.path.join(base_dir, eight_bit_dir,'SHG_Large_8Bit'),
         "mmp_large_8bit": os.path.join(base_dir, eight_bit_dir,'MMP_Large_8Bit'),
-
+        "ster_hr_large_8bit": os.path.join(
+                base_dir, eight_bit_dir,'Ster_HR_Large_8Bit'),
+                
         "ps_small_8bit": os.path.join(base_dir, eight_bit_dir,'PS_Small_8Bit'),
         "shg_small_8bit": os.path.join(base_dir, eight_bit_dir,'SHG_Small_8Bit'),
         "mmp_small_8bit": os.path.join(base_dir, eight_bit_dir,'MMP_Small_8Bit'),
+        "ster_hr_small_8bit": os.path.join(
+                base_dir, eight_bit_dir,'Ster_HR_Small_8Bit'),
+
 
         "ps_large_tile": os.path.join(base_dir, tile_dir,'PS_Large_Tiles'),
         "shg_large_tile": os.path.join(base_dir, tile_dir,'SHG_Large_Tiles'),
