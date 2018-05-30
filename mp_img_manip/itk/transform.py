@@ -146,6 +146,31 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
                                     resized_image.GetOrigin())
 
 
+def bulk_resize_to_target(image_dir, output_dir, output_suffix, 
+                          target_spacing):
+
+    image_name_list = [
+            Path(f) for f in os.listdir(image_dir) if f.endswith('.tif')]
+
+    for i in range(0, np.size(image_name_list)):
+       
+        image_path = Path(image_dir, image_name_list[i])
+        
+        current_spacing = meta.setup_image(image_path,
+                                           return_image = False,
+                                           return_spacing=True)[0]
+
+        resized_image = resize_image(image_path,
+                                     current_spacing, target_spacing)
+
+        resized_path = blk.create_new_image_path(image_path,
+                                                 output_dir, output_suffix)
+
+        sitk.WriteImage(resized_image, str(resized_path))
+        meta.write_image_parameters(resized_path,
+                                    resized_image.GetSpacing(),
+                                    resized_image.GetOrigin())
+
 #def crop_to_nonzero_boundary(image_path, output_dir, output_suffix,
 #                             reference_path = None):
 #    """Not yet implemented"""
