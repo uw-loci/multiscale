@@ -125,7 +125,7 @@ def write_tile(tile, image_path, output_dir, output_suffix, x, y):
     tile_suffix = output_suffix + '_' + str(x) + 'x-' +str(y) + 'y'
     tile_path = blk.create_new_image_path(image_path, output_dir,
                                                       tile_suffix)
-    sitk.WriteImage(tile_image, tile_path)
+    sitk.WriteImage(tile_image, str(tile_path))
     
     return
 
