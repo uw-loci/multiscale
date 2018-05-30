@@ -18,6 +18,10 @@ import os
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
+fig_size = plt.rcParams["figure.figsize"]
+fig_size[0] = fig_size[0]*2
+fig_size[1] = fig_size[1]*2
+plt.rcParams["figure.figsize"] = fig_size
 
 def start_plot():
     """Event: Initialize global values for graphing registration values"""
