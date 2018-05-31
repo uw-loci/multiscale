@@ -11,9 +11,7 @@ import SimpleITK as sitk
 import os
 
 
-def setup_image(image_path,
-                return_image = True, return_spacing = False,
-                print_parameters = False):
+def setup_image(image_path):
     """Set up the image spacing and optionally the registration origin
     
     This function is necessary because ITK cannot save in microns, making
@@ -32,13 +30,21 @@ def setup_image(image_path,
     
     """
     
+    spacing, origin = get_image_parameters(image_path)
+    
+    image = sitk.ReadImage(str(image_path))
+    image.SetSpacing(spacing)
+    image.SetOrigin(origin)
+
+    return image
+
+
+def get_image_parameters(image_path, return_spacing=True, return_origin=True):
     file_path = str(image_path.parent) + '/Image Parameters.csv'
 
     image_parameters = blk.read_write_pandas_row(
             str(file_path), str(image_path.name),
             'Image', ['X Spacing', 'Y Spacing', 'X Origin', 'Y Origin'])
-    if print_parameters: 
-        print('\n ' + image_parameters)
 
     spacing = [float(image_parameters['X Spacing']),
                float(image_parameters['Y Spacing'])]
@@ -46,17 +52,13 @@ def setup_image(image_path,
     origin = [float(image_parameters['X Origin']),
               float(image_parameters['Y Origin'])]
     
-    if return_image: 
-        image = sitk.ReadImage(str(image_path))
-        image.SetSpacing(spacing)
-        image.SetOrigin(origin)
-
-        return image
-    
-    
+    if return_spacing and return_origin:
+        return spacing, origin
     elif return_spacing:
         return spacing
-
+    elif return_origin:
+        return origin
+    
     
 def write_image_parameters(image_path, spacing, origin):
     """Write down the spacing and origin of an image file to csv metadata"""
