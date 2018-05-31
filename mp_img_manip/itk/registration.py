@@ -62,7 +62,7 @@ def plot_values(registration_method, fixed_image, moving_image, transform):
     fig, (ax, ax2) = plt.subplots(ncols=2)
     fig.tight_layout()
 
-    ax.imshow(combined_array,cmap=plt.cm.gray)
+    ax.imshow(combined_array)
     ax.axis('off')
 
     ax2.plot(metric_values, 'r')
@@ -180,7 +180,7 @@ def query_good_registration(fixed_image, moving_image,
                                      moving_image.GetPixelIDValue())
 
     plt.close()
-    plt.imshow(proc.overlay_images(fixed_image, moving_resampled), cmap=plt.cm.gray)
+    plt.imshow(proc.overlay_images(fixed_image, moving_resampled))
     plt.show()
 
     print('\nFinal metric value: {0}'.format(metric))
@@ -249,7 +249,7 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
 def query_origin_change(fixed_image, moving_image):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
 
-    plt.imshow(proc.overlay_images(fixed_image, moving_image), cmap=plt.cm.gray)
+    plt.imshow(proc.overlay_images(fixed_image, moving_image))
     plt.show()
     print('Current origin: ' + str(moving_image.GetOrigin()))
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
@@ -268,8 +268,7 @@ def query_origin_change(fixed_image, moving_image):
             new_origin = (new_origin_x, new_origin_y)
 
             moving_image.SetOrigin(new_origin)
-            plt.imshow(proc.overlay_images(fixed_image, moving_image),
-                       cmap=plt.cm.gray)
+            plt.imshow(proc.overlay_images(fixed_image, moving_image))
             plt.show()
 
             #bug: The image does not show up till after the question
@@ -305,7 +304,7 @@ def query_origin_change(fixed_image, moving_image):
 #        
 #        combined_array = overlay_images(fixed_image, moving_image_transformed)
 #
-#        self.ax[0].imshow(combined_array,cmap=plt.cm.gray)
+#        self.ax[0].imshow(combined_array)
 #        self.ax[0].axis('off')
 #        
 #        self.ax[1].plot(self.metric_values, 'r')
