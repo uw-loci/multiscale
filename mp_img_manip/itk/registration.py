@@ -15,6 +15,8 @@ import SimpleITK as sitk
 import numpy as np
 import os
 
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
@@ -234,7 +236,7 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
             moving_path_list[i], output_dir, output_suffix)
         
         if registered_path.exists and skip_existing_images:
-            break
+            continue
         
         registered_image, transform, metric, stop = supervised_register_images(
             fixed_path_list[i], moving_path_list[i],

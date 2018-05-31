@@ -84,16 +84,19 @@ def convert_intensity_to_retardance(itk_image,
     return output_image
     
 
-def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix):
+def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix,
+                                 skip_existing_images=False):
     
     path_list = util.list_filetype_in_dir(input_dir, '.tif')
     
     for i in range(len(path_list)):
-        int_image = meta.setup_image(path_list[i])
-        ret_image = convert_intensity_to_retardance(int_image)
-        
         output_path = blk.create_new_image_path(
                 path_list[i], output_dir, output_suffix)
+        if output_path.exists and skip_existing_images:
+            continue
+        
+        int_image = meta.setup_image(path_list[i])
+        ret_image = convert_intensity_to_retardance(int_image)
         
         sitk.WriteImage(ret_image, str(output_path))
 

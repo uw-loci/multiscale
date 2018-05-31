@@ -12,6 +12,7 @@ import mp_img_manip.plotting as myplot
 import SimpleITK as sitk
 import numpy as np
 import os
+from pathlib import Path
 
 def overlay_images(fixed_image, moving_image, alpha = 0.7):
     """Create a numpy array that is a combination of two images
@@ -116,7 +117,7 @@ def bulk_threshold(input_dir, output_dir, output_suffix,
         new_path = blk.create_new_image_path(path_list[i],
                                              output_dir, output_suffix)
         if new_path.exists and skip_existing_images:
-            break
+            continue
         
         original = meta.setup_image(path_list[i])
         new_image = threshold(original, 

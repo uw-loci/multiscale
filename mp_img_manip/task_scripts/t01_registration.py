@@ -12,7 +12,7 @@ import mp_img_manip.itk.process as proc
 import mp_img_manip.dir_dictionary as dird
 import mp_img_manip.polarimetry as pol
 
-def perform_registrations():
+def perform_registrations(skip_existing_images=True):
     """Overall script to perform both mmp and shg registrations
     
     Produces images at each step 
@@ -23,22 +23,23 @@ def perform_registrations():
     
     dir_dict = dird.create_dictionary()
     
-#    pol.bulk_intensity_to_retardance(dir_dict['ps_large'], 
-#                                     dir_dict['ps_large_ret'],
-#                                     'PS_Large_Ret')
+    pol.bulk_intensity_to_retardance(dir_dict['ps_large'], 
+                                     dir_dict['ps_large_ret'],
+                                     'PS_Large_Ret',
+                                     skip_existing_images=skip_existing_images)
 #      
-    resize_images(dir_dict)
+    resize_images(dir_dict, skip_existing_images=skip_existing_images)
 #
-    register_small_images(dir_dict)
-#    mask_small_images(dir_dict)
+    register_small_images(dir_dict, skip_existing_images)
+#    mask_small_images(dir_dict, skip_existing_images=skip_existing_images)
 
-#    apply_transform_to_large_images(dir_dict)
-#    mask_large_images(dir_dict)
-#    make_eightbit_images(dir_dict)
+#    apply_transform_to_large_images(dir_dict, skip_existing_images=skip_existing_images)
+#    mask_large_images(dir_dict, skip_existing_images=skip_existing_images)
+#    make_eightbit_images(dir_dict, skip_existing_images=skip_existing_images)
     
     
 
-def resize_images(dir_dict, target_res=5, skip_existing_images=False):
+def resize_images(dir_dict, target_spacing=5, skip_existing_images=False):
     """Resize the small MMP to ~ PS resolution.
         Resize the large PS images to ~ small MMP resolution
         Resize the large SHG images to ~ small MMP resolution"""
@@ -58,23 +59,22 @@ def resize_images(dir_dict, target_res=5, skip_existing_images=False):
 
     trans.bulk_resize_to_target(
             dir_dict["ps_large_ret"], dir_dict["ps_small"], 'PS_Small',
-            target_res,
+            target_spacing,
             skip_existing_images=skip_existing_images)
     
     trans.bulk_resize_to_target(
             dir_dict["shg_large"], dir_dict["shg_small"], 'SHG_Small',
-            target_res,
+            target_spacing,
             skip_existing_images=skip_existing_images)
             
-    
     trans.bulk_resize_to_target(
             dir_dict["ster_hr_large"], dir_dict["ster_hr_small"], 'SterHR_Small',
-            target_res,
+            target_spacing,
             skip_existing_images=skip_existing_images)    
     
     trans.bulk_resize_to_target(
             dir_dict["ster_lr_large"], dir_dict["ster_lr_small"], 'SterLR_Small',
-            target_res,
+            target_spacing,
             skip_existing_images=skip_existing_images)    
 
 
