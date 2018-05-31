@@ -15,7 +15,7 @@ import math
 from pathlib import Path
 
 
-def write_transform(registered_path, transform, metric, stop):
+def write_transform(registered_path, origin, transform, metric, stop):
     """Write affine transform parameters to a csv file"""
     (output_dir, image_name) = os.path.split(registered_path)
 
@@ -24,22 +24,24 @@ def write_transform(registered_path, transform, metric, stop):
     column_labels = ('Matrix Top Left', 'Matrix Top Right',
                      'Matrix Bottom Left', 'Matrix Bottom Right',
                      'X Translation', 'Y Translation',
-                     'Mutual Information', 'Stop Condition')
+                     'Mutual Information', 'Stop Condition',
+                     'X Origin', 'Y Origin')
 
     column_values = list(transform.GetParameters())
     column_values.append(metric)
     column_values.append(stop)
+    column_values.append(origin[0])
+    column_values.append(origin[1])
 
     blk.write_pandas_row(file_path, image_name, column_values,
                          'Image', column_labels)
 
 
-def apply_transform(fixed_path, moving_path, reference_path,
-                    transform_path=None):
+def apply_transform(fixed_path, moving_path, reference_path):
 
     fixed_image = meta.setup_image(fixed_path)
     moving_image = meta.setup_image(moving_path)
-
+    
     print('Applying transform onto {0} based on transform on {1}'.format(
         str(moving_path.name),
         str(reference_path.name)))
@@ -58,6 +60,10 @@ def apply_transform(fixed_path, moving_path, reference_path,
     transform.SetMatrix(matrix)
     transform.SetTranslation([transform_params['X Translation'],
                               transform_params['Y Translation']])
+    
+    origin = (int(transform_params['X Origin']),
+              int(transform_params['Y Origin']))
+    moving_image.SetOrigin(origin)
 
     return sitk.Resample(moving_image, fixed_image, transform,
                          sitk.sitkLinear, 0.0, moving_image.GetPixelID())
@@ -67,7 +73,7 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                          output_dir, output_suffix,
                          skip_existing_images=False):
 
-    fixed_paths, moving_paths, transform_paths = blk.find_bulk_shared_images(
+    fixed_paths, moving_paths, reference_paths = blk.find_bulk_shared_images(
         [fixed_dir, moving_dir, transform_dir])
 
     for i in range(0, np.size(fixed_paths)):
@@ -80,7 +86,7 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
         
         registered_image = apply_transform(fixed_paths[i],
                                            moving_paths[i],
-                                           transform_paths[i])
+                                           reference_paths[i])
 
         sitk.WriteImage(registered_image, str(registered_path))
         meta.write_image_parameters(registered_path,
@@ -135,13 +141,15 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix,
         if resized_path.exists() and skip_existing_images:
             continue
         
-        current_spacing = meta.setup_image(moving_image_path_list[i],
-                                           return_image = False,
-                                           return_spacing=True)[0]
+        current_spacing = meta.get_image_parameters(
+                moving_image_path_list[i],
+                return_origin=True,
+                return_spacing=True)[0]
 
-        target_spacing = meta.setup_image(fixed_image_path_list[i],
-                                          return_image = False,
-                                          return_spacing=True)[0]
+        target_spacing = meta.get_image_parameters(
+                fixed_image_path_list[i],
+                return_origin=True,
+                return_spacing=True)[0]
 
         resized_image = resize_image(moving_image_path_list[i],
                                      current_spacing, target_spacing)
@@ -169,9 +177,10 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
         if resized_path.exists() and skip_existing_images:
             continue
         
-        current_spacing = meta.setup_image(image_path,
-                                           return_image = False,
-                                           return_spacing=True)[0]
+        current_spacing = meta.get_image_parameters(
+                image_path,
+                return_origin=True,
+                return_spacing=True)[0]
 
         resized_image = resize_image(image_path,
                                      current_spacing, target_spacing)
