@@ -87,7 +87,8 @@ def register_small_images(dir_dict, skip_existing_images=False):
             skip_existing_images=skip_existing_images)
     
     reg.bulk_supervised_register_images(
-            dir_dict["ps_small"], dir_dict["shg_small"],
+            dir_dict["ps_small"], 
+            dir_dict["shg_small"], 
             dir_dict["shg_small_reg"], 'SHG_Small_Reg',
             skip_existing_images=skip_existing_images)
 

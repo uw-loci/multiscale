@@ -116,7 +116,7 @@ def bulk_threshold(input_dir, output_dir, output_suffix,
     for i in range(len(path_list)):
         new_path = blk.create_new_image_path(path_list[i],
                                              output_dir, output_suffix)
-        if new_path.exists and skip_existing_images:
+        if new_path.exists() and skip_existing_images:
             continue
         
         original = meta.setup_image(path_list[i])

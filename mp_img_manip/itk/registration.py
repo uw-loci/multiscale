@@ -235,7 +235,7 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
         registered_path = blk.create_new_image_path(
             moving_path_list[i], output_dir, output_suffix)
         
-        if registered_path.exists and skip_existing_images:
+        if registered_path.exists() and skip_existing_images:
             continue
         
         registered_image, transform, metric, stop = supervised_register_images(

@@ -75,7 +75,7 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                                                     output_dir,
                                                     output_suffix)
         
-        if registered_path.exists and skip_existing_images:
+        if registered_path.exists() and skip_existing_images:
             continue
         
         registered_image = apply_transform(fixed_paths[i],
@@ -132,7 +132,7 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix,
     for i in range(0, np.size(fixed_image_path_list)):
         resized_path = blk.create_new_image_path(moving_image_path_list[i],
                                                  output_dir, output_suffix)
-        if resized_path.exists and skip_existing_images:
+        if resized_path.exists() and skip_existing_images:
             continue
         
         current_spacing = meta.setup_image(moving_image_path_list[i],
@@ -166,7 +166,7 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
         
         resized_path = blk.create_new_image_path(image_path,
                                                  output_dir, output_suffix)
-        if resized_path.exists and skip_existing_images:
+        if resized_path.exists() and skip_existing_images:
             continue
         
         current_spacing = meta.setup_image(image_path,
