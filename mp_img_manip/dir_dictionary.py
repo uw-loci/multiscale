@@ -66,9 +66,11 @@ def create_dictionary(
 
         "ps_small_mask": os.path.join(base_dir,mask_dir,'PS_Small_Mask'),
         "shg_small_mask": os.path.join(base_dir,mask_dir,'SHG_Small_Mask'),
-
+        "ster_lr_small_mask": os.path.join(base_dir,mask_dir,'SterLR_Small_Mask'),
+        
         "ps_large_mask": os.path.join(base_dir,mask_dir,'PS_Large_Mask'),
         "shg_large_mask": os.path.join(base_dir,mask_dir,'SHG_Large_Mask'),
+        "ster_lr_large_mask": os.path.join(base_dir,mask_dir,'SterLR_Large_Mask'),
 
         "ps_large_8bit": os.path.join(base_dir, eight_bit_dir,'PS_Large_8Bit'),
         "shg_large_8bit": os.path.join(base_dir, eight_bit_dir,'SHG_Large_8Bit'),
