@@ -15,7 +15,7 @@ import math
 from pathlib import Path
 
 
-def write_transform(registered_path, origin, transform, metric, stop):
+def write_transform(registered_path, transform, metric, stop):
     """Write affine transform parameters to a csv file"""
     (output_dir, image_name) = os.path.split(registered_path)
 
@@ -27,9 +27,6 @@ def write_transform(registered_path, origin, transform, metric, stop):
                      'Mutual Information', 'Stop Condition')
 
     column_values = list(transform.GetParameters())
-    column_values[4] = column_values[4] + origin[0]
-    column_values[5] = column_values[5] + origin[1]
-    
     column_values.append(metric)
     column_values.append(stop)
 
