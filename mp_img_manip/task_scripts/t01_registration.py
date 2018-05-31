@@ -19,24 +19,23 @@ def perform_registrations(skip_existing_images=True):
     00 - Polscope intensity to retardance
     01 - Resized images 
     02 - Registered images
-    03 - Registered images maskped to MMP boundaries"""
+    03 - Registered images thresholded to a value"""
     
     dir_dict = dird.create_dictionary()
-    
+
     pol.bulk_intensity_to_retardance(dir_dict['ps_large'], 
                                      dir_dict['ps_large_ret'],
                                      'PS_Large_Ret',
                                      skip_existing_images=skip_existing_images)
-#      
+      
     resize_images(dir_dict, skip_existing_images=skip_existing_images)
-#
-    register_small_images(dir_dict, skip_existing_images)
-#    mask_small_images(dir_dict, skip_existing_images=skip_existing_images)
 
-#    apply_transform_to_large_images(dir_dict, skip_existing_images=skip_existing_images)
-#    mask_large_images(dir_dict, skip_existing_images=skip_existing_images)
-#    make_eightbit_images(dir_dict, skip_existing_images=skip_existing_images)
+    register_small_images(dir_dict, skip_existing_images)
+    apply_transform_to_large_images(dir_dict, skip_existing_images=skip_existing_images)
     
+    mask_images(dir_dict, skip_existing_images=skip_existing_images)
+    
+#    make_eightbit_images(dir_dict, skip_existing_images=skip_existing_images)
     
 
 def resize_images(dir_dict, target_spacing=5, skip_existing_images=False):
@@ -93,19 +92,6 @@ def register_small_images(dir_dict, skip_existing_images=False):
             skip_existing_images=skip_existing_images)
 
 
-def mask_small_images(dir_dict, skip_existing_images=False):
-    """Set all pixels outside the MMP ROI as 0 for PS and SHG"""
-    proc.bulk_apply_mask(dir_dict["ps_small"], dir_dict['ster_lr_small_reg'],
-                         dir_dict["ps_small_mask"], 'PS_Small_Masked',
-                         skip_existing_images=skip_existing_images)
-    
-    proc.bulk_apply_mask(dir_dict["shg_small_reg"], dir_dict['ster_lr_small_reg'],
-                         dir_dict["shg_small_mask"], 'SHG_Small_Masked',
-                         skip_existing_images=skip_existing_images)
-
-    return
-
-
 def apply_transform_to_large_images(dir_dict, skip_existing_images=False):
     trans.bulk_apply_transform(dir_dict["ps_large"],
                               dir_dict["ster_lr_large"],
@@ -120,7 +106,7 @@ def apply_transform_to_large_images(dir_dict, skip_existing_images=False):
                               skip_existing_images=skip_existing_images)
 
 
-def mask_large_images(dir_dict, skip_existing_images=False):
+def mask_images(dir_dict, skip_existing_images=False):
     """Set all pixels outside the MMP ROI as 0 for PS and SHG"""
 #    proc.bulk_apply_mask(dir_dict["ps_large"], dir_dict['ster_lr_large_reg'],
 #                         dir_dict["ps_large_mask"], 'PS_Large_Masked')
