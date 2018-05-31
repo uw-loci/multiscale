@@ -64,20 +64,23 @@ def apply_transform(fixed_path, moving_path, reference_path,
 
 
 def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
-                         output_dir, output_suffix):
+                         output_dir, output_suffix,
+                         skip_existing_images=False):
 
     fixed_paths, moving_paths, transform_paths = blk.find_bulk_shared_images(
         [fixed_dir, moving_dir, transform_dir])
 
     for i in range(0, np.size(fixed_paths)):
-
-        registered_image = apply_transform(fixed_paths[i],
-                                           moving_paths[i],
-                                           transform_paths[i])
-
         registered_path = blk.create_new_image_path(moving_paths[i],
                                                     output_dir,
                                                     output_suffix)
+        
+        if registered_path.exists and skip_existing_images:
+            break
+        
+        registered_image = apply_transform(fixed_paths[i],
+                                           moving_paths[i],
+                                           transform_paths[i])
 
         sitk.WriteImage(registered_image, str(registered_path))
         meta.write_image_parameters(registered_path,
@@ -120,12 +123,18 @@ def resize_image(image_path, current_spacing, target_spacing):
     return resized_image
 
 
-def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
+def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix,
+                      skip_existing_images=False):
     """Resize multiple images to corresponding reference size"""
     (fixed_image_path_list, moving_image_path_list) = blk.find_shared_images(
         fixed_dir, moving_dir)
 
     for i in range(0, np.size(fixed_image_path_list)):
+        resized_path = blk.create_new_image_path(moving_image_path_list[i],
+                                                 output_dir, output_suffix)
+        if resized_path.exists and skip_existing_images:
+            break
+        
         current_spacing = meta.setup_image(moving_image_path_list[i],
                                            return_image = False,
                                            return_spacing=True)[0]
@@ -137,8 +146,7 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
         resized_image = resize_image(moving_image_path_list[i],
                                      current_spacing, target_spacing)
 
-        resized_path = blk.create_new_image_path(moving_image_path_list[i],
-                                                 output_dir, output_suffix)
+
 
         sitk.WriteImage(resized_image, str(resized_path))
         meta.write_image_parameters(resized_path,
@@ -147,14 +155,19 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix):
 
 
 def bulk_resize_to_target(image_dir, output_dir, output_suffix, 
-                          target_spacing):
+                          target_spacing,
+                          skip_existing_images=False):
 
     image_name_list = [
             Path(f) for f in os.listdir(image_dir) if f.endswith('.tif')]
 
     for i in range(0, np.size(image_name_list)):
-       
         image_path = Path(image_dir, image_name_list[i])
+        
+        resized_path = blk.create_new_image_path(image_path,
+                                                 output_dir, output_suffix)
+        if resized_path.exists and skip_existing_images:
+            break
         
         current_spacing = meta.setup_image(image_path,
                                            return_image = False,
@@ -163,8 +176,7 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
         resized_image = resize_image(image_path,
                                      current_spacing, target_spacing)
 
-        resized_path = blk.create_new_image_path(image_path,
-                                                 output_dir, output_suffix)
+
 
         sitk.WriteImage(resized_image, str(resized_path))
         meta.write_image_parameters(resized_path,

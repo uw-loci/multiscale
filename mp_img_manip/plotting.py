@@ -7,6 +7,7 @@ Created on Thu Apr 12 09:25:11 2018
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def plot_colored_overlay(array_one, array_two, difference_threshold=0.1):
     """Plot two same-size images in 3 channels, with blue->same position"""
     

@@ -107,18 +107,21 @@ def threshold(itk_image, image_name,
     return thresh_image
 
 
-def bulk_threshold(input_dir, output_dir, output_suffix):
+def bulk_threshold(input_dir, output_dir, output_suffix,
+                   skip_existing_images=False):
     """Apply intensity based thresholds to all images in folder"""
     path_list = util.list_filetype_in_dir(input_dir, '.tif')
     
     for i in range(len(path_list)):
+        new_path = blk.create_new_image_path(path_list[i],
+                                             output_dir, output_suffix)
+        if new_path.exists and skip_existing_images:
+            break
+        
         original = meta.setup_image(path_list[i])
         new_image = threshold(original, 
                               os.path.basename(path_list[i]))
         
-        new_path = blk.create_new_image_path(path_list[i],
-                                             output_dir, output_suffix)
-    
         meta.write_image_parameters(new_path, 
                                     original.GetSpacing(),
                                     original.GetOrigin())
