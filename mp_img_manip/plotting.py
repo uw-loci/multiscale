@@ -21,7 +21,10 @@ def plot_colored_overlay(array_one, array_two, difference_threshold=0.1):
 
     rgb_overlay = np.zeros(shape=(dims[0], dims[1], 3), dtype=float)
     
-    rgb_overlay[grayscale, 2] = np.ma.masked_array(array_one[grayscale])
+    rgb_overlay[grayscale, :] = 255
+#    rgb_overlay[grayscale, 1] = np.ma.masked_array(array_one[grayscale])
+#    rgb_overlay[grayscale, 2] = np.ma.masked_array(array_one[grayscale])
+    
     rgb_overlay[red, 0] = np.ma.masked_array(array_one[red])
     rgb_overlay[green, 1] = np.ma.masked_array(array_two[green])
     
