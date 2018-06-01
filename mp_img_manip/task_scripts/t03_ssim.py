@@ -14,7 +14,9 @@ mhr_ps = [dir_dict['mlr_small_mask'], dir_dict['ps_small']]
 mhr_shg = [dir_dict['mlr_small_mask'], dir_dict['shg_small_reg']]
 shg_ps = [dir_dict['shg_small_reg'], dir_dict['ps_small']]
 
-output_name = 'CW-SSIM MLR Fixed 1 deg threshold.csv'
+
+date = str(datetime.date.today())
+output_name = 'CW-SSIM_' + date + '.csv'
 
 ssim.bulk_compare_ssim(mhr_ps, dir_dict['ssim'], output_name)
 ssim.bulk_compare_ssim(mhr_shg, dir_dict['ssim'], output_name)
