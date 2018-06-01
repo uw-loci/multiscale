@@ -6,7 +6,6 @@ Created on Wed Mar 21 09:39:34 2018
 """
 import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.itk.metadata as meta
-import mp_img_manip.utility_functions as util
 
 import SimpleITK as sitk
 import numpy as np
@@ -96,9 +95,6 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
     return
 
 
-#def apply_transform_to_whole_folder(fixed_dir, moving_dir_list)
-
-
 def resize_image(image_path, current_spacing, target_spacing):
     """Resize an image by an integer factor towards target spacing"""
     itk_image = meta.setup_image(image_path,
@@ -153,8 +149,6 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix,
 
         resized_image = resize_image(moving_image_path_list[i],
                                      current_spacing, target_spacing)
-
-
 
         sitk.WriteImage(resized_image, str(resized_path))
         meta.write_image_parameters(resized_path,

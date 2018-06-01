@@ -12,30 +12,30 @@ dir_dict = dird.create_dictionary()
 
 
 
-def extract_tiles_from_8bit_images(tile_size = 512,
-                                   intensity_threshold = 5, 
+def extract_tiles_from_images(tile_size = 512,
+                                   intensity_threshold = 1, 
                                    number_threshold = 10):
     
-    til.bulk_extract_image_tiles(dir_dict['ps_large_mask'], 
+    til.bulk_extract_image_tiles(dir_dict['ps_large'], 
                                  dir_dict['ps_large_tile'], 
                                  'PS',
                                  tile_size = tile_size, 
                                  intensity_threshold = intensity_threshold, 
                                  number_threshold = number_threshold)
     
-    til.bulk_extract_image_tiles(dir_dict['shg_large_mask'], 
+    til.bulk_extract_image_tiles(dir_dict['shg_large_reg'], 
                                  dir_dict['shg_large_tile'], 
                                  'SHG',
                                  tile_size = tile_size, 
                                  intensity_threshold = intensity_threshold, 
                                  number_threshold = number_threshold)
-    
-    til.bulk_extract_image_tiles(dir_dict['mmp_large_reg'], 
-                                 dir_dict['mmp_large_tile'], 
-                                 'MMP',
+  
+    til.bulk_extract_image_tiles(dir_dict['mlr_large_mask'],
+                                 dir_dict['mlr_large_tile'],
+                                 'MLR',
                                  tile_size = tile_size, 
                                  intensity_threshold = intensity_threshold, 
                                  number_threshold = number_threshold)
     
 
-extract_tiles_from_8bit_images()
+extract_tiles_from_images()

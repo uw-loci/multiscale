@@ -10,13 +10,13 @@ import mp_img_manip.dir_dictionary as dird
 
 dir_dict = dird.create_dictionary()
 
-mmp_ps = [dir_dict['mmp_small_reg'], dir_dict['ps_small_mask']]
-mmp_shg = [dir_dict['mmp_small_8bit'], dir_dict['shg_small_8bit']]
-shg_ps = [dir_dict['shg_small_8bit'], dir_dict['ps_small_8bit']]
+mhr_ps = [dir_dict['mlr_small_mask'], dir_dict['ps_small']]
+mhr_shg = [dir_dict['mlr_small_mask'], dir_dict['shg_small_reg']]
+shg_ps = [dir_dict['shg_small_reg'], dir_dict['ps_small']]
 
-output_name = 'CW-SSIM Small physical mmp_ps 8bit else.csv'
+output_name = 'CW-SSIM MLR Fixed 1 deg threshold.csv'
 
-ssim.bulk_compare_ssim(mmp_ps, dir_dict['ssim'], output_name)
-ssim.bulk_compare_ssim(mmp_shg, dir_dict['ssim'], output_name)
+ssim.bulk_compare_ssim(mhr_ps, dir_dict['ssim'], output_name)
+ssim.bulk_compare_ssim(mhr_shg, dir_dict['ssim'], output_name)
 ssim.bulk_compare_ssim(shg_ps, dir_dict['ssim'], output_name)
 
