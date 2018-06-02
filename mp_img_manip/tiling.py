@@ -26,7 +26,7 @@ def get_tile_start_end_index(tile_number, tile_size,
     return start_index, end_index
 
 
-def generate_tile_start_end_index(tile_number, tile_size,
+def generate_tile_start_end_index(total_num_tiles, tile_size,
                                   tile_offset=None, tile_separation=None):
 
     if not tile_separation:
@@ -34,13 +34,29 @@ def generate_tile_start_end_index(tile_number, tile_size,
         
     if not tile_offset:
         tile_offset = 0
+    
+    for x in range(total_num_tiles[0]):
+        for y in range(total_num_tiles[1]):
+            tile_number = np.array([x,y])
+            start_index = (tile_number*tile_separation)+tile_offset
+            end_index = start_index + tile_size
+            yield start_index, end_index, tile_number 
+    
+    
+def generate_tile(input_array, tile_size, tile_separation=None):
+    
+    image_dimens = np.shape(input_array)
+    
+    total_num_tiles, tile_offset = calculate_number_of_tiles(
+            image_dimens, tile_size)
+    
+    for start, end, tile_number in generate_tile_start_end_index(
+            total_num_tiles, tile_size,
+            tile_offset=tile_offset, tile_separation=tile_separation):
+    
+        yield input_array[start[0]:end[0], start[1]:end[1]], tile_number
         
-    start_index = (tile_number*tile_separation)+tile_offset
-    end_index = start_index + tile_size
-    
-    yield start_index, end_index 
-    
-
+        
 def calculate_number_of_tiles(size_of_image_dimension, tile_size,
                               tile_separation=None):
     """Calculate the number of tiles that fit along an image dimension,
@@ -107,16 +123,6 @@ def query_tile_thresholds():
     
     return intensity_threshold, number_threshold
 
-# def calculate_tile_start_indexes(image_dimens, tile_size, separation = None):
-#    
-#    num_tiles = [calculate_number_of_tiles(image_dimens[i], tile_size) for
-#                 i in range(len(image_dimens))]
-#    
-#    start_idx_list = [get_tile_start_index(num_tiles[i], tile_size) for
-#                  i in range(len(image_dimens))]
-#    
-#    return start_index_list
-
 
 def write_tile(tile, image_path, output_dir, output_suffix, x, y):
     
@@ -127,19 +133,17 @@ def write_tile(tile, image_path, output_dir, output_suffix, x, y):
                                                       tile_suffix)
     sitk.WriteImage(tile_image, str(tile_path))
     
-    return
 
-
-def extract_image_tiles(image_path, output_dir, output_suffix,
-                        diff_separation = False,
-                        tile_size = None, separation = None,
-                        intensity_threshold = None,
-                        number_threshold = None):
+def extract_image_tiles_2(image_path, output_dir, output_suffix,
+                          diff_separation = False,
+                          tile_size = None, tile_separation = None,
+                          intensity_threshold = None,
+                          number_threshold = None):
     
     print('Extracting tiles from {0}'.format(image_path.name))
     
     if not tile_size:
-        tile_size, separation = query_tile_size_and_separation(diff_separation)
+        tile_size, tile_separation = query_tile_size_and_separation(diff_separation)
         
     if not intensity_threshold or not number_threshold:
         intensity_threshold, number_threshold = query_tile_thresholds()
@@ -151,23 +155,53 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
 
     input_image = sitk.ReadImage(str(image_path))
     input_array = sitk.GetArrayFromImage(input_image)
-    
     input_max_value = np.max(input_array)
+
+    for tile, tile_number in generate_tile(input_array, tile_size, 
+                                           tile_separation=tile_separation):
+        if tile_passes_threshold(tile,
+                                 intensity_threshold, number_threshold,
+                                 input_max_value=input_max_value):
+            
+            write_tile(tile, image_path, output_dir, 
+                           output_suffix_with_thresholds,
+                           tile_number[0], tile_number[1])
     
+    
+def extract_image_tiles(image_path, output_dir, output_suffix,
+                        diff_separation = False,
+                        tile_size = None, tile_separation = None,
+                        intensity_threshold = None,
+                        number_threshold = None):
+    
+    print('Extracting tiles from {0}'.format(image_path.name))
+    
+    if not tile_size:
+        tile_size, tile_separation = query_tile_size_and_separation(diff_separation)
+        
+    if not intensity_threshold or not number_threshold:
+        intensity_threshold, number_threshold = query_tile_thresholds()
+    
+    output_suffix_with_thresholds = (output_suffix + 
+                                     '_IntThresh{0}-NumThresh{1}'.format(
+                                             intensity_threshold, 
+                                             number_threshold))
+
+    input_image = sitk.ReadImage(str(image_path))
+    input_array = sitk.GetArrayFromImage(input_image)
+
+    input_max_value = np.max(input_array)
     image_dimens = np.shape(input_array)
     
-    total_num_tiles, offset = calculate_number_of_tiles(
+    total_num_tiles, tile_offset = calculate_number_of_tiles(
             image_dimens, tile_size)
-    
-    # still need to do csv saving and
     
     for x in range(total_num_tiles[0]):
         for y in range(total_num_tiles[1]):
             start, end = get_tile_start_end_index(
                     np.array([x, y]), tile_size, 
-                    tile_offset = offset,
-                    tile_separation = separation)
-
+                    tile_offset = tile_offset,
+                    tile_separation = tile_separation)
             
             tile = input_array[start[0]:end[0], start[1]:end[1]]
             
@@ -184,14 +218,14 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
 def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
                              search_subdirs=False,
                              diff_separation=False,
-                             tile_size=None, separation=None,
+                             tile_size=None, tile_separation=None,
                              intensity_threshold=None,
                              number_threshold=None):
     
     if not tile_size:
-        tile_size, separation = query_tile_size_and_separation(diff_separation)
-    if not separation:
-        separation = tile_size
+        tile_size, tile_separation = query_tile_size_and_separation(diff_separation)
+    if not tile_separation:
+        tile_separation = tile_size
     if not intensity_threshold or not number_threshold:
         intensity_threshold, number_threshold = query_tile_thresholds()
         
@@ -206,7 +240,6 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
         
         extract_image_tiles(path, output_dir_sub, 
                             output_suffix,
-                            diff_separation, tile_size, separation,
+                            diff_separation, tile_size, tile_separation,
                             intensity_threshold, number_threshold)
             
-        
