@@ -12,8 +12,6 @@ def get_tile_start_end_index(tile_number, tile_size,
                              tile_offset = None, tile_separation = None):
     """Calculate the starting and ending index along a single dimension"""
 
-    # todo: implement tests
-
     if not tile_separation:
         tile_separation = tile_size
         
@@ -134,7 +132,7 @@ def write_tile(tile, image_path, output_dir, output_suffix, x, y):
     sitk.WriteImage(tile_image, str(tile_path))
     
 
-def extract_image_tiles_2(image_path, output_dir, output_suffix,
+def extract_image_tiles(image_path, output_dir, output_suffix,
                           diff_separation = False,
                           tile_size = None, tile_separation = None,
                           intensity_threshold = None,
@@ -167,53 +165,6 @@ def extract_image_tiles_2(image_path, output_dir, output_suffix,
                            output_suffix_with_thresholds,
                            tile_number[0], tile_number[1])
     
-    
-def extract_image_tiles(image_path, output_dir, output_suffix,
-                        diff_separation = False,
-                        tile_size = None, tile_separation = None,
-                        intensity_threshold = None,
-                        number_threshold = None):
-    
-    print('Extracting tiles from {0}'.format(image_path.name))
-    
-    if not tile_size:
-        tile_size, tile_separation = query_tile_size_and_separation(diff_separation)
-        
-    if not intensity_threshold or not number_threshold:
-        intensity_threshold, number_threshold = query_tile_thresholds()
-    
-    output_suffix_with_thresholds = (output_suffix + 
-                                     '_IntThresh{0}-NumThresh{1}'.format(
-                                             intensity_threshold, 
-                                             number_threshold))
-
-    input_image = sitk.ReadImage(str(image_path))
-    input_array = sitk.GetArrayFromImage(input_image)
-
-    input_max_value = np.max(input_array)
-    image_dimens = np.shape(input_array)
-    
-    total_num_tiles, tile_offset = calculate_number_of_tiles(
-            image_dimens, tile_size)
-    
-    for x in range(total_num_tiles[0]):
-        for y in range(total_num_tiles[1]):
-            start, end = get_tile_start_end_index(
-                    np.array([x, y]), tile_size, 
-                    tile_offset = tile_offset,
-                    tile_separation = tile_separation)
-            
-            tile = input_array[start[0]:end[0], start[1]:end[1]]
-            
-            if tile_passes_threshold(tile, 
-                                     intensity_threshold, 
-                                     number_threshold,
-                                     input_max_value = input_max_value):
-                
-                write_tile(tile, image_path, output_dir, 
-                           output_suffix_with_thresholds,
-                           x, y)
-
             
 def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
                              search_subdirs=False,
