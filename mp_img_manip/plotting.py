@@ -31,7 +31,7 @@ def plot_colored_overlay(array_one, array_two, difference_threshold=0.1):
     return rgb_overlay
     
 
-def bland_altman_plot(data1, data2, *args, **kwargs):
+def bland_altman_plot(data1, data2, ylim=[-90, 90], *args, **kwargs):
     data1     = np.asarray(data1)
     data2     = np.asarray(data2)
     mean      = np.mean([data1, data2], axis=0)
@@ -43,6 +43,6 @@ def bland_altman_plot(data1, data2, *args, **kwargs):
     plt.axhline(md,           color='black')
     plt.axhline(md + 1.96*sd, color='red', linestyle='--')
     plt.axhline(md - 1.96*sd, color='red', linestyle='--')
-    plt.ylim([-90, 90])
+    plt.ylim(ylim)
     plt.ylabel('Difference')
     plt.xlabel('Mean')
