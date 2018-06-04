@@ -30,7 +30,7 @@ def perform_registrations(skip_existing_images=True):
       
     resize_images(dir_dict, skip_existing_images=skip_existing_images)
 
-    regimsmall_images(dir_dict, skip_existing_images)
+    register_small_images(dir_dict, skip_existing_images)
     apply_transform_to_large_images(dir_dict, skip_existing_images=skip_existing_images)
     
     mask_images(dir_dict, skip_existing_images=skip_existing_images)
@@ -77,15 +77,15 @@ def resize_images(dir_dict, target_spacing=5, skip_existing_images=False):
             skip_existing_images=skip_existing_images)    
 
 
-def regimsmall_images(dir_dict, skip_existing_images=False):
+def register_small_images(dir_dict, skip_existing_images=False):
     """RegiM the small MMP to small PS.  Small SHG to small PS"""
-    reg.bulk_supervised_regimimages(
+    reg.bulk_supervised_register_images(
             dir_dict["ps_small"], 
             dir_dict["mlr_small"],
             dir_dict["mlr_small_reg"], 'MLR_Small_Reg',
             skip_existing_images=skip_existing_images)
     
-    reg.bulk_supervised_regimimages(
+    reg.bulk_supervised_register_images(
             dir_dict["ps_small"], 
             dir_dict["shg_small"], 
             dir_dict["shg_small_reg"], 'SHG_Small_Reg',
@@ -104,6 +104,13 @@ def apply_transform_to_large_images(dir_dict, skip_existing_images=False):
                               dir_dict["shg_small_reg"],
                               dir_dict["shg_large_reg"], 'SHG_Large_Reg',
                               skip_existing_images=skip_existing_images)
+    
+    trans.bulk_apply_transform(dir_dict["ps_large"],
+                               dir_dict["mlr_large_orient"],
+                               dir_dict["mlr_small_reg"],
+                               dir_dict['mlr_large_reg_orient'], 
+                               'MLR_Large_Reg_orient',
+                               skip_existing_images=skip_existing_images)
 
 
 def mask_images(dir_dict, skip_existing_images=False):
@@ -125,7 +132,6 @@ def mask_images(dir_dict, skip_existing_images=False):
             'MLR_Small_Mask',
             skip_existing_images)
     
-    return
 
 def make_eightbit_images(dir_dict):
     proc.bulk_convert_to_eightbit(dir_dict["ps_large_mask"],
