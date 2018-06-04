@@ -3,6 +3,7 @@ import os
 import numpy as np
 import SimpleITK as sitk
 from pathlib import Path
+import itertools
 
 import mp_img_manip.utility_functions as util
 import mp_img_manip.bulk_img_processing as blk
@@ -33,12 +34,15 @@ def generate_tile_start_end_index(total_num_tiles, tile_size,
     if not tile_offset:
         tile_offset = 0
     
-    for x in range(total_num_tiles[0]):
-        for y in range(total_num_tiles[1]):
-            tile_number = np.array([x,y])
-            start_index = (tile_number*tile_separation)+tile_offset
-            end_index = start_index + tile_size
-            yield start_index, end_index, tile_number 
+    nd_index = [range(dim) for dim in total_num_tiles]
+    iterator = itertools.product(*nd_index)
+    for idx in iterator:
+        tile_number = np.array(idx)
+        
+        start_index = (tile_number*tile_separation)+tile_offset
+        end_index = start_index + tile_size
+        
+        yield start_index, end_index, tile_number 
     
     
 def generate_tile(input_array, tile_size, tile_separation=None):
