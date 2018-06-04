@@ -17,12 +17,12 @@ def calculate_retardance_over_area(retardance, orientation):
     
     Inputs:
     Equally sized retardance and orientation neighborhoods holding
-    corresponding pixels"""
-
-    ## BUG: This /100 is for Polscope images ONLY, different for MMP images
-
+    corresponding pixels.
+    
+    Both units are degrees.  
+    """
     # Orientation doubled to calculate alignment.
-    circular_orientation = (2*np.pi/180)*(orientation/100)
+    circular_orientation = (2*np.pi/180)*orientation
     complex_orientation = np.exp(1j*circular_orientation)
     
     retardance_weighted_by_orientation = retardance*complex_orientation
@@ -37,7 +37,7 @@ def calculate_retardance_over_area(retardance, orientation):
     if ret_base_angle < 0:
         ret_base_angle += 360
         
-    ret_angle = ret_base_angle*100/2
+    ret_angle = ret_base_angle/2
 
     # bug: ret_angle does not give right value.
     
@@ -139,37 +139,28 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
     
     array_size = np.shape(ret_array)
     
-    (x_pixel_num, x_offset) = til.calculate_number_of_tiles(
-            array_size[0], scale_pixel_factor, simulated_resolution_factor)
+    pixel_num, offset = til.calculate_number_of_tiles(
+            array_size, scale_pixel_factor, simulated_resolution_factor)
     
-    (y_pixel_num, y_offset) = til.calculate_number_of_tiles(
-            array_size[1], scale_pixel_factor, simulated_resolution_factor)
 
-    down_ret_array = np.zeros((x_pixel_num, y_pixel_num))
-    down_orient_array = np.zeros((x_pixel_num, y_pixel_num))
-    
-    for y in range(0, y_pixel_num):
-        for x in range(0, x_pixel_num):
-            
-            (x_start, x_end) = til.get_tile_start_end_index(
-                    x, scale_pixel_factor,
-                    x_offset, simulated_resolution_factor)
-            
-            (y_start, y_end) = til.get_tile_start_end_index(
-                    y, scale_pixel_factor,
-                    y_offset, simulated_resolution_factor)
+    down_ret_array = np.zeros(pixel_num)
+    down_orient_array = np.zeros(pixel_num)
+      
+    for start, end, tile_number in til.generate_tile_start_end_index(
+            pixel_num, scale_pixel_factor, tile_offset=offset, 
+            tile_separation=simulated_resolution_factor):
 
-            ret_neighborhood = ret_array[range(x_start,x_end),
-                                         range(y_start,y_end)]
+            ret_neighborhood = ret_array[range(start[0], end[0]),
+                                         range(start[1], end[1])]
             
-            orient_neighborhood = orient_array[range(x_start,x_end),
-                                               range(y_start,y_end)]
+            orient_neighborhood = orient_array[range(start[0], end[0]),
+                                               range(start[1], end[1])]
             
-            (ret_pixel, orient_pixel) = calculate_retardance_over_area(
-                    ret_neighborhood,orient_neighborhood)
+            ret_pixel, orient_pixel = calculate_retardance_over_area(
+                    ret_neighborhood, orient_neighborhood)
                 
-            down_ret_array[x,y] = ret_pixel
-            down_orient_array[x,y] = orient_pixel
+            down_ret_array[tile_number[0], tile_number[1]] = ret_pixel
+            down_orient_array[tile_number[0], tile_number[1]] = orient_pixel
 
     down_ret_image = sitk.GetImageFromArray(down_ret_array)
     down_ret_image = sitk.Cast(down_ret_image, ret_image.GetPixelID())
