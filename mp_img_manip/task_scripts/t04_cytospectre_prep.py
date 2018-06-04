@@ -6,29 +6,28 @@ Created on Wed Mar 28 12:53:48 2018
 """
 
 import mp_img_manip.tiling as til
+import mp_img_manip.polarimetry as pol
 import mp_img_manip.dir_dictionary as dird
 
 dir_dict = dird.create_dictionary()
-
-
 
 def extract_tiles_from_images(tile_size = 512,
                                    intensity_threshold = 1, 
                                    number_threshold = 10):
     
-    til.bulk_extract_image_tiles(dir_dict['ps_large'], 
-                                 dir_dict['ps_large_tile'], 
-                                 'PS',
-                                 tile_size = tile_size, 
-                                 intensity_threshold = intensity_threshold, 
-                                 number_threshold = number_threshold)
-    
-    til.bulk_extract_image_tiles(dir_dict['shg_large_reg'], 
-                                 dir_dict['shg_large_tile'], 
-                                 'SHG',
-                                 tile_size = tile_size, 
-                                 intensity_threshold = intensity_threshold, 
-                                 number_threshold = number_threshold)
+#    til.bulk_extract_image_tiles(dir_dict['ps_large'], 
+#                                 dir_dict['ps_large_tile'], 
+#                                 'PS',
+#                                 tile_size = tile_size, 
+#                                 intensity_threshold = intensity_threshold, 
+#                                 number_threshold = number_threshold)
+#    
+#    til.bulk_extract_image_tiles(dir_dict['shg_large_reg'], 
+#                                 dir_dict['shg_large_tile'], 
+#                                 'SHG',
+#                                 tile_size = tile_size, 
+#                                 intensity_threshold = intensity_threshold, 
+#                                 number_threshold = number_threshold)
   
     til.bulk_extract_image_tiles(dir_dict['mlr_large_mask'],
                                  dir_dict['mlr_large_tile'],
@@ -38,4 +37,9 @@ def extract_tiles_from_images(tile_size = 512,
                                  number_threshold = number_threshold)
     
 
+def average_orientation_for_tile_comparison(tile_size = 512,
+                                            intensity_threshold = 1,
+                                            number_threshold = 10):
+    return
+    
 extract_tiles_from_images()
