@@ -45,6 +45,8 @@ def create_dictionary(
         "shg_large": os.path.join(base_dir, prep_dir, 'SHG_Large'),
         "mhr_large": os.path.join(base_dir, prep_dir, 'MHR_Large'),
         "mlr_large": os.path.join(base_dir, prep_dir, 'MLR_Large'),
+        "mlr_large_orient": os.path.join(base_dir, prep_dir, 
+                                         'MLR_Large', 'Orientation'),
 
         "ps_large_ret": os.path.join(base_dir, retardance_dir),
 
@@ -61,9 +63,12 @@ def create_dictionary(
 
         "mhr_large_reg": os.path.join(base_dir,reg_dir,'MHR_Large_Reg'),
         "mlr_large_reg": os.path.join(base_dir,reg_dir,'MLR_Large_Reg'),
+        'mlr_large_reg_orient': os.path.join(base_dir, reg_dir, 
+                                             'MLR_Large_Reg', 'Orientation'),
         "mmp_large_reg": os.path.join(base_dir,reg_dir,'MMP_Large_Reg'),
         "shg_large_reg": os.path.join(base_dir,reg_dir,'SHG_Large_Reg'),
-
+        
+        
         "ps_small_mask": os.path.join(base_dir,mask_dir,'PS_Small_Mask'),
         "shg_small_mask": os.path.join(base_dir,mask_dir,'SHG_Small_Mask'),
         "mlr_small_mask": os.path.join(base_dir,mask_dir,'MLR_Small_Mask'),
@@ -71,7 +76,7 @@ def create_dictionary(
         "ps_large_mask": os.path.join(base_dir,mask_dir,'PS_Large_Mask'),
         "shg_large_mask": os.path.join(base_dir,mask_dir,'SHG_Large_Mask'),
         "mlr_large_mask": os.path.join(base_dir,mask_dir,'MLR_Large_Mask'),
-        "mlr_large_orientation": os.path.join(base_dir, mask_dir,
+        "mlr_large_mask_orient": os.path.join(base_dir, mask_dir,
                                               'MLR_Large_Mask',
                                               'Orientation'),
 
