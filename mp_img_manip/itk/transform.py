@@ -97,9 +97,7 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
 
 def resize_image(image_path, current_spacing, target_spacing):
     """Resize an image by an integer factor towards target spacing"""
-    itk_image = meta.setup_image(image_path,
-                                 return_image=True, print_parameters=False)
-
+    itk_image = meta.setup_image(image_path)
     image_name = os.path.basename(image_path)
 
     if current_spacing < target_spacing:
@@ -173,7 +171,7 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
         
         current_spacing = meta.get_image_parameters(
                 image_path,
-                return_origin=True,
+                return_origin=False,
                 return_spacing=True)[0]
 
         resized_image = resize_image(image_path,

@@ -19,6 +19,8 @@ def calculate_retardance_over_area(retardance, orientation):
     Equally sized retardance and orientation neighborhoods holding
     corresponding pixels"""
 
+    ## BUG: This /100 is for Polscope images ONLY, different for MMP images
+
     # Orientation doubled to calculate alignment.
     circular_orientation = (2*np.pi/180)*(orientation/100)
     complex_orientation = np.exp(1j*circular_orientation)
@@ -40,6 +42,10 @@ def calculate_retardance_over_area(retardance, orientation):
     # bug: ret_angle does not give right value.
     
     return ret_mag, ret_angle
+
+
+def write_orientation_to_excel(ret_dir, orient_dir, output_dir):
+    return
 
 
 def convert_intensity_to_retardance(itk_image, 
