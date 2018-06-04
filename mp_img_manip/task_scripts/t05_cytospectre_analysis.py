@@ -13,29 +13,24 @@ from pathlib import Path
 import numpy as np
 from scipy import stats
 
-dir_dict = dird.create_dictionary()
 
 
-def process_raw_data(dir_dict):
-    cyto.write_roi_comparison_file(dir_dict['cyto'])
-
-
-def analyze_data(dir_dict):
-    clean_path = Path(dir_dict['cyto'] + '/Cleaned data.csv')
-    clean_df = pd.read_csv(clean_path, header = [0, 1], index_col = [0, 1, 2])
+def analyze_data(xls_path):
+    dirty_df = pd.read_excel(xls_path, index_col = 'Image')
     
+    clean_df = cyto.clean_single_dataframe(dirty_df) 
+    clean_path = Path(xls_path.parent, xls_path.stem + '_Cleaned.csv')
+    clean_df.to_csv(clean_path)
+        
     orient = clean_df['Orientation'].dropna()
+    regression_all = three_modality_regression(orient)
+    regression_sample = sample_differentiated_regression(orient)
     
-    all_sample_regression = three_modality_regression(orient)
-    
-    sample_wise_regression = sample_differentiated_regression(orient)
-    
-    align = clean_df['Alignment'].dropna()
-    
-    all_alignment = three_modality_regression(align)
-    
-    sample_alignment= sample_differentiated_regression(align)
+#    align = clean_df['Alignment'].dropna()
+#    all_alignment = three_modality_regression(align)
+#    sample_alignment= sample_differentiated_regression(align)
 
+    return regression_all, regression_sample
 
 def sample_differentiated_regression(input_dataframe):
     
@@ -66,6 +61,11 @@ def recast_max_diff_90deg(row):
     return new_value, value_two
 
 
+def recast_sin(row):
+    new_values = np.sin(np.pi*row.values/180)
+    return new_values
+
+
 def three_modality_regression(three_modality_dataframe):
     index_label = 'Regression Modalities'
     column_labels = ['slope', 'intercept', 'r value', 'p value', 'std error']
@@ -74,17 +74,25 @@ def three_modality_regression(three_modality_dataframe):
             index = pd.Index([], dtype='object', name=index_label), 
             columns = column_labels)
 
-    mmp_cast_to_ps = three_modality_dataframe[['MMP', 'PS']].apply(
+    mlr_to_ps = three_modality_dataframe[['MLR', 'PS']].apply(
             recast_max_diff_90deg, axis = 1)
-    linear_regression_results.loc['MMP to PS'] = regress(mmp_cast_to_ps)
+    linear_regression_results.loc['MLR to PS'] = regress(mlr_to_ps)
 
-    mmp_cast_to_shg = three_modality_dataframe[['MMP', 'SHG']].apply(
+    mlr_to_shg = three_modality_dataframe[['MLR', 'SHG']].apply(
             recast_max_diff_90deg, axis = 1)
-    linear_regression_results.loc['MMP to SHG'] = regress(mmp_cast_to_shg)
+    linear_regression_results.loc['MLR to SHG'] = regress(mlr_to_shg)
 
-    shg_cast_to_ps = three_modality_dataframe[['SHG', 'PS']].apply(
+#    mmp_cast_to_ps = three_modality_dataframe[['MMP', 'PS']].apply(
+#            recast_max_diff_90deg, axis = 1)
+#    linear_regression_results.loc['MMP to PS'] = regress(mmp_cast_to_ps)
+#
+#    mmp_cast_to_shg = three_modality_dataframe[['MMP', 'SHG']].apply(
+#            recast_max_diff_90deg, axis = 1)
+#    linear_regression_results.loc['MMP to SHG'] = regress(mmp_cast_to_shg)
+
+    shg_to_ps = three_modality_dataframe[['SHG', 'PS']].apply(
             recast_max_diff_90deg, axis = 1)
-    linear_regression_results.loc['SHG to PS'] = regress(shg_cast_to_ps)
+    linear_regression_results.loc['SHG to PS'] = regress(shg_to_ps)
     
     n = len(three_modality_dataframe.index)
     linear_regression_results['r2 adjusted'] = linear_regression_results[
@@ -102,4 +110,4 @@ def regress(two_column_df):
     
     return results
 
-    
+regress_all, regress_sample = analyze_data(Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics\Cytospectre', 'WP2 and WP5 _ 6-1-18.xls'))
