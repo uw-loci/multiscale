@@ -61,7 +61,17 @@ def calculate_alignment(orient_tile):
 
 def write_orientation_alignment_to_dataframe(csv_path, orientation, alignment, tile_number):
 
+    index_label = ['Sample', 'Modality', 'ROI']
 
+    sample, modality = blk.file_name_parts(csv_path)[0:1]
+    roi = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
+    index = [sample, modality, roi]
+
+    column_labels = ['Orientation', 'Alignment']
+    column_values = [orientation, alignment]
+
+    blk.write_pandas_row(csv_path, index, column_values,
+                         index_label, column_labels)
 
     return
 
