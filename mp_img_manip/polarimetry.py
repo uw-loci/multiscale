@@ -46,9 +46,9 @@ def calculate_retardance_over_area(retardance, orientation):
     return ret_mag, ret_angle
 
 
-def calculate_alignment(orient_tile, ret_threshold):
+def calculate_alignment(orient_tile):
     
-    orient_rad = orient_tile*2*np.pi/180 # 180 is range of possible angles
+    orient_rad = orient_tile*2*np.pi/180  # 180 is range of possible angles
     complex_angles = np.exp(1j*orient_rad)
     
     size = np.size(orient_rad)
@@ -128,11 +128,7 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix,
 
 def downsample_retardance_image(ret_image_path, orient_image_path, 
                                 scale_pixel_factor,
-                                simulated_resolution_factor=None,
-                                write_excel=False,
-                                write_image=False,
-                                return_image=False,
-                                output_dir=None):
+                                simulated_resolution_factor=None):
 
     if not simulated_resolution_factor:
         simulated_resolution_factor = scale_pixel_factor
@@ -147,9 +143,8 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
     
     pixel_num, offset = til.calculate_number_of_tiles(array_size, scale_pixel_factor, simulated_resolution_factor)
 
-    if write_image:
-        down_ret_array = np.zeros(pixel_num)
-        down_orient_array = np.zeros(pixel_num)
+    down_ret_array = np.zeros(pixel_num)
+    down_orient_array = np.zeros(pixel_num)
       
     for start, end, tile_number in til.generate_tile_start_end_index(
             pixel_num, scale_pixel_factor, tile_offset=offset, 
@@ -164,22 +159,16 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
             ret_pixel, orient_pixel = calculate_retardance_over_area(
                     ret_neighborhood, orient_neighborhood)
 
-            if write_excel:
-                write_orientation_to_excel(orient_image_path, output_dir, tile_number, orient_pixel)
+            down_ret_array[tile_number[0], tile_number[1]] = ret_pixel
+            down_orient_array[tile_number[0], tile_number[1]] = orient_pixel
 
-            if write_image:
-                down_ret_array[tile_number[0], tile_number[1]] = ret_pixel
-                down_orient_array[tile_number[0], tile_number[1]] = orient_pixel
-
-    if write_image:
-        down_ret_image = sitk.GetImageFromArray(down_ret_array)
-        down_ret_image = sitk.Cast(down_ret_image, ret_image.GetPixelID())
+    down_ret_image = sitk.GetImageFromArray(down_ret_array)
+    down_ret_image = sitk.Cast(down_ret_image, ret_image.GetPixelID())
     
-        down_orient_image = sitk.GetImageFromArray(down_orient_array)
-        down_orient_image = sitk.Cast(down_orient_image, orient_image.GetPixelID())
+    down_orient_image = sitk.GetImageFromArray(down_orient_array)
+    down_orient_image = sitk.Cast(down_orient_image, orient_image.GetPixelID())
 
-    if return_image:
-        return down_ret_image, down_orient_image
+    return down_ret_image, down_orient_image
 
 
 def batch_downsample_retardance(ret_dir, orient_dir, output_dir,
