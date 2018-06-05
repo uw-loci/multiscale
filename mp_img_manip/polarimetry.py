@@ -2,6 +2,8 @@ import mp_img_manip.tiling as til
 import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.itk.metadata as meta
 import mp_img_manip.utility_functions as util
+
+import scipy.stats as st
 import numpy as np
 import SimpleITK as sitk
 import os
@@ -32,7 +34,7 @@ def calculate_retardance_over_area(retardance, orientation):
     average_retardance = np.sum(retardance_weighted_by_orientation)/num_pixels
     
     ret_mag = np.absolute(average_retardance)
-    ret_base_angle= np.angle(average_retardance, deg=True)
+    ret_base_angle = np.angle(average_retardance, deg=True)
     
     if ret_base_angle < 0:
         ret_base_angle += 360
@@ -44,7 +46,8 @@ def calculate_retardance_over_area(retardance, orientation):
     return ret_mag, ret_angle
 
 
-def write_orientation_to_excel(ret_dir, orient_dir, output_dir):
+
+def write_orientation_to_excel(orient_img_path, output_dir, tile_number, orient_pixel):
     return
 
 
@@ -113,7 +116,11 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix,
 
 def downsample_retardance_image(ret_image_path, orient_image_path, 
                                 scale_pixel_factor,
-                                simulated_resolution_factor = None):
+                                simulated_resolution_factor=None,
+                                write_excel=False,
+                                write_image=False,
+                                return_image=False,
+                                output_dir=None):
 
     if not simulated_resolution_factor:
         simulated_resolution_factor = scale_pixel_factor
@@ -121,17 +128,16 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
     ret_image = sitk.ReadImage(ret_image_path)
     orient_image = sitk.ReadImage(orient_image_path)
 
-    ret_array= sitk.GetArrayFromImage(ret_image)
+    ret_array = sitk.GetArrayFromImage(ret_image)
     orient_array = sitk.GetArrayFromImage(orient_image)
     
     array_size = np.shape(ret_array)
     
-    pixel_num, offset = til.calculate_number_of_tiles(
-            array_size, scale_pixel_factor, simulated_resolution_factor)
-    
+    pixel_num, offset = til.calculate_number_of_tiles(array_size, scale_pixel_factor, simulated_resolution_factor)
 
-    down_ret_array = np.zeros(pixel_num)
-    down_orient_array = np.zeros(pixel_num)
+    if write_image:
+        down_ret_array = np.zeros(pixel_num)
+        down_orient_array = np.zeros(pixel_num)
       
     for start, end, tile_number in til.generate_tile_start_end_index(
             pixel_num, scale_pixel_factor, tile_offset=offset, 
@@ -145,17 +151,23 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
             
             ret_pixel, orient_pixel = calculate_retardance_over_area(
                     ret_neighborhood, orient_neighborhood)
-                
-            down_ret_array[tile_number[0], tile_number[1]] = ret_pixel
-            down_orient_array[tile_number[0], tile_number[1]] = orient_pixel
 
-    down_ret_image = sitk.GetImageFromArray(down_ret_array)
-    down_ret_image = sitk.Cast(down_ret_image, ret_image.GetPixelID())
+            if write_excel:
+                write_orientation_to_excel(orient_image_path, output_dir, tile_number, orient_pixel)
+
+            if write_image:
+                down_ret_array[tile_number[0], tile_number[1]] = ret_pixel
+                down_orient_array[tile_number[0], tile_number[1]] = orient_pixel
+
+    if write_image:
+        down_ret_image = sitk.GetImageFromArray(down_ret_array)
+        down_ret_image = sitk.Cast(down_ret_image, ret_image.GetPixelID())
     
-    down_orient_image = sitk.GetImageFromArray(down_orient_array)
-    down_orient_image = sitk.Cast(down_orient_image, orient_image.GetPixelID())
+        down_orient_image = sitk.GetImageFromArray(down_orient_array)
+        down_orient_image = sitk.Cast(down_orient_image, orient_image.GetPixelID())
 
-    return down_ret_image, down_orient_image
+    if return_image:
+        return down_ret_image, down_orient_image
 
 
 def batch_downsample_retardance(ret_dir, orient_dir, output_dir,
