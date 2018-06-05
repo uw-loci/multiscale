@@ -46,6 +46,13 @@ def calculate_retardance_over_area(retardance, orientation):
     return ret_mag, ret_angle
 
 
+def calculate_circular_variance(ret_tile, orient_tile, ret_threshold):
+
+    mask = ret_tile > ret_threshold
+    circular_variance = st.circvar(orient_tile[mask])
+
+    return circular_variance
+
 
 def write_orientation_to_excel(orient_img_path, output_dir, tile_number, orient_pixel):
     return
