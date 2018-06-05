@@ -35,7 +35,7 @@ def perform_registrations(skip_existing_images=True):
     
     mask_images(dir_dict, skip_existing_images=skip_existing_images)
     
-#    make_eightbit_images(dir_dict, skip_existing_images=skip_existing_images)
+#    make_eightbit_images(dir_dict)
     
 
 def resize_images(dir_dict, target_spacing=5, skip_existing_images=False):
@@ -132,15 +132,17 @@ def mask_images(dir_dict, skip_existing_images=False):
             'MLR_Small_Mask',
             skip_existing_images)
     
+    proc.bulk_apply_mask(
+            dir_dict['mlr_large_reg_orient'], dir_dict['mlr_large_mask'],
+            dir_dict['mlr_large_mask_orient'],
+            'MLR_Large_Mask_Orient',
+            skip_existing_images=skip_existing_images)
+    
 
 def make_eightbit_images(dir_dict):
-    proc.bulk_convert_to_eightbit(dir_dict["ps_large_mask"],
-                                  dir_dict['ps_large_8bit'],
-                                  'PS_Large_8Bit')
-
-    proc.bulk_convert_to_eightbit(dir_dict["shg_large_mask"],
-                                  dir_dict['shg_large_8bit'],
-                                  'SHG_Large_8Bit')
+#    proc.bulk_convert_to_eightbit(dir_dict["ps_large_mask"],
+#                                  dir_dict['ps_large_8bit'],
+#                                  'PS_Large_8Bit')
     
     proc.bulk_convert_to_eightbit(dir_dict["mhr_large_reg"],
                                   dir_dict['mhr_large_8bit'],
@@ -149,15 +151,11 @@ def make_eightbit_images(dir_dict):
     proc.bulk_convert_to_eightbit(dir_dict["mlr_large_reg"],
                                   dir_dict['mlr_large_8bit'],
                                   'MLR_Large_8Bit')
-
-    proc.bulk_convert_to_eightbit(dir_dict["ps_small_mask"],
-                                  dir_dict['ps_small_8bit'],
-                                  'PS_Small_8Bit')
-
-    proc.bulk_convert_to_eightbit(dir_dict["shg_small_mask"],
-                                  dir_dict['shg_small_8bit'],
-                                  'SHG_Small_8Bit')
-    
+#
+#    proc.bulk_convert_to_eightbit(dir_dict["ps_small_mask"],
+#                                  dir_dict['ps_small_8bit'],
+#                                  'PS_Small_8Bit')
+#    
     proc.bulk_convert_to_eightbit(dir_dict["mhr_small_reg"],
                                   dir_dict['mhr_small_8bit'],
                                   'MHR_Small_8Bit')
