@@ -63,7 +63,8 @@ def overlay_images(fixed_image, moving_image, alpha = 0.7):
     
 
 def bulk_apply_mask(image_dir, mask_dir,
-                    output_dir, output_suffix):
+                    output_dir, output_suffix,
+                    skip_existing_images=True):
     """Find corresponding images between dirs and apply the second as a mask
     
     Inputs:
@@ -79,16 +80,20 @@ def bulk_apply_mask(image_dir, mask_dir,
     
     for i in range(np.size(image_path_list)):
         
+        masked_path = blk.create_new_image_path(
+                image_path_list[i], output_dir, output_suffix)
+        if masked_path.exists() and skip_existing_images:
+            continue
+        
         image = meta.setup_image(image_path_list[i])
         mask = meta.setup_image(mask_path_list[i]) > 0
         
         print('Masking ' + os.path.basename(image_path_list[i]) + ' with '
           + os.path.basename(mask_path_list[i]))
         
-        masked_image = sitk.Mask(image,mask)
+        masked_image = sitk.Mask(image, mask)
         
-        masked_path = blk.create_new_image_path(
-                image_path_list[i], output_dir, output_suffix)
+
         
         meta.write_image_parameters(masked_path,
                                     image.GetSpacing(),
@@ -128,7 +133,6 @@ def bulk_threshold(input_dir, output_dir, output_suffix,
                                     original.GetOrigin())
         
         sitk.WriteImage(new_image, str(new_path))
-    
     
 def convert_to_eightbit(itk_image, image_name):
     """Convert an itk image to 8 bit integer pixels"""
