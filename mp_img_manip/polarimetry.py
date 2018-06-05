@@ -123,19 +123,6 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
 
     ret_array= sitk.GetArrayFromImage(ret_image)
     orient_array = sitk.GetArrayFromImage(orient_image)
-
-
-    #if np.size(ret_image) != np.size(orient_image):
-     #   warn('The retardance and orientation image sizes do not match.
-     #Please select inputs from the same image')    
-      #  return
-
-    #if ((np.remainder(scale_pixel_factor,1) != 0) 
-    #or (np.remainder(simulated_resolution_factor,1) != 0)):
-     #   warn('The scale factor(s) needs to be a positive integer,
-     #representing the number of pixels that compose the new pixel value')
-      #  return
-        #todo: allow non-integer resolution scaling
     
     array_size = np.shape(ret_array)
     
