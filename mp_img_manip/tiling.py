@@ -4,13 +4,14 @@ import numpy as np
 import SimpleITK as sitk
 from pathlib import Path
 import itertools
+import scipy.io as sio
 
 import mp_img_manip.utility_functions as util
 import mp_img_manip.bulk_img_processing as blk
 
 
 def get_tile_start_end_index(tile_number, tile_size,
-                             tile_offset = None, tile_separation = None):
+                             tile_offset=None, tile_separation = None):
     """Calculate the starting and ending index along a single dimension"""
 
     if not tile_separation:
@@ -101,6 +102,11 @@ def tile_passes_threshold(tile, intensity_threshold, number_threshold,
         return True
     else:
         return False
+
+
+def write_curve_align_rois(img_name, img, roi_dim):
+    
+    return
     
     
 def query_tile_size_and_separation(diff_separation=False):
@@ -137,10 +143,10 @@ def write_tile(tile, image_path, output_dir, output_suffix, x, y):
     
 
 def extract_image_tiles(image_path, output_dir, output_suffix,
-                          diff_separation = False,
-                          tile_size = None, tile_separation = None,
-                          intensity_threshold = None,
-                          number_threshold = None):
+                        diff_separation=False,
+                        tile_size=None, tile_separation=None,
+                        intensity_threshold=None,
+                        number_threshold=None):
     
     print('Extracting tiles from {0}'.format(image_path.name))
     
