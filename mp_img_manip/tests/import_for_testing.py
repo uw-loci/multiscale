@@ -13,6 +13,7 @@ import mp_img_manip.polarimetry as pol
 import mp_img_manip.tiling as til
 import mp_img_manip.utility_functions as util
 import mp_img_manip.plotting as myplot
+import mp_img_manip.itk.process as proc
 
 import matplotlib.pyplot as plt
 import numpy as np
