@@ -59,8 +59,45 @@ def calculate_alignment(orient_tile):
     return alignment
 
 
-def write_orientation_to_excel(orient_img_path, output_dir, tile_number, orient_pixel):
+def write_orientation_alignment_to_dataframe(csv_path, orientation, alignment, tile_number):
+
+
+
     return
+
+
+def process_orientation_alignment(ret_image_path, orient_image_path, output_dir, output_suffix,
+                                  tile_size, tile_separation=None):
+
+    ret_image = sitk.ReadImage(ret_image_path)
+    ret_array = sitk.GetArrayFromImage(ret_image)
+
+    orient_image = sitk.ReadImage(orient_image_path)
+    orient_array = sitk.GetArrayFromImage(orient_image)
+
+    array_size = np.size(orient_array)
+
+    pixel_num, offset = til.calculate_number_of_tiles(array_size, tile_size, tile_separation)
+
+    for start, end, tile_number in til.generate_tile_start_end_index(
+            pixel_num, tile_size, tile_offset=offset,
+            tile_separation=tile_separation):
+
+        ret_tile = ret_array[range(start[0], end[0]),
+                             range(start[1], end[1])]
+
+        orient_tile = orient_array[range(start[0], end[0]),
+                                   range(start[1], end[1])]
+
+        orient_pixel = calculate_retardance_over_area(
+            ret_tile, orient_tile)[1]
+
+        alignment = calculate_alignment(orient_tile)
+
+        csv_path = blk.create_new_image_path(orient_image_path, output_dir, output_suffix)
+
+        write_orientation_alignment_to_dataframe(csv_path, orient_pixel, alignment, tile_number)
+
 
 
 def convert_intensity_to_retardance(itk_image, 
@@ -124,14 +161,14 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix,
         meta.write_image_parameters(output_path, 
                                     int_image.GetSpacing(),
                                     int_image.GetOrigin())
-    
 
-def downsample_retardance_image(ret_image_path, orient_image_path, 
-                                scale_pixel_factor,
-                                simulated_resolution_factor=None):
 
-    if not simulated_resolution_factor:
-        simulated_resolution_factor = scale_pixel_factor
+def downsample_retardance_image(ret_image_path, orient_image_path,
+                                tile_size,
+                                tile_separation=None):
+
+    if not tile_separation:
+        tile_separation = tile_size
 
     ret_image = sitk.ReadImage(ret_image_path)
     orient_image = sitk.ReadImage(orient_image_path)
@@ -141,23 +178,24 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
     
     array_size = np.shape(ret_array)
     
-    pixel_num, offset = til.calculate_number_of_tiles(array_size, scale_pixel_factor, simulated_resolution_factor)
+    pixel_num, offset = til.calculate_number_of_tiles(
+        array_size, tile_size, tile_separation)
 
     down_ret_array = np.zeros(pixel_num)
     down_orient_array = np.zeros(pixel_num)
       
     for start, end, tile_number in til.generate_tile_start_end_index(
-            pixel_num, scale_pixel_factor, tile_offset=offset, 
-            tile_separation=simulated_resolution_factor):
+            pixel_num, tile_size, tile_offset=offset,
+            tile_separation=tile_separation):
 
-            ret_neighborhood = ret_array[range(start[0], end[0]),
-                                         range(start[1], end[1])]
+            ret_tile = ret_array[range(start[0], end[0]),
+                                 range(start[1], end[1])]
             
-            orient_neighborhood = orient_array[range(start[0], end[0]),
-                                               range(start[1], end[1])]
+            orient_tile = orient_array[range(start[0], end[0]),
+                                       range(start[1], end[1])]
             
             ret_pixel, orient_pixel = calculate_retardance_over_area(
-                    ret_neighborhood, orient_neighborhood)
+                    ret_tile, orient_tile)
 
             down_ret_array[tile_number[0], tile_number[1]] = ret_pixel
             down_orient_array[tile_number[0], tile_number[1]] = orient_pixel
