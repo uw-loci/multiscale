@@ -49,8 +49,15 @@ def calculate_retardance_over_area(retardance, orientation):
 def calculate_circular_variance(ret_tile, orient_tile, ret_threshold):
 
     mask = ret_tile > ret_threshold
-    circular_variance = st.circvar(orient_tile[mask])
-
+    
+    orient_rad = orient_tile*2*np.pi/360
+    complex_angles = np.exp(1j*orient_rad[mask])
+    
+    size = np.size(orient_rad[mask])
+    
+    r = np.sum(complex_angles)/size
+    circular_variance = 1 - np.abs(r)
+    
     return circular_variance
 
 
