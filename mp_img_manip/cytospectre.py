@@ -80,6 +80,8 @@ def clean_single_dataframe(dirty_frame):
     clean_frame_stacked = cutdown_frame.set_index(clean_index_stacked)
     
     clean_frame = clean_frame_stacked.unstack(1)
+    clean_frame['Alignment'] = clean_frame['Alignment'].apply(lambda x: 1-x)
+    
     
     return clean_frame
 
