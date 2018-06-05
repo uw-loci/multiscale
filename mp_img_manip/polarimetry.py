@@ -46,19 +46,17 @@ def calculate_retardance_over_area(retardance, orientation):
     return ret_mag, ret_angle
 
 
-def calculate_circular_variance(ret_tile, orient_tile, ret_threshold):
-
-    mask = ret_tile > ret_threshold
+def calculate_alignment(orient_tile, ret_threshold):
     
-    orient_rad = orient_tile*2*np.pi/360
-    complex_angles = np.exp(1j*orient_rad[mask])
+    orient_rad = orient_tile*2*np.pi/180 # 180 is range of possible angles
+    complex_angles = np.exp(1j*orient_rad)
     
-    size = np.size(orient_rad[mask])
+    size = np.size(orient_rad)
     
     r = np.sum(complex_angles)/size
-    circular_variance = 1 - np.abs(r)
+    alignment = np.abs(r)
     
-    return circular_variance
+    return alignment
 
 
 def write_orientation_to_excel(orient_img_path, output_dir, tile_number, orient_pixel):
