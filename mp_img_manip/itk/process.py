@@ -99,7 +99,6 @@ def bulk_apply_mask(image_dir, mask_dir,
                                     image.GetSpacing(),
                                     image.GetOrigin())
         sitk.WriteImage(masked_image, str(masked_path))
-                
     
     
 def threshold(itk_image, image_name, 

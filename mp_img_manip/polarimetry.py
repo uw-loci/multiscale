@@ -59,16 +59,17 @@ def calculate_alignment(orient_tile):
     return alignment
 
 
-def write_orientation_alignment_to_dataframe(csv_path, orientation, alignment, tile_number):
+def write_orientation_alignment_to_dataframe(
+        csv_path, modality, orientation, alignment, tile_number):
 
-    index_label = ['Sample', 'Modality', 'ROI']
+    index_label = 'Sample'
 
-    sample, modality = blk.file_name_parts(csv_path)[0:1]
+    sample = blk.file_name_parts(csv_path)[0]
     roi = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
-    index = [sample, modality, roi]
+    index = sample
 
-    column_labels = ['Orientation', 'Alignment']
-    column_values = [orientation, alignment]
+    column_labels = ['Modality', 'ROI', 'Orientation', 'Alignment']
+    column_values = [modality, roi, orientation, alignment]
 
     blk.write_pandas_row(csv_path, index, column_values,
                          index_label, column_labels)
@@ -76,18 +77,22 @@ def write_orientation_alignment_to_dataframe(csv_path, orientation, alignment, t
     return
 
 
-def process_orientation_alignment(ret_image_path, orient_image_path, output_dir, output_suffix,
-                                  tile_size, tile_separation=None):
+def process_orientation_alignment(ret_image_path, orient_image_path, 
+                                  output_dir, output_suffix,
+                                  tile_size, tile_separation=None,
+                                  intensity_thresh=1, number_thresh=10):
 
-    ret_image = sitk.ReadImage(ret_image_path)
+    ret_image = sitk.ReadImage(str(ret_image_path))
     ret_array = sitk.GetArrayFromImage(ret_image)
+    ret_max_value = np.max(ret_array)
 
-    orient_image = sitk.ReadImage(orient_image_path)
+    orient_image = sitk.ReadImage(str(orient_image_path))
     orient_array = sitk.GetArrayFromImage(orient_image)
 
-    array_size = np.size(orient_array)
+    array_shape = np.shape(orient_array)
 
-    pixel_num, offset = til.calculate_number_of_tiles(array_size, tile_size, tile_separation)
+    pixel_num, offset = til.calculate_number_of_tiles(
+            array_shape, tile_size, tile_separation)
 
     for start, end, tile_number in til.generate_tile_start_end_index(
             pixel_num, tile_size, tile_offset=offset,
@@ -99,15 +104,41 @@ def process_orientation_alignment(ret_image_path, orient_image_path, output_dir,
         orient_tile = orient_array[range(start[0], end[0]),
                                    range(start[1], end[1])]
 
-        orient_pixel = calculate_retardance_over_area(
-            ret_tile, orient_tile)[1]
+        if til.tile_passes_threshold(
+                ret_tile, intensity_thresh, number_thresh, ret_max_value):
+            orient_pixel = calculate_retardance_over_area(
+                ret_tile, orient_tile)[1]
+    
+            alignment = calculate_alignment(orient_tile)
+    
+            csv_path = blk.create_new_image_path(
+                    orient_image_path, output_dir, output_suffix,
+                    extension='.csv')
+    
+            write_orientation_alignment_to_dataframe(
+                    csv_path, 'MLR-O', orient_pixel, alignment, tile_number)
 
-        alignment = calculate_alignment(orient_tile)
 
-        csv_path = blk.create_new_image_path(orient_image_path, output_dir, output_suffix)
+def bulk_process_orientation_alignment(
+        ret_dir, orient_dir, output_dir,
+        tile_size, tile_separation=None):
+    output_suffix = 'Tile-size-' + str(tile_size)
 
-        write_orientation_alignment_to_dataframe(csv_path, orient_pixel, alignment, tile_number)
+    if (tile_separation
+            and tile_separation != tile_size):
+        output_suffix = (output_suffix + '_SimRes-'
+                         + str(tile_separation) + 'x')
 
+    ret_image_path_list, orient_image_path_list = blk.find_shared_images(
+        ret_dir, orient_dir)
+
+    for i in range(0, np.size(ret_image_path_list)):
+        process_orientation_alignment(ret_image_path_list[i],
+                                      orient_image_path_list[i],
+                                      output_dir,
+                                      output_suffix,
+                                      tile_size,
+                                      tile_separation=tile_separation)
 
 
 def convert_intensity_to_retardance(itk_image, 
