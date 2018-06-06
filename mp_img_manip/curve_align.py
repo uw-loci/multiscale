@@ -36,11 +36,13 @@ def create_rois_from_tile(tile, roi_size):
         ym = start[1] + roi_size[1]/2
         xm = start[0] + roi_size[0]/2
         boundary = np.array((1,), dtype=np.object)
-        boundary[0] = [[start[0], start[1]],
+        boundary_object = np.array([[start[0], start[1]],
                     [start[0], end[1]],
                     [start[1], end[1]],
                     [start[1], end[0]],
-                    [start[0], end[0]]]
+                    [start[0], end[0]]], dtype=np.object)
+        boundary[0] = boundary_object
+    
         roi = {
             'date': date,
             'time': time,
@@ -61,9 +63,6 @@ def create_rois_from_tile(tile, roi_size):
 
 def save_rois(output_dir, tile_number, rois):
     return
-
-import mp_img_manip.curve_align as ca
-roi = ca.create_rois_from_tile(tile, roi_size)
 
 
 def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
