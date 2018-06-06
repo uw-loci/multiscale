@@ -132,13 +132,18 @@ def query_tile_thresholds():
     return intensity_threshold, number_threshold
 
 
-def write_tile(tile, image_path, output_dir, output_suffix, x, y):
+def write_tile(tile, image_path, output_dir, output_suffix, x, y,
+               skip_existing_images=True):
     
     tile_image = sitk.GetImageFromArray(tile)
                 
     tile_suffix = output_suffix + '_' + str(x) + 'x-' +str(y) + 'y'
     tile_path = blk.create_new_image_path(image_path, output_dir,
-                                                      tile_suffix)
+                                          tile_suffix)
+
+    if tile_path.exists() and skip_existing_images:
+        return
+
     sitk.WriteImage(tile_image, str(tile_path))
     
 
@@ -146,7 +151,8 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
                         diff_separation=False,
                         tile_size=None, tile_separation=None,
                         intensity_threshold=None,
-                        number_threshold=None):
+                        number_threshold=None,
+                        skip_existing_images=True):
     
     print('Extracting tiles from {0}'.format(image_path.name))
     
@@ -172,8 +178,9 @@ def extract_image_tiles(image_path, output_dir, output_suffix,
                                  input_max_value=input_max_value):
             
             write_tile(tile, image_path, output_dir, 
-                           output_suffix_with_thresholds,
-                           tile_number[0], tile_number[1])
+                       output_suffix_with_thresholds,
+                       tile_number[0], tile_number[1],
+                       skip_existing_images=skip_existing_images)
     
             
 def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
@@ -181,7 +188,8 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
                              diff_separation=False,
                              tile_size=None, tile_separation=None,
                              intensity_threshold=None,
-                             number_threshold=None):
+                             number_threshold=None,
+                             skip_existing_images=True):
     
     if not tile_size:
         tile_size, tile_separation = query_tile_size_and_separation(diff_separation)
@@ -202,5 +210,6 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
         extract_image_tiles(path, output_dir_sub, 
                             output_suffix,
                             diff_separation, tile_size, tile_separation,
-                            intensity_threshold, number_threshold)
+                            intensity_threshold, number_threshold,
+                            skip_existing_images=skip_existing_images)
             
