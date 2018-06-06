@@ -64,26 +64,26 @@ def calculate_number_of_tiles(size_of_image_dimension, tile_size,
                               tile_separation=None):
     """Calculate the number of tiles that fit along an image dimension,
      given a certain tile size, and step size."""
-    
-    border = 0
-    
-    if not tile_separation:
+
+    border = np.zeros(np.shape(tile_size))
+
+    if tile_separation is None:
         tile_separation = tile_size
-            
-    if tile_size[0] > tile_separation[0]: # may cause problems for unequal sizes and seperations
-        border = (tile_size - tile_separation)
+
+    border[tile_size > tile_separation] = \
+        tile_size[tile_size > tile_separation] - tile_separation[tile_size > tile_separation]
 
     number_of_tiles = []
     offset = []
 
-    for i in range(2):
-        idx_range = size_of_image_dimension[i]-2*border
-        
-        num_tiles = np.fix(idx_range/tile_separation)
+    for i in range(np.size(tile_size)):
+        idx_range = size_of_image_dimension[i]-2*border[i]
+
+        num_tiles = np.fix(idx_range/tile_separation[i])
         number_of_tiles.append(int(num_tiles))
-        
-        remainder = np.remainder(idx_range,tile_separation)  
-        offset.append(int(np.fix(remainder/2) + border))
+
+        remainder = np.remainder(idx_range, tile_separation[i])
+        offset.append(int(np.fix(remainder/2) + border[i]))
 
     return number_of_tiles, offset
 
