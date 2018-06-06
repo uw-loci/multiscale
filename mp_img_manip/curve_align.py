@@ -10,6 +10,7 @@ import mp_img_manip.tiling as til
 
 import SimpleITK as sitk
 import pandas as pd
+import os
 import numpy as np
 import scipy.io as sio
 from pathlib import Path
@@ -62,7 +63,18 @@ def create_rois_from_tile(tile, roi_size):
     return separate_rois
 
 
-def save_rois(output_dir, tile_number, rois):
+def save_rois(image_path, output_dir, output_suffix, tile_number, separate_rois):
+
+    roi_suffix = output_suffix + '_' + str(tile_number[0]) + 'x-' +str(tile_number[1]) + 'y' \
+                  + _'ROIs'
+
+    roi_dir = Path(output_dir, 'ROI_management')
+    os.makedirs(roi_dir, exist_ok=True)
+
+    rois_path = blk.create_new_image_path(image_path, roi_dir, roi_suffix)
+
+    sio.savemat(rois_path, separate_rois)
+
     return
 
 
@@ -80,10 +92,11 @@ def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
 
         if til.tile_passes_threshold(tile, intensity_threshold, number_threshold, max_value):
 
-            separate_rois = create_rois_from_tile(tile, roi_size)
-            save_rois(output_dir, tile_number, separate_rois)
-            write_tile(tile, image_path, output_dir, output_suffix,
-                       tile_number[0], tile_number[1])
+            separate_rois = {'separate_rois': create_rois_from_tile(tile, roi_size)}
+            save_rois(image_path, output_dir, output_suffix,
+                      tile_number, separate_rois)
+            til.write_tile(tile, image_path, output_dir, output_suffix,
+                           tile_number[0], tile_number[1])
 
 
 def create_batches_for_chtc(image_dir, batch_size=10):
