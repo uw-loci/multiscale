@@ -76,10 +76,15 @@ def clean_single_dataframe(dirty_frame):
     cutdown_frame = relabeled_frame[['Orientation', 'Alignment']]
         
     parsed_indices = bulk_parse_index(list(cutdown_frame.index))  
-    clean_index_stacked = parsed_indices_to_pd_index(parsed_indices)  
-    clean_frame_stacked = cutdown_frame.set_index(clean_index_stacked)
+    cluttered_index = parsed_indices_to_pd_index(parsed_indices)  
+    cluttered_frame = cutdown_frame.set_index(cluttered_index)
+    flat_frame = cluttered_frame.reset_index()
+    clean_frame = pd.pivot_table(flat_frame, index=['Sample', 'ROI'], 
+                                 values=['Alignment', 'Orientation'],
+                                 columns = 'Modality')
     
-    clean_frame = clean_frame_stacked.unstack(1)
+    
+    # clean_frame = clean_frame_stacked.unstack(1)
     clean_frame['Alignment'] = clean_frame['Alignment'].apply(lambda x: 1-x)
 
     return clean_frame
