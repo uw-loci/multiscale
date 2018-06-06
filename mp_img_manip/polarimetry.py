@@ -8,6 +8,7 @@ import numpy as np
 import SimpleITK as sitk
 import os
 
+import csv
 
 def calculate_retardance_over_area(retardance, orientation):
     """Calculate the average retardance in an neighborhood
@@ -23,21 +24,27 @@ def calculate_retardance_over_area(retardance, orientation):
     
     Both units are degrees.  
     """
+    mask = retardance > 0
+    nonzero_retardance = retardance[mask]
+    nonzero_orientation = orientation[mask]
+
     # Orientation doubled to calculate alignment.
-    circular_orientation = (2*np.pi/180)*orientation
-    complex_orientation = np.exp(1j*circular_orientation)
+    circular_orientation = (2*np.pi/180)*nonzero_orientation
+    complex_orientation = np.exp(-1j*circular_orientation)
     
-    retardance_weighted_by_orientation = retardance*complex_orientation
+    retardance_weighted_by_orientation = nonzero_retardance*complex_orientation
     
-    num_pixels = np.size(retardance)
+    num_pixels = np.size(nonzero_retardance)
     
     average_retardance = np.sum(retardance_weighted_by_orientation)/num_pixels
     
     ret_mag = np.absolute(average_retardance)
     ret_base_angle = np.angle(average_retardance, deg=True)
     
-    if ret_base_angle < 0:
-        ret_base_angle += 360
+    ret_base_angle += 180
+    
+#    if ret_base_angle < 0:
+#        ret_base_angle += 360
         
     ret_angle = ret_base_angle/2
 
@@ -47,9 +54,9 @@ def calculate_retardance_over_area(retardance, orientation):
 
 
 def calculate_alignment(orient_tile):
-    
-    orient_rad = orient_tile*2*np.pi/180  # 180 is range of possible angles
-    complex_angles = np.exp(1j*orient_rad)
+    nonzero_orient = orient_tile > 0
+    orient_rad = nonzero_orient*2*np.pi/180  # 180 is range of possible angles
+    complex_angles = np.exp(-1j*orient_rad)
     
     size = np.size(orient_rad)
     
@@ -59,24 +66,6 @@ def calculate_alignment(orient_tile):
     return alignment
 
 
-def write_orientation_alignment_to_dataframe(
-        csv_path, modality, orientation, alignment, tile_number):
-
-    index_label = 'Sample'
-
-    sample = blk.file_name_parts(csv_path)[0]
-    roi = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
-    index = sample
-
-    column_labels = ['Modality', 'ROI', 'Orientation', 'Alignment']
-    column_values = [modality, roi, orientation, alignment]
-
-    blk.write_pandas_row(csv_path, index, column_values,
-                         index_label, column_labels)
-
-    return
-
-
 def process_orientation_alignment(ret_image_path, orient_image_path, 
                                   output_dir, output_suffix,
                                   tile_size, tile_separation=None,
@@ -84,7 +73,7 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
 
     ret_image = sitk.ReadImage(str(ret_image_path))
     ret_array = sitk.GetArrayFromImage(ret_image)
-    ret_max_value = np.max(ret_array)
+    ret_max = np.max(ret_array)
 
     orient_image = sitk.ReadImage(str(orient_image_path))
     orient_array = sitk.GetArrayFromImage(orient_image)
@@ -94,29 +83,37 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
     pixel_num, offset = til.calculate_number_of_tiles(
             array_shape, tile_size, tile_separation)
 
-    for start, end, tile_number in til.generate_tile_start_end_index(
-            pixel_num, tile_size, tile_offset=offset,
-            tile_separation=tile_separation):
-
-        ret_tile = ret_array[range(start[0], end[0]),
-                             range(start[1], end[1])]
-
-        orient_tile = orient_array[range(start[0], end[0]),
-                                   range(start[1], end[1])]
-
-        if til.tile_passes_threshold(
-                ret_tile, intensity_thresh, number_thresh, ret_max_value):
-            orient_pixel = calculate_retardance_over_area(
-                ret_tile, orient_tile)[1]
-    
-            alignment = calculate_alignment(orient_tile)
-    
-            csv_path = blk.create_new_image_path(
+    csv_path = blk.create_new_image_path(
                     orient_image_path, output_dir, output_suffix,
-                    extension='.csv')
+                    extension='.csv')    
+
+    with open(csv_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['Sample', 'Modality', 'ROI',
+                         'Orientation', 'Alignment'])
     
-            write_orientation_alignment_to_dataframe(
-                    csv_path, 'MLR-O', orient_pixel, alignment, tile_number)
+        for start, end, tile_number in til.generate_tile_start_end_index(
+                pixel_num, tile_size, tile_offset=offset,
+                tile_separation=tile_separation):
+    
+            ret_tile = ret_array[start[0]:end[0],
+                                 start[1]:end[1]]
+    
+            orient_tile = orient_array[start[0]:end[0],
+                                       start[1]:end[1]]
+    
+            if til.tile_passes_threshold(ret_tile, 
+                                         intensity_thresh, number_thresh,
+                                         ret_max):
+                retardance, orientation = calculate_retardance_over_area(
+                        ret_tile, orient_tile)
+                alignment = calculate_alignment(orient_tile)
+    
+                sample = blk.get_core_file_name(csv_path)
+                modality = 'MLR-O'
+                roi = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
+    
+                writer.writerow([sample, modality, roi, orientation, alignment])
 
 
 def bulk_process_orientation_alignment(
