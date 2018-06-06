@@ -92,9 +92,7 @@ def bulk_apply_mask(image_dir, mask_dir,
           + os.path.basename(mask_path_list[i]))
         
         masked_image = sitk.Mask(image, mask)
-        
 
-        
         meta.write_image_parameters(masked_path,
                                     image.GetSpacing(),
                                     image.GetOrigin())
