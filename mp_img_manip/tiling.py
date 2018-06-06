@@ -70,7 +70,7 @@ def calculate_number_of_tiles(size_of_image_dimension, tile_size,
     if not tile_separation:
         tile_separation = tile_size
             
-    if tile_size > tile_separation:
+    if tile_size[0] > tile_separation[0]: # may cause problems for unequal sizes and seperations
         border = (tile_size - tile_separation)
 
     number_of_tiles = []
