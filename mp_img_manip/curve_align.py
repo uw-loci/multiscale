@@ -18,13 +18,13 @@ import datetime
 
 def create_rois_from_tile(tile, roi_size):
 
-    date = datetime.date
-    time = datetime.time
+    date = str(datetime.date.today())
+    time = str(datetime.datetime.now().timestamp())
     roi_shape = 1
 
     tile_dim = np.shape(tile)
 
-    num_rois, roi_offset = til.calculate_number_of_tiles(tile_dim, roi_size)
+    num_rois, roi_offset = til.calculate_number_of_tiles(tile_dim, roi_size, roi_size)
 
     separate_rois = {}
 
@@ -35,12 +35,12 @@ def create_rois_from_tile(tile, roi_size):
         enclosing_rect = [start[0], start[1], end[0], end[1]]
         ym = start[1] + roi_size[1]/2
         xm = start[0] + roi_size[0]/2
-        boundary = [[start[0], start[1]],
+        boundary = np.array((1,), dtype=np.object)
+        boundary[0] = [[start[0], start[1]],
                     [start[0], end[1]],
                     [start[1], end[1]],
                     [start[1], end[0]],
                     [start[0], end[0]]]
-
         roi = {
             'date': date,
             'time': time,
@@ -52,7 +52,7 @@ def create_rois_from_tile(tile, roi_size):
             'boundary': boundary
         }
 
-        roi_name = 'ROI-' + str(roi_number[0]) + 'x-' + str(roi_number[1]) + 'y'
+        roi_name = 'ROI' + str(roi_number[0]) + 'x' + str(roi_number[1]) + 'y'
 
         separate_rois[roi_name] = roi
 
@@ -61,6 +61,9 @@ def create_rois_from_tile(tile, roi_size):
 
 def save_rois(output_dir, tile_number, rois):
     return
+
+import mp_img_manip.curve_align as ca
+roi = ca.create_rois_from_tile(tile, roi_size)
 
 
 def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
@@ -78,7 +81,7 @@ def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
         if til.tile_passes_threshold(tile, intensity_threshold, number_threshold, max_value):
 
             separate_rois = create_rois_from_tile(tile, roi_size)
-            save_rois(output_dir, tile_number, rois)
+            save_rois(output_dir, tile_number, separate_rois)
             write_tile(tile, image_path, output_dir, output_suffix,
                        tile_number[0], tile_number[1])
 
