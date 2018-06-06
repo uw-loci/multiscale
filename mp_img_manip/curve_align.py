@@ -7,6 +7,7 @@ Created on Wed Jun  6 10:19:59 2018
 
 import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.tiling as til
+import mp_img_manip.utility_functions as util
 
 import SimpleITK as sitk
 import pandas as pd
@@ -81,8 +82,8 @@ def save_rois(image_path, output_dir, output_suffix, tile_number, separate_rois)
 def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
                           tile_size=520, tile_separation=512,
                           roi_size=64,
-                          intensity_threshold=1,
-                          number_threshold=10):
+                          intensity_threshold=1, number_threshold=10,
+                          skip_existing_images=True):
 
     image = sitk.ReadImage(image_path)
     image_array = sitk.GetArrayFromImage(image)
@@ -96,12 +97,41 @@ def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
             save_rois(image_path, output_dir, output_suffix,
                       tile_number, separate_rois)
             til.write_tile(tile, image_path, output_dir, output_suffix,
-                           tile_number[0], tile_number[1])
+                           tile_number[0], tile_number[1],
+                           skip_existing_images=skip_existing_images)
 
 
-def create_batches_for_chtc(image_dir, batch_size=10):
+def process_folder_to_jobs(image_path, tile_dir, output_dir,
+                           batch_size,
+                           skip_existing_images=True):
+    return
 
 
+def create_batches_for_chtc(input_dir, output_dir,
+                            tile_size=520, tile_separation=512,
+                            roi_size=64,
+                            intensity_threshold=1,
+                            number_threshold=10,
+                            batch_size=10,
+                            skip_existing_images=True):
 
+    image_path_list = util.list_filetype_in_subdirs(input_dir, '.tif')
+
+    # want to split on sample name...
+
+    for path in image_path_list:
+
+        tile_dir = Path(output_dir, blk.get_core_file_name(path))
+        os.makedirs(tile_dir, exist_ok=True)
+
+        process_image_to_rois(path, tile_dir,
+                              tile_size, tile_separation,
+                              roi_size,
+                              intensity_threshold, number_threshold,
+                              skip_existing_images)
+
+        process_folder_to_jobs(path, tile_dir, output_dir,
+                               batch_size,
+                               skip_existing_images)
 
     return
