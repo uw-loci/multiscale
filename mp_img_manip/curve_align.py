@@ -19,7 +19,8 @@ import datetime
 def create_rois_from_tile(tile, roi_size):
 
     date = str(datetime.date.today())
-    time = str(datetime.datetime.now().timestamp())
+    t = datetime.datetime.now()
+    time = str(t.hour) + ':' + str(t.minute) + ':' + str(t.second)
     roi_shape = 1
 
     tile_dim = np.shape(tile)
