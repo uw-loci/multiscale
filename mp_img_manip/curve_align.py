@@ -10,13 +10,12 @@ import mp_img_manip.tiling as til
 import mp_img_manip.utility_functions as util
 
 import SimpleITK as sitk
-import pandas as pd
 import os
 import numpy as np
 import scipy.io as sio
 from pathlib import Path
 import datetime
-
+import tarfile
 
 def create_rois_from_tile(tile, roi_size):
 
@@ -66,8 +65,8 @@ def create_rois_from_tile(tile, roi_size):
 
 def save_rois(image_path, output_dir, output_suffix, tile_number, separate_rois):
 
-    roi_suffix = output_suffix + '_' + str(tile_number[0]) + 'x-' +str(tile_number[1]) + 'y' \
-                  + _'ROIs'
+    roi_suffix = output_suffix + '_' + str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y' \
+                  + '_ROIs'
 
     roi_dir = Path(output_dir, 'ROI_management')
     os.makedirs(roi_dir, exist_ok=True)
@@ -101,10 +100,38 @@ def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
                            skip_existing_images=skip_existing_images)
 
 
+def construct_job_file(tile_list, job_path):
+    with tarfile.open(job_path, 'w') as tar:
+        for tile in tile_list:
+            tar.add(tile)
+
+
 def process_folder_to_jobs(image_path, tile_dir, output_dir,
                            batch_size,
                            skip_existing_images=True):
-    return
+
+    core_name = blk.get_core_file_name(image_path)
+
+    tile_list = util.list_filetype_in_dir(tile_dir, '.tif')
+
+    lists_of_job_items = util.split_list_into_sublists(tile_list, batch_size)
+
+    job_list_path = Path(output_dir, core_name + '_Job_List.csv')
+    job_number = 1
+
+    job_list = open(job_list_path, 'w')
+
+    for tile_list in lists_of_job_items:
+        job_name = core_name + '_Job-' + str(job_number) + '.tar'
+        job_path = Path(output_dir, job_name)
+
+        job_number += 1
+
+        if job_path.exists() and skip_existing_images:
+            continue
+
+        construct_job_file(tile_list, job_path)
+        job_list.write(job_name)
 
 
 def create_batches_for_chtc(input_dir, output_dir,
