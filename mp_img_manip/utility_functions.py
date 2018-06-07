@@ -106,5 +106,8 @@ def query_float_list(valueNames):
     """Ask the user for a list of floats"""
     return [query_float(value + ': ') for value in valueNames]
 
-    
+
+def split_list_into_sublists(large_list, size_of_sublist):
+    for i in range(0,len(large_list), size_of_sublist):
+        yield large_list[i:i+size_of_sublist]
     
