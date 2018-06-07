@@ -29,7 +29,7 @@ def get_tile_start_end_index(tile_number, tile_size,
 def generate_tile_start_end_index(total_num_tiles, tile_size,
                                   tile_offset=None, tile_separation=None):
 
-    if not tile_separation:
+    if tile_separation is None:
         tile_separation = tile_size
         
     if not tile_offset:
@@ -51,7 +51,7 @@ def generate_tile(input_array, tile_size, tile_separation=None):
     image_dimens = np.shape(input_array)
     
     total_num_tiles, tile_offset = calculate_number_of_tiles(
-            image_dimens, tile_size)
+            image_dimens, tile_size, tile_separation=tile_separation)
     
     for start, end, tile_number in generate_tile_start_end_index(
             total_num_tiles, tile_size,

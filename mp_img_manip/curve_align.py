@@ -71,24 +71,24 @@ def save_rois(image_path, output_dir, output_suffix, tile_number, separate_rois)
     roi_dir = Path(output_dir, 'ROI_management')
     os.makedirs(roi_dir, exist_ok=True)
 
-    rois_path = blk.create_new_image_path(image_path, roi_dir, roi_suffix)
+    rois_path = blk.create_new_image_path(image_path, roi_dir, roi_suffix, extension='.mat')
 
-    sio.savemat(rois_path, separate_rois)
+    sio.savemat(str(rois_path), separate_rois)
 
     return
 
 
 def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
-                          tile_size=520, tile_separation=512,
-                          roi_size=64,
+                          tile_size=np.array([512, 512]), tile_separation=np.array([512, 512]),
+                          roi_size=np.array([64, 64]),
                           intensity_threshold=1, number_threshold=10,
                           skip_existing_images=True):
 
-    image = sitk.ReadImage(image_path)
+    image = sitk.ReadImage(str(image_path))
     image_array = sitk.GetArrayFromImage(image)
     max_value = np.max(image_array)
 
-    for tile, tile_number in til.generate_tile(image, tile_size, tile_separation=tile_separation):
+    for tile, tile_number in til.generate_tile(image_array, tile_size, tile_separation=tile_separation):
 
         if til.tile_passes_threshold(tile, intensity_threshold, number_threshold, max_value):
 
@@ -102,27 +102,32 @@ def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
 
 def construct_job_file(tile_list, job_path):
     with tarfile.open(job_path, 'w') as tar:
+        roi_dir = tarfile.TarInfo('ROI_management')
+        roi_dir.type = tarfile.DIRTYPE
+        roi_dir.mode = 0o777
+
         for tile in tile_list:
             tar.add(tile)
+            roi_path = Path(tile.parent, 'ROI_management', tile.stem + '_ROIs.mat')
+            tar_roi_name = Path('ROI_management', roi_path.name)
+            tar.add(roi_path, arcname=tar_roi_name, recursive=False)
 
 
-def process_folder_to_jobs(image_path, tile_dir, output_dir,
+def process_folder_to_jobs(sample_name, tile_dir, output_dir,
                            batch_size,
                            skip_existing_images=True):
-
-    core_name = blk.get_core_file_name(image_path)
 
     tile_list = util.list_filetype_in_dir(tile_dir, '.tif')
 
     lists_of_job_items = util.split_list_into_sublists(tile_list, batch_size)
 
-    job_list_path = Path(output_dir, core_name + '_Job_List.csv')
+    job_list_path = Path(output_dir, sample_name + '_Job_List.csv')
     job_number = 1
 
     job_list = open(job_list_path, 'w')
 
     for tile_list in lists_of_job_items:
-        job_name = core_name + '_Job-' + str(job_number) + '.tar'
+        job_name = sample_name + '_Job-' + str(job_number) + '.tar'
         job_path = Path(output_dir, job_name)
 
         job_number += 1
