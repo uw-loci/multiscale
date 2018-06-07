@@ -117,34 +117,34 @@ def construct_job_file(tile_list, job_path):
             tar.add(roi_path, arcname=tar_roi_name, recursive=False)
 
 
-def process_folder_to_jobs(image_path, tile_dir, output_dir,
+def process_folder_to_jobs(image_path, tile_dir, output_dir, output_suffix,
                            batch_size,
                            skip_existing_images=True):
 
-    sample_name = blk.get_core_file_name(image_path)
     tile_list = util.list_filetype_in_dir(tile_dir, '.tif')
 
     lists_of_job_items = util.split_list_into_sublists(tile_list, batch_size)
 
-    job_list_path = Path(output_dir, sample_name + '_Job_List.csv')
+    list_suffix = output_suffix + '_JobList'
+
+    job_list_path = blk.create_new_image_path(image_path, output_dir, list_suffix, extension='.csv')
     job_number = 1
 
     job_list = open(job_list_path, 'w')
 
     for tile_list in lists_of_job_items:
-        job_name = sample_name + '_Job-' + str(job_number) + '.tar'
-        job_path = Path(output_dir, job_name)
-
+        job_suffix = output_suffix + '_Job-' + str(job_number)
+        job_path = blk.create_new_image_path(image_path, output_dir, job_suffix, extension='.tar')
         job_number += 1
 
         if job_path.exists() and skip_existing_images:
             continue
 
         construct_job_file(tile_list, job_path)
-        job_list.write(job_name + '\n')
+        job_list.write(job_path.name + '\n')
 
 
-def create_batches_for_chtc(input_dir, output_dir,
+def create_batches_for_chtc(input_dir, output_dir, output_suffix,
                             tile_size=np.array([512, 512]), tile_separation=np.array([512, 512]),
                             roi_size=np.array([64, 64]),
                             intensity_threshold=1,
@@ -161,13 +161,13 @@ def create_batches_for_chtc(input_dir, output_dir,
         tile_dir = Path(output_dir, blk.get_core_file_name(path))
         os.makedirs(tile_dir, exist_ok=True)
 
-        process_image_to_rois(path, tile_dir,
+        process_image_to_rois(path, tile_dir, output_suffix=output_suffix,
                               tile_size=tile_size, tile_separation=tile_separation,
                               roi_size=roi_size,
                               intensity_threshold=intensity_threshold, number_threshold=number_threshold,
                               skip_existing_images=skip_existing_images)
 
-        process_folder_to_jobs(path, tile_dir, output_dir,
+        process_folder_to_jobs(path, tile_dir, output_dir, output_suffix,
                                batch_size,
                                skip_existing_images)
 
