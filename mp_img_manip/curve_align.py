@@ -107,16 +107,17 @@ def construct_job_file(tile_list, job_path):
         roi_dir.mode = 0o777
 
         for tile in tile_list:
-            tar.add(tile)
+            tar.add(tile, arcname=tile.name, recursive=False)
             roi_path = Path(tile.parent, 'ROI_management', tile.stem + '_ROIs.mat')
             tar_roi_name = Path('ROI_management', roi_path.name)
             tar.add(roi_path, arcname=tar_roi_name, recursive=False)
 
 
-def process_folder_to_jobs(sample_name, tile_dir, output_dir,
+def process_folder_to_jobs(image_path, tile_dir, output_dir,
                            batch_size,
                            skip_existing_images=True):
 
+    sample_name = blk.get_core_file_name(image_path)
     tile_list = util.list_filetype_in_dir(tile_dir, '.tif')
 
     lists_of_job_items = util.split_list_into_sublists(tile_list, batch_size)
@@ -136,12 +137,12 @@ def process_folder_to_jobs(sample_name, tile_dir, output_dir,
             continue
 
         construct_job_file(tile_list, job_path)
-        job_list.write(job_name)
+        job_list.write(job_name + '\n')
 
 
 def create_batches_for_chtc(input_dir, output_dir,
-                            tile_size=520, tile_separation=512,
-                            roi_size=64,
+                            tile_size=np.array([512, 512]), tile_separation=np.array([512, 512]),
+                            roi_size=np.array([64, 64]),
                             intensity_threshold=1,
                             number_threshold=10,
                             batch_size=10,
@@ -157,10 +158,10 @@ def create_batches_for_chtc(input_dir, output_dir,
         os.makedirs(tile_dir, exist_ok=True)
 
         process_image_to_rois(path, tile_dir,
-                              tile_size, tile_separation,
-                              roi_size,
-                              intensity_threshold, number_threshold,
-                              skip_existing_images)
+                              tile_size=tile_size, tile_separation=tile_separation,
+                              roi_size=roi_size,
+                              intensity_threshold=intensity_threshold, number_threshold=number_threshold,
+                              skip_existing_images=skip_existing_images)
 
         process_folder_to_jobs(path, tile_dir, output_dir,
                                batch_size,
