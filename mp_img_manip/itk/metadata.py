@@ -44,10 +44,10 @@ def get_image_parameters(image_path, return_spacing=True, return_origin=True):
 
     image_parameters = blk.read_write_pandas_row(
             str(file_path), str(image_path.name),
-            'Image', ['X Spacing', 'Y Spacing', 'X Origin', 'Y Origin'])
+            'Image', ['Spacing', 'X Origin', 'Y Origin'])
 
-    spacing = [float(image_parameters['X Spacing']),
-               float(image_parameters['Y Spacing'])]
+    spacing = [float(image_parameters['Spacing']),
+               float(image_parameters['Spacing'])]
     
     origin = [float(image_parameters['X Origin']),
               float(image_parameters['Y Origin'])]
