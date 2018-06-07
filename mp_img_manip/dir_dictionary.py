@@ -88,11 +88,11 @@ def create_dictionary(
         "mhr_small_8bit": os.path.join( base_dir, eight_bit_dir,'MHR_Small_8Bit'),
         "mlr_small_8bit": os.path.join(base_dir, eight_bit_dir,'MLR_Small_8Bit'),
 
-        "ps_large_tile": os.path.join(base_dir, tile_dir,'PS_Large_Tiles'),
-        "shg_large_tile": os.path.join(base_dir, tile_dir,'SHG_Large_Tiles'),
-        "mmp_large_tile": os.path.join(base_dir, tile_dir,'MMP_Large_Tiles'),
-        "mhr_large_tile": os.path.join(base_dir, tile_dir,'MHR_Large_Tiles'),
-        "mlr_large_tile": os.path.join(base_dir, tile_dir,'MLR_Large_Tiles'),
+        "ps_tile": os.path.join(base_dir, tile_dir,'PS_Tiles'),
+        "shg_tile": os.path.join(base_dir, tile_dir,'SHG_Tiles'),
+        "mmp_tile": os.path.join(base_dir, tile_dir,'MMP_Tiles'),
+        "mhr_tile": os.path.join(base_dir, tile_dir,'MHR_Tiles'),
+        "mlr_tile": os.path.join(base_dir, tile_dir,'MLR_Tiles'),
 
         "ssim": os.path.join(base_dir, ssim_dir),
         "cyto": os.path.join(base_dir, cyto_dir)
