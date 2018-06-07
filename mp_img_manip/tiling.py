@@ -102,11 +102,6 @@ def tile_passes_threshold(tile, intensity_threshold, number_threshold,
         return True
     else:
         return False
-
-
-def write_curve_align_rois(img_name, img, roi_dim):
-    
-    return
     
     
 def query_tile_size_and_separation(diff_separation=False):
@@ -133,7 +128,7 @@ def query_tile_thresholds():
 
 
 def write_tile(tile, image_path, output_dir, output_suffix, x, y,
-               skip_existing_images=True):
+               skip_existing_images=True, convert_to_8bit=True):
     
     tile_image = sitk.GetImageFromArray(tile)
                 
@@ -143,6 +138,10 @@ def write_tile(tile, image_path, output_dir, output_suffix, x, y,
 
     if tile_path.exists() and skip_existing_images:
         return
+
+    if convert_to_8bit:
+        tile_image = sitk.Cast(sitk.RescaleIntensity(tile_image),
+                               sitk.sitkUInt8)
 
     sitk.WriteImage(tile_image, str(tile_path))
     
