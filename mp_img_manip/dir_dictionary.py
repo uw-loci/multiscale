@@ -63,12 +63,10 @@ def create_dictionary(
 
         "mhr_large_reg": os.path.join(base_dir,reg_dir,'MHR_Large_Reg'),
         "mlr_large_reg": os.path.join(base_dir,reg_dir,'MLR_Large_Reg'),
-        'mlr_large_reg_orient': os.path.join(base_dir, reg_dir, 
-                                             'MLR_Large_Reg', 'Orientation'),
+        'mlr_large_reg_orient': os.path.join(base_dir, reg_dir, 'MLR_Large_Reg_Orient'),
         "mmp_large_reg": os.path.join(base_dir,reg_dir,'MMP_Large_Reg'),
         "shg_large_reg": os.path.join(base_dir,reg_dir,'SHG_Large_Reg'),
-        
-        
+
         "ps_small_mask": os.path.join(base_dir,mask_dir,'PS_Small_Mask'),
         "shg_small_mask": os.path.join(base_dir,mask_dir,'SHG_Small_Mask'),
         "mlr_small_mask": os.path.join(base_dir,mask_dir,'MLR_Small_Mask'),
@@ -76,32 +74,25 @@ def create_dictionary(
         "ps_large_mask": os.path.join(base_dir,mask_dir,'PS_Large_Mask'),
         "shg_large_mask": os.path.join(base_dir,mask_dir,'SHG_Large_Mask'),
         "mlr_large_mask": os.path.join(base_dir,mask_dir,'MLR_Large_Mask'),
-        "mlr_large_mask_orient": os.path.join(base_dir, mask_dir,
-                                              'MLR_Large_Mask',
-                                              'Orientation'),
+        "mlr_large_mask_orient": os.path.join(base_dir, mask_dir, 'MLR_Large_Mask_Orient'),
 
         "ps_large_8bit": os.path.join(base_dir, eight_bit_dir,'PS_Large_8Bit'),
         "shg_large_8bit": os.path.join(base_dir, eight_bit_dir,'SHG_Large_8Bit'),
         "mmp_large_8bit": os.path.join(base_dir, eight_bit_dir,'MMP_Large_8Bit'),
-        "mhr_large_8bit": os.path.join(
-                base_dir, eight_bit_dir,'MHR_Large_8Bit'),
-        "mlr_large_8bit": os.path.join(
-                base_dir, eight_bit_dir,'MLR_Large_8Bit'),
+        "mhr_large_8bit": os.path.join(base_dir, eight_bit_dir,'MHR_Large_8Bit'),
+        "mlr_large_8bit": os.path.join(base_dir, eight_bit_dir,'MLR_Large_8Bit'),
 
         "ps_small_8bit": os.path.join(base_dir, eight_bit_dir,'PS_Small_8Bit'),
         "shg_small_8bit": os.path.join(base_dir, eight_bit_dir,'SHG_Small_8Bit'),
         "mmp_small_8bit": os.path.join(base_dir, eight_bit_dir,'MMP_Small_8Bit'),
-        "mhr_small_8bit": os.path.join(
-                base_dir, eight_bit_dir,'MHR_Small_8Bit'),
-        "mlr_small_8bit": os.path.join(
-                base_dir, eight_bit_dir,'MLR_Small_8Bit'),
+        "mhr_small_8bit": os.path.join( base_dir, eight_bit_dir,'MHR_Small_8Bit'),
+        "mlr_small_8bit": os.path.join(base_dir, eight_bit_dir,'MLR_Small_8Bit'),
 
         "ps_large_tile": os.path.join(base_dir, tile_dir,'PS_Large_Tiles'),
         "shg_large_tile": os.path.join(base_dir, tile_dir,'SHG_Large_Tiles'),
         "mmp_large_tile": os.path.join(base_dir, tile_dir,'MMP_Large_Tiles'),
         "mhr_large_tile": os.path.join(base_dir, tile_dir,'MHR_Large_Tiles'),
         "mlr_large_tile": os.path.join(base_dir, tile_dir,'MLR_Large_Tiles'),
-
 
         "ssim": os.path.join(base_dir, ssim_dir),
         "cyto": os.path.join(base_dir, cyto_dir)
