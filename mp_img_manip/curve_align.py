@@ -12,10 +12,13 @@ import mp_img_manip.utility_functions as util
 import SimpleITK as sitk
 import os
 import numpy as np
+import pandas as pd
 import scipy.io as sio
 from pathlib import Path
 import datetime
 import tarfile
+import csv
+
 
 def create_rois_from_tile(tile, roi_size):
 
@@ -172,3 +175,40 @@ def create_batches_for_chtc(input_dir, output_dir, output_suffix,
                                skip_existing_images)
 
     return
+
+
+def read_stats_file(stats_file):
+
+    dirty_df = pd.read_csv(stats_file, delimiter='\t', header=None)
+    orientation = dirty_df[1].loc[0]
+    alignment = dirty_df[1].loc[4]
+
+    return orientation, alignment
+
+
+def scrape_results(images_dir, output_dir, output_suffix):
+
+    tile_dir = Path(images_dir, 'CA_Out')
+    roi_dir = Path(images_dir, 'CA_ROI\Batch\ROI_post_analysis')
+
+    tile_files = util.list_filetype_in_dir(tile_dir, 'stats.csv')
+    roi_files = util.list_filetype_in_dir(roi_dir, 'stats.csv')
+
+    csv_path = Path(output_dir, 'Curve_Align_results' + output_suffix + '.csv')
+
+    with open(csv_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['Sample', 'Modality', 'Tile', 'ROI', 'Orientation', 'Alignment'])
+
+        for tile_path in tile_files:
+            sample, modality, tile = blk.file_name_parts(tile_path)[:3]
+            roi = 'Full-tile'
+            orientation, alignment = read_stats_file(tile_path)
+            writer.writerow([sample, modality, tile, roi, orientation, alignment])
+
+        for roi_path in roi_files:
+            sample, modality, tile, roi = blk.file_name_parts(roi_path)[:4]
+            orientation, alignment = read_stats_file(roi_path)
+            writer.writerow([sample, modality, tile, roi, orientation, alignment])
+
+
