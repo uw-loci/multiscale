@@ -46,7 +46,7 @@ def create_rois_from_tile(tile, roi_size):
                     [start[0], end[1]],
                     [end[0], end[1]],
                     [end[0], start[1]],
-                    [start[0], start[1]]], dtype=np.object)
+                    [start[0], start[1]]])
         boundary[0] = boundary_object
     
         roi = {
