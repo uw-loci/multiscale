@@ -99,7 +99,7 @@ def bulk_apply_mask(image_dir, mask_dir,
         sitk.WriteImage(masked_image, str(masked_path))
     
     
-def threshold(itk_image, image_name, 
+def apply_threshold(itk_image, image_name,
               threshold=1, unit='degree'):
     """Apply an intensity based threshold to an image"""
     print('Thresholding {0} to {1} {2}'.format(image_name, threshold, unit))
@@ -111,6 +111,7 @@ def threshold(itk_image, image_name,
 
 
 def bulk_threshold(input_dir, output_dir, output_suffix,
+                   threshold=1,
                    skip_existing_images=False):
     """Apply intensity based thresholds to all images in folder"""
     path_list = util.list_filetype_in_dir(input_dir, '.tif')
@@ -122,15 +123,15 @@ def bulk_threshold(input_dir, output_dir, output_suffix,
             continue
         
         original = meta.setup_image(path_list[i])
-        new_image = threshold(original, 
-                              os.path.basename(path_list[i]))
+        new_image = apply_threshold(original, os.path.basename(path_list[i]), threshold=threshold)
         
         meta.write_image_parameters(new_path, 
                                     original.GetSpacing(),
                                     original.GetOrigin())
         
         sitk.WriteImage(new_image, str(new_path))
-    
+
+
 def convert_to_eightbit(itk_image, image_name):
     """Convert an itk image to 8 bit integer pixels"""
     
