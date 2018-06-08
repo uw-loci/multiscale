@@ -11,7 +11,7 @@ import SimpleITK as sitk
 import os
 
 
-def setup_image(image_path):
+def setup_image(image_path, return_image=True):
     """Set up the image spacing and optionally the registration origin
     
     This function is necessary because ITK cannot save in microns, making
@@ -31,12 +31,13 @@ def setup_image(image_path):
     """
     
     spacing, origin = get_image_parameters(image_path)
-    
-    image = sitk.ReadImage(str(image_path))
-    image.SetSpacing(spacing)
-    image.SetOrigin(origin)
 
-    return image
+    if return_image:
+        image = sitk.ReadImage(str(image_path))
+        image.SetSpacing(spacing)
+        image.SetOrigin(origin)
+
+        return image
 
 
 def get_image_parameters(image_path, return_spacing=True, return_origin=True):
