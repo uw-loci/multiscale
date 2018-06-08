@@ -89,7 +89,7 @@ def update_multires_iterations():
 
 def affine_register(fixed_image, moving_image,
                     scale=4, iterations=200,
-                    fixed_mask=None, moving_mask=None):
+                    fixed_mask=None, moving_mask=None, rotation=0):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -101,6 +101,7 @@ def affine_register(fixed_image, moving_image,
     iterations -- Iterations per scale before the function stops
     fixed_mask -- Forces calculations over part of the fixed image
     moving_mask -- Forces calculations over part of the moving image
+    rotation -- Pre rotation in degrees, to assist in registration
     
     Outputs:
     transform -- The calculated image transform for registration
@@ -152,6 +153,10 @@ def affine_register(fixed_image, moving_image,
     registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
 
     transform = sitk.AffineTransform(2)
+    
+    deg_to_rad = 2*np.pi/360
+    transform.Rotate(0, 1, rotation*deg_to_rad, pre=True)
+    
     registration_method.SetInitialTransform(transform)
 
     # Connect all of the observers so that we can plot during registration.
@@ -198,19 +203,22 @@ def query_good_registration(fixed_image, moving_image,
 
 
 def supervised_register_images(fixed_path, moving_path,
-                               iterations=200, scale=4):
+                               iterations=200, scale=4, rotation=0):
 
     fixed_image = meta.setup_image(fixed_path)
-    moving_image = meta.setup_image(moving_path)
+    moving_image, rotation = meta.setup_image(moving_path, return_rotation=True)
 
     print('Registering ' + os.path.basename(moving_path) + ' to '
           + os.path.basename(fixed_path))
 
     while True:
+        
+        rotation = query_pre_rotation(fixed_image, moving_image, rotation)
+        
         moving_image.SetOrigin(query_origin_change(fixed_image, moving_image))
         (transform, metric, stop) = affine_register(
             fixed_image, moving_image,
-            iterations=iterations, scale=scale)
+            iterations=iterations, scale=scale, rotation=rotation)
 
         if query_good_registration(fixed_image, moving_image,
                                    transform, metric, stop): break
@@ -288,6 +296,48 @@ def query_origin_change(fixed_image, moving_image):
         return new_origin
     else:
         return origin
+    
+    
+def query_pre_rotation(fixed_image, moving_image, initial_rotation):
+    """Ask if the user wants a new 2D ITK origin based on image overlay"""
+
+
+    transform = sitk.AffineTransform(2) 
+    deg_to_rad = 2*np.pi/360
+    transform.Rotate(0, 1, initial_rotation*deg_to_rad, pre=True)
+    
+    rotated_image = sitk.Resample(moving_image, fixed_image, transform,
+                                  sitk.sitkLinear, 0.0,
+                                  moving_image.GetPixelIDValue())
+
+    plt.imshow(proc.overlay_images(fixed_image, rotated_image))
+    plt.show()
+    print('Current origin: ' + str(moving_image.GetOrigin()))
+    change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
+    plt.close()   
+    
+    rotation = initial_rotation
+    
+    if change_rotation:
+        while True:
+            print('Current rotation: {0}'.format(str(rotation)))
+            
+            rotation = util.query_float('Enter new rotation (degrees):')
+            
+            transform.Rotate(0, 1, rotation*deg_to_rad, pre=True)
+            rotated_image = sitk.Resample(
+                    moving_image, fixed_image, transform,
+                    sitk.sitkLinear, 0.0,
+                    moving_image.GetPixelIDValue())
+            
+            plt.imshow(proc.overlay_images(fixed_image, rotated_image))
+            plt.show()
+
+            #bug: The image does not show up till after the question
+            if util.yes_no('Is this rotation good? [y/n] >>> '): break
+
+
+    return rotation
     #class registration_plot(ani.FuncAnimation):
 #    
 #    def __init__(self):
