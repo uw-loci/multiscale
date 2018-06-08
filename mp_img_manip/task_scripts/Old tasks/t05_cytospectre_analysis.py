@@ -6,7 +6,6 @@ Created on Mon Apr  2 16:03:35 2018
 """
 
 import mp_img_manip.cytospectre as cyto
-import mp_img_manip.dir_dictionary as dird
 import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
@@ -21,16 +20,18 @@ def analyze_data(xls_path):
     clean_df = cyto.clean_single_dataframe(dirty_df) 
     clean_path = Path(xls_path.parent, xls_path.stem + '_Cleaned.csv')
     clean_df.to_csv(clean_path)
-        
-    orient = clean_df['Orientation'].dropna()
-    regression_all = three_modality_regression(orient)
-    regression_sample = sample_differentiated_regression(orient)
+    
+    return clean_df
+       
+#    orient = clean_df['Orientation'].dropna()
+#    regression_all = three_modality_regression(orient)
+#    regression_sample = sample_differentiated_regression(orient)
     
 #    align = clean_df['Alignment'].dropna()
 #    all_alignment = three_modality_regression(align)
 #    sample_alignment= sample_differentiated_regression(align)
 
-    return regression_all, regression_sample
+#    return regression_all, regression_sample
 
 def sample_differentiated_regression(input_dataframe):
     
@@ -48,17 +49,6 @@ def sample_differentiated_regression(input_dataframe):
     return sample_wise_dataframe
 
 
-def recast_max_diff_90deg(row):
-    value_one, value_two = row.values
-    diff = value_one - value_two
-    if diff > 90:
-        new_value = value_one - 180.0
-    elif diff < -90:
-        new_value = value_one + 180.0
-    else:
-        new_value = value_one + 0
-    
-    return new_value, value_two
 
 
 def recast_sin(row):
@@ -101,13 +91,6 @@ def three_modality_regression(three_modality_dataframe):
     return linear_regression_results
     
 
-def regress(two_column_df):
-    original_columns = two_column_df.columns.tolist()
-    x = two_column_df[original_columns[1]]
-    y = two_column_df[original_columns[0]]
 
-    results = stats.linregress(x,y)
-    
-    return results
 
-regress_all, regress_sample = analyze_data(Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics\Cytospectre', 'WP2 and WP5 _ 6-1-18.xls'))
+clean_df = analyze_data(Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics\Cytospectre', 'WP2 and WP5 _ 6-1-18.xls'))
