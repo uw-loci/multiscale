@@ -11,7 +11,7 @@ import SimpleITK as sitk
 import os
 
 
-def setup_image(image_path, return_image=True):
+def setup_image(image_path, return_image=True, return_rotation=True):
     """Set up the image spacing and optionally the registration origin
     
     This function is necessary because ITK cannot save in microns, making
@@ -30,22 +30,31 @@ def setup_image(image_path, return_image=True):
     
     """
     
-    spacing, origin = get_image_parameters(image_path)
+
+    parameters = get_image_parameters(image_path, return_rotation=return_rotation)
 
     if return_image:
         image = sitk.ReadImage(str(image_path))
-        image.SetSpacing(spacing)
-        image.SetOrigin(origin)
+        image.SetSpacing(parameters[0])
+        image.SetOrigin(parameters[1])
 
-        return image
+        if return_rotation:
+            return image, parameters[2]
+        else:
+            return image
+    elif return_rotation:
+        return parameters[2]
+            
 
 
-def get_image_parameters(image_path, return_spacing=True, return_origin=True):
+def get_image_parameters(image_path, return_spacing=True, return_origin=True,
+                         return_rotation=True):
     file_path = str(image_path.parent) + '/Image Parameters.csv'
+
 
     image_parameters = blk.read_write_pandas_row(
             str(file_path), str(image_path.name),
-            'Image', ['Spacing', 'X Origin', 'Y Origin'])
+            'Image', ['Spacing', 'X Origin', 'Y Origin', 'Rotation'])
 
     spacing = [float(image_parameters['Spacing']),
                float(image_parameters['Spacing'])]
@@ -53,24 +62,31 @@ def get_image_parameters(image_path, return_spacing=True, return_origin=True):
     origin = [float(image_parameters['X Origin']),
               float(image_parameters['Y Origin'])]
     
-    if return_spacing and return_origin:
-        return spacing, origin
-    elif return_spacing:
-        return spacing
-    elif return_origin:
-        return origin
+    rotation = float(image_parameters['Rotation'])
+    
+    returns = []
+    if return_spacing:
+        returns.append(spacing)
+        
+    if return_origin:
+        returns.append(origin)
+    
+    if return_rotation:
+        returns.append(rotation)
+
+    return returns
     
     
-def write_image_parameters(image_path, spacing, origin):
+def write_image_parameters(image_path, spacing, origin, rotation):
     """Write down the spacing and origin of an image file to csv metadata"""
     
     (output_dir, image_name) = os.path.split(image_path)
     
     file_path = output_dir + '/Image Parameters.csv'
     
-    column_labels = ['X Spacing', 'Y Spacing', 'X Origin', 'Y Origin']
+    column_labels = ['Spacing', 'X Origin', 'Y Origin', 'Rotation']
     
-    column_values = spacing + origin
+    column_values = [spacing[0], origin[0], origin[1], rotation]
     
     blk.write_pandas_row(file_path,image_name,column_values,
                          'Image',column_labels)    
