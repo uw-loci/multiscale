@@ -29,13 +29,14 @@ def create_dictionary(
         post_analysis_dir = 'Data 04 - Analysis results and graphics'):
         
     retardance_dir = mid_analysis_dir + '\\Step 00 - PS Intensity to Retardance'
-    
-    resize_dir = mid_analysis_dir + '\\Step 01 - Resizing images'
-    reg_dir = mid_analysis_dir + '\\Step 02 - Registered images'
-    mask_dir = mid_analysis_dir + '\\Step 03 - Masked images'
-    eight_bit_dir = mid_analysis_dir + '\\Step 04 - Eight-bit images'
-    tile_dir = mid_analysis_dir + '\\Step 05 - Tiling images'
-    
+    mask_dir = mid_analysis_dir + '\\Step 01 - Masked images'
+
+    resize_dir = mid_analysis_dir + '\\Step 02 - Resizing images'
+    reg_dir = mid_analysis_dir + '\\Step 03 - Registered images'
+    tile_dir = mid_analysis_dir + '\\Step 04 - Tiling images'
+
+    eight_bit_dir = mid_analysis_dir + '\\Step 05 - Eight-bit images'
+
     ssim_dir = post_analysis_dir + '\\CW-SSIM Values'
     cyto_dir = post_analysis_dir + '\\Cytospectre'
 
