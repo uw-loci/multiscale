@@ -27,13 +27,13 @@ def overlay_images(fixed_image, moving_image, alpha = 0.7):
     """
     
     fixed_array = sitk.GetArrayFromImage(fixed_image)
-    fixed_normalized = (fixed_array - np.amin(fixed_array))/(
-            np.amax(fixed_array) + np.amin(fixed_array))
+    fixed_normalized = np.sqrt((fixed_array - np.amin(fixed_array))/(
+            np.amax(fixed_array) + np.amin(fixed_array)))
 
     try: #Post-registration
         moving_array = sitk.GetArrayFromImage(moving_image)
-        moving_normalized = (moving_array - np.amin(moving_array))/(
-                np.amax(moving_array)+np.amin(moving_array))
+        moving_normalized = np.sqrt((moving_array - np.amin(moving_array))/(
+                np.amax(moving_array)+np.amin(moving_array)))
         
 #        combined_array = ((1.0 - alpha)*fixed_normalized 
 #                          + alpha*moving_normalized)
@@ -50,8 +50,8 @@ def overlay_images(fixed_image, moving_image, alpha = 0.7):
                                          0.0, moving_image.GetPixelID())
         
         moving_array = sitk.GetArrayFromImage(moving_resampled)
-        moving_normalized = (moving_array - np.amin(moving_array))/(
-                np.amax(moving_array)+np.amin(moving_array))
+        moving_normalized = np.sqrt((moving_array - np.amin(moving_array))/(
+                np.amax(moving_array)+np.amin(moving_array)))
 
 #        combined_array = ((1.0 - alpha)*fixed_normalized 
 #                          + alpha*moving_normalized)

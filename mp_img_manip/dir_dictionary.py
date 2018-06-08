@@ -89,7 +89,7 @@ def create_dictionary(
         "ps_small_8bit": os.path.join(base_dir, eight_bit_dir, 'PS_Small_8Bit'),
         "shg_small_8bit": os.path.join(base_dir, eight_bit_dir, 'SHG_Small_8Bit'),
         "mmp_small_8bit": os.path.join(base_dir, eight_bit_dir, 'MMP_Small_8Bit'),
-        "mhr_small_8bit": os.path.join( base_dir, eight_bit_dir, 'MHR_Small_8Bit'),
+        "mhr_small_8bit": os.path.join(base_dir, eight_bit_dir, 'MHR_Small_8Bit'),
         "mlr_small_8bit": os.path.join(base_dir, eight_bit_dir, 'MLR_Small_8Bit'),
 
         "ps_tile": os.path.join(base_dir, tile_dir, 'PS_Tiles'),
