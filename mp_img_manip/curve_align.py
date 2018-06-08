@@ -125,14 +125,13 @@ def process_folder_to_jobs(image_path, tile_dir, output_dir, output_suffix,
                            skip_existing_images=True):
 
     tile_list = util.list_filetype_in_dir(tile_dir, '.tif')
-
     lists_of_job_items = util.split_list_into_sublists(tile_list, batch_size)
-
     list_suffix = output_suffix + '_JobList'
 
     job_list_path = blk.create_new_image_path(image_path, output_dir, list_suffix, extension='.csv')
     job_number = 1
 
+    os.makedirs(output_dir, exist_ok=True)
     job_list = open(job_list_path, 'w')
 
     for tile_list in lists_of_job_items:
@@ -160,7 +159,7 @@ def create_batches_for_chtc(input_dir, output_dir, output_suffix,
     # want to split on sample name...
 
     for path in image_path_list:
-
+        print('Tiling {0} for CHTC and Cytospectre analysis'.format(path.name))
         tile_dir = Path(output_dir, blk.get_core_file_name(path))
         os.makedirs(tile_dir, exist_ok=True)
 
@@ -170,7 +169,9 @@ def create_batches_for_chtc(input_dir, output_dir, output_suffix,
                               intensity_threshold=intensity_threshold, number_threshold=number_threshold,
                               skip_existing_images=skip_existing_images)
 
-        process_folder_to_jobs(path, tile_dir, output_dir, output_suffix,
+        batch_dir = Path(tile_dir, 'Batches')
+
+        process_folder_to_jobs(path, tile_dir, batch_dir, output_suffix,
                                batch_size,
                                skip_existing_images)
 
@@ -212,3 +213,11 @@ def scrape_results(images_dir, output_dir, output_suffix):
             writer.writerow([sample, modality, tile, roi, orientation, alignment])
 
 
+def load_dataframe(csv_path):
+    raw_df = pd.read_csv(csv_path)
+
+    clean_df = pd.pivot_table(raw_df, index=['Sample', 'Tile', 'ROI'],
+                              values=['Alignment', 'Orientation'],
+                              columns='Modality')
+
+    return clean_df
