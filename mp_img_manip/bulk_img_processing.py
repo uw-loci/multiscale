@@ -27,8 +27,7 @@ def dataframe_generator_excel(analysis_list, index, relevant_cols=None):
 
 
 def read_write_pandas_row(file_path, index,
-                          index_label, column_labels,
-                          column_values=None):
+                          index_label, column_labels):
     """
     Read a row from a csv file, or create it if it does not exist.
     
@@ -48,36 +47,21 @@ def read_write_pandas_row(file_path, index,
     (file_dir, file_name) = os.path.split(file_path)
     try:
         data = pd.read_csv(file_path, index_col = index_label)
-        if (data.index == index).any():
-            if column_values:
-                print('Row values in ' + file_name + ':')
-                print('\t' + data.loc[index])
-                
-                print('User entered row values:')
-                print('\t' + str(column_values))
-                
-                if not util.yes_no(
-                        'Do you want to replace the file values with your '
-                        'newly entered values'):
-                    column_values = data.loc[index]
-                    
-            else: column_values = data.loc[index]            
     except:
         print('\n Creating new file ' + file_name + ' in ' + file_dir)
         data = pd.DataFrame(
-                index = pd.Index([], dtype='object', name=index_label),
-                columns = column_labels)
-            
-    if column_values is not None:
-        data.loc[index] = column_values
-    else:
+                index=pd.Index([], dtype='object', name=index_label),
+                columns=column_labels)
+
+    try:
+        return data.loc[index]
+    except:
         print('Please enter in values for {0}'.format(index))
         new_row = [input(x + ': ') for x in column_labels]
         data.loc[index] = new_row 
-    
-    data.to_csv(file_path)
-        
-    return data.loc[index]
+
+        data.to_csv(file_path)
+        return data.loc[index]
         
         
 def write_pandas_row(file_path, index, column_values,
