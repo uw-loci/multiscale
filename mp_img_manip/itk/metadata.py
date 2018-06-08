@@ -11,7 +11,7 @@ import SimpleITK as sitk
 import os
 
 
-def setup_image(image_path, return_image=True, return_rotation=True):
+def setup_image(image_path, return_image=True, return_rotation=False):
     """Set up the image spacing and optionally the registration origin
     
     This function is necessary because ITK cannot save in microns, making
