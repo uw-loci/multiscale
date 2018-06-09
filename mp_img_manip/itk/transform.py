@@ -14,7 +14,7 @@ import math
 from pathlib import Path
 
 
-def write_transform(registered_path, origin, transform, metric, stop):
+def write_transform(registered_path, origin, transform, metric, stop, rotation):
     """Write affine transform parameters to a csv file"""
     (output_dir, image_name) = os.path.split(registered_path)
 
@@ -24,13 +24,14 @@ def write_transform(registered_path, origin, transform, metric, stop):
                      'Matrix Bottom Left', 'Matrix Bottom Right',
                      'X Translation', 'Y Translation',
                      'Mutual Information', 'Stop Condition',
-                     'X Origin', 'Y Origin')
+                     'X Origin', 'Y Origin', 'Rotation')
 
     column_values = list(transform.GetParameters())
     column_values.append(metric)
     column_values.append(stop)
     column_values.append(origin[0])
     column_values.append(origin[1])
+    column_values.append(rotation)
 
     blk.write_pandas_row(file_path, image_name, column_values,
                          'Image', column_labels)
@@ -63,6 +64,9 @@ def apply_transform(fixed_path, moving_path, reference_path):
     origin = (int(transform_params['X Origin']),
               int(transform_params['Y Origin']))
     moving_image.SetOrigin(origin)
+    
+    
+    transform.Rotate(0, 1, transform_params['Rotation'], pre=True)
 
     return sitk.Resample(moving_image, fixed_image, transform,
                          sitk.sitkLinear, 0.0, moving_image.GetPixelID())
