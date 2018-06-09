@@ -176,7 +176,7 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
         current_spacing = meta.get_image_parameters(
                 image_path,
                 return_origin=False,
-                return_spacing=True)[0]
+                return_spacing=True)[0][0]
 
         resized_image = resize_image(image_path,
                                      current_spacing, target_spacing)
@@ -184,7 +184,8 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
         sitk.WriteImage(resized_image, str(resized_path))
         meta.write_image_parameters(resized_path,
                                     resized_image.GetSpacing(),
-                                    resized_image.GetOrigin())
+                                    resized_image.GetOrigin(),
+                                    0)
 
 #def crop_to_nonzero_boundary(image_path, output_dir, output_suffix,
 #                             reference_path = None):

@@ -198,7 +198,8 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix,
 
         meta.write_image_parameters(output_path, 
                                     int_image.GetSpacing(),
-                                    int_image.GetOrigin())
+                                    int_image.GetOrigin(),
+                                    0)
 
 
 def downsample_retardance_image(ret_image_path, orient_image_path,
