@@ -188,7 +188,7 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix,
     for i in range(len(path_list)):
         output_path = blk.create_new_image_path(
                 path_list[i], output_dir, output_suffix)
-        if output_path.exists and skip_existing_images:
+        if output_path.exists() and skip_existing_images:
             continue
         
         int_image = meta.setup_image(path_list[i])
