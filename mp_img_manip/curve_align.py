@@ -163,8 +163,12 @@ def create_batches_for_chtc(input_dir, output_dir, output_suffix,
     # want to split on sample name...
 
     for path in image_path_list:
-        print('Tiling {0} for CHTC and Cytospectre analysis'.format(path.name))
         tile_dir = Path(output_dir, blk.get_core_file_name(path))
+        if tile_dir.exists() and skip_existing_images:
+            continue
+            
+        print('Tiling {0} for CHTC and Cytospectre analysis'.format(path.name))
+
         os.makedirs(tile_dir, exist_ok=True)
 
         process_image_to_rois(path, tile_dir, output_suffix=output_suffix,
