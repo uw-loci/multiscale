@@ -127,7 +127,8 @@ def bulk_threshold(input_dir, output_dir, output_suffix,
         
         meta.write_image_parameters(new_path, 
                                     original.GetSpacing(),
-                                    original.GetOrigin())
+                                    original.GetOrigin(),
+                                    0)
         
         sitk.WriteImage(new_image, str(new_path))
 
