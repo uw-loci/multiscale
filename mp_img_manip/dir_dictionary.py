@@ -39,6 +39,7 @@ def create_dictionary(
 
     ssim_dir = post_analysis_dir + '\\CW-SSIM Values'
     cyto_dir = post_analysis_dir + '\\Cytospectre'
+    curve_dir = post_analysis_dir + '\\Curve Align'
 
     dir_dict = {
         "ps_large": os.path.join(base_dir, prep_dir, 'PS_Large'),
@@ -99,7 +100,8 @@ def create_dictionary(
         "mlr_tile": os.path.join(base_dir, tile_dir, 'MLR_Tiles'),
 
         "ssim": os.path.join(base_dir, ssim_dir),
-        "cyto": os.path.join(base_dir, cyto_dir)
+        "cyto": os.path.join(base_dir, cyto_dir),
+        "curve": os.path.join(base_dir, curve_dir)
     }
     
     for key in dir_dict:
