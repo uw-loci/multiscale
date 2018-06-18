@@ -16,7 +16,7 @@ def compile_results(dir_dict):
     ca.scrape_results(dir_dict['curve'], 'MHR', 'MHR_' + date)
     ca.scrape_results(dir_dict['curve'], 'PS', 'PS_' + date)
 
-def analyze_results(dir_dict):
+def clean_results(dir_dict):
     
     csv_list = util.list_filetype_in_dir(dir_dict['curve'], 'csv')
     df_list = [pd.read_csv(csv) for csv in csv_list]
