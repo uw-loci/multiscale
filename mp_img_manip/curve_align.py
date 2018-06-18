@@ -70,7 +70,8 @@ def create_rois_from_tile(tile, roi_size):
     return separate_rois
 
 
-def save_rois(image_path, output_dir, output_suffix, tile_number, separate_rois):
+def save_rois(image_path, output_dir, output_suffix, tile_number, separate_rois,
+              skip_existing_images=True):
 
     roi_suffix = output_suffix + '_' + str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y' \
                   + '_ROIs'
@@ -80,9 +81,10 @@ def save_rois(image_path, output_dir, output_suffix, tile_number, separate_rois)
 
     rois_path = blk.create_new_image_path(image_path, roi_dir, roi_suffix, extension='.mat')
 
-    sio.savemat(str(rois_path), separate_rois)
+    if rois_path.exists() and skip_existing_images:
+        return
 
-    return
+    sio.savemat(str(rois_path), separate_rois)
 
 
 def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
@@ -101,7 +103,9 @@ def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
 
             separate_rois = {'separate_rois': create_rois_from_tile(tile, roi_size)}
             save_rois(image_path, output_dir, output_suffix,
-                      tile_number, separate_rois)
+                      tile_number, separate_rois,
+                      skip_existing_images=skip_existing_images)
+            
             til.write_tile(tile, image_path, output_dir, output_suffix,
                            tile_number[0], tile_number[1],
                            skip_existing_images=skip_existing_images)
