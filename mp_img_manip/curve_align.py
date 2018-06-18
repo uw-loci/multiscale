@@ -209,18 +209,20 @@ def scrape_results(curve_dir, modality_dir, output_suffix):
 
     with open(csv_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['Sample', 'Modality', 'Tile', 'ROI', 'Orientation', 'Alignment'])
+        writer.writerow(['Mouse', 'Slide', 'Modality', 'Tile', 'ROI', 'Orientation', 'Alignment'])
 
         for tile_path in tile_files:
             sample, modality, tile = blk.file_name_parts(tile_path)[:3]
+            mouse, slide = sample.split('-')
             roi = 'Full-tile'
             orientation, alignment = read_stats_file(tile_path)
-            writer.writerow([sample, modality, tile, roi, orientation, alignment])
+            writer.writerow([mouse, slide, modality, tile, roi, orientation, alignment])
 
         for roi_path in roi_files:
             sample, modality, tile, roi = blk.file_name_parts(roi_path)[:4]
+            mouse, slide = sample.split('-')
             orientation, alignment = read_stats_file(roi_path)
-            writer.writerow([sample, modality, tile, roi, orientation, alignment])
+            writer.writerow([mouse, slide, modality, tile, roi, orientation, alignment])
 
 
 def load_dataframe(csv_path):
