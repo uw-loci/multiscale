@@ -205,6 +205,8 @@ def scrape_results(curve_dir, modality_dir, output_suffix):
 
     csv_path = Path(curve_dir, 'Curve_Align_results_' + output_suffix + '.csv')
 
+    print('Scraping results from {0}'.format(Path(curve_dir, modality_dir)))
+
     with open(csv_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['Sample', 'Modality', 'Tile', 'ROI', 'Orientation', 'Alignment'])
