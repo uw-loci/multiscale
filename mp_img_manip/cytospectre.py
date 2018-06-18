@@ -51,7 +51,7 @@ def parsed_indices_to_pd_index(parsed_indices):
     """ Take a list of parsed indices and turn them into a pandas multi-index
     """ 
     
-    pre_variable_sort_index = ['Sample', 'Modality', 'Thresholds', 'Tile']
+    pre_variable_sort_index = ['Sample', 'Modality', 'Tile']
     transposed_indices = np.transpose(parsed_indices)
     clean_index_stacked = pd.MultiIndex.from_arrays(transposed_indices,
                                           names = pre_variable_sort_index)
@@ -79,7 +79,10 @@ def clean_single_dataframe(dirty_frame):
     cluttered_index = parsed_indices_to_pd_index(parsed_indices)  
     cluttered_frame = cutdown_frame.set_index(cluttered_index)
     flat_frame = cluttered_frame.reset_index()
-    clean_frame = pd.pivot_table(flat_frame, index=['Sample', 'Tile'],
+    flat_frame[['Mouse', 'Slide']] = flat_frame['Sample'].str.split('-', expand=True)
+    
+    
+    clean_frame = pd.pivot_table(flat_frame, index=['Mouse', 'Slide', 'Tile'],
                                  values=['Alignment', 'Orientation'],
                                  columns = 'Modality')
     
