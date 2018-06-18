@@ -197,8 +197,8 @@ def read_stats_file(stats_file):
 
 def scrape_results(curve_dir, modality_dir, output_suffix):
 
-    tile_dir = Path(curve_dir, modality_dir, '\Images\CA_Out')
-    roi_dir = Path(curve_dir, modality_dir, '\Images\CA_ROI\Batch\ROI_post_analysis')
+    tile_dir = Path(curve_dir, modality_dir + '\Images\CA_Out')
+    roi_dir = Path(curve_dir, modality_dir + '\Images\CA_ROI\Batch\ROI_post_analysis')
 
     tile_files = util.list_filetype_in_dir(tile_dir, 'stats.csv')
     roi_files = util.list_filetype_in_dir(roi_dir, 'stats.csv')
