@@ -52,6 +52,10 @@ def apply_transform(fixed_path, moving_path, reference_path):
                                            reference_path.name, 'Image')
 
     transform = sitk.AffineTransform(2)
+    
+    transform.Rotate(0, 1, transform_params['Rotation'], pre=True)
+
+    
     matrix = [transform_params['Matrix Top Left'],
               transform_params['Matrix Top Right'],
               transform_params['Matrix Bottom Left'],
@@ -66,7 +70,6 @@ def apply_transform(fixed_path, moving_path, reference_path):
     moving_image.SetOrigin(origin)
     
     
-    transform.Rotate(0, 1, transform_params['Rotation'], pre=True)
 
     return sitk.Resample(moving_image, fixed_image, transform,
                          sitk.sitkLinear, 0.0, moving_image.GetPixelID())
@@ -94,7 +97,8 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
         sitk.WriteImage(registered_image, str(registered_path))
         meta.write_image_parameters(registered_path,
                                     registered_image.GetSpacing(),
-                                    registered_image.GetOrigin())
+                                    registered_image.GetOrigin(),
+                                    0)
 
     return
 
