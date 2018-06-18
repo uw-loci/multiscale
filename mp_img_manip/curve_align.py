@@ -195,15 +195,15 @@ def read_stats_file(stats_file):
     return orientation, alignment
 
 
-def scrape_results(images_dir, output_dir, output_suffix):
+def scrape_results(curve_dir, modality_dir, output_suffix):
 
-    tile_dir = Path(images_dir, 'CA_Out')
-    roi_dir = Path(images_dir, 'CA_ROI\Batch\ROI_post_analysis')
+    tile_dir = Path(curve_dir, modality_dir, '\Images\CA_Out')
+    roi_dir = Path(curve_dir, modality_dir, '\Images\CA_ROI\Batch\ROI_post_analysis')
 
     tile_files = util.list_filetype_in_dir(tile_dir, 'stats.csv')
     roi_files = util.list_filetype_in_dir(roi_dir, 'stats.csv')
 
-    csv_path = Path(output_dir, 'Curve_Align_results' + output_suffix + '.csv')
+    csv_path = Path(curve_dir, 'Curve_Align_results_' + output_suffix + '.csv')
 
     with open(csv_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
