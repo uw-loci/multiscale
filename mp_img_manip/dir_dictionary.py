@@ -60,14 +60,14 @@ def create_dictionary(
         "mhr_small_reg": os.path.join(base_dir, reg_dir, 'MHR_Small_Reg'),
         "mlr_small_reg": os.path.join(base_dir, reg_dir, 'MLR_Small_Reg'),
         "mmp_small_reg": os.path.join(base_dir, reg_dir, 'MMP_Small_Reg'),
-        "ps_small_reg": os.path.join(base_dir, reg_dir, 'SHG_Small_Reg'),
+        "ps_small_reg": os.path.join(base_dir, reg_dir, 'PS_Small_Reg'),
 
         "mhr_large_reg": os.path.join(base_dir, reg_dir, 'MHR_Large_Reg'),
         "mlr_large_reg": os.path.join(base_dir, reg_dir, 'MLR_Large_Reg'),
         'mlr_large_reg_orient': os.path.join(base_dir, reg_dir, 'MLR_Large_Reg_Orient'),
         'mhr_large_reg_orient': os.path.join(base_dir, reg_dir, 'MHR_Large_Reg_Orient'),
         "mmp_large_reg": os.path.join(base_dir, reg_dir, 'MMP_Large_Reg'),
-        "ps_large_reg": os.path.join(base_dir, reg_dir, 'SHG_Large_Reg'),
+        "ps_large_reg": os.path.join(base_dir, reg_dir, 'PS_Large_Reg'),
 
         "ps_small_mask": os.path.join(base_dir, mask_dir,'PS_Small_Mask'),
         "shg_small_mask": os.path.join(base_dir, mask_dir,'SHG_Small_Mask'),
