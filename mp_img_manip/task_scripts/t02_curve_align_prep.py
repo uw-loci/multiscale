@@ -1,4 +1,3 @@
-from pathlib import Path
 import mp_img_manip.curve_align as ca
 import mp_img_manip.dir_dictionary as dird
 
