@@ -31,7 +31,7 @@ def setup_image(image_path, return_image=True, return_rotation=False):
     """
     
 
-    parameters = get_image_parameters(image_path, return_rotation=return_rotation)
+    parameters = get_image_parameters(image_path)
 
     if return_image:
         image = sitk.ReadImage(str(image_path))
