@@ -1,14 +1,15 @@
 import mp_img_manip.curve_align as ca
 import mp_img_manip.dir_dictionary as dird
 import mp_img_manip.utility_functions as util
+import mp_img_manip.cytospectre as cyto
 
 from functools import reduce
 import pandas as pd
 import datetime
 
 date = str(datetime.date.today())
-
 dir_dict = dird.create_dictionary()
+
 
 def compile_results(dir_dict):
     ca.scrape_results(dir_dict['curve'], 'SHG', 'SHG_' + date)
@@ -16,7 +17,8 @@ def compile_results(dir_dict):
     ca.scrape_results(dir_dict['curve'], 'MHR', 'MHR_' + date)
     ca.scrape_results(dir_dict['curve'], 'PS', 'PS_' + date)
 
-def clean_results(dir_dict):
+
+def clean_curve_align_results(dir_dict):
     
     csv_list = util.list_filetype_in_dir(dir_dict['curve'], 'csv')
     df_list = [pd.read_csv(csv) for csv in csv_list]
@@ -33,5 +35,18 @@ def clean_results(dir_dict):
     return tile_df, roi_df
     
 
+def clean_cytospectre_results(dir_dict):
+    xls_list = util.list_filetype_in_dir(dir_dict['cyto'], 'xls')
+
+    dirty_df_list = [pd.read_excel(xls_file, index='Image') for xls_file in xls_list] 
+    
+    clean_df_list = [cyto.clean_single_dataframe(dirty_df) for dirty_df in dirty_df_list]
+    
+    clean_df = reduce(lambda x, y: pd.merge(x, y, left_index=True, right_index=True), clean_df_list)
+    
+    return clean_df
+
+
 #compile_results(dir_dict)
-tile_df, roi_df = clean_results(dir_dict)
+#tile_df, roi_df = clean_curve_align_results(dir_dict)
+cyto_df = clean_cytospectre_results(dir_dict)
