@@ -34,4 +34,4 @@ def clean_results(dir_dict):
     
 
 #compile_results(dir_dict)
-tile_df, roi_df = analyze_results(dir_dict)
+tile_df, roi_df = clean_results(dir_dict)
