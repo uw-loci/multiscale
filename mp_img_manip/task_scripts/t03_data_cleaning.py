@@ -6,6 +6,7 @@ import mp_img_manip.cytospectre as cyto
 from functools import reduce
 import pandas as pd
 import datetime
+from pathlib import Path
 
 date = str(datetime.date.today())
 dir_dict = dird.create_dictionary()
@@ -13,9 +14,9 @@ dir_dict = dird.create_dictionary()
 
 def compile_results(dir_dict):
     ca.scrape_results(dir_dict['curve'], 'SHG', 'SHG_' + date)
-    ca.scrape_results(dir_dict['curve'], 'MLR', 'MLR_' + date)
-    ca.scrape_results(dir_dict['curve'], 'MHR', 'MHR_' + date)
-    ca.scrape_results(dir_dict['curve'], 'PS', 'PS_' + date)
+#    ca.scrape_results(dir_dict['curve'], 'MLR', 'MLR_' + date)
+#    ca.scrape_results(dir_dict['curve'], 'MHR', 'MHR_' + date)
+#    ca.scrape_results(dir_dict['curve'], 'PS', 'PS_' + date)
 
 
 def clean_curve_align_results(dir_dict):
@@ -38,7 +39,7 @@ def clean_curve_align_results(dir_dict):
 def clean_cytospectre_results(dir_dict):
     xls_list = util.list_filetype_in_dir(dir_dict['cyto'], 'xls')
 
-    dirty_df_list = [pd.read_excel(xls_file, index='Image') for xls_file in xls_list] 
+    dirty_df_list = [pd.read_excel(xls_file, index_col='Image') for xls_file in xls_list] 
     
     clean_df_list = [cyto.clean_single_dataframe(dirty_df) for dirty_df in dirty_df_list]
     
@@ -47,6 +48,17 @@ def clean_cytospectre_results(dir_dict):
     return clean_df
 
 
-#compile_results(dir_dict)
+# Sample workflow.  Take care, compile_results takes a long time and if run twice on the same date
+    # Will duplicate results.
+
+compile_results(dir_dict)
 #tile_df, roi_df = clean_curve_align_results(dir_dict)
-cyto_df = clean_cytospectre_results(dir_dict)
+#cyto_df = clean_cytospectre_results(dir_dict)
+#
+#tile_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', date + '_Curve-Align_Tiles.csv')
+#roi_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', date + '_Curve-Align_ROIs.csv')
+#cyto_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', date + '_Cytospectre_Tiles.csv')
+#
+#tile_df.to_csv(tile_path)
+#roi_path.to_csv(roi_path)
+#cyto_path.to_csv(cyto_path)
