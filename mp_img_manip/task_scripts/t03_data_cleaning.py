@@ -5,10 +5,8 @@ import mp_img_manip.cytospectre as cyto
 
 from functools import reduce
 import pandas as pd
-import datetime
 from pathlib import Path
 
-date = str(datetime.date.today())
 dir_dict = dird.create_dictionary()
 
 
@@ -23,7 +21,7 @@ def clean_curve_align_results(dir_dict):
     
     csv_list = util.list_filetype_in_dir(dir_dict['curve'], 'csv')
     df_list = [pd.read_csv(csv) for csv in csv_list]
-    clean_list = [pd.pivot_table(flat_frame, index=['Sample', 'Tile','ROI'],
+    clean_list = [pd.pivot_table(flat_frame, index=['Mouse', 'Slide', 'Tile','ROI'],
                                  values=['Alignment', 'Orientation'],
                                  columns = 'Modality') for flat_frame in df_list]
     
@@ -51,14 +49,14 @@ def clean_cytospectre_results(dir_dict):
 # Sample workflow.  Take care, compile_results takes a long time and if run twice on the same date
     # Will duplicate results.
 
-compile_results(dir_dict)
-#tile_df, roi_df = clean_curve_align_results(dir_dict)
-#cyto_df = clean_cytospectre_results(dir_dict)
-#
-#tile_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', date + '_Curve-Align_Tiles.csv')
-#roi_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', date + '_Curve-Align_ROIs.csv')
-#cyto_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', date + '_Cytospectre_Tiles.csv')
-#
-#tile_df.to_csv(tile_path)
-#roi_path.to_csv(roi_path)
-#cyto_path.to_csv(cyto_path)
+#compile_results(dir_dict)
+tile_df, roi_df = clean_curve_align_results(dir_dict)
+cyto_df = clean_cytospectre_results(dir_dict)
+
+tile_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_Tiles.csv')
+roi_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
+cyto_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Cytospectre_Tiles.csv')
+
+tile_df.to_csv(tile_path)
+roi_df.to_csv(roi_path)
+cyto_df.to_csv(cyto_path)
