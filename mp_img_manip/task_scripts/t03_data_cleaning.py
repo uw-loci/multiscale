@@ -6,15 +6,18 @@ import mp_img_manip.cytospectre as cyto
 from functools import reduce
 import pandas as pd
 from pathlib import Path
+import datetime
+
+date = str(datetime.date.today())
 
 dir_dict = dird.create_dictionary()
 
 
 def compile_results(dir_dict):
     ca.scrape_results(dir_dict['curve'], 'SHG', 'SHG_' + date)
-#    ca.scrape_results(dir_dict['curve'], 'MLR', 'MLR_' + date)
-#    ca.scrape_results(dir_dict['curve'], 'MHR', 'MHR_' + date)
-#    ca.scrape_results(dir_dict['curve'], 'PS', 'PS_' + date)
+    ca.scrape_results(dir_dict['curve'], 'MLR', 'MLR_' + date)
+    ca.scrape_results(dir_dict['curve'], 'MHR', 'MHR_' + date)
+    ca.scrape_results(dir_dict['curve'], 'PS', 'PS_' + date)
 
 
 def clean_curve_align_results(dir_dict):
@@ -49,7 +52,7 @@ def clean_cytospectre_results(dir_dict):
 # Sample workflow.  Take care, compile_results takes a long time and if run twice on the same date
     # Will duplicate results.
 
-#compile_results(dir_dict)
+compile_results(dir_dict)
 tile_df, roi_df = clean_curve_align_results(dir_dict)
 cyto_df = clean_cytospectre_results(dir_dict)
 
