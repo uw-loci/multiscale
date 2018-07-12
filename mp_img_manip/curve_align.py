@@ -195,6 +195,26 @@ def read_stats_file(stats_file):
     return orientation, alignment
 
 
+def extract_tar(tar_path, output_dir):
+    with tarfile.open(tar_path) as tar:
+        ca_roi = [tarinfo for tarinfo in tar.getmembers()
+                    if tarinfo.name.startswith("images/CA_ROI/")]
+        ca_out = [tarinfo for tarinfo in tar.getmembers()
+                    if tarinfo.name.startswith("images/CA_Out/")]
+        ct_fire = [tarinfo for tarinfo in tar.getmembers()
+                    if tarinfo.name.startswith("images/ctFIREout/")]
+        
+        tar.extractall(members=ca_roi, path=output_dir)
+        tar.extractall(members=ca_out, path=output_dir)
+        tar.extractall(members=ct_fire, path=output_dir)
+    
+
+def bulk_extract_tar(tar_dir, output_dir):
+    tar_list = util.list_filetype_in_dir(tar_dir, 'tar')
+    for tar in tar_list:
+        extract_tar(tar, output_dir)
+
+    
 def scrape_results(curve_dir, modality_dir, output_suffix):
 
     tile_dir = Path(curve_dir, modality_dir + '\CA_Out')
