@@ -85,13 +85,13 @@ def register_small_images(dir_dict, skip_existing_images=False):
 
 def apply_transform_to_large_images(dir_dict, skip_existing_images=False):
     trans.bulk_apply_transform(dir_dict["shg_large"],
-                              dir_dict["mlr_large"],
+                              dir_dict["mlr_large_mask"],
                               dir_dict["mlr_small_reg"],
                               dir_dict["mlr_large_reg"], 'MLR_Large_Reg',
                               skip_existing_images=skip_existing_images)
 
     trans.bulk_apply_transform(dir_dict["shg_large"],
-                              dir_dict["mhr_large"],
+                              dir_dict["mhr_large_mask"],
                               dir_dict["mhr_small_reg"],
                               dir_dict["mhr_large_reg"], 'MHR_Large_Reg',
                               skip_existing_images=skip_existing_images)
@@ -103,14 +103,14 @@ def apply_transform_to_large_images(dir_dict, skip_existing_images=False):
                               skip_existing_images=skip_existing_images)
     
     trans.bulk_apply_transform(dir_dict["shg_large"],
-                               dir_dict["mlr_large_orient"],
+                               dir_dict["mlr_large_mask_orient"],
                                dir_dict["mlr_small_reg"],
                                dir_dict['mlr_large_reg_orient'],
                                'MLR_Large_Reg_orient',
                                skip_existing_images=skip_existing_images)
 
     trans.bulk_apply_transform(dir_dict["shg_large"],
-                               dir_dict["mhr_large_orient"],
+                               dir_dict["mhr_large_mask_orient"],
                                dir_dict["mhr_small_reg"],
                                dir_dict['mhr_large_reg_orient'],
                                'MHR_Large_Reg_orient',
