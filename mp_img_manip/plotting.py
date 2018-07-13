@@ -72,14 +72,15 @@ def roi_values_to_image(img_dims, rois_per_tile, pd_series, col_label):
     
     for i in pd_series.index:
         tile_locs = re.findall('(\d+)', i[0])
-        
-        tile_i = int(tile_locs) - 1
+        tile_x = int(tile_locs[0]) - 1
+        tile_y = int(tile_locs[1]) - 1
         
         roi_locs = re.findall('(\d+)', i[1])
-        roi_i = int(roi_locs) - 1
+        roi_x = int(roi_locs[0]) - 1
+        roi_y = int(roi_locs[1]) - 1
         
-        x = tile_i[0]*rois_per_tile[0] + roi_i[0]
-        y = tile_i[1]*rois_per_tile[1] + roi_i[1]
+        x = tile_x*rois_per_tile + roi_x
+        y = tile_y*rois_per_tile + roi_y
         
         img[x, y] = pd_series.get_value(i, col_label)
         
