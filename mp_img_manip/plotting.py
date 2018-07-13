@@ -6,7 +6,7 @@ Created on Thu Apr 12 09:25:11 2018
 """
 import matplotlib.pyplot as plt
 import numpy as np
-
+import re
 
 def plot_colored_overlay(array_one, array_two, difference_threshold=0.1):
     """Plot two same-size images in 3 channels, with blue->same position"""
@@ -46,3 +46,44 @@ def bland_altman_plot(data1, data2, ylim=[-90, 90], *args, **kwargs):
     plt.ylim(ylim)
     plt.ylabel('Difference')
     plt.xlabel('Mean')
+
+
+def tile_values_to_image(img_dims, pd_series, col_label):
+    """
+    Inputs: number of x, and y tiles in xy dims
+            pandas series for one image, with indexes being the tile number
+    """
+    
+    img = np.zeros(img_dims)
+    
+    for i in pd_series.index:
+        indexes = re.findall('(\d+)', i[2])
+        x = int(indexes[0]) - 1
+        y = int(indexes[1]) - 1
+        
+        img[x, y] = pd_series.get_value(i, col_label)
+        
+    return img
+       
+ 
+def roi_values_to_image(img_dims, rois_per_tile, pd_series, col_label):
+    
+    img = np.zeros(img_dims)
+    
+    for i in pd_series.index:
+        tile_locs = re.findall('(\d+)', i[0])
+        
+        tile_i = int(tile_locs) - 1
+        
+        roi_locs = re.findall('(\d+)', i[1])
+        roi_i = int(roi_locs) - 1
+        
+        x = tile_i[0]*rois_per_tile[0] + roi_i[0]
+        y = tile_i[1]*rois_per_tile[1] + roi_i[1]
+        
+        img[x, y] = pd_series.get_value(i, col_label)
+        
+    return img
+        
+        
+    
