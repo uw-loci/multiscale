@@ -213,12 +213,13 @@ def bulk_extract_tar(tar_dir, output_dir):
     tar_list = util.list_filetype_in_dir(tar_dir, 'tar')
     for tar in tar_list:
         extract_tar(tar, output_dir)
+        os.remove(tar)
 
     
 def scrape_results(curve_dir, modality_dir, output_suffix):
 
-    tile_dir = Path(curve_dir, modality_dir + '\CA_Out')
-    roi_dir = Path(curve_dir, modality_dir + '\CA_ROI\Batch\ROI_post_analysis')
+    tile_dir = Path(curve_dir, modality_dir + '\images\CA_Out')
+    roi_dir = Path(curve_dir, modality_dir + '\images\CA_ROI\Batch\ROI_post_analysis')
 
     tile_files = util.list_filetype_in_dir(tile_dir, 'stats.csv')
     roi_files = util.list_filetype_in_dir(roi_dir, 'stats.csv')
