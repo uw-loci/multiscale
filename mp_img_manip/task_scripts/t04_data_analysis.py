@@ -6,7 +6,7 @@ Created on Tue Jun 19 16:11:52 2018
 """
 
 import mp_img_manip.dir_dictionary as dird
-
+import mp_img_manip.analysis as an
 import pandas as pd
 from pathlib import Path
 
@@ -17,7 +17,21 @@ roi_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and
 cyto_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Cytospectre_Tiles.csv')
 
 
+def get_dfs(tile_path, roi_path, cyto_path):
+    tile_df = pd.read_csv(tile_path, header=[0,1], index_col=[0, 1, 2])
+    roi_df = pd.read_csv(roi_path, header=[0,1], index_col=[0, 1, 2, 3])
+    cyto_df = pd.read_csv(cyto_path, header=[0,1], index_col=[0, 1, 2])
+    
+    return tile_df, roi_df, cyto_df
 
-tile_df = pd.read_csv(tile_path, header=[0,1], index_col=[0, 1, 2])
-roi_df = pd.read_csv(roi_path, header=[0,1], index_col=[0, 1, 2, 3])
-cyto_df = pd.read_csv(cyto_path, header=[0,1], index_col=[0, 1, 2])
+
+def find_correlations_two_modalities(two_mod_df):
+    
+    recast = two_mod_df.apply(an.recast_max_diff_90deg, axis=1)
+    group = recast.groupby(['Mouse', 'Slide']) 
+    
+    correlations = group.corr().ix[0::2, 1]
+    
+    return correlations
+    
+
