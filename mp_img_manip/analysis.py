@@ -43,7 +43,8 @@ def find_correlations_two_modalities(two_mod_df):
     recast = two_mod_df.apply(recast_max_diff_90deg, axis=1)
     group = recast.groupby(['Mouse', 'Slide']) 
     
-    correlations = group.corr().ix[0::2, 1]
+    correlations = group.corr().iloc[0::2, 1]
+    correlations.index = correlations.index.droplevel(level=2)
     
     return correlations
     

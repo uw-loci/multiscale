@@ -25,4 +25,17 @@ def get_dfs(tile_path, roi_path, cyto_path):
     return tile_df, roi_df, cyto_df
 
 
+def correlate_pairs(df):
+    mlr_shg = df[['MLR', 'SHG']]
+    mlr_mhr = df[['MLR', 'MHR']]
+    mhr_shg = df[['MHR', 'SHG']]    
 
+    mlr_shg_corrs = an.find_correlations_two_modalities(mlr_shg)
+    mlr_mhr_corrs = an.find_correlations_two_modalities(mlr_mhr)
+    mhr_shg_corrs = an.find_correlations_two_modalities(mhr_shg)
+    
+    correlations = pd.DataFrame({'MLR to SHG': mlr_shg_corrs, 
+                                 'MHR to SHG': mhr_shg_corrs,
+                                 'MLR to MHR': mlr_mhr_corrs})
+    
+    return correlations
