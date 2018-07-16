@@ -103,8 +103,7 @@ def clean_multiple_dataframes(analysis_list, output_dir, output_suffix):
 
     for dirty_frame in dirty_dataframes:
         clean_dataframe = clean_single_dataframe(dirty_frame)
-        output_path = Path(output_dir, clean_dataframe.name, 
-                           '-', output_suffix)
+        output_path = Path(output_dir, output_suffix)
         
         clean_dataframe.to_csv(output_path)
     
