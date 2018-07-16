@@ -5,6 +5,15 @@ import numpy as np
 from scipy import stats
 
 
+def add_diffs_column_to_dataframe(dataframe):
+    return
+
+
+def find_diff(two_column_df):
+    recast_df = two_column_df.apply(recast_max_diff_90deg, axis = 1)
+    # find diff between two columns of arbitrary name..
+
+
 def recast_max_diff_90deg(row):
     value_one, value_two = row.values
     diff = value_one - value_two
@@ -26,3 +35,15 @@ def regress(two_column_df):
     results = stats.linregress(x, y)
 
     return results
+
+
+
+def find_correlations_two_modalities(two_mod_df):
+    
+    recast = two_mod_df.apply(recast_max_diff_90deg, axis=1)
+    group = recast.groupby(['Mouse', 'Slide']) 
+    
+    correlations = group.corr().ix[0::2, 1]
+    
+    return correlations
+    

@@ -25,13 +25,4 @@ def get_dfs(tile_path, roi_path, cyto_path):
     return tile_df, roi_df, cyto_df
 
 
-def find_correlations_two_modalities(two_mod_df):
-    
-    recast = two_mod_df.apply(an.recast_max_diff_90deg, axis=1)
-    group = recast.groupby(['Mouse', 'Slide']) 
-    
-    correlations = group.corr().ix[0::2, 1]
-    
-    return correlations
-    
 
