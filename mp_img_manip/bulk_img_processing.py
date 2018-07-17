@@ -26,6 +26,19 @@ def dataframe_generator_excel(analysis_list, index, relevant_cols=None):
             yield output_df
 
 
+def dataframe_generator_csv(analysis_list):
+    """
+    Generator to yield dataframes from a list of excel docs, one at a time
+    
+    analysis_list = the list of excel docs
+    index = index column of the excel doc
+    relevant_cols = subset of dataframe to return
+    """
+    for item in analysis_list:
+        df = pd.read_csv(str(item))
+        yield df
+            
+        
 def read_write_pandas_row(file_path, index,
                           index_label, column_labels):
     """
@@ -118,9 +131,9 @@ def write_pandas_value(file_path, index, value, column,
 
 def file_name_parts(file_name):
     """Extract strings seperated by underscores in a file name"""
-    
+
     name_str = Path(file_name).stem
-    
+
     part_list = str(name_str).split('_')
     
     return part_list
