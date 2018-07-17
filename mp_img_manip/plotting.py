@@ -48,7 +48,7 @@ def bland_altman_plot(data1, data2, ylim=[-90, 90], *args, **kwargs):
     plt.xlabel('Mean')
 
 
-def tile_values_to_image(img_dims, pd_series, col_label):
+def tile_values_to_image( pd_series, img_dims, col_label):
     """
     Inputs: number of x, and y tiles in xy dims
             pandas series for one image, with indexes being the tile number
@@ -66,7 +66,7 @@ def tile_values_to_image(img_dims, pd_series, col_label):
     return img
        
  
-def roi_values_to_image(img_dims, rois_per_tile, pd_series, col_label):
+def roi_values_to_image(pd_series, img_dims, col_label, rois_per_til=8):
     
     img = np.zeros(img_dims)
     
