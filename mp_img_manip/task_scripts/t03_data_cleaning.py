@@ -14,10 +14,10 @@ dir_dict = dird.create_dictionary()
 
 
 def compile_results(dir_dict):
-    ca.scrape_results(dir_dict['curve'], 'SHG', 'SHG_' + date)
+#    ca.scrape_results(dir_dict['curve'], 'SHG', 'SHG_' + date)
     ca.scrape_results(dir_dict['curve'], 'MLR', 'MLR_' + date)
     ca.scrape_results(dir_dict['curve'], 'MHR', 'MHR_' + date)
-    ca.scrape_results(dir_dict['curve'], 'PS', 'PS_' + date)
+#    ca.scrape_results(dir_dict['curve'], 'PS', 'PS_' + date)
 
 
 def clean_curve_align_results(dir_dict):
@@ -29,7 +29,7 @@ def clean_curve_align_results(dir_dict):
                                  columns = 'Modality') for flat_frame in df_list]
     
     
-    clean_df = reduce(lambda x, y: pd.merge(x, y, left_index=True, right_index=True), clean_list)
+    clean_df = reduce(lambda x, y: pd.concat([x, y], axis=1), clean_list)
     
     tile_df = clean_df.xs('Full-tile', level='ROI')
     roi_df = clean_df.drop('Full-tile', level=2)
@@ -52,13 +52,16 @@ def clean_cytospectre_results(dir_dict):
 # Sample workflow.  Take care, compile_results takes a long time and if run twice on the same date
     # Will duplicate results.
 
-compile_results(dir_dict)
+#compile_results(dir_dict)
 tile_df, roi_df = clean_curve_align_results(dir_dict)
 cyto_df = clean_cytospectre_results(dir_dict)
 
-tile_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_Tiles.csv')
-roi_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
-cyto_path = Path('F:\Box Sync\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Cytospectre_Tiles.csv')
+tile_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
+                 'Curve-Align_Tiles_' + date + '.csv')
+roi_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
+                'Curve-Align_ROIs_' + date + '.csv')
+cyto_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
+                 'Cytospectre_Tiles_' + date + '.csv')
 
 tile_df.to_csv(tile_path)
 roi_df.to_csv(roi_path)
