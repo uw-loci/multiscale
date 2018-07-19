@@ -5,6 +5,7 @@ import SimpleITK as sitk
 from pathlib import Path
 import itertools
 import scipy.io as sio
+import re
 
 import mp_img_manip.utility_functions as util
 import mp_img_manip.bulk_img_processing as blk
@@ -231,7 +232,7 @@ def tile_values_to_image( pd_series, img_dims, col_label):
     return img
        
  
-def roi_values_to_image(pd_series, img_dims, col_label, rois_per_til=8):
+def roi_values_to_image(pd_series, img_dims, col_label, rois_per_tile=8):
     
     img = np.zeros(img_dims)
     

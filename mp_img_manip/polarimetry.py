@@ -67,7 +67,7 @@ def calculate_alignment(orient_tile):
 
 
 def process_orientation_alignment(ret_image_path, orient_image_path, 
-                                  output_dir, output_suffix,
+                                  output_path,
                                   tile_size, tile_separation=None,
                                   intensity_thresh=1, number_thresh=10):
 
@@ -85,13 +85,10 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
     pixel_num, offset = til.calculate_number_of_tiles(
             array_shape, tile_size, tile_separation)
 
-    csv_path = blk.create_new_image_path(
-                    orient_image_path, output_dir, output_suffix,
-                    extension='.csv')    
 
-    with open(csv_path, 'w', newline='') as csvfile:
+    with open(output_path, 'w', newline='') as csvfile:
         print('\nWriting average retardance file for {} at tile size {}'.format(
-                csv_path.name, tile_size[0]))
+                output_path.name, tile_size[0]))
         writer = csv.writer(csvfile)
         writer.writerow(['Sample', 'Modality', 'Tile',
                          'Retardance', 'Orientation', 'Alignment'])
@@ -123,7 +120,7 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
 
 def bulk_process_orientation_alignment(
         ret_dir, orient_dir, output_dir,
-        tile_size, tile_separation=None):
+        tile_size, tile_separation=None, skip_existing_images=True):
     """Calculate average retardance images 
     """
     # todo: add ROI capability
@@ -139,6 +136,14 @@ def bulk_process_orientation_alignment(
         ret_dir, orient_dir)
 
     for i in range(0, np.size(ret_image_path_list)):
+        
+        output_path = blk.create_new_image_path(
+                    orient_image_path_list[i], output_dir, output_suffix,
+                    extension='.csv')    
+    
+        if output_path.exists() and skip_existing_images:
+            continue
+        
         process_orientation_alignment(ret_image_path_list[i],
                                       orient_image_path_list[i],
                                       output_dir,
