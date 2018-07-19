@@ -42,7 +42,7 @@ def apply_transform(fixed_path, moving_path, reference_path):
     fixed_image = meta.setup_image(fixed_path)
     moving_image = meta.setup_image(moving_path)
     
-    print('Applying transform onto {0} based on transform on {1}'.format(
+    print('\nApplying transform onto {0} based on transform on {1}'.format(
         str(moving_path.name),
         str(reference_path.name)))
 
@@ -124,7 +124,7 @@ def resize_image(image_path, current_spacing, target_spacing):
         resized_image.SetSpacing([end_res, end_res])
         resized_image.SetOrigin(itk_image.GetOrigin())
 
-    print('Resizing ' + image_name + ' from '
+    print('\nResizing ' + image_name + ' from '
           + str(current_spacing) + ' to ' + str(end_res)
           + ' (Target = ' + str(target_spacing) + ')')
 

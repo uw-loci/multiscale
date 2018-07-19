@@ -208,7 +208,7 @@ def supervised_register_images(fixed_path, moving_path,
     fixed_image = meta.setup_image(fixed_path)
     moving_image, rotation = meta.setup_image(moving_path, return_rotation=True)
 
-    print('Registering ' + os.path.basename(moving_path) + ' to '
+    print('\nRegistering ' + os.path.basename(moving_path) + ' to '
           + os.path.basename(fixed_path))
 
     while True:
