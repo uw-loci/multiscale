@@ -95,7 +95,8 @@ def bulk_apply_mask(image_dir, mask_dir,
 
         meta.write_image_parameters(masked_path,
                                     image.GetSpacing(),
-                                    image.GetOrigin())
+                                    image.GetOrigin(),
+                                    0)
         sitk.WriteImage(masked_image, str(masked_path))
     
     

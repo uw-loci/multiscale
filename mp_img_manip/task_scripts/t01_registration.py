@@ -24,10 +24,10 @@ def perform_registrations(skip_existing_images=True):
     
     dir_dict = dird.create_dictionary()
 
-    pol.bulk_intensity_to_retardance(dir_dict['ps_large'], 
-                                     dir_dict['ps_large_ret'],
-                                     'PS_Large_Ret',
-                                     skip_existing_images=skip_existing_images)
+#    pol.bulk_intensity_to_retardance(dir_dict['ps_large'], 
+#                                     dir_dict['ps_large_ret'],
+#                                     'PS_Large_Ret',
+#                                     skip_existing_images=skip_existing_images)
 
     mask_images(dir_dict, skip_existing_images=skip_existing_images)
 
@@ -41,10 +41,10 @@ def perform_registrations(skip_existing_images=True):
 
 def resize_images(dir_dict, target_spacing=5, skip_existing_images=False):
 
-    trans.bulk_resize_to_target(
-            dir_dict["ps_large_ret"], dir_dict["ps_small"], 'PS_Small',
-            target_spacing,
-            skip_existing_images=skip_existing_images)
+#    trans.bulk_resize_to_target(
+#            dir_dict["ps_large_ret"], dir_dict["ps_small"], 'PS_Small',
+#            target_spacing,
+#            skip_existing_images=skip_existing_images)
     
     trans.bulk_resize_to_target(
             dir_dict["shg_large"], dir_dict["shg_small"], 'SHG_Small',
@@ -76,11 +76,11 @@ def register_small_images(dir_dict, skip_existing_images=False):
             dir_dict["mhr_small_reg"], 'MHR_Small_Reg',
             skip_existing_images=skip_existing_images)
 
-    reg.bulk_supervised_register_images(
-            dir_dict["shg_small"],
-            dir_dict["ps_small"],
-            dir_dict["ps_small_reg"], 'PS_Small_Reg',
-            skip_existing_images=skip_existing_images)
+#    reg.bulk_supervised_register_images(
+#            dir_dict["shg_small"],
+#            dir_dict["ps_small"],
+#            dir_dict["ps_small_reg"], 'PS_Small_Reg',
+#            skip_existing_images=skip_existing_images)
 
 
 def apply_transform_to_large_images(dir_dict, skip_existing_images=False):
@@ -96,11 +96,11 @@ def apply_transform_to_large_images(dir_dict, skip_existing_images=False):
                               dir_dict["mhr_large_reg"], 'MHR_Large_Reg',
                               skip_existing_images=skip_existing_images)
 
-    trans.bulk_apply_transform(dir_dict["shg_large"],
-                              dir_dict["ps_large"],
-                              dir_dict["ps_small_reg"],
-                              dir_dict["ps_large_reg"], 'PS_Large_Reg',
-                              skip_existing_images=skip_existing_images)
+#    trans.bulk_apply_transform(dir_dict["shg_large"],
+#                              dir_dict["ps_large"],
+#                              dir_dict["ps_small_reg"],
+#                              dir_dict["ps_large_reg"], 'PS_Large_Reg',
+#                              skip_existing_images=skip_existing_images)
     
     trans.bulk_apply_transform(dir_dict["shg_large"],
                                dir_dict["mlr_large_mask_orient"],
@@ -126,7 +126,7 @@ def mask_images(dir_dict, skip_existing_images=False):
             skip_existing_images=skip_existing_images)
 
     proc.bulk_apply_mask(
-            dir_dict['mlr_large_reg_orient'], dir_dict['mlr_large_mask'],
+            dir_dict['mlr_large_orient'], dir_dict['mlr_large_mask'],
             dir_dict['mlr_large_mask_orient'],
             'MLR_Large_Mask_Orient',
             skip_existing_images=skip_existing_images)
@@ -137,36 +137,36 @@ def mask_images(dir_dict, skip_existing_images=False):
         skip_existing_images=skip_existing_images)
 
     proc.bulk_apply_mask(
-        dir_dict['mhr_large_reg_orient'], dir_dict['mhr_large_mask'],
+        dir_dict['mhr_large_orient'], dir_dict['mhr_large_mask'],
         dir_dict['mhr_large_mask_orient'],
         'MHR_Large_Mask_Orient',
         skip_existing_images=skip_existing_images)
 
 
-def make_eightbit_images(dir_dict):
-#    proc.bulk_convert_to_eightbit(dir_dict["ps_large_mask"],
-#                                  dir_dict['ps_large_8bit'],
-#                                  'PS_Large_8Bit')
-    
-    proc.bulk_convert_to_eightbit(dir_dict["mhr_large_reg"],
-                                  dir_dict['mhr_large_8bit'],
-                                  'MHR_Large_8Bit')
-    
-    proc.bulk_convert_to_eightbit(dir_dict["mlr_large_reg"],
-                                  dir_dict['mlr_large_8bit'],
-                                  'MLR_Large_8Bit')
-#
-#    proc.bulk_convert_to_eightbit(dir_dict["ps_small_mask"],
-#                                  dir_dict['ps_small_8bit'],
-#                                  'PS_Small_8Bit')
+#def make_eightbit_images(dir_dict):
+##    proc.bulk_convert_to_eightbit(dir_dict["ps_large_mask"],
+##                                  dir_dict['ps_large_8bit'],
+##                                  'PS_Large_8Bit')
 #    
-    proc.bulk_convert_to_eightbit(dir_dict["mhr_small_reg"],
-                                  dir_dict['mhr_small_8bit'],
-                                  'MHR_Small_8Bit')
-    
-    proc.bulk_convert_to_eightbit(dir_dict["mlr_small_reg"],
-                                  dir_dict['mlr_small_8bit'],
-                                  'MLR_Small_8Bit')
+#    proc.bulk_convert_to_eightbit(dir_dict["mhr_large_reg"],
+#                                  dir_dict['mhr_large_8bit'],
+#                                  'MHR_Large_8Bit')
+#    
+#    proc.bulk_convert_to_eightbit(dir_dict["mlr_large_reg"],
+#                                  dir_dict['mlr_large_8bit'],
+#                                  'MLR_Large_8Bit')
+##
+##    proc.bulk_convert_to_eightbit(dir_dict["ps_small_mask"],
+##                                  dir_dict['ps_small_8bit'],
+##                                  'PS_Small_8Bit')
+##    
+#    proc.bulk_convert_to_eightbit(dir_dict["mhr_small_reg"],
+#                                  dir_dict['mhr_small_8bit'],
+#                                  'MHR_Small_8Bit')
+#    
+#    proc.bulk_convert_to_eightbit(dir_dict["mlr_small_reg"],
+#                                  dir_dict['mlr_small_8bit'],
+#                                  'MLR_Small_8Bit')
 
 perform_registrations()
 
