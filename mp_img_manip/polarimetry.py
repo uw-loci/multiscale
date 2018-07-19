@@ -71,6 +71,8 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
                                   tile_size, tile_separation=None,
                                   intensity_thresh=1, number_thresh=10):
 
+    modality = blk.file_name_parts(ret_image_path)[1] + '-O'
+    
     ret_image = sitk.ReadImage(str(ret_image_path))
     ret_array = sitk.GetArrayFromImage(ret_image)
     ret_max = np.max(ret_array)
@@ -89,8 +91,8 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
 
     with open(csv_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['Sample', 'Modality', 'ROI',
-                         'Orientation', 'Alignment'])
+        writer.writerow(['Sample', 'Modality', 'Tile',
+                         'Retardance', 'Orientation', 'Alignment'])
     
         for start, end, tile_number in til.generate_tile_start_end_index(
                 pixel_num, tile_size, tile_offset=offset,
@@ -110,15 +112,20 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
                 alignment = calculate_alignment(orient_tile)
     
                 sample = blk.get_core_file_name(csv_path)
-                modality = 'MLR-O'
+
                 roi = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
     
-                writer.writerow([sample, modality, roi, orientation, alignment])
+                writer.writerow([sample, modality, roi, 
+                                 retardance, orientation, alignment])
 
 
 def bulk_process_orientation_alignment(
         ret_dir, orient_dir, output_dir,
         tile_size, tile_separation=None):
+    """Calculate average retardance images 
+    """
+    # todo: add ROI capability
+    
     output_suffix = 'Tile-size-' + str(tile_size)
 
     if (tile_separation
