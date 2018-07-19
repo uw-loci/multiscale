@@ -35,11 +35,12 @@ def create_dictionary(
     reg_dir = mid_analysis_dir + '\\Step 03 - Registered images'
     tile_dir = mid_analysis_dir + '\\Step 04 - Tiling images'
 
-    eight_bit_dir = mid_analysis_dir + '\\Step 05 - Eight-bit images'
+#    eight_bit_dir = mid_analysis_dir + '\\Step 05 - Eight-bit images'
 
     ssim_dir = post_analysis_dir + '\\CW-SSIM Values'
     cyto_dir = post_analysis_dir + '\\Cytospectre'
     curve_dir = post_analysis_dir + '\\Curve Align'
+    avg_dir = post_analysis_dir + '\\Averaged Retardance'
 
     dir_dict = {
         #"ps_large": os.path.join(base_dir, prep_dir, 'PS_Large'),
@@ -57,9 +58,13 @@ def create_dictionary(
        # "mmp_large": os.path.join(base_dir, resize_dir, 'MMP_Large'),
         "mhr_small": os.path.join(base_dir, resize_dir, 'MHR_Small'),
         "mlr_small": os.path.join(base_dir, resize_dir, 'MLR_Small'),
-
+        "mhr_small_orient": os.path.join(base_dir, resize_dir, 'MHR_Small_Orient'),
+        "mlr_small_orient": os.path.join(base_dir, resize_dir, 'MLR_Small_Orient'),
+        
         "mhr_small_reg": os.path.join(base_dir, reg_dir, 'MHR_Small_Reg'),
         "mlr_small_reg": os.path.join(base_dir, reg_dir, 'MLR_Small_Reg'),
+        "mhr_small_reg_orient": os.path.join(base_dir, reg_dir, 'MHR_Small_Reg_Orient'),
+        "mlr_small_reg_orient": os.path.join(base_dir, reg_dir, 'MLR_Small_Reg_Orient'),
        # "mmp_small_reg": os.path.join(base_dir, reg_dir, 'MMP_Small_Reg'),
         #"ps_small_reg": os.path.join(base_dir, reg_dir, 'PS_Small_Reg'),
 
@@ -101,7 +106,8 @@ def create_dictionary(
 
         "ssim": os.path.join(base_dir, ssim_dir),
         "cyto": os.path.join(base_dir, cyto_dir),
-        "curve": os.path.join(base_dir, curve_dir)
+        "curve": os.path.join(base_dir, curve_dir),
+        "avg_ret": os.path.join(base_dir, avg_dir)
     }
     
     for key in dir_dict:
