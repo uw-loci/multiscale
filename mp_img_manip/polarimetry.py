@@ -68,7 +68,8 @@ def calculate_alignment(orient_tile):
 
 def process_orientation_alignment(ret_image_path, orient_image_path, 
                                   output_path,
-                                  tile_size, tile_separation=None,
+                                  tile_size, tile_separation=None, 
+                                  roi_size=None,
                                   intensity_thresh=1, number_thresh=10):
 
     modality = blk.file_name_parts(ret_image_path)[1] + '-O'
@@ -85,48 +86,95 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
     pixel_num, offset = til.calculate_number_of_tiles(
             array_shape, tile_size, tile_separation)
 
-
-    with open(output_path, 'w', newline='') as csvfile:
-        print('\nWriting average retardance file for {} at tile size {}'.format(
-                output_path.name, tile_size[0]))
-        writer = csv.writer(csvfile)
-        writer.writerow(['Sample', 'Modality', 'Tile',
-                         'Retardance', 'Orientation', 'Alignment'])
+    if roi_size is None:
+        with open(output_path, 'w', newline='') as csvfile:
+            print('\nWriting average retardance file for {} at tile size {}'.format(
+                    output_path.name, tile_size[0]))
+            writer = csv.writer(csvfile)
+            writer.writerow(['Sample', 'Modality', 'Tile',
+                             'Retardance', 'Orientation', 'Alignment'])
+        
+            for start, end, tile_number in til.generate_tile_start_end_index(
+                    pixel_num, tile_size, tile_offset=offset,
+                    tile_separation=tile_separation):
+        
+                ret_tile = ret_array[start[0]:end[0],
+                                     start[1]:end[1]]
+        
+                orient_tile = orient_array[start[0]:end[0],
+                                           start[1]:end[1]]
+        
+                if til.tile_passes_threshold(ret_tile, intensity_thresh, number_thresh, ret_max):
+                    
+                    retardance, orientation = calculate_retardance_over_area(
+                            ret_tile, orient_tile)
+                    alignment = calculate_alignment(orient_tile)
+        
+                    sample = blk.get_core_file_name(output_path)
     
-        for start, end, tile_number in til.generate_tile_start_end_index(
-                pixel_num, tile_size, tile_offset=offset,
-                tile_separation=tile_separation):
+                    tile = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
+        
+                    writer.writerow([sample, modality, tile, 
+                                     retardance, orientation, alignment])
     
-            ret_tile = ret_array[start[0]:end[0],
-                                 start[1]:end[1]]
+    else:
+        num_rois, roi_offset = til.calculate_number_of_tiles(tile_size, roi_size)
+        
+        with open(output_path, 'w', newline='') as csvfile:
+            print('\nWriting average retardance file for {} at tile size {} and roi size {}'.format(
+                    output_path.name, tile_size[0], roi_size[0]))
+            writer = csv.writer(csvfile)
+            writer.writerow(['Sample', 'Modality', 'Tile', 'ROI',
+                             'Retardance', 'Orientation', 'Alignment'])     
+                    
+            for start, end, tile_number in til.generate_tile_start_end_index(
+                    pixel_num, tile_size, tile_offset=offset,
+                    tile_separation=tile_separation):
+        
+                ret_tile = ret_array[start[0]:end[0],
+                                     start[1]:end[1]]
+        
+                orient_tile = orient_array[start[0]:end[0],
+                                           start[1]:end[1]]         
+                    
+                if til.tile_passes_threshold(ret_tile, intensity_thresh, number_thresh,ret_max):
+                    
+                    tile = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
+                                        
+                    for start_roi, end_roi, roi_number in til.generate_tile_start_end_index(
+                            num_rois, roi_size, tile_offset=roi_offset):
+                        
+                        ret_roi = ret_tile[start_roi[0]:end_roi[0],
+                                          start_roi[1]:end_roi[1]]
+                        
+                        orient_roi = orient_tile[start_roi[0]:end_roi[0],
+                                          start_roi[1]:end_roi[1]]
+                        
+                        retardance, orientation = calculate_retardance_over_area(
+                            ret_roi, orient_roi)
+                        
+                        alignment = calculate_alignment(orient_tile)
+        
+                        sample = blk.get_core_file_name(output_path)
     
-            orient_tile = orient_array[start[0]:end[0],
-                                       start[1]:end[1]]
-    
-            if til.tile_passes_threshold(ret_tile, 
-                                         intensity_thresh, number_thresh,
-                                         ret_max):
-                retardance, orientation = calculate_retardance_over_area(
-                        ret_tile, orient_tile)
-                alignment = calculate_alignment(orient_tile)
-    
-                sample = blk.get_core_file_name(csv_path)
-
-                roi = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
-    
-                writer.writerow([sample, modality, roi, 
-                                 retardance, orientation, alignment])
+                        roi = 'ROI' + str(roi_number[0]) + 'x' + str(roi_number[1]) + 'y'
+        
+                        writer.writerow([sample, modality, tile, roi,
+                                         retardance, orientation, alignment])
+                        
 
 
 def bulk_process_orientation_alignment(
-        ret_dir, orient_dir, output_dir,
-        tile_size, tile_separation=None, skip_existing_images=True):
+        ret_dir, orient_dir, output_dir, output_suffix,
+        tile_size,
+        tile_separation=None, skip_existing_images=True,
+        roi_size=None):
     """Calculate average retardance images 
     """
     # todo: add ROI capability
     
-    output_suffix = 'Tile-size-' + str(tile_size[0])
-
+    output_suffix_with_tilenum = output_suffix + '_' + str(tile_size[0])
+    
     if (tile_separation
             and tile_separation != tile_size):
         output_suffix = (output_suffix + '_SimRes-'
@@ -136,9 +184,10 @@ def bulk_process_orientation_alignment(
         ret_dir, orient_dir)
 
     for i in range(0, np.size(ret_image_path_list)):
-        
+
         output_path = blk.create_new_image_path(
-                    orient_image_path_list[i], output_dir, output_suffix,
+                    orient_image_path_list[i], output_dir, 
+                    output_suffix_with_tilenum,
                     extension='.csv')    
     
         if output_path.exists() and skip_existing_images:
@@ -146,10 +195,10 @@ def bulk_process_orientation_alignment(
         
         process_orientation_alignment(ret_image_path_list[i],
                                       orient_image_path_list[i],
-                                      output_dir,
-                                      output_suffix,
+                                      output_path,
                                       tile_size,
-                                      tile_separation=tile_separation)
+                                      tile_separation=tile_separation,
+                                      roi_size=roi_size)
 
 
 def convert_intensity_to_retardance(itk_image, 
