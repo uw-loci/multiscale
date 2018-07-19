@@ -90,6 +90,8 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
                     extension='.csv')    
 
     with open(csv_path, 'w', newline='') as csvfile:
+        print('\nWriting average retardance file for {} at tile size {}'.format(
+                csv_path.name, tile_size[0]))
         writer = csv.writer(csvfile)
         writer.writerow(['Sample', 'Modality', 'Tile',
                          'Retardance', 'Orientation', 'Alignment'])
