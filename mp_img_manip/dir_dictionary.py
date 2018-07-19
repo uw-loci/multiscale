@@ -28,7 +28,7 @@ def create_dictionary(
         mid_analysis_dir = 'Data 03 - Mid-python analysis images',
         post_analysis_dir = 'Data 04 - Analysis results and graphics'):
         
-    retardance_dir = mid_analysis_dir + '\\Step 00 - PS Intensity to Retardance'
+    #retardance_dir = mid_analysis_dir + '\\Step 00 - PS Intensity to Retardance'
     mask_dir = mid_analysis_dir + '\\Step 01 - Masked images'
 
     resize_dir = mid_analysis_dir + '\\Step 02 - Resizing images'
@@ -42,7 +42,7 @@ def create_dictionary(
     curve_dir = post_analysis_dir + '\\Curve Align'
 
     dir_dict = {
-        "ps_large": os.path.join(base_dir, prep_dir, 'PS_Large'),
+        #"ps_large": os.path.join(base_dir, prep_dir, 'PS_Large'),
         "mmp_small": os.path.join(base_dir, prep_dir, 'MMP_Small'),
         "shg_large": os.path.join(base_dir, prep_dir, 'SHG_Large'),
         "mhr_large": os.path.join(base_dir, prep_dir, 'MHR_Large'),
@@ -50,52 +50,52 @@ def create_dictionary(
         "mlr_large_orient": os.path.join(base_dir, prep_dir, 'MLR_Large_Orient'),
         "mhr_large_orient": os.path.join(base_dir, prep_dir, 'MHR_Large_Orient'),
 
-        "ps_large_ret": os.path.join(base_dir, retardance_dir),
+        #"ps_large_ret": os.path.join(base_dir, retardance_dir),
 
-        "ps_small": os.path.join(base_dir, resize_dir, 'PS_Small'),
+        #"ps_small": os.path.join(base_dir, resize_dir, 'PS_Small'),
         "shg_small": os.path.join(base_dir, resize_dir, 'SHG_Small'),
-        "mmp_large": os.path.join(base_dir, resize_dir, 'MMP_Large'),
+       # "mmp_large": os.path.join(base_dir, resize_dir, 'MMP_Large'),
         "mhr_small": os.path.join(base_dir, resize_dir, 'MHR_Small'),
         "mlr_small": os.path.join(base_dir, resize_dir, 'MLR_Small'),
 
         "mhr_small_reg": os.path.join(base_dir, reg_dir, 'MHR_Small_Reg'),
         "mlr_small_reg": os.path.join(base_dir, reg_dir, 'MLR_Small_Reg'),
-        "mmp_small_reg": os.path.join(base_dir, reg_dir, 'MMP_Small_Reg'),
-        "ps_small_reg": os.path.join(base_dir, reg_dir, 'PS_Small_Reg'),
+       # "mmp_small_reg": os.path.join(base_dir, reg_dir, 'MMP_Small_Reg'),
+        #"ps_small_reg": os.path.join(base_dir, reg_dir, 'PS_Small_Reg'),
 
         "mhr_large_reg": os.path.join(base_dir, reg_dir, 'MHR_Large_Reg'),
         "mlr_large_reg": os.path.join(base_dir, reg_dir, 'MLR_Large_Reg'),
         'mlr_large_reg_orient': os.path.join(base_dir, reg_dir, 'MLR_Large_Reg_Orient'),
         'mhr_large_reg_orient': os.path.join(base_dir, reg_dir, 'MHR_Large_Reg_Orient'),
-        "mmp_large_reg": os.path.join(base_dir, reg_dir, 'MMP_Large_Reg'),
-        "ps_large_reg": os.path.join(base_dir, reg_dir, 'PS_Large_Reg'),
+       # "mmp_large_reg": os.path.join(base_dir, reg_dir, 'MMP_Large_Reg'),
+        #"ps_large_reg": os.path.join(base_dir, reg_dir, 'PS_Large_Reg'),
 
-        "ps_small_mask": os.path.join(base_dir, mask_dir,'PS_Small_Mask'),
-        "shg_small_mask": os.path.join(base_dir, mask_dir,'SHG_Small_Mask'),
-        "mlr_small_mask": os.path.join(base_dir, mask_dir,'MLR_Small_Mask'),
+        #"ps_small_mask": os.path.join(base_dir, mask_dir,'PS_Small_Mask'),
+        #"shg_small_mask": os.path.join(base_dir, mask_dir,'SHG_Small_Mask'),
+        #"mlr_small_mask": os.path.join(base_dir, mask_dir,'MLR_Small_Mask'),
 
-        "ps_large_mask": os.path.join(base_dir, mask_dir, 'PS_Large_Mask'),
-        "shg_large_mask": os.path.join(base_dir, mask_dir, 'SHG_Large_Mask'),
+        #"ps_large_mask": os.path.join(base_dir, mask_dir, 'PS_Large_Mask'),
+        #"shg_large_mask": os.path.join(base_dir, mask_dir, 'SHG_Large_Mask'),
         "mlr_large_mask": os.path.join(base_dir, mask_dir, 'MLR_Large_Mask'),
         "mhr_large_mask": os.path.join(base_dir, mask_dir, 'MHR_Large_Mask'),
         "mlr_large_mask_orient": os.path.join(base_dir, mask_dir, 'MLR_Large_Mask_Orient'),
         "mhr_large_mask_orient": os.path.join(base_dir, mask_dir, 'MHR_Large_Mask_Orient'),
 
-        "ps_large_8bit": os.path.join(base_dir, eight_bit_dir,'PS_Large_8Bit'),
-        "shg_large_8bit": os.path.join(base_dir, eight_bit_dir,'SHG_Large_8Bit'),
-        "mmp_large_8bit": os.path.join(base_dir, eight_bit_dir,'MMP_Large_8Bit'),
-        "mhr_large_8bit": os.path.join(base_dir, eight_bit_dir,'MHR_Large_8Bit'),
-        "mlr_large_8bit": os.path.join(base_dir, eight_bit_dir,'MLR_Large_8Bit'),
+#        "ps_large_8bit": os.path.join(base_dir, eight_bit_dir,'PS_Large_8Bit'),
+#        "shg_large_8bit": os.path.join(base_dir, eight_bit_dir,'SHG_Large_8Bit'),
+#        "mmp_large_8bit": os.path.join(base_dir, eight_bit_dir,'MMP_Large_8Bit'),
+#        "mhr_large_8bit": os.path.join(base_dir, eight_bit_dir,'MHR_Large_8Bit'),
+#        "mlr_large_8bit": os.path.join(base_dir, eight_bit_dir,'MLR_Large_8Bit'),
+#
+#        "ps_small_8bit": os.path.join(base_dir, eight_bit_dir, 'PS_Small_8Bit'),
+#        "shg_small_8bit": os.path.join(base_dir, eight_bit_dir, 'SHG_Small_8Bit'),
+#        "mmp_small_8bit": os.path.join(base_dir, eight_bit_dir, 'MMP_Small_8Bit'),
+#        "mhr_small_8bit": os.path.join(base_dir, eight_bit_dir, 'MHR_Small_8Bit'),
+#        "mlr_small_8bit": os.path.join(base_dir, eight_bit_dir, 'MLR_Small_8Bit'),
 
-        "ps_small_8bit": os.path.join(base_dir, eight_bit_dir, 'PS_Small_8Bit'),
-        "shg_small_8bit": os.path.join(base_dir, eight_bit_dir, 'SHG_Small_8Bit'),
-        "mmp_small_8bit": os.path.join(base_dir, eight_bit_dir, 'MMP_Small_8Bit'),
-        "mhr_small_8bit": os.path.join(base_dir, eight_bit_dir, 'MHR_Small_8Bit'),
-        "mlr_small_8bit": os.path.join(base_dir, eight_bit_dir, 'MLR_Small_8Bit'),
-
-        "ps_tile": os.path.join(base_dir, tile_dir, 'PS_Tiles'),
+      #  "ps_tile": os.path.join(base_dir, tile_dir, 'PS_Tiles'),
         "shg_tile": os.path.join(base_dir, tile_dir, 'SHG_Tiles'),
-        "mmp_tile": os.path.join(base_dir, tile_dir, 'MMP_Tiles'),
+       # "mmp_tile": os.path.join(base_dir, tile_dir, 'MMP_Tiles'),
         "mhr_tile": os.path.join(base_dir, tile_dir, 'MHR_Tiles'),
         "mlr_tile": os.path.join(base_dir, tile_dir, 'MLR_Tiles'),
 
