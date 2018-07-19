@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Apr 17 15:27:28 2018
-
-@author: mpinkert
-"""
 
 import mp_img_manip.cytospectre as cyto
 import mp_img_manip.bulk_img_processing as blk
