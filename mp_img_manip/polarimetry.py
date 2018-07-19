@@ -55,7 +55,7 @@ def calculate_retardance_over_area(retardance, orientation):
 
 def calculate_alignment(orient_tile):
     nonzero_orient = orient_tile > 0
-    orient_rad = nonzero_orient*2*np.pi/180  # 180 is range of possible angles
+    orient_rad = orient_tile[nonzero_orient]*2*np.pi/180  # 180 is range of possible angles
     complex_angles = np.exp(-1j*orient_rad)
     
     size = np.size(orient_rad)
@@ -128,7 +128,7 @@ def bulk_process_orientation_alignment(
     """
     # todo: add ROI capability
     
-    output_suffix = 'Tile-size-' + str(tile_size)
+    output_suffix = 'Tile-size-' + str(tile_size[0])
 
     if (tile_separation
             and tile_separation != tile_size):
