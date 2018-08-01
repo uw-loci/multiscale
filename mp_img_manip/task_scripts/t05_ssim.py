@@ -11,11 +11,17 @@ import datetime
 
 dir_dict = dird.create_dictionary()
 
+mlr_mhr_small =  [dir_dict['mlr_small_reg'], dir_dict['mhr_small_reg']]
 mlr_mhr = [dir_dict['mlr_large_reg'], dir_dict['mhr_large_reg']]
 
 
 date = str(datetime.date.today())
+
+output_name_small = 'CW_SSIM_Small_' + date + '.csv'
 output_name = 'CW-SSIM_' + date + '.csv'
+
+
+ssim.bulk_compare_ssim(mlr_mhr_small, dir_dict['ssim'], output_name)
 
 ssim.bulk_compare_ssim(mlr_mhr, dir_dict['ssim'], output_name)
 
