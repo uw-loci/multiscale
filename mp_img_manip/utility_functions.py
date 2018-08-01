@@ -6,6 +6,10 @@ Created on Wed Mar  7 14:59:49 2018
 """
 import os
 from pathlib import Path
+from PIL import Image
+import warnings
+
+warnings.simplefilter('ignore', Image.DecompressionBombWarning)
 
 
 def item_present_all_lists(item, lists):
@@ -111,3 +115,9 @@ def split_list_into_sublists(large_list, size_of_sublist):
     for i in range(0, len(large_list), size_of_sublist):
         yield large_list[i:i+size_of_sublist]
     
+
+def get_image_size(path_image):
+    image = Image.open(path_image)
+    return image.size
+
+
