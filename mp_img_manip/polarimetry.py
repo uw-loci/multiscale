@@ -164,7 +164,7 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
                         retardance, orientation = calculate_retardance_over_area(
                             ret_roi, orient_roi)
                         
-                        alignment = calculate_alignment(orient_tile)
+                        alignment = calculate_alignment(orient_roi)
         
                         sample = blk.get_core_file_name(output_path)
                         mouse, slide = sample.split('-')
