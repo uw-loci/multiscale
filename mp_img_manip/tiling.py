@@ -213,8 +213,15 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
                             intensity_threshold, number_threshold,
                             skip_existing_images=skip_existing_images)
             
+        
+def get_tile_indices(str_indices):
+    indexes = re.findall('(\d+)', str_indices[2])
+    x = int(indexes[0]) - 1
+    y = int(indexes[1]) - 1
+    
+    return x, y
 
-def tile_values_to_image( pd_series, img_dims, col_label):
+def tile_values_to_image(pd_series, img_dims, col_label):
     """
     Inputs: number of x, and y tiles in xy dims
             pandas series for one image, with indexes being the tile number
@@ -231,7 +238,22 @@ def tile_values_to_image( pd_series, img_dims, col_label):
         
     return img
        
- 
+
+def get_roi_indices(multi_index, rois_per_tile=8):
+    tile_locs = re.findall('(\d+)', multi_index.get_level_values(0))
+    tile_x = int(tile_locs[0]) - 1
+    tile_y = int(tile_locs[1]) - 1
+        
+    roi_locs = re.findall('(\d+)', multi_index.get_level_values(1))
+    roi_x = int(roi_locs[0]) - 1
+    roi_y = int(roi_locs[1]) - 1
+        
+    x = tile_x*rois_per_tile + roi_x
+    y = tile_y*rois_per_tile + roi_y
+    
+    return x, y
+    
+
 def roi_values_to_image(pd_series, img_dims, col_label, rois_per_tile=8):
     
     img = np.zeros(img_dims)
