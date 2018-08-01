@@ -24,16 +24,26 @@ def construct_image(dataframe, mouse, slide, modality, dimensions, roi=False):
         img_array = til.tile_values_to_image(values, dimensions, modality)
         
     return img_array
-            
 
-def retardance_files_to_df(ret_dir):
-    list_csvs = util.list_filetype_in_dir(ret_dir, 'csv')
-    list_df_rets = [pd.read_csv(item) for item in list_csvs if re.search('64', str(item))]
+
+def bulk_construct_images(df_single_modality_variable, modality, dir_modality,
+                          dir_output, suffix_output):
     
-    df_ret_avgs_raw = pd.concat(list_df_rets)
+    for grp, df in df_single_modality_variable.groupby(['Mouse', 'Slide']):
+        
+        path_to_image = find_matching_image(grp, dir_modality)
+        dimensions = util.get_image_size(path_to_image)
+        image_array = til.roi_values_to_image(df, dimensions, modality)
+        
+        write_image(image_array, dir_output, suffix_output)
+        
+
+def find_matching_image(group, dir_modality):
     
-    df_ret_avgs = pd.pivot_table(df_ret_avgs_raw, index=['Mouse', 'Slide', 'Tile', 'ROI'],
-                                 values=['Alignment', 'Orientation', 'Retardance'],
-                                 columns = 'Modality')
+    sample = str(group[0]) + '-' + str(group[1])
+    path_image = [Path(image) for image in os.listdir(dir_modality) if image.startswith(sample)]
     
-    return df_ret_avgs
+    return path_image
+
+
+def write_image(image_array, dir_output, suffix_output)
