@@ -15,3 +15,5 @@ import pandas as pd
 import scipy.stats as stats
 
 from pathlib import Path
+
+dir_dict = dird.create_dictionary()
