@@ -10,7 +10,7 @@ import os
 
 import csv
 
-def calculate_retardance_over_area(retardance, orientation):
+def calculate_retardance_over_area(retardance, orientation, ret_thresh=1):
     """Calculate the average retardance in an neighborhood
     
     Retardance has a directional component, so it has to be weighted by
@@ -24,7 +24,7 @@ def calculate_retardance_over_area(retardance, orientation):
     
     Both units are degrees.  
     """
-    mask = retardance > 0
+    mask = retardance > ret_thresh
     nonzero_retardance = retardance[mask]
     nonzero_orientation = orientation[mask]
 
@@ -35,6 +35,9 @@ def calculate_retardance_over_area(retardance, orientation):
     retardance_weighted_by_orientation = nonzero_retardance*complex_orientation
     
     num_pixels = np.size(nonzero_retardance)
+    
+    if num_pixels is 0:
+        return np.nan, np.nan
     
     average_retardance = np.sum(retardance_weighted_by_orientation)/num_pixels
     
@@ -49,6 +52,10 @@ def calculate_retardance_over_area(retardance, orientation):
     ret_angle = ret_base_angle/2
 
     # bug: ret_angle does not give right value.
+    
+    if ret_mag < ret_thresh:
+        ret_mag = np.nan
+        ret_angle = np.nan
     
     return ret_mag, ret_angle
 
@@ -71,7 +78,9 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
                                   tile_size, tile_separation=None, 
                                   roi_size=None,
                                   intensity_thresh=1, number_thresh=10):
-
+    """ Calculate the average retardance, orientation, and alignment through the retardance and orientation base images
+    """
+    
     modality = blk.file_name_parts(ret_image_path)[1] + '-O'
     
     ret_image = sitk.ReadImage(str(ret_image_path))
@@ -91,7 +100,7 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
             print('\nWriting average retardance file for {} at tile size {}'.format(
                     output_path.name, tile_size[0]))
             writer = csv.writer(csvfile)
-            writer.writerow(['Sample', 'Modality', 'Tile',
+            writer.writerow(['Mouse', 'Slide', 'Modality', 'Tile',
                              'Retardance', 'Orientation', 'Alignment'])
         
             for start, end, tile_number in til.generate_tile_start_end_index(
@@ -108,13 +117,15 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
                     
                     retardance, orientation = calculate_retardance_over_area(
                             ret_tile, orient_tile)
+                    
                     alignment = calculate_alignment(orient_tile)
         
                     sample = blk.get_core_file_name(output_path)
+                    mouse, slide = sample.split('-')
     
                     tile = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
         
-                    writer.writerow([sample, modality, tile, 
+                    writer.writerow([mouse, slide, modality, tile, 
                                      retardance, orientation, alignment])
     
     else:
@@ -124,7 +135,7 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
             print('\nWriting average retardance file for {} at tile size {} and roi size {}'.format(
                     output_path.name, tile_size[0], roi_size[0]))
             writer = csv.writer(csvfile)
-            writer.writerow(['Sample', 'Modality', 'Tile', 'ROI',
+            writer.writerow(['Mouse', 'Slide', 'Modality', 'Tile', 'ROI',
                              'Retardance', 'Orientation', 'Alignment'])     
                     
             for start, end, tile_number in til.generate_tile_start_end_index(
@@ -156,10 +167,11 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
                         alignment = calculate_alignment(orient_tile)
         
                         sample = blk.get_core_file_name(output_path)
+                        mouse, slide = sample.split('-')
     
                         roi = 'ROI' + str(roi_number[0]) + 'x' + str(roi_number[1]) + 'y'
         
-                        writer.writerow([sample, modality, tile, roi,
+                        writer.writerow([mouse, slide, modality, tile, roi,
                                          retardance, orientation, alignment])
                         
 
@@ -174,6 +186,9 @@ def bulk_process_orientation_alignment(
     # todo: add ROI capability
     
     output_suffix_with_tilenum = output_suffix + '_' + str(tile_size[0])
+    
+    if roi_size is not None:
+        output_suffix_with_tilenum = output_suffix_with_tilenum + '_' + str(roi_size[0])
     
     if (tile_separation
             and tile_separation != tile_size):
