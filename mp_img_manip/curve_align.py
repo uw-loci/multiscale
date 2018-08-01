@@ -216,34 +216,49 @@ def bulk_extract_tar(tar_dir, output_dir):
         os.remove(tar)
 
     
-def scrape_results(curve_dir, modality_dir, output_suffix):
-
-    tile_dir = Path(curve_dir, modality_dir + '\images\CA_Out')
-    roi_dir = Path(curve_dir, modality_dir + '\images\CA_ROI\Batch\ROI_post_analysis')
-
+def scrape_tiles(tile_dir, tile_output_dir, output_suffix):
     tile_files = util.list_filetype_in_dir(tile_dir, 'stats.csv')
-    roi_files = util.list_filetype_in_dir(roi_dir, 'stats.csv')
-
-    csv_path = Path(curve_dir, 'Curve_Align_results_' + output_suffix + '.csv')
-
-    print('Scraping results from {0}'.format(Path(curve_dir, modality_dir)))
-
+    csv_path = Path(tile_output_dir, 'Curve_Align_results_Tiles_' + output_suffix + '.csv')
+    print('Scraping results from {0}'.format(tile_dir))
+    
     with open(csv_path, 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(['Mouse', 'Slide', 'Modality', 'Tile', 'ROI', 'Orientation', 'Alignment'])
+        writer.writerow(['Mouse', 'Slide', 'Modality', 'Tile', 'Orientation', 'Alignment'])
 
         for tile_path in tile_files:
             sample, modality, tile = blk.file_name_parts(tile_path)[:3]
             mouse, slide = sample.split('-')
-            roi = 'Full-tile'
             orientation, alignment = read_stats_file(tile_path)
-            writer.writerow([mouse, slide, modality, tile, roi, orientation, alignment])
+            writer.writerow([mouse, slide, modality, tile, orientation, alignment])
+    
+    
+def scrape_rois(roi_dir, roi_output_dir, output_suffix):
+    roi_files = util.list_filetype_in_dir(roi_dir, 'stats.csv')
+    csv_path = Path(roi_output_dir, 'Curve_Align_results_ROIs_' + output_suffix + '.csv')
+    print('Scraping results from {0}'.format(roi_dir))
+
+    with open(csv_path, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['Mouse', 'Slide', 'Modality', 'Tile', 'ROI', 'Orientation', 'Alignment'])
 
         for roi_path in roi_files:
             sample, modality, tile, roi = blk.file_name_parts(roi_path)[:4]
             mouse, slide = sample.split('-')
             orientation, alignment = read_stats_file(roi_path)
             writer.writerow([mouse, slide, modality, tile, roi, orientation, alignment])
+
+    
+def scrape_results(curve_dir, modality_dir, output_suffix):
+    tile_dir = Path(curve_dir, modality_dir + '\images\CA_Out')
+    tile_output_dir = Path(curve_dir, 'Tile')
+    os.makedirs(tile_output_dir, exist_ok=True)
+    scrape_tiles(tile_dir, tile_output_dir, output_suffix)
+    
+    roi_dir = Path(curve_dir, modality_dir + '\images\CA_ROI\Batch\ROI_post_analysis')
+    roi_output_dir = Path(curve_dir, 'ROI')
+    os.makedirs(roi_output_dir, exist_ok=True)
+    scrape_rois(roi_dir, roi_output_dir, output_suffix)
+
 
 
 def load_dataframe(csv_path):
