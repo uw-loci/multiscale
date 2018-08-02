@@ -14,17 +14,6 @@ import mp_img_manip.utility_functions as util
 import mp_img_manip.tiling as til
 
 
-def construct_image(dataframe, mouse, slide, modality, dimensions, roi=False):
-
-    values = dataframe.loc[mouse, slide]
-    
-    if roi:
-        img_array = til.roi_values_to_image(values, dimensions, modality)
-    else:
-        img_array = til.tile_values_to_image(values, dimensions, modality)
-        
-    return img_array
-
 
 def bulk_construct_images(df_single_modality_variable, modality, dir_modality,
                           dir_output, suffix_output):
@@ -46,4 +35,5 @@ def find_matching_image(group, dir_modality):
     return path_image
 
 
-def write_image(image_array, dir_output, suffix_output)
+def write_image(image_array, dir_output, suffix_output):
+    
