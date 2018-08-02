@@ -25,19 +25,14 @@ def calculate_retardance_over_area(retardance, orientation, ret_thresh=1):
     Both units are degrees.  
     """
     mask = retardance > ret_thresh
-    nonzero_retardance = retardance[mask]
-    nonzero_orientation = orientation[mask]
 
     # Orientation doubled to calculate alignment.
-    circular_orientation = (2*np.pi/180)*nonzero_orientation
+    circular_orientation = (2*np.pi/180)*orientation
     complex_orientation = np.exp(-1j*circular_orientation)
     
-    retardance_weighted_by_orientation = nonzero_retardance*complex_orientation
+    retardance_weighted_by_orientation = retardance*complex_orientation
     
-    num_pixels = np.size(nonzero_retardance)
-    
-    if num_pixels is 0:
-        return np.nan, np.nan
+    num_pixels = np.size(retardance)
     
     average_retardance = np.sum(retardance_weighted_by_orientation)/num_pixels
     
@@ -53,10 +48,6 @@ def calculate_retardance_over_area(retardance, orientation, ret_thresh=1):
 
     # bug: ret_angle does not give right value.
     
-    if ret_mag < ret_thresh:
-        ret_mag = np.nan
-        ret_angle = np.nan
-    
     return ret_mag, ret_angle
 
 
@@ -66,7 +57,10 @@ def calculate_alignment(orient_tile):
     complex_angles = np.exp(-1j*orient_rad)
     
     size = np.size(orient_rad)
-    
+
+    if size is 0:
+        return 0
+
     r = np.sum(complex_angles)/size
     alignment = np.abs(r)
     
@@ -113,20 +107,18 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
                 orient_tile = orient_array[start[0]:end[0],
                                            start[1]:end[1]]
         
-                if til.tile_passes_threshold(ret_tile, intensity_thresh, number_thresh, ret_max):
-                    
-                    retardance, orientation = calculate_retardance_over_area(
+                retardance, orientation = calculate_retardance_over_area(
                             ret_tile, orient_tile)
                     
-                    alignment = calculate_alignment(orient_tile)
+                alignment = calculate_alignment(orient_tile)
         
-                    sample = blk.get_core_file_name(output_path)
-                    mouse, slide = sample.split('-')
+                sample = blk.get_core_file_name(output_path)
+                mouse, slide = sample.split('-')
     
-                    tile = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
+                tile = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
         
-                    writer.writerow([mouse, slide, modality, tile, 
-                                     retardance, orientation, alignment])
+                writer.writerow([mouse, slide, modality, tile,
+                                 retardance, orientation, alignment])
     
     else:
         num_rois, roi_offset = til.calculate_number_of_tiles(tile_size, roi_size)
@@ -147,33 +139,31 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
         
                 orient_tile = orient_array[start[0]:end[0],
                                            start[1]:end[1]]         
-                    
-                if til.tile_passes_threshold(ret_tile, intensity_thresh, number_thresh,ret_max):
-                    
-                    tile = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
-                                        
-                    for start_roi, end_roi, roi_number in til.generate_tile_start_end_index(
-                            num_rois, roi_size, tile_offset=roi_offset):
-                        
-                        ret_roi = ret_tile[start_roi[0]:end_roi[0],
-                                          start_roi[1]:end_roi[1]]
-                        
-                        orient_roi = orient_tile[start_roi[0]:end_roi[0],
-                                          start_roi[1]:end_roi[1]]
-                        
-                        retardance, orientation = calculate_retardance_over_area(
-                            ret_roi, orient_roi)
-                        
-                        alignment = calculate_alignment(orient_roi)
-        
-                        sample = blk.get_core_file_name(output_path)
-                        mouse, slide = sample.split('-')
-    
-                        roi = 'ROI' + str(roi_number[0]) + 'x' + str(roi_number[1]) + 'y'
-        
-                        writer.writerow([mouse, slide, modality, tile, roi,
-                                         retardance, orientation, alignment])
-                        
+
+                tile = str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y'
+
+                for start_roi, end_roi, roi_number in til.generate_tile_start_end_index(
+                        num_rois, roi_size, tile_offset=roi_offset):
+
+                    ret_roi = ret_tile[start_roi[0]:end_roi[0],
+                                       start_roi[1]:end_roi[1]]
+
+                    orient_roi = orient_tile[start_roi[0]:end_roi[0],
+                                             start_roi[1]:end_roi[1]]
+
+                    retardance, orientation = calculate_retardance_over_area(
+                        ret_roi, orient_roi)
+
+                    alignment = calculate_alignment(orient_roi)
+
+                    sample = blk.get_core_file_name(output_path)
+                    mouse, slide = sample.split('-')
+
+                    roi = 'ROI' + str(roi_number[0]) + 'x' + str(roi_number[1]) + 'y'
+
+                    writer.writerow([mouse, slide, modality, tile, roi,
+                                     retardance, orientation, alignment])
+
 
 
 def bulk_process_orientation_alignment(
