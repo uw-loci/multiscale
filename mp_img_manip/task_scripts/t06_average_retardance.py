@@ -13,10 +13,23 @@ Created on Wed Jul 18 16:18:01 2018
 
 import mp_img_manip.dir_dictionary as dird
 import mp_img_manip.utility_functions as util
+import mp_img_manip.polarimetry as pol
 import pandas as pd
 import re
 
 from pathlib import Path
+
+
+def average_images(dir_dict):
+
+    pol.bulk_process_orientation_alignment(
+            dir_dict['mhr_large_reg'], dir_dict['mhr_large_reg_orient'], dir_dict['avg_ret'], 
+            'MHR-O', [512, 512], roi_size=[64, 64])
+    
+    pol.bulk_process_orientation_alignment(
+            dir_dict['mlr_large_reg'], dir_dict['mlr_large_reg_orient'], dir_dict['avg_ret'], 
+            'MLR-O', [512, 512], roi_size=[64, 64])
+    
 
 def scrape_averaged_files_to_df(dir_avg):
     list_csvs = util.list_filetype_in_dir(dir_avg, 'csv')
@@ -32,9 +45,13 @@ def scrape_averaged_files_to_df(dir_avg):
     
 
 dir_dict = dird.create_dictionary()
+
+average_images(dir_dict)
+
 dir_avg = dir_dict['avg_ret']
 df_avg = scrape_averaged_files_to_df(dir_avg)
 
-path_avg = Path()
+path_avg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
+                'ROIs_averaged_from_base_image.csv')
 
-df_avg.to_csv
+df_avg.to_csv(path_avg)
