@@ -254,23 +254,26 @@ def get_roi_indices(multi_index, rois_per_tile=8):
     return x, y
     
 
-def roi_values_to_image(pd_series, img_dims, col_label, rois_per_tile=8):
+def roi_values_to_sitk_image_array(pd_series, img_dims, col_label, rois_per_tile=8):
     
     img = np.zeros(img_dims)
-    
+
     for i in pd_series.index:
-        tile_locs = re.findall('(\d+)', i[0])
-        tile_x = int(tile_locs[0]) - 1
-        tile_y = int(tile_locs[1]) - 1
+        tile_locs = re.findall('(\d+)', i[2])
+        tile_x = int(tile_locs[0])
+        tile_y = int(tile_locs[1])
         
-        roi_locs = re.findall('(\d+)', i[1])
-        roi_x = int(roi_locs[0]) - 1
-        roi_y = int(roi_locs[1]) - 1
+        roi_locs = re.findall('(\d+)', i[3])
+        roi_x = int(roi_locs[0])
+        roi_y = int(roi_locs[1])
         
         x = tile_x*rois_per_tile + roi_x
         y = tile_y*rois_per_tile + roi_y
-        
-        img[x, y] = pd_series.get_value(i, col_label)
+
+        value = pd_series.get_value(i, col_label)
+
+        # The x and y values are switched when converting back to a sitk image, and were flipped in the roi names earlier
+        img[y, x] = value
         
     return img
         
