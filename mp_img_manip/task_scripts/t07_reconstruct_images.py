@@ -24,6 +24,13 @@ def bulk_construct_images(df_single_modality_variable, modality, dir_modality,
 
     for grp, df in df_single_modality_variable.groupby(['Mouse', 'Slide']):
 
+        sample = str(grp[0]) + '-' + str(grp[1])
+        path_image = blk.create_new_image_path(sample, dir_output, suffix_output)
+        if path_image.exists():
+            continue
+
+        print('\nCompiling results from {0}_{1} into image'.format(sample, modality))
+
         if df.isnull().all():
             continue
 
@@ -31,9 +38,7 @@ def bulk_construct_images(df_single_modality_variable, modality, dir_modality,
         dimensions = get_image_dimensions(path_to_image)
         image_array = til.roi_values_to_sitk_image_array(df, dimensions, modality)
 
-        sample = str(grp[0]) + '-' + str(grp[1])
-
-        write_image(image_array, sample, dir_output, suffix_output)
+        write_image(image_array, path_image)
 
 
 def get_image_dimensions(path_to_image, tile_size=np.array([512, 512])):
@@ -52,9 +57,7 @@ def find_matching_image(group, dir_modality):
     return path_image[0]
 
 
-def write_image(image_array, sample, dir_output, suffix_output):
-
-    path_image = blk.create_new_image_path(sample, dir_output, suffix_output)
+def write_image(image_array, path_image):
 
     image = sitk.Cast(sitk.GetImageFromArray(np.transpose(image_array)), sitk.sitkFloat32)
     sitk.WriteImage(image, str(path_image))
