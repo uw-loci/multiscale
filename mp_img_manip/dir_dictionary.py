@@ -107,7 +107,11 @@ def create_dictionary(
         "ssim": os.path.join(base_dir, ssim_dir),
         "cyto": os.path.join(base_dir, cyto_dir),
         "curve": os.path.join(base_dir, curve_dir),
-        "avg_ret": os.path.join(base_dir, avg_dir)
+        "avg_ret": os.path.join(base_dir, avg_dir),
+
+        "images": os.path.join(base_dir, post_analysis_dir, 'Images'),
+        "anal": os.path.join(base_dir, post_analysis_dir)
+
     }
     
     for key in dir_dict:
