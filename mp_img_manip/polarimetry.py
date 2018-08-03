@@ -24,7 +24,6 @@ def calculate_retardance_over_area(retardance, orientation, ret_thresh=1):
     
     Both units are degrees.  
     """
-    mask = retardance > ret_thresh
 
     # Orientation doubled to calculate alignment.
     circular_orientation = (2*np.pi/180)*orientation
@@ -47,6 +46,9 @@ def calculate_retardance_over_area(retardance, orientation, ret_thresh=1):
     ret_angle = ret_base_angle/2
 
     # bug: ret_angle does not give right value.
+
+    if ret_mag is 0:
+        ret_angle = 0
     
     return ret_mag, ret_angle
 
