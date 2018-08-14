@@ -46,9 +46,9 @@ def calculate_retardance_over_area(retardance, orientation, ret_thresh=1):
     ret_angle = ret_base_angle/2
 
     # bug: ret_angle does not give right value.
-
-    if ret_mag is 0:
-        ret_angle = 0
+    if ret_mag < ret_thresh:
+        ret_mag = np.nan 
+        ret_angle = np.nan
     
     return ret_mag, ret_angle
 
@@ -61,7 +61,7 @@ def calculate_alignment(orient_tile):
     size = np.size(orient_rad)
 
     if size is 0:
-        return 0
+        return np.nan
 
     r = np.sum(complex_angles)/size
     alignment = np.abs(r)
@@ -111,6 +111,9 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
         
                 retardance, orientation = calculate_retardance_over_area(
                             ret_tile, orient_tile)
+                
+                if retardance is np.nan:
+                        continue
                     
                 alignment = calculate_alignment(orient_tile)
         
@@ -155,6 +158,9 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
 
                     retardance, orientation = calculate_retardance_over_area(
                         ret_roi, orient_roi)
+
+                    if retardance is np.nan:
+                        continue
 
                     alignment = calculate_alignment(orient_roi)
 
