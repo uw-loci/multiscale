@@ -5,26 +5,37 @@ import numpy as np
 from scipy import stats
 
 
-def add_diffs_column_to_dataframe(dataframe):
-    return
+def recast_max_diff(row):
+    """Limit differences in orientation to < 90 degrees, from 180 range
+    
+    Input: A pandas row containing two columns.
+    Output: Difference between the columns, maximum of 90 degrees
+    """
+    value_one, value_two = row.values
+    diff = value_one - value_two
+    if diff > 90:
+        diff = 180 - diff
+    elif diff < -90:
+        diff = -180 - diff
 
-
-def find_diff(two_column_df):
-    recast_df = two_column_df.apply(recast_max_diff_90deg, axis = 1)
-    # find diff between two columns of arbitrary name..
+    return diff
 
 
 def recast_max_diff_90deg(row):
     value_one, value_two = row.values
     diff = value_one - value_two
     if diff > 90:
-        new_value = value_one - 180.0
+        newvalue_one = 180-value_one
+        newvalue_two = value_two
     elif diff < -90:
-        new_value = value_one + 180.0
+        newvalue_two = 180 - value_two
+        newvalue_one = value_one
     else:
-        new_value = value_one + 0
+        newvalue_one = value_one
+        newvalue_two = value_two
 
-    return new_value, value_two
+
+    return newvalue_one, newvalue_two
 
 
 def regress(two_column_df):
