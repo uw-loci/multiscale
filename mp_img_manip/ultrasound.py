@@ -1,4 +1,8 @@
-"""Script for manipulating ultrasound data for the LINK project"""
+"""Script for manipulating ultrasound data for the LINK project
+Author: Michael Pinkert
+Organization: Laboratory for Optical and Computation Instrumentation, University of Wisconsin-Madison
+
+"""
 
 import scipy.io as sio
 from pathlib import Path
@@ -19,8 +23,12 @@ def open_iq(path_iq: Path) -> np.ndarray:
     return array_iq
 
 
-def iq_to_bmode(array_iq):
-    return
+def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
+    """Convert complex IQ data into bmode through log10 transform"""
+    env = np.abs(array_iq)
+    bmode = np.log10(env)
+
+    return bmode
 
 
 def read_position_list():
