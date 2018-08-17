@@ -21,7 +21,14 @@ import csv
 
 
 def create_rois_from_tile(tile, roi_size):
-
+    """ Create curve align rois in the matlab format for an image tile
+    Input:
+    tile -- A numpy array of values corresponding to the tile
+    roi_size -- the size that the rois will be
+        
+    Output:
+    separate_rois -- dictionary containing ca formatted variables
+    """
     date = str(datetime.date.today())
     t = datetime.datetime.now()
     time = str(t.hour) + ':' + str(t.minute) + ':' + str(t.second)
@@ -72,7 +79,15 @@ def create_rois_from_tile(tile, roi_size):
 
 def save_rois(image_path, output_dir, output_suffix, tile_number, separate_rois,
               skip_existing_images=True):
-
+    """ Save curve align rois as a .mat file for the curve align program
+    
+    Inputs:
+    image_path -- Path to the base image 
+    output_dir -- directory where the tiles are saved
+    output_suffix -- naming convention for the rois
+    tile_numer -- Numerical index for the tile image
+    separate_rois -- the roi dictionary
+    """
     roi_suffix = output_suffix + '_' + str(tile_number[0]) + 'x-' + str(tile_number[1]) + 'y' \
                   + '_ROIs'
 
