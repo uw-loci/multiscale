@@ -79,15 +79,29 @@ def index_from_file_path(path_file: Path) -> int:
     return index
 
 
+def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]:
+    z_size = num_imgs/num_xy[1]
+    img = np.floor(idx_raw / z_size)
+    z = np.mod(idx_raw, z_size)
+    return img, z
+
+
 def assemble_4d_image(list_mats, num_xy):
     """Compile US .mats into separate 3d images"""
     list_mats_sorted = sorted(list_mats, key=index_from_file_path)
     image_shape = np.shape(open_iq(list_mats_sorted[0]))
-    array_4d_im_z_yx = np.ndarray([num_xy[0], num_xy[1], image_shape[0], image_shape[1]])
+    num_imgs = len(list_mats)
 
-    for item in list_mats_sorted:
-        idx = index_from_file_path(item)
+    array_4d_im_z_yx = np.zeros([num_xy[0], num_xy[1], image_shape[0], image_shape[1]])
 
+    for path in list_mats_sorted:
+        idx_raw = index_from_file_path(path)
+        img, z = get_idx_img_z(idx_raw, num_xy, num_imgs)
+        iq = open_iq(path)
+        bmode = iq_to_bmode(iq)
+        array_4d_im_z_yx[img, z, :, :] = bmode
+
+    return array_4d_im_z_yx
 
 
 def stitch_us_image(dir_mats, path_pl, dir_output, name_output):
