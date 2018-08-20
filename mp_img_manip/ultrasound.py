@@ -83,7 +83,7 @@ def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]
     z_size = num_imgs/num_xy[0]
     img = int(idx_raw / z_size)
     z = np.mod(idx_raw, z_size)
-    return img, z
+    return int(img), int(z)
 
 
 def assemble_4d_image(list_mats, num_xy):
@@ -95,10 +95,10 @@ def assemble_4d_image(list_mats, num_xy):
 
     for path in list_mats:
         idx_raw = index_from_file_path(path)
-        img_z = get_idx_img_z(idx_raw, num_xy, num_imgs)
+        img, z = get_idx_img_z(idx_raw, num_xy, num_imgs)
         iq = open_iq(path)
         bmode = iq_to_bmode(iq)
-        array_4d_im_z_yx[int(img_z[0]), int(img_z[1]), :, :] = bmode
+        array_4d_im_z_yx[img, z, :, :] = bmode
 
     return array_4d_im_z_yx
 
