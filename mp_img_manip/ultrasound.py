@@ -28,7 +28,7 @@ def open_iq(path_iq: Path) -> np.ndarray:
 def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
     """Convert complex IQ data into bmode through log10 transform"""
     env = np.abs(array_iq)
-    bmode = np.log10(env)
+    bmode = np.log10(env + 1)
 
     return bmode
 
@@ -80,26 +80,25 @@ def index_from_file_path(path_file: Path) -> int:
 
 
 def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]:
-    z_size = num_imgs/num_xy[1]
-    img = np.floor(idx_raw / z_size)
+    z_size = num_imgs/num_xy[0]
+    img = int(idx_raw / z_size)
     z = np.mod(idx_raw, z_size)
     return img, z
 
 
 def assemble_4d_image(list_mats, num_xy):
     """Compile US .mats into separate 3d images"""
-    list_mats_sorted = sorted(list_mats, key=index_from_file_path)
-    image_shape = np.shape(open_iq(list_mats_sorted[0]))
+    image_shape = np.shape(open_iq(list_mats[0]))
     num_imgs = len(list_mats)
 
     array_4d_im_z_yx = np.zeros([num_xy[0], num_xy[1], image_shape[0], image_shape[1]])
 
-    for path in list_mats_sorted:
+    for path in list_mats:
         idx_raw = index_from_file_path(path)
-        img, z = get_idx_img_z(idx_raw, num_xy, num_imgs)
+        img_z = get_idx_img_z(idx_raw, num_xy, num_imgs)
         iq = open_iq(path)
         bmode = iq_to_bmode(iq)
-        array_4d_im_z_yx[img, z, :, :] = bmode
+        array_4d_im_z_yx[int(img_z[0]), int(img_z[1]), :, :] = bmode
 
     return array_4d_im_z_yx
 
@@ -110,8 +109,13 @@ def stitch_us_image(dir_mats, path_pl, dir_output, name_output):
     num_xy = count_xy_positions(list_pos)
     separate_images_4d = assemble_4d_image(list_mats, num_xy)
 
+    return separate_images_4d
 
 
 
+
+dir_mats = Path("C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\PhantomGrid-TopLeftStart\\Run-2")
+path_pl = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\US Phantom grid 2018-08-17.pos')
+stitch_us_image(dir_mats, path_pl, '', '')
 
 
