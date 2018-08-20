@@ -7,7 +7,8 @@ Organization: Laboratory for Optical and Computation Instrumentation, University
 import scipy.io as sio
 from pathlib import Path
 import numpy as np
-import imagej
+import mp_img_manip.utility_functions as util
+import re
 
 
 def open_iq(path_iq: Path) -> np.ndarray:
@@ -71,4 +72,24 @@ def stitch_z_stacks():
     return
 
 
-def stitch_us_image(dir_input, dir_output, output_name):
+def index_from_file_path(path_file):
+    """Get the image index from filename formatted It-index.mat"""
+    match = re.search(r'It-\d*', path_file.stem)
+    index = match.group()[3:]
+    return index
+
+
+def assemble_3d_images(list_mats, num_xy):
+
+
+def stitch_us_image(dir_mats, path_pl, dir_output, name_output):
+    list_mats = util.list_filetype_in_dir(dir_mats, 'mat')
+    list_pos = read_position_list(path_pl)
+    num_xy = count_xy_positions(list_pos)
+    separate_images_4d = assemble_3d_images(list_mats, num_xy)
+
+
+
+
+
+
