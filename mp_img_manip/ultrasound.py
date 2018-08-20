@@ -7,6 +7,7 @@ Organization: Laboratory for Optical and Computation Instrumentation, University
 import scipy.io as sio
 from pathlib import Path
 import numpy as np
+import imagej
 
 
 def open_iq(path_iq: Path) -> np.ndarray:
@@ -32,20 +33,34 @@ def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
 
 
 def clean_position_text(dict_text: dict) -> list:
+    """Convert a Micromanager acquired position file into a list of X, Y positions"""
     list_pos_raw = dict_text['POSITIONS']
-    list_pos = [{'X': row['DEVICES'][0]['X'], 'Y': row['DEVICES'][0]['Y']}
+    list_pos = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
                 for row in list_pos_raw]
 
     return list_pos
 
 
 def read_position_list(path_pl: Path) -> list:
+    """Open a Micromanager acquired position file and return a list of X, Y positions"""
     with open(path_pl, 'r') as file_pos:
         text_pos = file_pos.read()
         dict_text = eval(text_pos)
         list_pos = clean_position_text(dict_text)
 
     return list_pos
+
+
+def convert_physical_pos_to_pixels(list_pos: list) -> list:
+    return
+
+
+def count_xy_positions(list_pos: list) -> np.ndarray:
+    array_pos = np.array(list_pos)
+    unique = np.unique(array_pos[:, 0], return_counts=True)
+    num_xy = np.array([len(unique[0]), unique[1][0]])
+
+    return num_xy
 
 
 def create_z_stack():
@@ -56,4 +71,4 @@ def stitch_z_stacks():
     return
 
 
-
+def stitch_us_image(dir_input, dir_output, output_name):
