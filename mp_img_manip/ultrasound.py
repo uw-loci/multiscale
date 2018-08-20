@@ -72,21 +72,29 @@ def stitch_z_stacks():
     return
 
 
-def index_from_file_path(path_file):
+def index_from_file_path(path_file: Path) -> int:
     """Get the image index from filename formatted It-index.mat"""
     match = re.search(r'It-\d*', path_file.stem)
-    index = match.group()[3:]
+    index = int(match.group()[3:]) - 1
     return index
 
 
-def assemble_3d_images(list_mats, num_xy):
+def assemble_4d_image(list_mats, num_xy):
+    """Compile US .mats into separate 3d images"""
+    list_mats_sorted = sorted(list_mats, key=index_from_file_path)
+    image_shape = np.shape(open_iq(list_mats_sorted[0]))
+    array_4d_im_z_yx = np.ndarray([num_xy[0], num_xy[1], image_shape[0], image_shape[1]])
+
+    for item in list_mats_sorted:
+        idx = index_from_file_path(item)
+
 
 
 def stitch_us_image(dir_mats, path_pl, dir_output, name_output):
     list_mats = util.list_filetype_in_dir(dir_mats, 'mat')
     list_pos = read_position_list(path_pl)
     num_xy = count_xy_positions(list_pos)
-    separate_images_4d = assemble_3d_images(list_mats, num_xy)
+    separate_images_4d = assemble_4d_image(list_mats, num_xy)
 
 
 
