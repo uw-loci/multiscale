@@ -27,9 +27,9 @@ def open_iq(path_iq: Path) -> np.ndarray:
 
 
 def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
-    """Convert complex IQ data into bmode through log10 transform"""
+    """Convert complex IQ data into bmode through squared transform"""
     env = np.abs(array_iq)
-    bmode = np.log10(env + 1)
+    bmode = np.power(env, 2)
 
     return bmode
 
