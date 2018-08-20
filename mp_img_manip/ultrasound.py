@@ -31,8 +31,21 @@ def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
     return bmode
 
 
-def read_position_list():
-    return
+def clean_position_text(dict_text: dict) -> list:
+    list_pos_raw = dict_text['POSITIONS']
+    list_pos = [{'X': row['DEVICES'][0]['X'], 'Y': row['DEVICES'][0]['Y']}
+                for row in list_pos_raw]
+
+    return list_pos
+
+
+def read_position_list(path_pl: Path) -> list:
+    with open(path_pl, 'r') as file_pos:
+        text_pos = file_pos.read()
+        dict_text = eval(text_pos)
+        list_pos = clean_position_text(dict_text)
+
+    return list_pos
 
 
 def create_z_stack():
