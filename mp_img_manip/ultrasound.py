@@ -62,15 +62,12 @@ def count_xy_positions(list_pos: list) -> np.ndarray:
     unique = np.unique(array_pos[:, 0], return_counts=True)
     num_xy = np.array([len(unique[0]), unique[1][0]])
 
-    return num_xy
+    if len(unique[0]) > 1:
+        x_sep = unique[0][1] - unique[0][0]
+    else:
+        x_sep = 0
 
-
-def create_z_stack():
-    return
-
-
-def stitch_z_stacks():
-    return
+    return num_xy, x_sep
 
 
 def index_from_file_path(path_file: Path) -> int:
@@ -108,11 +105,11 @@ def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
 def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str):
     list_mats = util.list_filetype_in_dir(dir_mats, 'mat')
     list_pos = read_position_list(path_pl)
-    num_xy = count_xy_positions(list_pos)
+    num_xy, x_sep = count_xy_positions(list_pos)
     separate_images_4d = assemble_4d_image(list_mats, num_xy)
 
     for idx in range(num_xy[0]):
-        path_output = Path(dir_output, name_output + '_' + str(idx) + '.tif')
+        path_output = Path(dir_output, name_output + '_' + str(x_sep) + '_' + str(idx) + '.tif')
         image = sitk.GetImageFromArray(separate_images_4d[idx])
         image_cast = sitk.Cast(image, sitk.sitkFloat32)
         sitk.WriteImage(image_cast, str(path_output))
