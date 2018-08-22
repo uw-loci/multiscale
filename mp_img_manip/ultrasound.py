@@ -29,7 +29,7 @@ def open_iq(path_iq: Path) -> np.ndarray:
 def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
     """Convert complex IQ data into bmode through squared transform"""
     env = np.abs(array_iq)
-    bmode = np.power(env, 2)
+    bmode = np.log10(env+1)
 
     return bmode
 
@@ -102,14 +102,22 @@ def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
     return array_4d_im_z_yx
 
 
-def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str):
+def calculate_percent_overlap(x_sep: float) -> int:
+    """Calculate the percentage overlap between X images"""
+    percent_sep = int(100 - 100*(x_sep / 12800))
+    return percent_sep
+
+
+def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str, x_res: int=50):
     list_mats = util.list_filetype_in_dir(dir_mats, 'mat')
     list_pos = read_position_list(path_pl)
     num_xy, x_sep = count_xy_positions(list_pos)
     separate_images_4d = assemble_4d_image(list_mats, num_xy)
 
+    percent_overlap = calculate_percent_overlap(x_sep)
+
     for idx in range(num_xy[0]):
-        path_output = Path(dir_output, name_output + '_' + str(x_sep) + '_' + str(idx) + '.tif')
+        path_output = Path(dir_output, name_output + '_Overlap-' + str(percent_overlap) + '_' + str(idx) + '.tif')
         image = sitk.GetImageFromArray(separate_images_4d[idx])
         image_cast = sitk.Cast(image, sitk.sitkFloat32)
         sitk.WriteImage(image_cast, str(path_output))
