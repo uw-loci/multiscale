@@ -34,7 +34,6 @@ def recast_max_diff_90deg(row):
         newvalue_one = value_one
         newvalue_two = value_two
 
-
     return newvalue_one, newvalue_two
 
 
@@ -46,7 +45,6 @@ def regress(two_column_df):
     results = stats.linregress(x, y)
 
     return results
-
 
 
 def find_correlations_two_modalities(two_mod_df):

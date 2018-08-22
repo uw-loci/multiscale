@@ -8,6 +8,7 @@
       <w>micromanager</w>
       <w>pathlib</w>
       <w>retardance</w>
+      <w>sitk</w>
       <w>ssim</w>
       <w>verasonics</w>
     </words>
