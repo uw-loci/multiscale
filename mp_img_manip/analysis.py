@@ -47,13 +47,14 @@ def regress(two_column_df):
     return results
 
 
-def find_correlations_two_modalities(two_mod_df):
-    
-    recast = two_mod_df.apply(recast_max_diff_90deg, axis=1)
-    group = recast.groupby(['Mouse', 'Slide']) 
-    
+def find_correlations_two_modalities(two_mod_df, recast=False):
+    if recast:
+        recast = two_mod_df.apply(recast_max_diff_90deg, axis=1)
+        group = recast.groupby(['Mouse', 'Slide'])
+    else:
+        group = two_mod_df.groupby(['Mouse', 'Slide'])
+
     correlations = group.corr().iloc[0::2, 1]
     correlations.index = correlations.index.droplevel(level=2)
     
     return correlations
-    
