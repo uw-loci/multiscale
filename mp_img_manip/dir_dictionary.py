@@ -45,9 +45,11 @@ def create_dictionary(
     dir_dict = {
         "shg_large": os.path.join(base_dir, prep_dir, 'SHG_Large'),
         "mhr_large": os.path.join(base_dir, prep_dir, 'MHR_Large'),
+        "mhr_large_orient": os.path.join(base_dir, prep_dir, 'MHR_Large_Orient'),
         "mlr_large": os.path.join(base_dir, prep_dir, 'MLR_Large'),
         "mlr_large_orient": os.path.join(base_dir, prep_dir, 'MLR_Large_Orient'),
-        "mhr_large_orient": os.path.join(base_dir, prep_dir, 'MHR_Large_Orient'),
+        "he_small:": os.path.join(base_dir, prep_dir, 'HE_Small'),
+        "he_large:": os.path.join(base_dir, prep_dir, 'HE_Large'),
 
         "shg_small": os.path.join(base_dir, resize_dir, 'SHG_Small'),
         "mhr_small": os.path.join(base_dir, resize_dir, 'MHR_Small'),
@@ -59,11 +61,13 @@ def create_dictionary(
         "mlr_small_reg": os.path.join(base_dir, reg_dir, 'MLR_Small_Reg'),
         "mhr_small_reg_orient": os.path.join(base_dir, reg_dir, 'MHR_Small_Reg_Orient'),
         "mlr_small_reg_orient": os.path.join(base_dir, reg_dir, 'MLR_Small_Reg_Orient'),
+        "he_small_reg": os.path.join(base_dir, reg_dir, 'HE_Small_Reg'),
 
         "mhr_large_reg": os.path.join(base_dir, reg_dir, 'MHR_Large_Reg'),
         "mlr_large_reg": os.path.join(base_dir, reg_dir, 'MLR_Large_Reg'),
         'mlr_large_reg_orient': os.path.join(base_dir, reg_dir, 'MLR_Large_Reg_Orient'),
         'mhr_large_reg_orient': os.path.join(base_dir, reg_dir, 'MHR_Large_Reg_Orient'),
+        "he_large_reg": os.path.join(base_dir, reg_dir, 'HE_Large_Reg'),
 
         "mlr_large_mask": os.path.join(base_dir, mask_dir, 'MLR_Large_Mask'),
         "mhr_large_mask": os.path.join(base_dir, mask_dir, 'MHR_Large_Mask'),
