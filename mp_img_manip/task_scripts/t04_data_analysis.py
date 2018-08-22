@@ -52,7 +52,7 @@ def group_into_phenotypes(dataframe):
 
 
 def calculate_corrs_by_phenotype(df):
-    corrs = correlate_pairs(df)
+    corrs = correlate_pairs(df['Orientation'])
     pheno_corrs = group_into_phenotypes(corrs)
     return pheno_corrs
 
@@ -78,6 +78,6 @@ def find_nas(single_variable_df):
 df_tile, df_roi, df_cyto = get_dfs(tile_path, roi_path, cyto_path)
 
 pheno_tile = calculate_corrs_by_phenotype(df_tile)
-# pheno_roi = calculate_corrs_by_phenotype(df_roi)
+pheno_roi = calculate_corrs_by_phenotype(df_roi)
 pheno_cyto = calculate_corrs_by_phenotype(df_cyto)
 
