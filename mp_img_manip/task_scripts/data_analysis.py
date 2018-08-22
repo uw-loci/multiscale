@@ -7,6 +7,8 @@ Created on Tue Jun 19 16:11:52 2018
 
 import mp_img_manip.dir_dictionary as dird
 import mp_img_manip.analysis as an
+
+import itertools as itt
 import pandas as pd
 from pathlib import Path
 
@@ -105,6 +107,23 @@ def get_average_dfs(path_shg, path_average):
     df_ret = df_average['Retardance']
 
     return df_orient, df_align, df_ret
+
+
+def calculate_pairwise_correlations(df_variable: pd.DataFrame, modalities: list) -> pd.DataFrame:
+    # for each pair of modalities, calculate correlations, and put them together into a column
+
+    series_list = []
+    modality_iterator = itt.combinations(modalities)
+    for pair in modality_iterator:
+        corr_pair = an.find_correlations_two_modalities(df_variable[pair])
+        header = '-'.join(pair)
+        corr_pair.rename(header)
+
+        series_list.append(corr_pair)
+
+    corrs_pairwise = pd.concat(series_list)
+
+    return corrs_pairwise
 
 
 def run_roi_averages_comparison():
