@@ -89,14 +89,6 @@ def threshold_df_by_retardance(df_measure, df_ret, threshold):
     return df_measure
 
 
-def run_roi_averages_comparison():
-    path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
-    path_average = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
-                        'ROIs_averaged_from_base_image.csv')
-
-    df_orient, df_align, df_ret = get_average_dfs(path_shg, path_average)
-
-
 def get_average_dfs(path_shg, path_average):
     df_shg = pd.read_csv(path_shg, header=[0, 1], index_col=[0, 1, 2, 3])
     df_average = pd.read_csv(path_average, header=[0, 1], index_col=[0, 1, 2, 3])
@@ -110,6 +102,14 @@ def get_average_dfs(path_shg, path_average):
     df_ret = df_average['Retardance']
 
     return df_orient, df_align, df_ret
+
+
+def run_roi_averages_comparison():
+    path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
+    path_average = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
+                        'ROIs_averaged_from_base_image.csv')
+
+    df_orient, df_align, df_ret = get_average_dfs(path_shg, path_average)
 
 
 
