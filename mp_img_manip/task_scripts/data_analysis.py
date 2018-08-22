@@ -109,8 +109,10 @@ def get_average_dfs(path_shg, path_average):
     return df_orient, df_align, df_ret
 
 
-def calculate_pairwise_correlations(df_variable: pd.DataFrame, modalities: list) -> pd.DataFrame:
-    # for each pair of modalities, calculate correlations, and put them together into a column
+def calculate_pairwise_correlations(df_variable: pd.DataFrame) -> pd.DataFrame:
+    """For each pair of modalities, calculate correlations, and put them together into a column"""
+
+    modalities = list(df_variable.columns.values)
 
     series_list = []
     modality_iterator = itt.combinations(modalities)
@@ -133,7 +135,11 @@ def run_roi_averages_comparison():
 
     df_orient, df_align, df_ret = get_average_dfs(path_shg, path_average)
 
-    return df_orient, df_align, df_ret
+    df_corrs_orient = calculate_pairwise_correlations(df_orient)
+    df_corrs_align = calculate_pairwise_correlations(df_align)
+    df_corrs_ret = calculate_pairwise_correlations(df_ret)
+
+    return df_corrs_orient, df_corrs_align, df_corrs_ret
 
 
 
