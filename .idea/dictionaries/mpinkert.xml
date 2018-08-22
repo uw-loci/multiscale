@@ -2,11 +2,14 @@
   <dictionary name="mpinkert">
     <words>
       <w>bmode</w>
+      <w>corrs</w>
+      <w>cyto</w>
       <w>dataframe</w>
       <w>dataframes</w>
       <w>imgs</w>
       <w>micromanager</w>
       <w>pathlib</w>
+      <w>pheno</w>
       <w>retardance</w>
       <w>sitk</w>
       <w>ssim</w>

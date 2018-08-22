@@ -10,18 +10,12 @@ import mp_img_manip.analysis as an
 import pandas as pd
 from pathlib import Path
 
-dir_dict = dird.create_dictionary()
 
-tile_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_Tiles.csv')
-roi_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
-cyto_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Cytospectre_Tiles.csv')
-
-
-def get_dfs(tile_path, roi_path, cyto_path):
+def get_tile_roi_cyto_df(tile_path, roi_path, cyto_path):
     tile_df = pd.read_csv(tile_path, header=[0,1], index_col=[0, 1, 2])
     roi_df = pd.read_csv(roi_path, header=[0,1], index_col=[0, 1, 2, 3])
     cyto_df = pd.read_csv(cyto_path, header=[0,1], index_col=[0, 1, 2])
-    
+
     return tile_df, roi_df, cyto_df
 
 
@@ -75,9 +69,19 @@ def find_nas(single_variable_df):
     return single_variable_df.isnull().groupby(['Mouse', 'Slide']).sum().astype(int)
 
 
-df_tile, df_roi, df_cyto = get_dfs(tile_path, roi_path, cyto_path)
+def run_tile_roi_cyto():
+    tile_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_Tiles.csv')
+    roi_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
+    cyto_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Cytospectre_Tiles.csv')
 
-pheno_tile = calculate_corrs_by_phenotype(df_tile)
-pheno_roi = calculate_corrs_by_phenotype(df_roi)
-pheno_cyto = calculate_corrs_by_phenotype(df_cyto)
+    df_tile, df_roi, df_cyto = get_tile_roi_cyto_df(tile_path, roi_path, cyto_path)
+
+    pheno_tile = calculate_corrs_by_phenotype(df_tile)
+    pheno_roi = calculate_corrs_by_phenotype(df_roi)
+    pheno_cyto = calculate_corrs_by_phenotype(df_cyto)
+
+    return pheno_tile, pheno_roi, pheno_cyto
+
+
+
 
