@@ -254,7 +254,7 @@ def get_roi_indices(multi_index, rois_per_tile=8):
     return x, y
     
 
-def roi_values_to_sitk_image_array(pd_series, img_dims, col_label, rois_per_tile=8):
+def roi_values_to_sitk_image_array(pd_series, img_dims, col_label, rois_per_tile=8, threshold=0):
     
     img = np.zeros(img_dims)
 
@@ -272,8 +272,9 @@ def roi_values_to_sitk_image_array(pd_series, img_dims, col_label, rois_per_tile
 
         value = pd_series.get_value(i, col_label)
 
-        # The x and y values are switched when converting back to a sitk image, and were flipped in the roi names earlier
-        img[y, x] = value
+        # The xy values are switched when converting back to a sitk image, and were flipped in the roi names earlier
+        if value > threshold:
+            img[y, x] = value
         
     return img
         

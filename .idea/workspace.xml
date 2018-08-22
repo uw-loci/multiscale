@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5875f1a4-dd91-4d04-a89c-8fd921649052" name="Default" comment="added H&amp;E directories">
+    <list default="true" id="5875f1a4-dd91-4d04-a89c-8fd921649052" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mp_img_manip/task_scripts/t03_data_cleaning.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/task_scripts/t03_data_cleaning.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mp_img_manip/task_scripts/t04_data_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/task_scripts/t04_data_analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mp_img_manip/task_scripts/t06_average_retardance.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/task_scripts/t06_average_retardance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mp_img_manip/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mp_img_manip/tiling.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/tiling.py" afterDir="false" />
     </list>
     <ignored path="workspace.xml" />
     <ignored path="workspace.ini" />
+    <ignored path="mp_img_manip/task_scripts/ipython.html" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -23,20 +23,11 @@
       <file leaf-file-name="t07_reconstruct_images.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1088">
-              <caret line="76" column="75" selection-start-line="76" selection-start-column="75" selection-end-line="76" selection-end-column="75" />
+            <state relative-caret-position="519">
+              <caret line="43" column="28" selection-start-line="43" selection-start-column="28" selection-end-line="43" selection-end-column="28" />
               <folding>
                 <element signature="e#87#106#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="cytospectre.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mp_img_manip/cytospectre.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1326">
-              <caret line="81" column="18" selection-start-line="81" selection-start-column="18" selection-end-line="81" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -59,11 +50,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="tiling.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="tiling.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/tiling.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4488">
-              <caret line="274" column="121" selection-start-line="274" selection-start-column="121" selection-end-line="274" selection-end-column="121" />
+            <state relative-caret-position="621">
+              <caret line="265" column="40" selection-start-line="265" selection-start-column="40" selection-end-line="265" selection-end-column="40" />
             </state>
           </provider>
         </entry>
@@ -80,6 +71,15 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="polarimetry.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mp_img_manip/polarimetry.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="117">
+              <caret line="18" column="36" lean-forward="true" selection-start-line="18" selection-start-column="36" selection-end-line="18" selection-end-column="36" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="ultrasound.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/ultrasound.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -92,7 +92,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="dir_dictionary.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="dir_dictionary.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/dir_dictionary.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="527">
@@ -104,17 +104,8 @@
       <file leaf-file-name="analysis.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/analysis.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="17" column="20" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="t04_data_analysis.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/t04_data_analysis.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="21" column="33" selection-start-line="21" selection-start-column="33" selection-end-line="21" selection-end-column="72" />
+            <state relative-caret-position="417">
+              <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
             </state>
           </provider>
         </entry>
@@ -167,7 +158,6 @@
         <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t04_cytospectre_prep.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/bulk_img_processing.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t05_cytospectre_analysis.py" />
-        <option value="$PROJECT_DIR$/mp_img_manip/analysis.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t_curve_align_analysis.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/itk/process.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t_curve_align_prep.py" />
@@ -179,13 +169,14 @@
         <option value="$PROJECT_DIR$/mp_img_manip/curve_align.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t04_data_analysis.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t03_data_cleaning.py" />
-        <option value="$PROJECT_DIR$/mp_img_manip/tiling.py" />
-        <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py" />
-        <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t06_average_retardance.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/polarimetry.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/utility_functions.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/ultrasound.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/dir_dictionary.py" />
+        <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t06_average_retardance.py" />
+        <option value="$PROJECT_DIR$/mp_img_manip/analysis.py" />
+        <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py" />
+        <option value="$PROJECT_DIR$/mp_img_manip/tiling.py" />
       </list>
     </option>
   </component>
@@ -211,6 +202,12 @@
               <item name="mp-python-modules" type="b2602c69:ProjectViewProjectNode" />
               <item name="mp-python-modules" type="462c0819:PsiDirectoryNode" />
               <item name="mp_img_manip" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="mp-python-modules" type="b2602c69:ProjectViewProjectNode" />
+              <item name="mp-python-modules" type="462c0819:PsiDirectoryNode" />
+              <item name="mp_img_manip" type="462c0819:PsiDirectoryNode" />
+              <item name="task_scripts" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="mp-python-modules" type="b2602c69:ProjectViewProjectNode" />
@@ -610,7 +607,28 @@
       <option name="project" value="LOCAL" />
       <updated>1534946902430</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="Task script modification">
+      <created>1534947076499</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1534947076499</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Construct images run script lines added">
+      <created>1534947118098</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1534947118098</updated>
+    </task>
+    <task id="LOCAL-00038" summary="Set Retardance threshold = 0 in averaging.&#10;&#10;It is better practice to threshold on the final dataframe.">
+      <created>1534959134735</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1534959134736</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TodoView">
@@ -624,15 +642,16 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1096" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="10" sideWeight="0.49946696" weight="0.32985386" />
       <window_info anchor="bottom" id="Messages" />
       <window_info anchor="bottom" id="Event Log" order="1" sideWeight="0.17963752" side_tool="true" weight="0.39770356" />
-      <window_info active="true" anchor="bottom" x="0" y="23" width="1920" height="1057" id="Version Control" order="2" type="WINDOWED" visible="true" weight="0.21607515" />
+      <window_info anchor="bottom" x="0" y="31" width="1920" height="1057" id="Version Control" order="2" type="WINDOWED" weight="0.21607515" />
       <window_info anchor="bottom" x="-1920" y="525" width="1920" height="561" id="Python Console" order="3" sideWeight="0.49733475" weight="0.27244258" />
       <window_info anchor="bottom" id="Run" order="6" sideWeight="0.6828358" weight="0.32881" />
       <window_info anchor="bottom" id="Terminal" order="0" weight="0.32985386" />
-      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49913344" visible="true" weight="0.14285715" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" sideWeight="0.49913344" visible="true" weight="0.14285715" />
       <window_info anchor="right" id="R Packages" order="2" weight="0.32938978" />
       <window_info anchor="right" id="R Graphics" order="0" weight="0.32938978" />
       <window_info anchor="bottom" id="Find" order="5" weight="0.32985386" />
@@ -709,9 +728,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="true" />
-    <MESSAGE value="fixed(?) reference to SSIM" />
-    <MESSAGE value="wrapped Path with str() call, as ITK doesn't do automatically" />
-    <MESSAGE value="pseudo code for processing stereo-pol czi data for stitching" />
     <MESSAGE value="added javabridge start/kill" />
     <MESSAGE value="added str() to prevent windows path errors" />
     <MESSAGE value="added two new directories to images and base analysis" />
@@ -734,25 +750,18 @@
     <MESSAGE value="Added H&amp;E directories" />
     <MESSAGE value="project dictionary additions" />
     <MESSAGE value="Scope shadowing setting change" />
-    <option name="LAST_COMMIT_MESSAGE" value="Scope shadowing setting change" />
+    <MESSAGE value="Task script modification" />
+    <MESSAGE value="Construct images run script lines added" />
+    <MESSAGE value="Set Retardance threshold = 0 in averaging.&#10;&#10;It is better practice to threshold on the final dataframe." />
+    <option name="LAST_COMMIT_MESSAGE" value="Set Retardance threshold = 0 in averaging.&#10;&#10;It is better practice to threshold on the final dataframe." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/mp_img_manip/task_scripts/t03_data_cleaning.py</url>
-          <line>43</line>
+          <line>44</line>
           <option name="timeStamp" value="38" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py</url>
-          <line>24</line>
-          <option name="timeStamp" value="69" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py</url>
-          <line>79</line>
-          <option name="timeStamp" value="70" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -775,13 +784,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Makefile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mp_img_manip/tests/context.py" />
     <entry file="file://$PROJECT_DIR$/.idea/encodings.xml">
       <provider selected="true" editor-type-id="text-editor" />
@@ -989,55 +991,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/t06_average_retardance.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="48" column="24" lean-forward="true" selection-start-line="48" selection-start-column="24" selection-end-line="48" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/polarimetry.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="918">
-          <caret line="64" selection-start-line="64" selection-end-line="64" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1088">
-          <caret line="76" column="75" selection-start-line="76" selection-start-column="75" selection-end-line="76" selection-end-column="75" />
-          <folding>
-            <element signature="e#87#106#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mp_img_manip/cytospectre.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1326">
           <caret line="81" column="18" selection-start-line="81" selection-start-column="18" selection-end-line="81" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/tiling.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4488">
-          <caret line="274" column="121" selection-start-line="274" selection-start-column="121" selection-end-line="274" selection-end-column="121" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/analysis.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="17" column="20" selection-start-line="17" selection-start-column="20" selection-end-line="17" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/t04_data_analysis.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="21" column="33" selection-start-line="21" selection-start-column="33" selection-end-line="21" selection-end-column="72" />
         </state>
       </provider>
     </entry>
@@ -1079,6 +1036,54 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="527">
           <caret line="70" lean-forward="true" selection-start-line="70" selection-end-line="70" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/t06_average_retardance.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="695">
+          <caret line="48" column="24" lean-forward="true" selection-start-line="48" selection-start-column="24" selection-end-line="48" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/ipython.html">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/t04_data_analysis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="21" column="33" selection-start-line="21" selection-start-column="33" selection-end-line="21" selection-end-column="72" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/analysis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="417">
+          <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/polarimetry.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="117">
+          <caret line="18" column="36" lean-forward="true" selection-start-line="18" selection-start-column="36" selection-end-line="18" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="519">
+          <caret line="43" column="28" selection-start-line="43" selection-start-column="28" selection-end-line="43" selection-end-column="28" />
+          <folding>
+            <element signature="e#87#106#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/tiling.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="621">
+          <caret line="265" column="40" selection-start-line="265" selection-start-column="40" selection-end-line="265" selection-end-column="40" />
         </state>
       </provider>
     </entry>
