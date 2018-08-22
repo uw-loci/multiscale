@@ -14,9 +14,12 @@ from pathlib import Path
 
 
 def get_tile_roi_cyto_df(tile_path, roi_path, cyto_path):
-    tile_df = pd.read_csv(tile_path, header=[0, 1], index_col=[0, 1, 2])
-    roi_df = pd.read_csv(roi_path, header=[0, 1], index_col=[0, 1, 2, 3])
-    cyto_df = pd.read_csv(cyto_path, header=[0, 1], index_col=[0, 1, 2])
+    tile_df = pd.read_csv(tile_path, header=[0, 1], index_col=[0, 1, 2],
+                          low_memory=False)
+    roi_df = pd.read_csv(roi_path, header=[0, 1], index_col=[0, 1, 2, 3],
+                         low_memory=False)
+    cyto_df = pd.read_csv(cyto_path, header=[0, 1], index_col=[0, 1, 2],
+                          low_memory=False)
 
     return tile_df, roi_df, cyto_df
 
