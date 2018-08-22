@@ -10,7 +10,7 @@ import os
 
 import csv
 
-def calculate_retardance_over_area(retardance, orientation, ret_thresh=1):
+def calculate_retardance_over_area(retardance, orientation, ret_thresh=0):
     """Calculate the average retardance in an neighborhood
     
     Retardance has a directional component, so it has to be weighted by
