@@ -45,8 +45,8 @@ def group_into_phenotypes(dataframe):
     return wild_benign, wild_cancer, col1a1_benign, col1a1_cancer
 
 
-def calculate_corrs_by_phenotype(df):
-    corrs = correlate_pairs(df['Orientation'])
+def calculate_corrs_by_phenotype(df_single_measure):
+    corrs = correlate_pairs(df_single_measure)
     pheno_corrs = group_into_phenotypes(corrs)
     return pheno_corrs
 
@@ -81,6 +81,12 @@ def run_tile_roi_cyto():
     pheno_cyto = calculate_corrs_by_phenotype(df_cyto)
 
     return pheno_tile, pheno_roi, pheno_cyto
+
+
+def threshold_df_by_retardance(df_measure, df_ret, threshold):
+    df_mhr_mlr = df_measure[['MLR', 'MHR']]
+    df_measure[['MLR', 'MHR']] = df_mhr_mlr[df_ret > threshold]
+    return df_measure
 
 
 def run_roi_averages_comparison():
