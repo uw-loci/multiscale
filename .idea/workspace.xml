@@ -3,9 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5875f1a4-dd91-4d04-a89c-8fd921649052" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mp_img_manip/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/analysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mp_img_manip/tiling.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/tiling.py" afterDir="false" />
     </list>
     <ignored path="workspace.xml" />
     <ignored path="workspace.ini" />
@@ -23,8 +20,8 @@
       <file leaf-file-name="t07_reconstruct_images.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="519">
-              <caret line="43" column="28" selection-start-line="43" selection-start-column="28" selection-end-line="43" selection-end-column="28" />
+            <state relative-caret-position="332">
+              <caret line="47" lean-forward="true" selection-start-line="47" selection-end-line="47" />
               <folding>
                 <element signature="e#87#106#0" expanded="true" />
               </folding>
@@ -50,7 +47,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="tiling.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="tiling.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/tiling.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="621">
@@ -101,7 +98,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="analysis.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="analysis.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/analysis.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="417">
@@ -274,7 +271,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mp_img_manip/task_scripts/t01_registration.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\mpinkert\Documents\GitHub\mp-python-modules\mp_img_manip\task_scripts\registration.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -310,7 +307,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\mpinkert\Documents\GitHub\mp-python-modules\mp_img_manip\task_scripts\reconstruct_images.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -628,7 +625,21 @@
       <option name="project" value="LOCAL" />
       <updated>1534959134736</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="Added optional threshold to image array creation">
+      <created>1534959385749</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1534959385749</updated>
+    </task>
+    <task id="LOCAL-00040" summary="Commented out SHG image construction as will not be redone for now">
+      <created>1534959450280</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1534959450280</updated>
+    </task>
+    <option name="localTasksCounter" value="41" />
     <servers />
   </component>
   <component name="TodoView">
@@ -728,8 +739,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="true" />
-    <MESSAGE value="added javabridge start/kill" />
-    <MESSAGE value="added str() to prevent windows path errors" />
     <MESSAGE value="added two new directories to images and base analysis" />
     <MESSAGE value="Re-added setting alignment to 0 when retardance is 0" />
     <MESSAGE value="Began ultrasound LINK script" />
@@ -753,7 +762,9 @@
     <MESSAGE value="Task script modification" />
     <MESSAGE value="Construct images run script lines added" />
     <MESSAGE value="Set Retardance threshold = 0 in averaging.&#10;&#10;It is better practice to threshold on the final dataframe." />
-    <option name="LAST_COMMIT_MESSAGE" value="Set Retardance threshold = 0 in averaging.&#10;&#10;It is better practice to threshold on the final dataframe." />
+    <MESSAGE value="Added optional threshold to image array creation" />
+    <MESSAGE value="Commented out SHG image construction as will not be redone for now" />
+    <option name="LAST_COMMIT_MESSAGE" value="Commented out SHG image construction as will not be redone for now" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1056,13 +1067,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/analysis.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="417">
-          <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mp_img_manip/polarimetry.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="117">
@@ -1070,20 +1074,27 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/tiling.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="621">
+          <caret line="265" column="40" selection-start-line="265" selection-start-column="40" selection-end-line="265" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="519">
-          <caret line="43" column="28" selection-start-line="43" selection-start-column="28" selection-end-line="43" selection-end-column="28" />
+        <state relative-caret-position="332">
+          <caret line="47" lean-forward="true" selection-start-line="47" selection-end-line="47" />
           <folding>
             <element signature="e#87#106#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/tiling.py">
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/analysis.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="621">
-          <caret line="265" column="40" selection-start-line="265" selection-start-column="40" selection-end-line="265" selection-end-column="40" />
+        <state relative-caret-position="417">
+          <caret line="35" lean-forward="true" selection-start-line="35" selection-end-line="35" />
         </state>
       </provider>
     </entry>
