@@ -50,3 +50,4 @@ Temporary Items
 *.ini
 .spyproject/workspace.ini
 .spyproject/workspace.ini
+.idea/workspace.xml
