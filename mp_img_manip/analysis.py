@@ -37,7 +37,7 @@ def recast_max_diff_90deg(row):
     return new_value_one, new_value_two
 
 
-def regress(two_column_df):
+def regress(two_column_df: pd.DataFrame) -> np.ndarray:
     original_columns = two_column_df.columns.tolist()
     x = two_column_df[original_columns[1]]
     y = two_column_df[original_columns[0]]
@@ -47,7 +47,7 @@ def regress(two_column_df):
     return results
 
 
-def find_correlations_two_modalities(two_mod_df, recast=False):
+def find_correlations_two_modalities(two_mod_df: pd.DataFrame, recast: bool=False) -> pd.Series:
     if recast:
         recast = two_mod_df.apply(recast_max_diff_90deg, axis=1)
         group = recast.groupby(['Mouse', 'Slide'])
