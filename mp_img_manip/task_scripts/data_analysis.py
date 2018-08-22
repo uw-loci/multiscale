@@ -93,18 +93,18 @@ def threshold_df_by_retardance(df_measure, df_ret, threshold):
 
 def get_average_dfs(path_shg, path_average):
     df_rois = pd.read_csv(path_shg, header=[0, 1], index_col=[0, 1, 2, 3],
-                          dtype={'Mouse': object, 'Slide': object})
+                          low_memory=False)
     df_shg = df_rois.xs('SHG', level=1, axis=1)
     df_average = pd.read_csv(path_average, header=[0, 1], index_col=[0, 1, 2, 3],
-                             dtype={'Mouse': object, 'Slide': object})
+                             low_memory=False)
 
-    df_orient = df_average['Orientation']
-    df_orient['SHG'] = df_shg['Orientation']
+    df_orient = df_average.loc[:, 'Orientation'].copy()
+    df_orient.loc[:, 'SHG'] = df_shg.loc[:, 'Orientation'].copy()
 
-    df_align = df_average['Alignment']
-    df_align['SHG'] = df_shg['Alignment']
+    df_align = df_average.loc[:, 'Alignment'].copy()
+    df_align.loc[:, 'SHG'] = df_shg.loc[:, 'Alignment'].copy()
 
-    df_ret = df_average['Retardance']
+    df_ret = df_average.loc[:, 'Retardance'].copy()
 
     return df_orient, df_align, df_ret
 
@@ -115,15 +115,15 @@ def calculate_pairwise_correlations(df_variable: pd.DataFrame) -> pd.DataFrame:
     modalities = list(df_variable.columns.values)
 
     series_list = []
-    modality_iterator = itt.combinations(modalities)
+    modality_iterator = itt.combinations(modalities, 2)
     for pair in modality_iterator:
-        corr_pair = an.find_correlations_two_modalities(df_variable[pair])
+        corr_pair = an.find_correlations_two_modalities(df_variable.loc[:, pair])
         header = '-'.join(pair)
-        corr_pair.rename(header)
+        corr_pair.rename(header, inplace=True)
 
         series_list.append(corr_pair)
 
-    corrs_pairwise = pd.concat(series_list)
+    corrs_pairwise = pd.concat(series_list, axis=1)
 
     return corrs_pairwise
 
@@ -143,7 +143,7 @@ def run_roi_averages_comparison():
 
 
 
-
+# run_roi_averages_comparison()
 
 
 
