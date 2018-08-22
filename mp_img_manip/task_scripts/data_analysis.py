@@ -12,9 +12,9 @@ from pathlib import Path
 
 
 def get_tile_roi_cyto_df(tile_path, roi_path, cyto_path):
-    tile_df = pd.read_csv(tile_path, header=[0,1], index_col=[0, 1, 2])
-    roi_df = pd.read_csv(roi_path, header=[0,1], index_col=[0, 1, 2, 3])
-    cyto_df = pd.read_csv(cyto_path, header=[0,1], index_col=[0, 1, 2])
+    tile_df = pd.read_csv(tile_path, header=[0, 1], index_col=[0, 1, 2])
+    roi_df = pd.read_csv(roi_path, header=[0, 1], index_col=[0, 1, 2, 3])
+    cyto_df = pd.read_csv(cyto_path, header=[0, 1], index_col=[0, 1, 2])
 
     return tile_df, roi_df, cyto_df
 
@@ -81,6 +81,31 @@ def run_tile_roi_cyto():
     pheno_cyto = calculate_corrs_by_phenotype(df_cyto)
 
     return pheno_tile, pheno_roi, pheno_cyto
+
+
+def run_roi_averages_comparison():
+    path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
+    path_average = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
+                        'ROIs_averaged_from_base_image.csv')
+
+    df_orient, df_align, df_ret = get_average_dfs(path_shg, path_average)
+
+
+def get_average_dfs(path_shg, path_average):
+    df_shg = pd.read_csv(path_shg, header=[0, 1], index_col=[0, 1, 2, 3])
+    df_average = pd.read_csv(path_average, header=[0, 1], index_col=[0, 1, 2, 3])
+
+    df_orient = df_average['Orientation']
+    df_orient['SHG'] = df_shg['Orientation']
+
+    df_align = df_average['Alignment']
+    df_align['SHG'] = df_shg['Alignment']
+
+    df_ret = df_average['Retardance']
+
+    return df_orient, df_align, df_ret
+
+
 
 
 

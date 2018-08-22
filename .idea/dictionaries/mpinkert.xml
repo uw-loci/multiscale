@@ -4,12 +4,14 @@
       <w>bmode</w>
       <w>corrs</w>
       <w>cyto</w>
+      <w>cytospectre</w>
       <w>dataframe</w>
       <w>dataframes</w>
       <w>imgs</w>
       <w>micromanager</w>
       <w>pathlib</w>
       <w>pheno</w>
+      <w>polarimetry</w>
       <w>retardance</w>
       <w>sitk</w>
       <w>ssim</w>
