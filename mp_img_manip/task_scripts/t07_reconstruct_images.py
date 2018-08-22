@@ -35,11 +35,19 @@ def bulk_construct_images(df_single_modality_variable, modality, dir_modality,
             continue
 
         path_to_image = Path(dir_modality, find_matching_image(grp, dir_modality))
-        dimensions = get_image_dimensions(path_to_image)
+        try:
+            dimensions = get_image_dimensions(path_to_image)
+        except OSError:
+            print('Cannot open original image file')
+            continue
+        
         image_array = til.roi_values_to_sitk_image_array(df, dimensions, modality)
 
         write_image(image_array, path_image)
 
+#
+#def construct_orientation_images(df_):
+#    
 
 def get_image_dimensions(path_to_image, tile_size=np.array([512, 512])):
     size_full = util.get_image_size(path_to_image)
@@ -65,8 +73,20 @@ def write_image(image_array, path_image):
 
 
 dir_dict = dird.create_dictionary()
+
 path_averages = Path(dir_dict['anal'], 'ROIs_averaged_from_base_image.csv')
 df_averages = pd.read_csv(path_averages, header=[0, 1], index_col=[0, 1, 2, 3],
                           dtype={'Mouse': object, 'Slide': object})
+
 bulk_construct_images(df_averages['Orientation', 'MLR-O'], 'MLR-O', dir_dict['mlr_large_reg'],
                       dir_dict['images'], 'MLR-O_Averaged_Orientation')
+bulk_construct_images(df_averages['Orientation', 'MHR-O'], 'MHR-O', dir_dict['mhr_large_reg'],
+                      dir_dict['images'], 'MHR-O_Averaged_Orientation')
+
+
+path_rois = Path(dir_dict['anal'], 'Curve-Align_ROIs.csv')
+df_rois = pd.read_csv(path_rois, header=[0, 1], index_col=[0, 1, 2, 3],
+                      dtype={'Mouse': object, 'Slide': object})
+
+bulk_construct_images(df_rois['Orientation', 'SHG'], 'SHG', dir_dict['shg_large'],
+                      dir_dict['images'], 'SHG_ROI_Orientation')
