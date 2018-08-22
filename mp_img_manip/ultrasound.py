@@ -108,7 +108,7 @@ def calculate_percent_overlap(x_sep: float) -> int:
     return percent_sep
 
 
-def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str, x_res: int=50):
+def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str):
     list_mats = util.list_filetype_in_dir(dir_mats, 'mat')
     list_pos = read_position_list(path_pl)
     num_xy, x_sep = count_xy_positions(list_pos)

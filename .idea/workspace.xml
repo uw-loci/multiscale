@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5875f1a4-dd91-4d04-a89c-8fd921649052" name="Default" comment="Find_correlations recasting is now optional, default doesn't">
+    <list default="true" id="5875f1a4-dd91-4d04-a89c-8fd921649052" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mp_img_manip/analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mp_img_manip/task_scripts/data_analysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/task_scripts/data_analysis.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mp_img_manip/ultrasound.py" beforeDir="false" afterPath="$PROJECT_DIR$/mp_img_manip/ultrasound.py" afterDir="false" />
     </list>
     <ignored path="workspace.xml" />
     <ignored path="workspace.ini" />
@@ -40,7 +41,7 @@
       <file leaf-file-name="utility_functions.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/utility_functions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
+            <state relative-caret-position="-1122">
               <caret line="18" column="24" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
               <folding>
                 <element signature="e#87#96#0" expanded="true" />
@@ -61,8 +62,8 @@
       <file leaf-file-name="ultrasound.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/ultrasound.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="529">
-              <caret line="116" column="54" selection-start-line="116" selection-start-column="54" selection-end-line="116" selection-end-column="54" />
+            <state relative-caret-position="391">
+              <caret line="107" column="22" lean-forward="true" selection-start-line="107" selection-start-column="22" selection-end-line="107" selection-end-column="22" />
               <folding>
                 <element signature="e#196#218#0" expanded="true" />
               </folding>
@@ -79,20 +80,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="analysis.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="analysis.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/analysis.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="204">
-              <caret line="16" column="25" lean-forward="true" selection-start-line="16" selection-start-column="25" selection-end-line="16" selection-end-column="25" />
+            <state relative-caret-position="581">
+              <caret line="59" column="23" lean-forward="true" selection-start-line="59" selection-start-column="23" selection-end-line="59" selection-end-column="23" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="data_analysis.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="data_analysis.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/data_analysis.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="547">
-              <caret line="116" column="38" lean-forward="true" selection-start-line="116" selection-start-column="38" selection-end-line="116" selection-end-column="38" />
+            <state relative-caret-position="357">
+              <caret line="120" selection-start-line="120" selection-end-line="120" />
+              <folding>
+                <element signature="e#88#130#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -170,13 +174,14 @@
         <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t03_data_cleaning.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/polarimetry.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/utility_functions.py" />
-        <option value="$PROJECT_DIR$/mp_img_manip/ultrasound.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/dir_dictionary.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t06_average_retardance.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/t07_reconstruct_images.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/tiling.py" />
-        <option value="$PROJECT_DIR$/mp_img_manip/analysis.py" />
+        <option value="$PROJECT_DIR$/mp_img_manip/itertools_recipes.py" />
         <option value="$PROJECT_DIR$/mp_img_manip/task_scripts/data_analysis.py" />
+        <option value="$PROJECT_DIR$/mp_img_manip/ultrasound.py" />
+        <option value="$PROJECT_DIR$/mp_img_manip/analysis.py" />
       </list>
     </option>
   </component>
@@ -684,7 +689,21 @@
       <option name="project" value="LOCAL" />
       <updated>1534961217474</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="Fixed df_shg definition in get_average_dfs">
+      <created>1534962704971</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1534962704971</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Removed t06, as per earlier commit, now that a task is done running">
+      <created>1534962749227</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1534962749227</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="TodoView">
@@ -704,10 +723,10 @@
       <window_info anchor="bottom" id="Messages" />
       <window_info anchor="bottom" id="Event Log" order="1" sideWeight="0.17963752" side_tool="true" weight="0.39770356" />
       <window_info anchor="bottom" x="0" y="31" width="1920" height="1057" id="Version Control" order="2" type="WINDOWED" weight="0.21607515" />
-      <window_info active="true" anchor="bottom" x="-1920" y="525" width="1920" height="561" id="Python Console" order="3" sideWeight="0.49733475" visible="true" weight="0.27244258" />
+      <window_info anchor="bottom" x="-1920" y="525" width="1920" height="561" id="Python Console" order="3" sideWeight="0.49733475" visible="true" weight="0.27244258" />
       <window_info anchor="bottom" id="Run" order="6" sideWeight="0.6828358" weight="0.32881" />
       <window_info anchor="bottom" id="Terminal" order="0" weight="0.32985386" />
-      <window_info content_ui="combo" id="Project" order="1" sideWeight="0.49913344" visible="true" weight="0.14285715" />
+      <window_info active="true" content_ui="combo" id="Project" order="1" sideWeight="0.49913344" visible="true" weight="0.14285715" />
       <window_info anchor="right" id="R Packages" order="2" weight="0.32938978" />
       <window_info anchor="right" id="R Graphics" order="0" weight="0.32938978" />
       <window_info anchor="bottom" id="Find" order="5" weight="0.32985386" />
@@ -784,8 +803,6 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="LOCAL_CHANGES_DETAILS_PREVIEW_SHOWN" value="true" />
-    <MESSAGE value="Count the unique X and Y positions in a pos list" />
-    <MESSAGE value="function to get index from file path" />
     <MESSAGE value="Logic to sort mat list, but may be unnecessary" />
     <MESSAGE value="untested assemble separate 3d images" />
     <MESSAGE value="fixed idx logic, potential divide by 0" />
@@ -809,7 +826,9 @@
     <MESSAGE value="Tentative function to threshold mhr/mlr values by retardance" />
     <MESSAGE value="Moved run_roi_average_comparison function, no code change" />
     <MESSAGE value="Find_correlations recasting is now optional, default doesn't" />
-    <option name="LAST_COMMIT_MESSAGE" value="Find_correlations recasting is now optional, default doesn't" />
+    <MESSAGE value="Fixed df_shg definition in get_average_dfs" />
+    <MESSAGE value="Removed t06, as per earlier commit, now that a task is done running" />
+    <option name="LAST_COMMIT_MESSAGE" value="Removed t06, as per earlier commit, now that a task is done running" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -840,9 +859,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/.idea/encodings.xml">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/mp_img_manip/cw_ssim.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="391">
@@ -1050,26 +1066,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/utility_functions.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="18" column="24" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
-          <folding>
-            <element signature="e#87#96#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/ultrasound.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="529">
-          <caret line="116" column="54" selection-start-line="116" selection-start-column="54" selection-end-line="116" selection-end-column="54" />
-          <folding>
-            <element signature="e#196#218#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/mp_img_manip/dir_dictionary.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="527">
@@ -1135,17 +1131,47 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mp_img_manip/analysis.py">
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/utility_functions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="16" column="25" lean-forward="true" selection-start-line="16" selection-start-column="25" selection-end-line="16" selection-end-column="25" />
+        <state relative-caret-position="-1122">
+          <caret line="18" column="24" selection-start-line="18" selection-start-column="24" selection-end-line="18" selection-end-column="24" />
+          <folding>
+            <element signature="e#87#96#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/itertools_recipes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" lean-forward="true" selection-start-line="2" selection-end-line="2" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/mp_img_manip/task_scripts/data_analysis.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="547">
-          <caret line="116" column="38" lean-forward="true" selection-start-line="116" selection-start-column="38" selection-end-line="116" selection-end-column="38" />
+        <state relative-caret-position="357">
+          <caret line="120" selection-start-line="120" selection-end-line="120" />
+          <folding>
+            <element signature="e#88#130#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/ultrasound.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="107" column="22" lean-forward="true" selection-start-line="107" selection-start-column="22" selection-end-line="107" selection-end-column="22" />
+          <folding>
+            <element signature="e#196#218#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mp_img_manip/analysis.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="581">
+          <caret line="59" column="23" lean-forward="true" selection-start-line="59" selection-start-column="23" selection-end-line="59" selection-end-column="23" />
         </state>
       </provider>
     </entry>
