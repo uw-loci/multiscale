@@ -90,8 +90,11 @@ def threshold_df_by_retardance(df_measure, df_ret, threshold):
 
 
 def get_average_dfs(path_shg, path_average):
-    df_shg = pd.read_csv(path_shg, header=[0, 1], index_col=[0, 1, 2, 3])
-    df_average = pd.read_csv(path_average, header=[0, 1], index_col=[0, 1, 2, 3])
+    df_rois = pd.read_csv(path_shg, header=[0, 1], index_col=[0, 1, 2, 3],
+                          dtype={'Mouse': object, 'Slide': object})
+    df_shg = df_rois.xs('SHG', level=1, axis=1)
+    df_average = pd.read_csv(path_average, header=[0, 1], index_col=[0, 1, 2, 3],
+                             dtype={'Mouse': object, 'Slide': object})
 
     df_orient = df_average['Orientation']
     df_orient['SHG'] = df_shg['Orientation']
@@ -110,6 +113,11 @@ def run_roi_averages_comparison():
                         'ROIs_averaged_from_base_image.csv')
 
     df_orient, df_align, df_ret = get_average_dfs(path_shg, path_average)
+
+    return df_orient, df_align, df_ret
+
+
+
 
 
 

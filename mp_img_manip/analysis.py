@@ -25,16 +25,16 @@ def recast_max_diff_90deg(row):
     value_one, value_two = row.values
     diff = value_one - value_two
     if diff > 90:
-        newvalue_one = 180-value_one
-        newvalue_two = value_two
+        new_value_one = 180-value_one
+        new_value_two = value_two
     elif diff < -90:
-        newvalue_two = 180 - value_two
-        newvalue_one = value_one
+        new_value_two = 180 - value_two
+        new_value_one = value_one
     else:
-        newvalue_one = value_one
-        newvalue_two = value_two
+        new_value_one = value_one
+        new_value_two = value_two
 
-    return newvalue_one, newvalue_two
+    return new_value_one, new_value_two
 
 
 def regress(two_column_df):
