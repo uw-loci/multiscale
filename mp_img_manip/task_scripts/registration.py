@@ -168,6 +168,8 @@ def mask_images(dir_dict, skip_existing_images=False):
 #                                  dir_dict['mlr_small_8bit'],
 #                                  'MLR_Small_8Bit')
 
-perform_registrations()
+dir_dict = dird.create_dictionary()
+reg.bulk_supervised_register_images(dir_dict['shg_small'], dir_dict['he_small'], dir_dict['he_small_reg'], 'HE_Small_Reg')
+#perform_registrations()
 
     

@@ -9,6 +9,7 @@ import mp_img_manip.bulk_img_processing as blk
 
 import SimpleITK as sitk
 import os
+import numpy as np
 
 
 def setup_image(image_path, return_image=True, return_rotation=False):
@@ -22,19 +23,24 @@ def setup_image(image_path, return_image=True, return_rotation=False):
     image_path -- The path to the image being setup
     setup_origin -- Set values for the origin or leaves at 0,0
     return_image -- Return the whole setup image
-    return_scacing -- Return the spacing values
+    return_spacing -- Return the spacing values
     
     Outputs:
     image -- The setup image if return_image is True
     spacing -- The spacing of the image if return_spacing is True
     
     """
-    
 
     parameters = get_image_parameters(image_path)
 
     if return_image:
         image = sitk.ReadImage(str(image_path))
+
+        if len(image.GetSpacing()) > 2:
+            array = sitk.GetArrayFromImage(image)
+            array_2d = np.average(array, 0)
+            image = sitk.GetImageFromArray(array_2d)
+
         image.SetSpacing(parameters[0])
         image.SetOrigin(parameters[1])
 
@@ -46,11 +52,9 @@ def setup_image(image_path, return_image=True, return_rotation=False):
         return parameters[2]
             
 
-
 def get_image_parameters(image_path, return_spacing=True, return_origin=True,
                          return_rotation=True):
     file_path = str(image_path.parent) + '/Image Parameters.csv'
-
 
     image_parameters = blk.read_write_pandas_row(
             str(file_path), str(image_path.name),
