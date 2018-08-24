@@ -48,8 +48,8 @@ def create_dictionary(
         "mhr_large_orient": os.path.join(base_dir, prep_dir, 'MHR_Large_Orient'),
         "mlr_large": os.path.join(base_dir, prep_dir, 'MLR_Large'),
         "mlr_large_orient": os.path.join(base_dir, prep_dir, 'MLR_Large_Orient'),
-        "he_small:": os.path.join(base_dir, prep_dir, 'HE_Small'),
-        "he_large:": os.path.join(base_dir, prep_dir, 'HE_Large'),
+        "he_small": os.path.join(base_dir, prep_dir, 'HE_Small'),
+        "he_large": os.path.join(base_dir, prep_dir, 'HE_Large'),
 
         "shg_small": os.path.join(base_dir, resize_dir, 'SHG_Small'),
         "mhr_small": os.path.join(base_dir, resize_dir, 'MHR_Small'),
