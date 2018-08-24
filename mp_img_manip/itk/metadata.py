@@ -39,6 +39,7 @@ def setup_image(image_path, return_image=True, return_rotation=False):
         if len(image.GetSpacing()) > 2:
             array = sitk.GetArrayFromImage(image)
             array_2d = np.average(array, 0)
+            array_2d[array_2d > 230] = 0
             image = sitk.GetImageFromArray(array_2d)
 
         image.SetSpacing(parameters[0])
