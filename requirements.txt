@@ -4,5 +4,5 @@ matplotlib
 scipy
 pandas
 ipywidgets
-PIL
-ssim
+Pillow
+pyssim
