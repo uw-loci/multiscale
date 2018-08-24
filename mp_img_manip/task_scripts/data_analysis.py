@@ -94,20 +94,22 @@ def threshold_df_by_retardance(df_measure, df_ret, threshold):
     return df_measure
 
 
-def get_average_dfs(path_shg, path_average):
+def get_average_dfs(path_shg: Path, path_average: Path, ret_thresh: float) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
     df_rois = pd.read_csv(path_shg, header=[0, 1], index_col=[0, 1, 2, 3],
                           low_memory=False)
     df_shg = df_rois.xs('SHG', level=1, axis=1)
     df_average = pd.read_csv(path_average, header=[0, 1], index_col=[0, 1, 2, 3],
                              low_memory=False)
 
+    df_ret = df_average.loc[:, 'Retardance'].copy()
+
     df_orient = df_average.loc[:, 'Orientation'].copy()
+    df_orient = df_orient[df_ret > ret_thresh]
     df_orient.loc[:, 'SHG'] = df_shg.loc[:, 'Orientation'].copy()
 
     df_align = df_average.loc[:, 'Alignment'].copy()
+    df_align = df_align[df_ret > ret_thresh]
     df_align.loc[:, 'SHG'] = df_shg.loc[:, 'Alignment'].copy()
-
-    df_ret = df_average.loc[:, 'Retardance'].copy()
 
     return df_orient, df_align, df_ret
 
@@ -131,12 +133,12 @@ def calculate_pairwise_correlations(df_variable: pd.DataFrame) -> pd.DataFrame:
     return corrs_pairwise
 
 
-def run_roi_averages_comparison():
+def run_roi_averages_comparison(ret_thresh: float) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
     path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
     path_average = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
                         'ROIs_averaged_from_base_image.csv')
 
-    df_orient, df_align, df_ret = get_average_dfs(path_shg, path_average)
+    df_orient, df_align, df_ret = get_average_dfs(path_shg, path_average, ret_thresh)
 
     df_corrs_orient = calculate_pairwise_correlations(df_orient)
     df_corrs_align = calculate_pairwise_correlations(df_align)
