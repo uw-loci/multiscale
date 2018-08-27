@@ -53,11 +53,8 @@ def read_position_list(path_pl: Path) -> list:
     return list_pos
 
 
-def convert_physical_pos_to_pixels(list_pos: list) -> list:
-    return
-
-
 def count_xy_positions(list_pos: list) -> np.ndarray:
+    """Determine how many unique X and Y positions the position list holds, as well as the physical separation in x"""
     array_pos = np.array(list_pos)
     unique = np.unique(array_pos[:, 0], return_counts=True)
     num_xy = np.array([len(unique[0]), unique[1][0]])
@@ -78,6 +75,7 @@ def index_from_file_path(path_file: Path) -> int:
 
 
 def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]:
+    """Extract indexes for the 3D image and the elevational Z position of a mat file"""
     z_size = num_imgs/num_xy[0]
     img = int(idx_raw / z_size)
     z = np.mod(idx_raw, z_size)
@@ -85,7 +83,7 @@ def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]
 
 
 def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
-    """Compile US .mats into separate 3d images"""
+    """Compile IQ Data US .mats into separate 3d images"""
     image_shape = np.shape(open_iq(list_mats[0]))
     num_imgs = len(list_mats)
 
@@ -109,6 +107,7 @@ def calculate_percent_overlap(x_sep: float) -> int:
 
 
 def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str):
+    """Stitch together a directory of US images taken using micromanager/verasonics into a 3D composite"""
     list_mats = util.list_filetype_in_dir(dir_mats, 'mat')
     list_pos = read_position_list(path_pl)
     num_xy, x_sep = count_xy_positions(list_pos)
