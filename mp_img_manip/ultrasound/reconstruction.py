@@ -77,9 +77,9 @@ def index_from_file_path(path_file: Path) -> int:
 def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]:
     """Extract indexes for the 3D image and the elevational Z position of a mat file"""
     z_size = num_imgs/num_xy[0]
-    img = int(idx_raw / z_size)
-    z = np.mod(idx_raw, z_size)
-    return int(img), int(z)
+    idx_img = int(idx_raw / z_size)
+    idx_z = np.mod(idx_raw, z_size)
+    return int(idx_img), int(idx_z)
 
 
 def path_to_bmode_and_indices(path_iq, num_xy, num_imgs):
@@ -99,9 +99,9 @@ def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
         bmode = iq_to_bmode(iq)
 
         idx_raw = index_from_file_path(path)
-        img, z = get_idx_img_z(idx_raw, num_xy, num_imgs)
+        idx_img, idx_z = get_idx_img_z(idx_raw, num_xy, num_imgs)
 
-        array_4d_im_z_yx[img, z, :, :] = bmode
+        array_4d_im_z_yx[idx_img, idx_z, :, :] = bmode
 
     return array_4d_im_z_yx
 
