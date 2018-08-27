@@ -25,6 +25,7 @@ fig_size[0] = fig_size[0]*3
 fig_size[1] = fig_size[1]*3
 plt.rcParams["figure.figsize"] = fig_size
 
+
 def start_plot():
     """Event: Initialize global values for graphing registration values"""
     global metric_values, multires_iterations
@@ -89,7 +90,8 @@ def update_multires_iterations():
 
 def affine_register(fixed_image, moving_image,
                     scale=4, iterations=200,
-                    fixed_mask=None, moving_mask=None, rotation=0):
+                    fixed_mask=None, moving_mask=None, rotation=0,
+                    learning_rate=20, min_step=0):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -128,7 +130,7 @@ def affine_register(fixed_image, moving_image,
         registration_method.SetMetricMovingMask(moving_mask)
 
     # Optimizer settings.
-    registration_method.SetOptimizerAsRegularStepGradientDescent(20.0, 0.01,
+    registration_method.SetOptimizerAsRegularStepGradientDescent(learning_rate, min_step,
                                                                  iterations)
     #registration_method.SetOptimizerAsOnePlusOneEvolutionary(
     #       numberOfIterations=100)
@@ -254,8 +256,8 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
         
         registered_image, origin, transform, metric, stop, rotation = \
             supervised_register_images(
-            fixed_path_list[i], moving_path_list[i],
-            iterations=iterations, scale=scale)
+                fixed_path_list[i], moving_path_list[i],
+                iterations=iterations, scale=scale)
 
         if write_output:
             sitk.WriteImage(registered_image, str(registered_path))
@@ -308,7 +310,7 @@ def query_origin_change(fixed_image, moving_image, initial_rotation, show_overla
             plt.imshow(proc.overlay_images(fixed_image, rotated_image))
             plt.show()
 
-            #bug: The image does not show up till after the question
+            # bug: The image does not show up till after the question
             if util.yes_no('Is this origin good? [y/n] >>> '): break
 
         return new_origin
@@ -318,7 +320,6 @@ def query_origin_change(fixed_image, moving_image, initial_rotation, show_overla
     
 def query_pre_rotation(fixed_image, moving_image, initial_rotation):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
-
 
     transform = sitk.AffineTransform(2) 
     deg_to_rad = 2*np.pi/360
@@ -353,49 +354,8 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation):
             plt.imshow(proc.overlay_images(fixed_image, rotated_image_2))
             plt.show()
 
-            #bug: The image does not show up till after the question
+            # bug: The image does not show up till after the question
             if util.yes_no('Is this rotation good? [y/n] >>> '): break
 
-
     return rotation
-    #class registration_plot(ani.FuncAnimation):
-#    
-#    def __init__(self):
-#        self.metric_values = []
-#        self.multires_iterations = []
-#        
-#        self.fig, self.ax = plt.subplots(ncols=2)
-#        self.fig.tight_layout()
-#        
-#        self.ax[0].axis('off')
-#    
-#        self.ax[1].set_xlabel('Iteration Number',fontsize=12)
-#        self.ax[1].set_ylabel('Metric Value',fontsize=12, rotation='90')
-#        
-#        ani.FuncAnimation(self.fig, self.update_iteration)
-#    
-#    def update_iteration(self, new_metric_value,
-#                            fixed_image, moving_image, transform):
-#        metric_values.append(new_metric_value)                                       
-#        
-#        moving_image_transformed = sitk.Resample(
-#moving_image, fixed_image, transform,
-#                                       sitk.sitkLinear, 0.0, 
-#                                       moving_image.GetPixelIDValue()) 
-#        
-#        combined_array = overlay_images(fixed_image, moving_image_transformed)
-#
-#        self.ax[0].imshow(combined_array)
-#        self.ax[0].axis('off')
-#        
-#        self.ax[1].plot(self.metric_values, 'r')
-#        self.ax[1].plot(self.multires_iterations,
-#                        [self.metric_values[index] for index 
-# in self.multires_iterations], 'b*')
-#   
-#        asp = np.diff(self.ax[1].get_xlim())[0] 
-#/ np.diff(self.ax[1].get_ylim())[0]
-#        self.ax[1].set_aspect(asp)        
-#        
-#    def update_scale(self):
-#        self.multires_iterations.append(len(self.metric_values))  
+
