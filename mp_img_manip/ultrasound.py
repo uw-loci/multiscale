@@ -82,6 +82,10 @@ def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]
     return int(img), int(z)
 
 
+def path_to_bmode_and_indices(path_iq, num_xy, num_imgs):
+    """Get a"""
+
+
 def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
     """Compile IQ Data US .mats into separate 3d images"""
     image_shape = np.shape(open_iq(list_mats[0]))
@@ -91,10 +95,12 @@ def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
 
     # todo: vectorize this loop
     for path in list_mats:
-        idx_raw = index_from_file_path(path)
-        img, z = get_idx_img_z(idx_raw, num_xy, num_imgs)
         iq = open_iq(path)
         bmode = iq_to_bmode(iq)
+
+        idx_raw = index_from_file_path(path)
+        img, z = get_idx_img_z(idx_raw, num_xy, num_imgs)
+
         array_4d_im_z_yx[img, z, :, :] = bmode
 
     return array_4d_im_z_yx
