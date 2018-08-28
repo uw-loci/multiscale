@@ -94,33 +94,14 @@ def mat_list_to_iq_array(list_mats: list) -> np.ndarray:
     return array_iq
 
 
-def assemble_4d_image_2(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
+def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
     array_3d_multi_img = mat_list_to_iq_array(list_mats)
     shape_image = np.shape(array_3d_multi_img[0, :, :])
+
     shape_4d = [num_xy[0], num_xy[1], shape_image[0], shape_image[1]]
     array_4d = np.reshape(array_3d_multi_img, shape_4d)
 
     return array_4d
-
-
-def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
-    """Compile IQ Data US .mats into separate 3d images"""
-    image_shape = np.shape(open_iq(list_mats[0]))
-    num_imgs = len(list_mats)
-
-    array_4d_im_z_yx = np.zeros([num_xy[0], num_xy[1], image_shape[0], image_shape[1]])
-
-    # todo: vectorize this loop
-    for path in list_mats:
-        iq = open_iq(path)
-        bmode = iq_to_bmode(iq)
-
-        idx_raw = index_from_file_path(path)
-        idx_img, idx_z = get_idx_img_z(idx_raw, num_xy, num_imgs)
-
-        array_4d_im_z_yx[idx_img, idx_z, :, :] = bmode
-
-    return array_4d_im_z_yx
 
 
 def calculate_percent_overlap(x_sep: float) -> int:
