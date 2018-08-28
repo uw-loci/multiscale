@@ -4,3 +4,24 @@ Organization: Laboratory for Optical and Computation Instrumentation, University
 
 """
 
+
+def define_correlation_window():
+    return
+
+
+def determine_window_sweep():
+    return
+
+
+def detrend_global():
+    return
+
+
+def detrend_window():
+    return
+
+
+def calculate_1d_correlation_curve():
+    return
+
+
