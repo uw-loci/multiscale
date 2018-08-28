@@ -21,9 +21,7 @@ def open_iq(path_iq: Path) -> np.ndarray:
     Output:
     A numpy array of complex numbers
     """
-    mat_iq = sio.loadmat(str(path_iq))
-    array_iq = mat_iq['IQData']
-    return array_iq
+    return sio.loadmat(str(path_iq))['IQData']
 
 
 def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
@@ -88,6 +86,14 @@ def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]
     return int(idx_img), int(idx_z)
 
 
+def mat_list_to_iq_array(list_mats: list) -> np.ndarray:
+    """Make an IQ array from a list of mats"""
+    array_iq = np.array(
+        (open_iq(x) for x in list_mats)
+    )
+    return array_iq
+
+
 def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
     """Compile IQ Data US .mats into separate 3d images"""
     image_shape = np.shape(open_iq(list_mats[0]))
@@ -114,8 +120,6 @@ def calculate_percent_overlap(x_sep: float) -> int:
     return percent_sep
 
 
-
-
 def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str):
     """Stitch together a directory of US images taken using micromanager/verasonics into a 3D composite"""
     list_mats = get_sorted_list_mats(dir_mats)
@@ -131,11 +135,11 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
         image_cast = sitk.Cast(image, sitk.sitkFloat32)
         sitk.WriteImage(image_cast, str(path_output))
 
-
-dir_mats = Path("C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\PhantomGrid-TopLeftStart\\Run-2")
-path_pl = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\US Phantom grid 2018-08-17.pos')
-dir_output = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\')
-name_output = 'FirstImage3D'
-stitch_us_image(dir_mats, path_pl, dir_output, name_output)
+#
+# dir_mats = Path("C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\PhantomGrid-TopLeftStart\\Run-2")
+# path_pl = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\US Phantom grid 2018-08-17.pos')
+# dir_output = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\')
+# name_output = 'FirstImage3D'
+# stitch_us_image(dir_mats, path_pl, dir_output, name_output)
 
 
