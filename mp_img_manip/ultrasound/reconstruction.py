@@ -73,7 +73,7 @@ def index_from_file_path(path_file: Path) -> int:
 
 
 def get_sorted_list_mats(dir_mats: Path) -> list:
-    unsorted =  util.list_filetype_in_dir(dir_mats, 'mat')
+    unsorted = util.list_filetype_in_dir(dir_mats, 'mat')
     list_mats_sorted = sorted(unsorted, key=index_from_file_path)
     return list_mats_sorted
 
@@ -89,9 +89,18 @@ def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]
 def mat_list_to_iq_array(list_mats: list) -> np.ndarray:
     """Make an IQ array from a list of mats"""
     array_iq = np.array(
-        (open_iq(x) for x in list_mats)
+        [open_iq(x) for x in list_mats]
     )
     return array_iq
+
+
+def assemble_4d_image_2(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
+    array_3d_multi_img = mat_list_to_iq_array(list_mats)
+    shape_image = np.shape(array_3d_multi_img[0, :, :])
+    shape_4d = [num_xy[0], num_xy[1], shape_image[0], shape_image[1]]
+    array_4d = np.reshape(array_3d_multi_img, shape_4d)
+
+    return array_4d
 
 
 def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
