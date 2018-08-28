@@ -74,16 +74,18 @@ def index_from_file_path(path_file: Path) -> int:
     return index
 
 
+def get_sorted_list_mats(dir_mats: Path) -> list:
+    unsorted =  util.list_filetype_in_dir(dir_mats, 'mat')
+    list_mats_sorted = sorted(unsorted, key=index_from_file_path)
+    return list_mats_sorted
+
+
 def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]:
     """Extract indexes for the 3D image and the elevational Z position of a mat file"""
     z_size = num_imgs/num_xy[0]
     idx_img = int(idx_raw / z_size)
     idx_z = np.mod(idx_raw, z_size)
     return int(idx_img), int(idx_z)
-
-
-def list_to_iq()
-
 
 
 def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
@@ -112,17 +114,6 @@ def calculate_percent_overlap(x_sep: float) -> int:
     return percent_sep
 
 
-def index_from_file_path(path_file: Path) -> int:
-    """Get the image index from filename formatted It-index.mat"""
-    match = re.search(r'It-\d*', path_file.stem)
-    index = int(match.group()[3:]) - 1
-    return index
-
-
-def get_sorted_list_mats(dir_mats: Path) -> list:
-    unsorted =  util.list_filetype_in_dir(dir_mats, 'mat')
-    list_mats_sorted = sorted(unsorted, key=index_from_file_path)
-    return list_mats_sorted
 
 
 def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str):
