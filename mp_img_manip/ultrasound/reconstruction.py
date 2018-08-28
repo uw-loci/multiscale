@@ -95,6 +95,7 @@ def mat_list_to_iq_array(list_mats: list) -> np.ndarray:
 
 
 def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
+    """Compile IQ Data US .mats into separate 3d images"""
     array_3d_multi_img = mat_list_to_iq_array(list_mats)
     shape_image = np.shape(array_3d_multi_img[0, :, :])
 
