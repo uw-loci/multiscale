@@ -30,13 +30,24 @@ def open_iq(path_iq: Path) -> np.ndarray:
 
 def open_parameters(path_iq: Path) -> dict:
     mat_data = sio.loadmat(str(path_iq))
-    parameters_raw = mat_data['P']
-    parameters = format_parameters(parameters_raw)
+    param_raw = mat_data['P']
+    parameters = format_parameters(param_raw)
     return parameters
 
 
-def format_parameters(parameters_raw: np.ndarray) -> dict:
+def format_parameters(param_raw: np.ndarray) -> dict:
+    """Format the parameters array loaded from matlab struct
 
+    All numeric values are currently in units of wavelength"""
+    parameters = {
+        'lateral resolution': np.double(param_raw['lateral_resolution']),
+        'axial resolution': np.double(param_raw['axial_resolution']),
+        'speed of sound': np.double(param_raw['speed_of_sound']),
+        'focus': np.double(param_raw['txFocus']),
+        'start depth': np.double(param_raw['startDepth']),
+        'end depth': np.double(param_raw['endDepth']),
+    }
+    return parameters
 
 
 def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
