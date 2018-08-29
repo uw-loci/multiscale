@@ -29,6 +29,7 @@ def open_iq(path_iq: Path) -> np.ndarray:
 
 
 def open_parameters(path_iq: Path) -> dict:
+    """Get the parameters from an acquisition and return a cleaned up dictionary"""
     mat_data = sio.loadmat(str(path_iq))
     param_raw = mat_data['P']
     parameters = format_parameters(param_raw)
@@ -69,7 +70,7 @@ def clean_position_text(dict_text: dict) -> list:
 
 def read_position_list(path_pl: Path) -> list:
     """Open a Micromanager acquired position file and return a list of X, Y positions"""
-    with open(path_pl, 'r') as file_pos:
+    with open(str(path_pl), 'r') as file_pos:
         text_pos = file_pos.read()
         dict_text = eval(text_pos)
         list_pos = clean_position_text(dict_text)
@@ -158,8 +159,8 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
         image = sitk.GetImageFromArray(separate_images_4d[idx])
         image_cast = sitk.Cast(image, sitk.sitkFloat32)
 
-        # ITK defines spacing in mm, input is in microns
-        spacing = [parameters['lateral_resolution'], parameters['axial_resolution'], y_sep]/1000
+        # bug: This spacing is very off, due to differences in units between resolution and separation
+        spacing = np.array([parameters['lateral resolution'], parameters['axial resolution'], y_sep*1000])
 
         image_cast.SetSpacing(spacing)
 
