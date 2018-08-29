@@ -12,8 +12,8 @@ import re
 import SimpleITK as sitk
 
 
-def open_iq(path_iq: Path) -> np.ndarray:
-    """Open a .mat that holds IQData from the Verasonics system
+def open_iq(path_iq: Path) -> (np.ndarray, dict):
+    """Open a .mat that holds IQData and Parameters from the Verasonics system
 
     Input:
     A pathlib Path to an .mat file holding an 'IQData' variable, which is an array of complex numbers
@@ -21,7 +21,12 @@ def open_iq(path_iq: Path) -> np.ndarray:
     Output:
     A numpy array of complex numbers
     """
-    return sio.loadmat(str(path_iq))['IQData']
+    mat_data = sio.loadmat(str(path_iq))
+    iq_data = mat_data['IQData']
+    parameters = mat_data['P']
+
+
+    return iq_data, parameters
 
 
 def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
@@ -51,7 +56,7 @@ def read_position_list(path_pl: Path) -> list:
     return list_pos
 
 
-def count_xy_positions(list_pos: list) -> np.ndarray:
+def count_xy_positions(list_pos: list) -> (np.ndarray, np.ndarray, np.ndarray):
     """Determine how many unique X and Y positions the position list holds, as well as the physical separation in x"""
     array_pos = np.array(list_pos)
     unique = np.unique(array_pos[:, 0], return_counts=True)
@@ -60,9 +65,14 @@ def count_xy_positions(list_pos: list) -> np.ndarray:
     if len(unique[0]) > 1:
         x_sep = unique[0][1] - unique[0][0]
     else:
-        x_sep = 0
+        x_sep = np.nan
 
-    return num_xy, x_sep
+    if len(unique[1]) > 1:
+        y_sep = unique[1][1] - unique[1][0]
+    else:
+        y_sep = np.nan
+
+    return num_xy, x_sep, y_sep
 
 
 def index_from_file_path(path_file: Path) -> int:
@@ -86,23 +96,25 @@ def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]
     return int(idx_img), int(idx_z)
 
 
-def mat_list_to_iq_array(list_mats: list) -> np.ndarray:
+def mat_list_to_iq_array(list_mats: list) -> (np.ndarray, dict):
     """Make an IQ array from a list of mats"""
     array_iq = np.array(
-        [open_iq(x) for x in list_mats]
+        [open_iq(x)[0] for x in list_mats]
     )
-    return array_iq
+    parameters = open_iq[list_mats[0]][1]
+
+    return array_iq, parameters
 
 
-def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> np.ndarray:
+def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> (np.ndarray, dict):
     """Compile IQ Data US .mats into separate 3d images"""
-    array_3d_multi_img = mat_list_to_iq_array(list_mats)
+    array_3d_multi_img, parameters = mat_list_to_iq_array(list_mats)
     shape_image = np.shape(array_3d_multi_img[0, :, :])
 
     shape_4d = [num_xy[0], num_xy[1], shape_image[0], shape_image[1]]
     array_4d = np.reshape(array_3d_multi_img, shape_4d)
 
-    return array_4d
+    return array_4d, parameters
 
 
 def calculate_percent_overlap(x_sep: float) -> int:
@@ -115,8 +127,8 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
     """Stitch together a directory of US images taken using micromanager/verasonics into a 3D composite"""
     list_mats = get_sorted_list_mats(dir_mats)
     list_pos = read_position_list(path_pl)
-    num_xy, x_sep = count_xy_positions(list_pos)
-    separate_images_4d = assemble_4d_image(list_mats, num_xy)
+    num_xy, x_sep, y_sep = count_xy_positions(list_pos)
+    separate_images_4d, parameters = assemble_4d_image(list_mats, num_xy)
 
     percent_overlap = calculate_percent_overlap(x_sep)
 
@@ -124,6 +136,12 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
         path_output = Path(dir_output, name_output + '_Overlap-' + str(percent_overlap) + '_' + str(idx) + '.tif')
         image = sitk.GetImageFromArray(separate_images_4d[idx])
         image_cast = sitk.Cast(image, sitk.sitkFloat32)
+
+        # ITK defines spacing in mm, input is in microns
+        spacing = [parameters['lateral_resolution'], parameters['axial_resolution'], y_sep]/1000
+
+        image_cast.SetSpacing(spacing)
+
         sitk.WriteImage(image_cast, str(path_output))
 
 #
