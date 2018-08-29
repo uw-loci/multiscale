@@ -49,30 +49,16 @@ def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int, dim_to_avera
     return array_detrend_mean
 
 
-def detrend_axial_global(array_im: np.ndarray, axial_dim: int=1, lateral_dim: int=2) -> np.ndarray:
-    """Detrend along the axial dimension, for each lateral frame
-
-    Defaults assumes
-    axis 0 = elevation
-    axis 1 = axial
-    axis 2 = lateral
-
-    """
-    array_detrend = sig.detrend(array_im, axis=axial_dim)
-    mean_detrend = np.mean(array_detrend, lateral_dim)
-
-    array_detrend = array_detrend - mean_detrend
-
-    return array_detrend
-
-
-def detrend_window():
-    """Detrend the window"""
-    return
-
-
-def calculate_1d_correlation_curve():
+def calculate_1d_correlation_over_window(window: np.ndarray, params_window: dict, dim_of_corr: int, dim_of_averaging: int) -> np.ndarray:
     """Calculate the correlation curve along a submitted dimension"""
+
+    shape_window = np.shape(window)
+
+    for shift in range(int(shape_window[dim_of_corr]/2 + 1)):
+        for dim_loc in range(1, int(shape_window[dim_of_corr]/2)):
+            for frame in range(shape_window[dim_of_averaging]):
+
+
     return
 
 
