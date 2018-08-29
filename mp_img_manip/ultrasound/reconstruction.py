@@ -79,22 +79,23 @@ def read_position_list(path_pl: Path) -> list:
 
 
 def count_xy_positions(list_pos: list) -> (np.ndarray, np.ndarray, np.ndarray):
-    """Determine how many unique X and Y positions the position list holds, as well as the physical separation in x"""
+    """Determine how many unique Lateral and elevational positions the position list holds,
+    as well as the physical separation """
     array_pos = np.array(list_pos)
     unique = np.unique(array_pos[:, 0], return_counts=True)
-    num_xy = np.array([len(unique[0]), unique[1][0]])
+    num_lateral_elevational = np.array([len(unique[0]), unique[1][0]])
 
     if len(unique[0]) > 1:
-        x_sep = unique[0][1] - unique[0][0]
+        lateral_sep = unique[0][1] - unique[0][0]
     else:
-        x_sep = np.nan
+        lateral_sep = np.nan
 
     if len(unique[1]) > 1:
-        y_sep = unique[1][1] - unique[1][0]
+        elevational_sep = unique[1][1] - unique[1][0]
     else:
-        y_sep = np.nan
+        elevational_sep = np.nan
 
-    return num_xy, x_sep, y_sep
+    return num_lateral_elevational, lateral_sep, elevational_sep
 
 
 def index_from_file_path(path_file: Path) -> int:
@@ -128,12 +129,13 @@ def mat_list_to_iq_array(list_mats: list) -> (np.ndarray, dict):
     return array_iq, parameters
 
 
-def assemble_4d_image(list_mats: list, num_xy: np.ndarray) -> (np.ndarray, dict):
+def assemble_4d_image(list_mats: list, num_lateral_elevational: np.ndarray) -> (np.ndarray, dict):
     """Compile IQ Data US .mats into separate 3d images"""
     array_3d_multi_img, parameters = mat_list_to_iq_array(list_mats)
     shape_image = np.shape(array_3d_multi_img[0, :, :])
 
-    shape_4d = [num_xy[0], num_xy[1], shape_image[0], shape_image[1]]
+    # [Image, Y (elevational), Z (axial), X (lateral)]
+    shape_4d = [num_lateral_elevational[0], num_lateral_elevational[1], shape_image[0], shape_image[1]]
     array_4d = np.reshape(array_3d_multi_img, shape_4d)
 
     return array_4d, parameters
@@ -149,18 +151,18 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
     """Stitch together a directory of US images taken using micromanager/verasonics into a 3D composite"""
     list_mats = get_sorted_list_mats(dir_mats)
     list_pos = read_position_list(path_pl)
-    num_xy, x_sep, y_sep = count_xy_positions(list_pos)
-    separate_images_4d, parameters = assemble_4d_image(list_mats, num_xy)
+    num_lateral_elevational, lateral_separation, elevational_sep = count_xy_positions(list_pos)
+    separate_images_4d, parameters = assemble_4d_image(list_mats, num_lateral_elevational)
 
-    percent_overlap = calculate_percent_overlap(x_sep)
+    percent_overlap = calculate_percent_overlap(lateral_separation)
 
-    for idx in range(num_xy[0]):
+    for idx in range(num_lateral_elevational[0]):
         path_output = Path(dir_output, name_output + '_Overlap-' + str(percent_overlap) + '_' + str(idx) + '.tif')
         image = sitk.GetImageFromArray(separate_images_4d[idx])
         image_cast = sitk.Cast(image, sitk.sitkFloat32)
 
         # bug: This spacing is very off, due to differences in units between resolution and separation
-        spacing = np.array([parameters['lateral resolution'], parameters['axial resolution'], y_sep*1000])
+        spacing = np.array([parameters['lateral resolution'], parameters['axial resolution'], elevational_sep*1000])
 
         image_cast.SetSpacing(spacing)
 
