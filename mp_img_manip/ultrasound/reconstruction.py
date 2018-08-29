@@ -12,21 +12,31 @@ import re
 import SimpleITK as sitk
 
 
-def open_iq(path_iq: Path) -> (np.ndarray, dict):
+def open_iq(path_iq: Path) -> np.ndarray:
     """Open a .mat that holds IQData and Parameters from the Verasonics system
 
     Input:
     A pathlib Path to an .mat file holding an 'IQData' variable, which is an array of complex numbers
 
     Output:
-    A numpy array of complex numbers
+    iq_data: A numpy array of complex numbers, in (Z, X) indexing
+    parameters: a dictionary
     """
     mat_data = sio.loadmat(str(path_iq))
     iq_data = mat_data['IQData']
-    parameters = mat_data['P']
+
+    return iq_data
 
 
-    return iq_data, parameters
+def open_parameters(path_iq: Path) -> dict:
+    mat_data = sio.loadmat(str(path_iq))
+    parameters_raw = mat_data['P']
+    parameters = format_parameters(parameters_raw)
+    return parameters
+
+
+def format_parameters(parameters_raw: np.ndarray) -> dict:
+
 
 
 def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
@@ -99,9 +109,9 @@ def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]
 def mat_list_to_iq_array(list_mats: list) -> (np.ndarray, dict):
     """Make an IQ array from a list of mats"""
     array_iq = np.array(
-        [open_iq(x)[0] for x in list_mats]
+        [open_iq(x) for x in list_mats]
     )
-    parameters = open_iq[list_mats[0]][1]
+    parameters = open_parameters(list_mats[0])
 
     return array_iq, parameters
 
