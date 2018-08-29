@@ -25,8 +25,14 @@ def determine_window_sweep():
     return
 
 
-def detrend_axial_global(array_im: np.ndarray, axial_dim: int=1, lateral_dim: int=0) -> np.ndarray:
-    """Detrend each column of the 3D image"""
+def detrend_axial_global(array_im: np.ndarray, axial_dim: int=1, lateral_dim: int=2) -> np.ndarray:
+    """Detrend along the axial dimension, for each lateral frame
+
+    Defaults assumes
+    axis 0 = elevation
+    axis 1 = axial
+    axis 2 = lateral
+    """
     array_detrend = sig.detrend(array_im, axis=axial_dim)
     mean_detrend = np.mean(array_detrend, lateral_dim)
 
