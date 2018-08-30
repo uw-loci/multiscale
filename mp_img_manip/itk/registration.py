@@ -20,6 +20,24 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
+
+class RegistrationPlot:
+    def __init__(self):
+        self.metric_values = []
+        self.idx_resolution_switch = []
+        self.fig, self.ax_cost, self.ax_img = plt.subplots(1, 2)
+
+    def update_metric(self, new_value):
+        self.metric_values = self.metric_values.append(new_value)
+
+    def update_idx_resolution_switch(self, new_idx):
+        self.idx_resolution_switch = self.idx_resolution_switch.append(new_idx)
+
+    def start_plot(self):
+
+    def end_plot(self):
+
+
 def start_plot():
     """Event: Initialize global values for graphing registration values"""
     global metric_values, multires_iterations
