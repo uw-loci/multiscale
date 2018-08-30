@@ -46,7 +46,8 @@ class RegistrationPlot:
 
         self.fig.draw()
 
-    def update_idx_resolution_switch(self, new_idx):
+    def update_idx_resolution_switch(self):
+        new_idx = len(self.metric_values)
         self.idx_resolution_switch = self.idx_resolution_switch.append(new_idx)
 
 
