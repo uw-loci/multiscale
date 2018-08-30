@@ -148,6 +148,8 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
         array_2d = np.average(array, 0)
         array_2d[array_2d > 230] = 0
         moving_image_2d = sitk.GetImageFromArray(array_2d)
+        spacing_2d = moving_image.GetSpacing()[:2]
+        moving_image_2d.SetSpacing(spacing_2d)
     else:
         moving_image_2d = moving_image
 
