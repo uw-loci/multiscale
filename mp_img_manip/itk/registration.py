@@ -138,21 +138,29 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
 
     fixed_image = meta.setup_image(fixed_path)
     moving_image, rotation = meta.setup_image(moving_path, return_rotation=True)
-
     print('\nRegistering ' + os.path.basename(moving_path) + ' to '
           + os.path.basename(fixed_path))
 
+    moving_image_is_rgb = np.size(moving_image.GetSpacing()) > 2
+    if moving_image_is_rgb:
+        array = sitk.GetArrayFromImage(moving_image)
+        array_2d = np.average(array, 0)
+        array_2d[array_2d > 230] = 0
+        moving_image_2d = sitk.GetImageFromArray(array_2d)
+    else:
+        moving_image_2d = moving_image
+
     while True:
+
+        rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation)
         
-        rotation = query_pre_rotation(fixed_image, moving_image, rotation)
-        
-        moving_image.SetOrigin(query_origin_change(fixed_image, moving_image, rotation))
+        moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image, rotation))
         (transform, metric, stop) = affine_register(
-            fixed_image, moving_image,
+            fixed_image, moving_image_2d,
             iterations=iterations, scale=scale, rotation=rotation)
 
-        if query_good_registration(fixed_image, moving_image,
-                                   transform, metric, stop): break
+        if query_good_registration(fixed_image, moving_image_2d, transform, metric, stop):
+            break
 
     origin = moving_image.GetOrigin()
     meta.write_image_parameters(moving_path,

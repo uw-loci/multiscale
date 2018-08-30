@@ -37,18 +37,20 @@ def setup_image(image_path, return_image=True, return_rotation=False):
         image = sitk.ReadImage(str(image_path))
 
         if len(image.GetSpacing()) > 2:
-            array = sitk.GetArrayFromImage(image)
-            array_2d = np.average(array, 0)
-            array_2d[array_2d > 230] = 0
-            image = sitk.GetImageFromArray(array_2d)
+            spacing = parameters[0].append(1)
+            origin = parameters[1].append(0)
+        else:
+            spacing = parameters[0]
+            origin = parameters[1]
 
-        image.SetSpacing(parameters[0])
-        image.SetOrigin(parameters[1])
+        image.SetSpacing(spacing)
+        image.SetOrigin(origin)
 
         if return_rotation:
             return image, parameters[2]
         else:
             return image
+
     elif return_rotation:
         return parameters[2]
             
