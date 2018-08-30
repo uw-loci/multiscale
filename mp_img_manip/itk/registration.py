@@ -117,6 +117,7 @@ def query_good_registration(fixed_image, moving_image,
 
     plt.close()
     plt.imshow(proc.overlay_images(fixed_image, moving_resampled))
+    plt.title('Registered Image')
     plt.show()
 
     print('\nFinal metric value: {0}'.format(metric))
@@ -239,6 +240,7 @@ def query_origin_change(fixed_image, moving_image, initial_rotation, show_overla
                                   moving_image.GetPixelIDValue())
 
     plt.imshow(proc.overlay_images(fixed_image, rotated_image))
+    plt.title('Origin = {}'.format(moving_image.GetOrigin()))
     plt.show()
     print('Current origin: ' + str(moving_image.GetOrigin()))
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
@@ -262,6 +264,7 @@ def query_origin_change(fixed_image, moving_image, initial_rotation, show_overla
                                   moving_image.GetPixelIDValue())
 
             plt.imshow(proc.overlay_images(fixed_image, rotated_image))
+            plt.title('Origin = {}'.format(new_origin))
             plt.show()
 
             # bug: The image does not show up till after the question
@@ -284,6 +287,7 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation):
                                   moving_image.GetPixelIDValue())
 
     plt.imshow(proc.overlay_images(fixed_image, rotated_image))
+    plt.title('Rotation = {}'.format(initial_rotation))
     plt.show()
     print('Current origin: ' + str(moving_image.GetOrigin()))
     change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
@@ -306,6 +310,7 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation):
                     moving_image.GetPixelIDValue())
             
             plt.imshow(proc.overlay_images(fixed_image, rotated_image_2))
+            plt.title('Rotation = {}'.format(rotation))
             plt.show()
 
             # bug: The image does not show up till after the question
