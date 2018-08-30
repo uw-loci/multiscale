@@ -147,6 +147,7 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
         array = sitk.GetArrayFromImage(moving_image)
         array_2d = np.average(array, 0)
         array_2d[array_2d > 230] = 0
+
         moving_image_2d = sitk.GetImageFromArray(array_2d)
         spacing_2d = moving_image.GetSpacing()[:2]
         moving_image_2d.SetSpacing(spacing_2d)
@@ -154,7 +155,6 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
         moving_image_2d = moving_image
 
     while True:
-
         rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation)
         
         moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image, rotation))
@@ -200,11 +200,8 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
                 iterations=iterations, scale=scale)
 
         if write_output:
-            sitk.WriteImage(registered_image, str(registered_path))
-            meta.write_image_parameters(registered_path,
-                                        registered_image.GetSpacing(),
-                                        registered_image.GetOrigin(),
-                                        rotation)
+            write_image(registered_image, registered_path, rotation)
+
 
         if write_transform:
             tran.write_transform(registered_path, 
@@ -212,6 +209,28 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
                                  transform, metric, stop, 
                                  rotation)
 
+
+def write_image(registered_image, registered_path, rotation):
+    if registered_image.GetDimension() > 2:
+        arr_rgb_wrong_idx = sitk.GetArrayFromImage(registered_image)
+        arr_rotated_idx = np.swapaxes(arr_rgb_wrong_idx, 0, 2)
+        arr_correct_idx = np.swapaxes(arr_rotated_idx, 0, 1)
+
+        rgb_image = sitk.GetImageFromArray(arr_correct_idx, isVector=True)
+
+        spacing_original = registered_image.GetSpacing()
+        spacing_new = np.array([spacing_original[1], spacing_original[2]])
+        rgb_image.SetSpacing(spacing_new)
+
+        sitk.WriteImage(rgb_image)
+
+    else:
+        sitk.WriteImage(registered_image, str(registered_path))
+
+    meta.write_image_parameters(registered_path,
+                                registered_image.GetSpacing(),
+                                registered_image.GetOrigin(),
+                                rotation)
 
 def query_origin_change(fixed_image, moving_image, initial_rotation, show_overlay=True):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
