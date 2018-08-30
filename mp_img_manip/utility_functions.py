@@ -49,8 +49,7 @@ def list_filetype_in_subdirs(base_dir, file_ext):
 
 def list_filetype_in_dir(file_dir, file_ext):
     """Given a directory path, return all files of given file type as a list"""
-    return [Path(file_dir, f) for
-                  f in os.listdir(file_dir) if f.endswith(file_ext)]  
+    return [Path(file_dir, f) for f in os.listdir(file_dir) if f.endswith(file_ext)]
 
 
 def query_int(message):
@@ -82,17 +81,17 @@ def query_float(message):
 def yes_no(question):
     """Ask the user a yes/no question"""
     
-    yes = set(['yes','y', 'ye', ''])
-    no = set(['no','n'])
+    yes = set(['yes', 'y', 'ye', ''])
+    no = set(['no', 'n'])
      
     while True:
         choice = input(question).lower()
         if choice in yes:
-           return True
+            return True
         elif choice in no:
-           return False
+            return False
         else:
-           print("Please respond with 'yes' or 'no'\n")
+            print("Please respond with 'yes' or 'no'\n")
 
 
 def character_indices(string, char):
