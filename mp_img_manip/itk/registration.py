@@ -89,7 +89,7 @@ def update_multires_iterations():
 
 
 def affine_register(fixed_image, moving_image,
-                    scale=4, iterations=200,
+                    scale=3, iterations=200,
                     fixed_mask=None, moving_mask=None, rotation=0,
                     learning_rate=20, min_step=0.001, gradient_tolerance=1E-7):
     """Perform an affine registration using MI and RSGD over up to 4 scales
@@ -133,11 +133,7 @@ def affine_register(fixed_image, moving_image,
     registration_method.SetOptimizerAsRegularStepGradientDescent(learning_rate, min_step,
                                                                  iterations,
                                                                  gradientMagnitudeTolerance=gradient_tolerance)
-    #registration_method.SetOptimizerAsOnePlusOneEvolutionary(
-    #       numberOfIterations=100)
-    #registration_method.SetOptimizerAsGradientDescent(
-    #       learningRate=1.0, numberOfIterations=100,
-    #       convergenceMinimumValue=1e-4, convergenceWindowSize=10)
+
     registration_method.SetOptimizerScalesFromPhysicalShift()
 
     # Setup for the multi-resolution framework.
