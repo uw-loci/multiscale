@@ -73,6 +73,7 @@ def query_float(message):
             user_input = float(input(message))
         except ValueError:
             print("Please enter a valid float.")
+            continue
         else:
             return user_input
             break
