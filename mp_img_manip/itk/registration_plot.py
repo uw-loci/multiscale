@@ -5,7 +5,7 @@ import numpy as np
 
 
 class RegistrationPlot:
-    def __init__(self, start_metric_value, moving_image, fixed_image):
+    def __init__(self, start_metric_value, moving_image, fixed_image, transform):
         self.metric_values = [start_metric_value]
         self.idx_resolution_switch = [1]
         self.fig, self.ax_img, self.ax_cost = plt.subplots(1, 2)
@@ -27,13 +27,11 @@ class RegistrationPlot:
                                                [self.metric_values[index] for index in self.idx_resolution_switch],
                                                'b*')
 
-
-
-
     def update_plot(self, new_metric_value, fixed_image, moving_image, transform):
         """Event: Update and plot new registration values"""
 
         self.metric_values = self.metric_values.append(new_metric_value)
+        self.plot.set_data(self.metric_values)
 
         moving_transformed = sitk.Resample(moving_image, fixed_image, transform,
                                            sitk.sitkLinear, 0.0,
@@ -41,14 +39,7 @@ class RegistrationPlot:
 
         # Blend the registered and fixed images
         combined_array = proc.overlay_images(fixed_image, moving_transformed)
-
-        # Set the current image
-        self.ax_img.imshow(combined_array)
-
-        #Set the metric values
-        self.ax_cost.plot(self.metric_values, 'r')
-        self.ax_cost.plot(self.idx_resolution_switch,
-                          [self.metric_values[index] for index in self.idx_resolution_switch], 'b*')
+        self.img.set_data(combined_array)
 
         asp = np.diff(self.ax_cost.get_xlim())[0] / np.diff(self.ax_cost.get_ylim())[0]
         self.ax_cost.set_aspect(asp)
