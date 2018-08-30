@@ -78,9 +78,9 @@ def plot_values(registration_method, fixed_image, moving_image, transform):
     asp = np.diff(ax2.get_xlim())[0] / np.diff(ax2.get_ylim())[0]
     ax2.set_aspect(asp)
 
-
 # Callback invoked when the sitkMultiResolutionIterationEvent happens,
 # update the index into the metric_values list. 
+
 
 def update_multires_iterations():
     """Event: Add the index for when the registration switches scales"""
@@ -91,7 +91,7 @@ def update_multires_iterations():
 def affine_register(fixed_image, moving_image,
                     scale=4, iterations=200,
                     fixed_mask=None, moving_mask=None, rotation=0,
-                    learning_rate=20, min_step=0):
+                    learning_rate=20, min_step=0.001, gradient_tolerance=1E-7):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -111,8 +111,8 @@ def affine_register(fixed_image, moving_image,
     stop -- the stopping condition of the optimizer
     """
 
-    fixed_image = sitk.Cast(fixed_image,sitk.sitkFloat32)
-    moving_image = sitk.Cast(moving_image,sitk.sitkFloat32)
+    fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
+    moving_image = sitk.Cast(moving_image, sitk.sitkFloat32)
 
     registration_method = sitk.ImageRegistrationMethod()
 
@@ -131,7 +131,8 @@ def affine_register(fixed_image, moving_image,
 
     # Optimizer settings.
     registration_method.SetOptimizerAsRegularStepGradientDescent(learning_rate, min_step,
-                                                                 iterations)
+                                                                 iterations,
+                                                                 gradientMagnitudeTolerance=gradient_tolerance)
     #registration_method.SetOptimizerAsOnePlusOneEvolutionary(
     #       numberOfIterations=100)
     #registration_method.SetOptimizerAsGradientDescent(
@@ -141,8 +142,8 @@ def affine_register(fixed_image, moving_image,
 
     # Setup for the multi-resolution framework.
 
-    shrink_factors = [8,4,2,1]
-    smoothing_sigmas = [2,2,1,1]
+    shrink_factors = [8, 4, 2, 1]
+    smoothing_sigmas = [2, 2, 1, 1]
 
     if scale > 4:
         scale = 4
