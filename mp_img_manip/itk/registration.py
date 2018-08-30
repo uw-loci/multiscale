@@ -10,6 +10,7 @@ import mp_img_manip.utility_functions as util
 import mp_img_manip.itk.metadata as meta
 import mp_img_manip.itk.transform as tran
 import mp_img_manip.itk.process as proc
+from mp_img_manip.itk.registration_plot import RegistrationPlot
 
 import SimpleITK as sitk
 import numpy as np
@@ -18,7 +19,6 @@ import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
-from IPython.display import clear_output
 
 
 def affine_register(fixed_image, moving_image,
@@ -93,7 +93,6 @@ def affine_register(fixed_image, moving_image,
 
     # Connect all of the observers so that we can plot during registration.
 
-    #animation = registration_plot
 
     registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
     #registration_method.AddCommand(sitk.sitkEndEvent, end_plot)
@@ -134,7 +133,7 @@ def query_good_registration(fixed_image, moving_image,
     return util.yes_no('Is this registration good? [y/n] >>> ')
 
 
-def supervised_register_images(fixed_path, moving_path,
+def supervised_register_images(fixed_path: Path, moving_path: Path,
                                iterations=200, scale=4, rotation=0):
 
     fixed_image = meta.setup_image(fixed_path)
