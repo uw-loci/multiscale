@@ -93,14 +93,14 @@ def affine_register(fixed_image, moving_image,
 
     # Connect all of the observers so that we can plot during registration.
     # registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
-    # registration_method.AddCommand(sitk.sitkEndEvent, end_plot)
+    #     registration_method.AddCommand(sitk.sitkEndEvent, reg_plot.end_plot)
 
     reg_plot = RegistrationPlot(registration_method.GetMetricValue(),
                                 fixed_image, moving_image,
                                 transform)
     registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent,
                                    reg_plot.update_idx_resolution_switch)
-    registration_method.AddCommand(sitk.sitkIterationEvent, reg_plot.update_plot(
+    registration_method.AddCommand(sitk.sitkIterationEvent, lambda: reg_plot.update_plot(
         registration_method.GetMetricValue(), fixed_image, moving_image, transform))
 
     return (registration_method.Execute(fixed_image, moving_image),
