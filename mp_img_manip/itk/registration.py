@@ -20,12 +20,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from IPython.display import clear_output
 
-fig_size = plt.rcParams["figure.figsize"]
-fig_size[0] = fig_size[0]*3
-fig_size[1] = fig_size[1]*3
-plt.rcParams["figure.figsize"] = fig_size
-
-
 def start_plot():
     """Event: Initialize global values for graphing registration values"""
     global metric_values, multires_iterations
@@ -162,7 +156,7 @@ def affine_register(fixed_image, moving_image,
 
     #animation = registration_plot
 
-    #registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
+    registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
     #registration_method.AddCommand(sitk.sitkEndEvent, end_plot)
     #   registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent,
     #                               lambda: animation.update_scale) 
