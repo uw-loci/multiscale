@@ -7,8 +7,8 @@ import numpy as np
 class RegistrationPlot:
     def __init__(self, start_metric_value, moving_image, fixed_image, transform):
         self.metric_values = [start_metric_value]
-        self.idx_resolution_switch = [1]
-        self.fig, self.ax_img, self.ax_cost = plt.subplots(1, 2)
+        self.idx_resolution_switch = [0]
+        self.fig, (self.ax_img, self.ax_cost) = plt.subplots(1, 2)
 
         self.ax_img.axis('off')
 
@@ -22,8 +22,8 @@ class RegistrationPlot:
 
         self.img = self.ax_img.imshow(combined_array)
 
-        self.plot = self.ax_cost.plot(self.metric_values, 'r')
-        self.plot_multires = self.ax_cost.plot(self.idx_resolution_switch,
+        self.plot, = self.ax_cost.plot(self.metric_values, 'r')
+        self.plot_multires, = self.ax_cost.plot(self.idx_resolution_switch,
                                                [self.metric_values[index] for index in self.idx_resolution_switch],
                                                'b*')
 
