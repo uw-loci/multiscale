@@ -45,11 +45,15 @@ def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int, dim_to_avera
         array_detrend_mean = array_detrend - np.reshape(array_mean, [shape_array[0], 1, shape_array[2]])
     elif dim_to_average is 0:
         array_detrend_mean = array_detrend - array_mean
+    else:
+        raise ValueError('Please enter a valid dimension (0, 1, or 2)')
 
     return array_detrend_mean
 
 
-def calculate_1d_correlation_over_window(window: np.ndarray, params_window: dict, dim_of_corr: int, dim_of_averaging: int) -> np.ndarray:
+def calculate_1d_correlation_curve(
+        window: np.ndarray, params_window: dict, dim_of_corr: int, dim_of_averaging: int) -> np.ndarray:
+
     """Calculate the correlation curve along a submitted dimension"""
 
     shape_window = np.shape(window)
@@ -58,7 +62,12 @@ def calculate_1d_correlation_over_window(window: np.ndarray, params_window: dict
         for dim_loc in range(1, int(shape_window[dim_of_corr]/2)):
             for frame in range(shape_window[dim_of_averaging]):
 
+    return np.array([4, 3])
 
+
+def calculate_correlation_curves_at_all_depths():
+    """For each starting window depth, calculate each correlation curve"""
     return
+
 
 
