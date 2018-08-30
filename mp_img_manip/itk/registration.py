@@ -132,6 +132,97 @@ def query_good_registration(fixed_image, moving_image,
     return util.yes_no('Is this registration good? [y/n] >>> ')
 
 
+def query_pre_rotation(fixed_image, moving_image, initial_rotation):
+    """Ask if the user wants a new 2D ITK origin based on image overlay"""
+
+    transform = sitk.AffineTransform(2)
+    deg_to_rad = 2 * np.pi / 360
+    transform.Rotate(0, 1, initial_rotation * deg_to_rad, pre=True)
+
+    rotated_image = sitk.Resample(moving_image, fixed_image, transform,
+                                  sitk.sitkLinear, 0.0,
+                                  moving_image.GetPixelIDValue())
+
+    plt.imshow(proc.overlay_images(fixed_image, rotated_image))
+    plt.title('Rotation = {}'.format(initial_rotation))
+    plt.show()
+    print('Current origin: ' + str(moving_image.GetOrigin()))
+    change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
+    plt.close()
+
+    rotation = initial_rotation
+
+    if change_rotation:
+        while True:
+            print('Current rotation: {0}'.format(str(rotation)))
+
+            rotation = util.query_float('Enter new rotation (degrees):')
+
+            transform_2 = sitk.AffineTransform(2)
+            transform_2.Rotate(0, 1, rotation * deg_to_rad, pre=True)
+
+            rotated_image_2 = sitk.Resample(
+                moving_image, fixed_image, transform_2,
+                sitk.sitkLinear, 0.0,
+                moving_image.GetPixelIDValue())
+
+            plt.imshow(proc.overlay_images(fixed_image, rotated_image_2))
+            plt.title('Rotation = {}'.format(rotation))
+            plt.show()
+
+            # bug: The image does not show up till after the question
+            if util.yes_no('Is this rotation good? [y/n] >>> '): break
+
+    return rotation
+
+
+def query_origin_change(fixed_image, moving_image, initial_rotation, show_overlay=True):
+    """Ask if the user wants a new 2D ITK origin based on image overlay"""
+
+    transform = sitk.AffineTransform(2)
+    deg_to_rad = 2 * np.pi / 360
+    transform.Rotate(0, 1, initial_rotation * deg_to_rad, pre=True)
+
+    rotated_image = sitk.Resample(moving_image, fixed_image, transform,
+                                  sitk.sitkLinear, 0.0,
+                                  moving_image.GetPixelIDValue())
+
+    plt.imshow(proc.overlay_images(fixed_image, rotated_image))
+    plt.title('Origin = {}'.format(moving_image.GetOrigin()))
+    plt.show()
+    print('Current origin: ' + str(moving_image.GetOrigin()))
+    change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
+    plt.close()
+    origin = moving_image.GetOrigin()
+
+    # todo: have it change the origin file too....
+
+    if change_origin:
+
+        while True:
+            print('Current origin: ' + str(origin))
+            new_origin_x = util.query_int('Enter new X origin: ')
+            new_origin_y = util.query_int('Enter new Y origin: ')
+
+            new_origin = (new_origin_x, new_origin_y)
+
+            moving_image.SetOrigin(new_origin)
+            rotated_image = sitk.Resample(moving_image, fixed_image, transform,
+                                          sitk.sitkLinear, 0.0,
+                                          moving_image.GetPixelIDValue())
+
+            plt.imshow(proc.overlay_images(fixed_image, rotated_image))
+            plt.title('Origin = {}'.format(new_origin))
+            plt.show()
+
+            # bug: The image does not show up till after the question
+            if util.yes_no('Is this origin good? [y/n] >>> '): break
+
+        return new_origin
+    else:
+        return origin
+
+
 def rgb_to_2d_img(moving_image):
     """Convert an RGB to grayscale image by extracting the average intensity, filtering out white light >230 avg"""
     array = sitk.GetArrayFromImage(moving_image)
@@ -145,6 +236,29 @@ def rgb_to_2d_img(moving_image):
     origin_2d = moving_image.GetOrigin()[:2]
     moving_image_2d.SetOrigin(origin_2d)
     return moving_image_2d
+
+
+def write_image(registered_image, registered_path, rotation):
+    if registered_image.GetDimension() > 2:
+        arr_rgb_wrong_idx = sitk.GetArrayFromImage(registered_image)
+        arr_rotated_idx = np.swapaxes(arr_rgb_wrong_idx, 0, 2)
+        arr_correct_idx = np.swapaxes(arr_rotated_idx, 0, 1)
+
+        rgb_image = sitk.GetImageFromArray(arr_correct_idx, isVector=True)
+
+        spacing_original = registered_image.GetSpacing()
+        spacing_new = np.array([spacing_original[1], spacing_original[2]])
+        rgb_image.SetSpacing(spacing_new)
+
+        sitk.WriteImage(rgb_image)
+
+    else:
+        sitk.WriteImage(registered_image, str(registered_path))
+
+    meta.write_image_parameters(registered_path,
+                                registered_image.GetSpacing(),
+                                registered_image.GetOrigin(),
+                                rotation)
 
 
 def supervised_register_images(fixed_path: Path, moving_path: Path,
@@ -205,116 +319,5 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
             tran.write_transform(registered_path, origin, transform, metric, stop, rotation)
 
 
-def write_image(registered_image, registered_path, rotation):
-    if registered_image.GetDimension() > 2:
-        arr_rgb_wrong_idx = sitk.GetArrayFromImage(registered_image)
-        arr_rotated_idx = np.swapaxes(arr_rgb_wrong_idx, 0, 2)
-        arr_correct_idx = np.swapaxes(arr_rotated_idx, 0, 1)
 
-        rgb_image = sitk.GetImageFromArray(arr_correct_idx, isVector=True)
-
-        spacing_original = registered_image.GetSpacing()
-        spacing_new = np.array([spacing_original[1], spacing_original[2]])
-        rgb_image.SetSpacing(spacing_new)
-
-        sitk.WriteImage(rgb_image)
-
-    else:
-        sitk.WriteImage(registered_image, str(registered_path))
-
-    meta.write_image_parameters(registered_path,
-                                registered_image.GetSpacing(),
-                                registered_image.GetOrigin(),
-                                rotation)
-
-
-def query_origin_change(fixed_image, moving_image, initial_rotation, show_overlay=True):
-    """Ask if the user wants a new 2D ITK origin based on image overlay"""
-
-    transform = sitk.AffineTransform(2) 
-    deg_to_rad = 2*np.pi/360
-    transform.Rotate(0, 1, initial_rotation*deg_to_rad, pre=True)
-    
-    rotated_image = sitk.Resample(moving_image, fixed_image, transform,
-                                  sitk.sitkLinear, 0.0,
-                                  moving_image.GetPixelIDValue())
-
-    plt.imshow(proc.overlay_images(fixed_image, rotated_image))
-    plt.title('Origin = {}'.format(moving_image.GetOrigin()))
-    plt.show()
-    print('Current origin: ' + str(moving_image.GetOrigin()))
-    change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
-    plt.close()
-    origin = moving_image.GetOrigin()
-
-    #todo: have it change the origin file too....  
-
-    if change_origin:
-
-        while True:
-            print('Current origin: '+str(origin))
-            new_origin_x = util.query_int('Enter new X origin: ')
-            new_origin_y = util.query_int('Enter new Y origin: ')
-
-            new_origin = (new_origin_x, new_origin_y)
-
-            moving_image.SetOrigin(new_origin)
-            rotated_image = sitk.Resample(moving_image, fixed_image, transform,
-                                  sitk.sitkLinear, 0.0,
-                                  moving_image.GetPixelIDValue())
-
-            plt.imshow(proc.overlay_images(fixed_image, rotated_image))
-            plt.title('Origin = {}'.format(new_origin))
-            plt.show()
-
-            # bug: The image does not show up till after the question
-            if util.yes_no('Is this origin good? [y/n] >>> '): break
-
-        return new_origin
-    else:
-        return origin
-    
-    
-def query_pre_rotation(fixed_image, moving_image, initial_rotation):
-    """Ask if the user wants a new 2D ITK origin based on image overlay"""
-
-    transform = sitk.AffineTransform(2) 
-    deg_to_rad = 2*np.pi/360
-    transform.Rotate(0, 1, initial_rotation*deg_to_rad, pre=True)
-    
-    rotated_image = sitk.Resample(moving_image, fixed_image, transform,
-                                  sitk.sitkLinear, 0.0,
-                                  moving_image.GetPixelIDValue())
-
-    plt.imshow(proc.overlay_images(fixed_image, rotated_image))
-    plt.title('Rotation = {}'.format(initial_rotation))
-    plt.show()
-    print('Current origin: ' + str(moving_image.GetOrigin()))
-    change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
-    plt.close()   
-    
-    rotation = initial_rotation
-    
-    if change_rotation:
-        while True:
-            print('Current rotation: {0}'.format(str(rotation)))
-            
-            rotation = util.query_float('Enter new rotation (degrees):')
-            
-            transform_2 = sitk.AffineTransform(2) 
-            transform_2.Rotate(0, 1, rotation*deg_to_rad, pre=True)
-            
-            rotated_image_2 = sitk.Resample(
-                    moving_image, fixed_image, transform_2,
-                    sitk.sitkLinear, 0.0,
-                    moving_image.GetPixelIDValue())
-            
-            plt.imshow(proc.overlay_images(fixed_image, rotated_image_2))
-            plt.title('Rotation = {}'.format(rotation))
-            plt.show()
-
-            # bug: The image does not show up till after the question
-            if util.yes_no('Is this rotation good? [y/n] >>> '): break
-
-    return rotation
 
