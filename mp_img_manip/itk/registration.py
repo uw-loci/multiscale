@@ -95,16 +95,13 @@ def affine_register(fixed_image, moving_image,
     # registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
     # registration_method.AddCommand(sitk.sitkEndEvent, end_plot)
 
-    # reg_plot = RegistrationPlot(registration_method.GetMetricValue(),
-    #                             fixed_image, moving_image,
-    #                             transform)
-    # registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent,
-    #                               reg_plot.update_idx_resolution_switch)
-    # registration_method.AddCommand(
-    # sitk.sitkIterationEvent, reg_plot.update_plot(
-    #   registration_method.GetMetricValue(),
-    #   fixed_image, moving_image,
-    #   transform))
+    reg_plot = RegistrationPlot(registration_method.GetMetricValue(),
+                                fixed_image, moving_image,
+                                transform)
+    registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent,
+                                   reg_plot.update_idx_resolution_switch)
+    registration_method.AddCommand(sitk.sitkIterationEvent, reg_plot.update_plot(
+        registration_method.GetMetricValue(), fixed_image, moving_image, transform))
 
     return (registration_method.Execute(fixed_image, moving_image),
             registration_method.GetMetricValue(),
@@ -134,6 +131,21 @@ def query_good_registration(fixed_image, moving_image,
     return util.yes_no('Is this registration good? [y/n] >>> ')
 
 
+def rgb_to_2d_img(moving_image):
+    """Convert an RGB to grayscale image by extracting the average intensity, filtering out white light >230 avg"""
+    array = sitk.GetArrayFromImage(moving_image)
+    array_2d = np.average(array, 0)
+    array_2d[array_2d > 230] = 0
+
+    moving_image_2d = sitk.GetImageFromArray(array_2d)
+    spacing_2d = moving_image.GetSpacing()[:2]
+    moving_image_2d.SetSpacing(spacing_2d)
+
+    origin_2d = moving_image.GetOrigin()[:2]
+    moving_image_2d.SetOrigin(origin_2d)
+    return moving_image_2d
+
+
 def supervised_register_images(fixed_path: Path, moving_path: Path,
                                iterations=200, scale=4, rotation=0):
 
@@ -144,19 +156,13 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
 
     moving_image_is_rgb = np.size(moving_image.GetSpacing()) > 2
     if moving_image_is_rgb:
-        array = sitk.GetArrayFromImage(moving_image)
-        array_2d = np.average(array, 0)
-        array_2d[array_2d > 230] = 0
-
-        moving_image_2d = sitk.GetImageFromArray(array_2d)
-        spacing_2d = moving_image.GetSpacing()[:2]
-        moving_image_2d.SetSpacing(spacing_2d)
+        moving_image_2d = rgb_to_2d_img(moving_image)
     else:
         moving_image_2d = moving_image
 
     while True:
         rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation)
-        moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image, rotation))
+        moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image_2d, rotation))
 
         (transform, metric, stop) = affine_register(fixed_image, moving_image_2d,
                                                     iterations=iterations, scale=scale, rotation=rotation)
