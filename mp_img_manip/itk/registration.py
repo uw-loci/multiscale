@@ -156,20 +156,16 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
 
     while True:
         rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation)
-        
         moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image, rotation))
-        (transform, metric, stop) = affine_register(
-            fixed_image, moving_image_2d,
-            iterations=iterations, scale=scale, rotation=rotation)
+
+        (transform, metric, stop) = affine_register(fixed_image, moving_image_2d,
+                                                    iterations=iterations, scale=scale, rotation=rotation)
 
         if query_good_registration(fixed_image, moving_image_2d, transform, metric, stop):
             break
 
     origin = moving_image.GetOrigin()
-    meta.write_image_parameters(moving_path,
-                                moving_image.GetSpacing(),
-                                origin,
-                                rotation)
+    meta.write_image_parameters(moving_path, moving_image.GetSpacing(), origin, rotation)
 
     registered_image = sitk.Resample(moving_image, fixed_image,
                                      transform, sitk.sitkLinear,
@@ -188,26 +184,18 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
         fixed_dir, moving_dir)
 
     for i in range(0, np.size(fixed_path_list)):
-        registered_path = blk.create_new_image_path(
-            moving_path_list[i], output_dir, output_suffix)
-        
+        registered_path = blk.create_new_image_path(moving_path_list[i], output_dir, output_suffix)
         if registered_path.exists() and skip_existing_images:
             continue
         
         registered_image, origin, transform, metric, stop, rotation = \
-            supervised_register_images(
-                fixed_path_list[i], moving_path_list[i],
-                iterations=iterations, scale=scale)
+            supervised_register_images(fixed_path_list[i], moving_path_list[i], iterations=iterations, scale=scale)
 
         if write_output:
             write_image(registered_image, registered_path, rotation)
 
-
         if write_transform:
-            tran.write_transform(registered_path, 
-                                 origin, 
-                                 transform, metric, stop, 
-                                 rotation)
+            tran.write_transform(registered_path, origin, transform, metric, stop, rotation)
 
 
 def write_image(registered_image, registered_path, rotation):
@@ -231,6 +219,7 @@ def write_image(registered_image, registered_path, rotation):
                                 registered_image.GetSpacing(),
                                 registered_image.GetOrigin(),
                                 rotation)
+
 
 def query_origin_change(fixed_image, moving_image, initial_rotation, show_overlay=True):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
