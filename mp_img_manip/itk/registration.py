@@ -200,18 +200,22 @@ def rgb_to_2d_img(moving_image):
     return moving_image_2d
 
 
+def three_d_to_rgb(image_3d):
+    arr_rgb_wrong_idx = sitk.GetArrayFromImage(image_3d)
+    arr_rotated_idx = np.swapaxes(arr_rgb_wrong_idx, 0, 2)
+    arr_correct_idx = np.swapaxes(arr_rotated_idx, 0, 1)
+
+    rgb_image = sitk.GetImageFromArray(arr_correct_idx, isVector=True)
+
+    spacing_original = image_3d.GetSpacing()
+    spacing_new = np.array([spacing_original[1], spacing_original[2]])
+    rgb_image.SetSpacing(spacing_new)
+    return rgb_image
+
+
 def write_image(registered_image, registered_path, rotation):
     if registered_image.GetDimension() > 2:
-        arr_rgb_wrong_idx = sitk.GetArrayFromImage(registered_image)
-        arr_rotated_idx = np.swapaxes(arr_rgb_wrong_idx, 0, 2)
-        arr_correct_idx = np.swapaxes(arr_rotated_idx, 0, 1)
-
-        rgb_image = sitk.GetImageFromArray(arr_correct_idx, isVector=True)
-
-        spacing_original = registered_image.GetSpacing()
-        spacing_new = np.array([spacing_original[1], spacing_original[2]])
-        rgb_image.SetSpacing(spacing_new)
-
+        rgb_image = three_d_to_rgb(registered_image)
         sitk.WriteImage(rgb_image)
 
     else:
@@ -224,7 +228,7 @@ def write_image(registered_image, registered_path, rotation):
 
 
 def supervised_register_images(fixed_path: Path, moving_path: Path,
-                               iterations=200, scale=4, rotation=0):
+                               iterations=200, scale=4):
 
     fixed_image = meta.setup_image(fixed_path)
     moving_image, rotation = meta.setup_image(moving_path, return_rotation=True)
