@@ -20,7 +20,7 @@ class RegistrationPlot:
         self.ax_cost.set_xlim(0, 1)
         self.ax_cost.set_ylim(start_metric_value*2, 0)
 
-        loc = plticker.MultipleLocator(base=1.0)  # this locator puts ticks at regular intervals
+        loc = plticker.MaxNLocator(integer=True)  # this locator puts ticks at regular intervals
         self.ax_cost.xaxis.set_major_locator(loc)
 
         moving_transformed = sitk.Resample(moving_image, fixed_image, transform,
@@ -41,7 +41,7 @@ class RegistrationPlot:
         self.metric_values.append(new_metric_value)
         self.plot.set_data(range(len(self.metric_values)), self.metric_values)
         self.ax_cost.set_xlim(0, len(self.metric_values))
-        self.ax_cost.set_ylim(2*min(self.metric_values), 0)
+        self.ax_cost.set_ylim(1.1*min(self.metric_values), 0)
 
         moving_transformed = sitk.Resample(moving_image, fixed_image, transform,
                                            sitk.sitkLinear, 0.0,
@@ -54,8 +54,8 @@ class RegistrationPlot:
         asp = np.diff(self.ax_cost.get_xlim())[0] / np.diff(self.ax_cost.get_ylim())[0]
         self.ax_cost.set_aspect(asp)
 
-        plt.draw()
-        plt.pause(0.02)
+        self.fig.canvas.draw()
+        self.fig.canvas.flush_events()
 
     def update_idx_resolution_switch(self):
         new_idx = len(self.metric_values)
