@@ -11,8 +11,14 @@ import SimpleITK as sitk
 import os
 import numpy as np
 
+
 def three_d_to_rgb(image_3d):
     arr_rgb_wrong_idx = sitk.GetArrayFromImage(image_3d)
+    if len(np.shape(arr_rgb_wrong_idx)) > 3:
+        slice_not_empty = [np.mean(arr_rgb_wrong_idx[:, :, :, idx]) > 1 for idx in range(3)]
+        idx_not_empty = np.where(True, slice_not_empty)
+        arr_rgb_wrong_idx = arr_rgb_wrong_idx[:, :, :, idx_not_empty]
+
     arr_rotated_idx = np.swapaxes(arr_rgb_wrong_idx, 0, 2)
     arr_correct_idx = np.swapaxes(arr_rotated_idx, 0, 1)
 
