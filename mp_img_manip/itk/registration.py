@@ -49,7 +49,7 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np
 def affine_register(fixed_image, moving_image, reg_plot: RegistrationPlot,
                     scale=3, iterations=10,
                     fixed_mask=None, moving_mask=None, rotation=0,
-                    learning_rate=200, min_step=0.01, gradient_tolerance=1E-5):
+                    learning_rate=200, min_step=0.01, gradient_tolerance=1E-4):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -189,7 +189,7 @@ def rgb_to_2d_img(moving_image):
     """Convert an RGB to grayscale image by extracting the average intensity, filtering out white light >230 avg"""
     array = sitk.GetArrayFromImage(moving_image)
     array_2d = np.average(array, 2)
-    array_2d[array_2d > 230] = 0
+    array_2d[array_2d > 0.9*np.max(array)] = 0
 
     moving_image_2d = sitk.GetImageFromArray(array_2d)
     spacing_2d = moving_image.GetSpacing()[:2]
@@ -252,7 +252,7 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
                                     output_dir, output_suffix,
                                     write_output=True, write_transform=True,
                                     iterations=100, scale=2,
-                                    skip_existing_images=False):
+                                    skip_existing_images=True):
 
     (fixed_path_list, moving_path_list) = blk.find_shared_images(
         fixed_dir, moving_dir)
