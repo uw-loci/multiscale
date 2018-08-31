@@ -44,6 +44,8 @@ class RegistrationPlot:
 
         self.metric_values.append(new_metric_value)
         self.plot.set_data(range(len(self.metric_values)), self.metric_values)
+        self.plot_multires.set_data(self.idx_resolution_switch,
+                                    [self.metric_values[index] for index in self.idx_resolution_switch])
         self.ax_cost.set_xlim(0, len(self.metric_values))
         self.ax_cost.set_ylim(1.1*min(self.metric_values), 0)
 
@@ -60,8 +62,6 @@ class RegistrationPlot:
 
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
-
-
 
     def update_idx_resolution_switch(self):
         new_idx = len(self.metric_values)
