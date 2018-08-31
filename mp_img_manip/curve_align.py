@@ -263,17 +263,17 @@ def scrape_rois(roi_dir, roi_output_dir, output_suffix):
             writer.writerow([mouse, slide, modality, tile, roi, orientation, alignment])
 
 
-def read_features_files(file_path):
+def read_features_file(file_path):
     df_features = pd.read_csv(file_path)
 
-    num_fibers = df_features[0].nunique()
+    num_fibers = df_features.loc[:, 0].nunique()
     fib_segments = df_features.shape[0]
 
     return num_fibers, fib_segments
 
 
 def scrape_roi_fiber_nums(roi_dir, roi_output_dir, output_suffix):
-    roi_files = util.list_filetype_in_dir(roi_dir, 'stats.csv')
+    roi_files = util.list_filetype_in_dir(roi_dir, 'fibFeatures.csv')
     csv_path = Path(roi_output_dir, 'Curve_Align_results_ROIs_' + output_suffix + '.csv')
     print('Scraping results from {0}'.format(roi_dir))
 
@@ -288,6 +288,13 @@ def scrape_roi_fiber_nums(roi_dir, roi_output_dir, output_suffix):
             writer.writerow([mouse, slide, modality, tile, roi, num_fibers, fib_segments])
 
 
+def scrape_features(curve_dir, modality_dir, output_suffix):
+    roi_dir = Path(curve_dir, modality_dir + '\images\CA_ROI\Batch\ROI_post_analysis')
+    roi_output_dir = Path(curve_dir, 'ROI')
+    os.makedirs(roi_output_dir, exist_ok=True)
+    scrape_roi_fiber_nums(roi_dir, roi_output_dir, output_suffix)
+
+
 def scrape_results(curve_dir, modality_dir, output_suffix):
     tile_dir = Path(curve_dir, modality_dir + '\images\CA_Out')
     tile_output_dir = Path(curve_dir, 'Tile')
@@ -298,7 +305,6 @@ def scrape_results(curve_dir, modality_dir, output_suffix):
     roi_output_dir = Path(curve_dir, 'ROI')
     os.makedirs(roi_output_dir, exist_ok=True)
     scrape_rois(roi_dir, roi_output_dir, output_suffix)
-
 
 
 def load_dataframe(csv_path):
