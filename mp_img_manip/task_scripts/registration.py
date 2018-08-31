@@ -6,6 +6,8 @@ Created on Tue Mar  6 15:52:18 2018
 """
 import matplotlib as mpl
 mpl.use('qt5agg')
+import matplotlib.pyplot as plt
+plt.ion()
 
 import mp_img_manip.itk.registration as reg
 import mp_img_manip.itk.transform as trans

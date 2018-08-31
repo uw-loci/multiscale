@@ -21,10 +21,25 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 
+def plot_overlay(moving_image, fixed_image, transform, rotation, origin):
+    transform = sitk.AffineTransform(2)
+    deg_to_rad = 2 * np.pi / 360
+    transform.Rotate(0, 1, rotation * deg_to_rad, pre=True)
+
+    rotated_image = sitk.Resample(moving_image, fixed_image, transform,
+                                  sitk.sitkLinear, 0.0,
+                                  moving_image.GetPixelIDValue())
+
+    plt.imshow(proc.overlay_images(fixed_image, rotated_image))
+    plt.title('Rotation = {}, Origin = {}'.format(rotation, origin))
+    plt.draw()
+    plt.pause(0.002)
+
+
 def affine_register(fixed_image, moving_image,
-                    scale=3, iterations=200,
+                    scale=3, iterations=10,
                     fixed_mask=None, moving_mask=None, rotation=0,
-                    learning_rate=20, min_step=0.001, gradient_tolerance=1E-7):
+                    learning_rate=200, min_step=0.001, gradient_tolerance=1E-7):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -63,8 +78,8 @@ def affine_register(fixed_image, moving_image,
         registration_method.SetMetricMovingMask(moving_mask)
 
     # Optimizer settings.
-    registration_method.SetOptimizerAsRegularStepGradientDescent(learning_rate, min_step,
-                                                                 iterations,
+    registration_method.SetOptimizerAsRegularStepGradientDescent(learningRate=learning_rate, minStep=min_step,
+                                                                 numberOfIterations=iterations,
                                                                  gradientMagnitudeTolerance=gradient_tolerance)
 
     registration_method.SetOptimizerScalesFromPhysicalShift()
@@ -118,7 +133,8 @@ def query_good_registration(fixed_image, moving_image,
     plt.close()
     plt.imshow(proc.overlay_images(fixed_image, moving_resampled))
     plt.title('Registered Image')
-    plt.show()
+    plt.draw()
+    plt.pause(0.002)
 
     print('\nFinal metric value: {0}'.format(metric))
     print('\n{0}'.format(stop))
@@ -145,7 +161,9 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation):
 
     plt.imshow(proc.overlay_images(fixed_image, rotated_image))
     plt.title('Rotation = {}'.format(initial_rotation))
-    plt.show()
+    plt.draw()
+    plt.pause(0.002)
+
     print('Current origin: ' + str(moving_image.GetOrigin()))
     change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
     plt.close()
@@ -168,7 +186,8 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation):
 
             plt.imshow(proc.overlay_images(fixed_image, rotated_image_2))
             plt.title('Rotation = {}'.format(rotation))
-            plt.show()
+            plt.draw()
+            plt.pause(0.002)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this rotation good? [y/n] >>> '): break
@@ -189,7 +208,9 @@ def query_origin_change(fixed_image, moving_image, initial_rotation, show_overla
 
     plt.imshow(proc.overlay_images(fixed_image, rotated_image))
     plt.title('Origin = {}'.format(moving_image.GetOrigin()))
-    plt.show()
+    plt.draw()
+    plt.pause(0.002)
+
     print('Current origin: ' + str(moving_image.GetOrigin()))
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
     plt.close()
@@ -213,7 +234,8 @@ def query_origin_change(fixed_image, moving_image, initial_rotation, show_overla
 
             plt.imshow(proc.overlay_images(fixed_image, rotated_image))
             plt.title('Origin = {}'.format(new_origin))
-            plt.show()
+            plt.draw()
+            plt.pause(0.002)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this origin good? [y/n] >>> '): break
@@ -298,7 +320,7 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
 def bulk_supervised_register_images(fixed_dir, moving_dir,
                                     output_dir, output_suffix,
                                     write_output=True, write_transform=True,
-                                    iterations=200, scale=4,
+                                    iterations=100, scale=2,
                                     skip_existing_images=False):
 
     (fixed_path_list, moving_path_list) = blk.find_shared_images(
