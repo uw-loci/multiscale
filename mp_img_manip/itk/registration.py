@@ -21,22 +21,28 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 
-def plot_overlay(moving_image, fixed_image, transform, rotation, origin):
+def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np.double):
+    origin = moving_image.GetOrigin()
+
     transform = sitk.AffineTransform(2)
     deg_to_rad = 2 * np.pi / 360
+
     transform.Rotate(0, 1, rotation * deg_to_rad, pre=True)
 
     rotated_image = sitk.Resample(moving_image, fixed_image, transform,
                                   sitk.sitkLinear, 0.0,
                                   moving_image.GetPixelIDValue())
 
-    plt.imshow(proc.overlay_images(fixed_image, rotated_image))
-    plt.title('Rotation = {}, Origin = {}'.format(rotation, origin))
-    plt.draw()
-    plt.pause(0.002)
+    fig, ax = plt.subplots()
+    ax.set_title('Rotation = {}, Origin = {}'.format(rotation, origin))
+    img = ax.imshow(proc.overlay_images(fixed_image, rotated_image))
+
+    fig.canvas.draw()
+    fig.canvas.flush_events()
+    plt.pause(0.02)
 
 
-def affine_register(fixed_image, moving_image,
+def affine_register(fixed_image, moving_image, reg_plot: RegistrationPlot,
                     scale=3, iterations=10,
                     fixed_mask=None, moving_mask=None, rotation=0,
                     learning_rate=200, min_step=0.001, gradient_tolerance=1E-7):
@@ -110,9 +116,6 @@ def affine_register(fixed_image, moving_image,
     # registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
     #     registration_method.AddCommand(sitk.sitkEndEvent, reg_plot.end_plot)
 
-    reg_plot = RegistrationPlot(registration_method.GetMetricValue(),
-                                fixed_image, moving_image,
-                                transform)
     registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent,
                                    reg_plot.update_idx_resolution_switch)
     registration_method.AddCommand(sitk.sitkIterationEvent, lambda: reg_plot.update_plot(
@@ -151,43 +154,21 @@ def query_good_registration(fixed_image, moving_image,
 def query_pre_rotation(fixed_image, moving_image, initial_rotation):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
 
-    transform = sitk.AffineTransform(2)
-    deg_to_rad = 2 * np.pi / 360
-    transform.Rotate(0, 1, initial_rotation * deg_to_rad, pre=True)
+    plot_overlay(fixed_image, moving_image, initial_rotation)
 
-    rotated_image = sitk.Resample(moving_image, fixed_image, transform,
-                                  sitk.sitkLinear, 0.0,
-                                  moving_image.GetPixelIDValue())
-
-    plt.imshow(proc.overlay_images(fixed_image, rotated_image))
-    plt.title('Rotation = {}'.format(initial_rotation))
-    plt.draw()
-    plt.pause(0.002)
-
-    print('Current origin: ' + str(moving_image.GetOrigin()))
+    #print('Current origin: ' + str(moving_image.GetOrigin()))
     change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
-    plt.close()
+    #plt.close()
 
     rotation = initial_rotation
 
     if change_rotation:
         while True:
-            print('Current rotation: {0}'.format(str(rotation)))
+            #print('Current rotation: {0}'.format(str(rotation)))
 
             rotation = util.query_float('Enter new rotation (degrees):')
 
-            transform_2 = sitk.AffineTransform(2)
-            transform_2.Rotate(0, 1, rotation * deg_to_rad, pre=True)
-
-            rotated_image_2 = sitk.Resample(
-                moving_image, fixed_image, transform_2,
-                sitk.sitkLinear, 0.0,
-                moving_image.GetPixelIDValue())
-
-            plt.imshow(proc.overlay_images(fixed_image, rotated_image_2))
-            plt.title('Rotation = {}'.format(rotation))
-            plt.draw()
-            plt.pause(0.002)
+            plot_overlay(fixed_image, moving_image, rotation)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this rotation good? [y/n] >>> '): break
@@ -195,21 +176,10 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation):
     return rotation
 
 
-def query_origin_change(fixed_image, moving_image, initial_rotation, show_overlay=True):
+def query_origin_change(fixed_image, moving_image, rotation):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
 
-    transform = sitk.AffineTransform(2)
-    deg_to_rad = 2 * np.pi / 360
-    transform.Rotate(0, 1, initial_rotation * deg_to_rad, pre=True)
-
-    rotated_image = sitk.Resample(moving_image, fixed_image, transform,
-                                  sitk.sitkLinear, 0.0,
-                                  moving_image.GetPixelIDValue())
-
-    plt.imshow(proc.overlay_images(fixed_image, rotated_image))
-    plt.title('Origin = {}'.format(moving_image.GetOrigin()))
-    plt.draw()
-    plt.pause(0.002)
+    plot_overlay(fixed_image, moving_image, rotation)
 
     print('Current origin: ' + str(moving_image.GetOrigin()))
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
@@ -228,14 +198,7 @@ def query_origin_change(fixed_image, moving_image, initial_rotation, show_overla
             new_origin = (new_origin_x, new_origin_y)
 
             moving_image.SetOrigin(new_origin)
-            rotated_image = sitk.Resample(moving_image, fixed_image, transform,
-                                          sitk.sitkLinear, 0.0,
-                                          moving_image.GetPixelIDValue())
-
-            plt.imshow(proc.overlay_images(fixed_image, rotated_image))
-            plt.title('Origin = {}'.format(new_origin))
-            plt.draw()
-            plt.pause(0.002)
+            plot_overlay(fixed_image, moving_image, rotation)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this origin good? [y/n] >>> '): break
@@ -298,10 +261,14 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
         moving_image_2d = moving_image
 
     while True:
+        reg_plot = RegistrationPlot(0,
+                                    fixed_image, moving_image,
+                                    transform)
+
         rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation)
         moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image_2d, rotation))
 
-        (transform, metric, stop) = affine_register(fixed_image, moving_image_2d,
+        (transform, metric, stop) = affine_register(fixed_image, moving_image_2d, reg_plot,
                                                     iterations=iterations, scale=scale, rotation=rotation)
 
         if query_good_registration(fixed_image, moving_image_2d, transform, metric, stop):
