@@ -95,33 +95,22 @@ def affine_register(fixed_image, moving_image, reg_plot: RegistrationPlot,
     registration_method.SetOptimizerScalesFromPhysicalShift()
 
     # Setup for the multi-resolution framework.
-
     shrink_factors = [8, 4, 2, 1]
     smoothing_sigmas = [2, 2, 1, 1]
-
     if scale > 4:
         scale = 4
         print('Warning, scale was set higher than the maximum value of 4')
 
-    registration_method.SetShrinkFactorsPerLevel(
-        shrink_factors[(4-scale):])
-    registration_method.SetSmoothingSigmasPerLevel(
-        smoothing_sigmas[(4-scale):])
+    registration_method.SetShrinkFactorsPerLevel(shrink_factors[(4-scale):])
+    registration_method.SetSmoothingSigmasPerLevel(smoothing_sigmas[(4-scale):])
     registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
 
     transform = sitk.AffineTransform(2)
-    
     deg_to_rad = 2*np.pi/360
     transform.Rotate(0, 1, rotation*deg_to_rad, pre=True)
-    
     registration_method.SetInitialTransform(transform)
 
-    # Connect all of the observers so that we can plot during registration.
-    # registration_method.AddCommand(sitk.sitkStartEvent, start_plot)
-    #     registration_method.AddCommand(sitk.sitkEndEvent, reg_plot.end_plot)
-
-    registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent,
-                                   reg_plot.update_idx_resolution_switch)
+    registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, reg_plot.update_idx_resolution_switch)
     registration_method.AddCommand(sitk.sitkIterationEvent, lambda: reg_plot.update_plot(
         registration_method.GetMetricValue(), fixed_image, moving_image, transform))
 
