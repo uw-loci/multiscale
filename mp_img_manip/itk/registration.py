@@ -188,7 +188,7 @@ def query_origin_change(fixed_image, moving_image, rotation):
 def rgb_to_2d_img(moving_image):
     """Convert an RGB to grayscale image by extracting the average intensity, filtering out white light >230 avg"""
     array = sitk.GetArrayFromImage(moving_image)
-    array_2d = np.average(array, 0)
+    array_2d = np.average(array, 2)
     array_2d[array_2d > 230] = 0
 
     moving_image_2d = sitk.GetImageFromArray(array_2d)
@@ -200,26 +200,9 @@ def rgb_to_2d_img(moving_image):
     return moving_image_2d
 
 
-def three_d_to_rgb(image_3d):
-    arr_rgb_wrong_idx = sitk.GetArrayFromImage(image_3d)
-    arr_rotated_idx = np.swapaxes(arr_rgb_wrong_idx, 0, 2)
-    arr_correct_idx = np.swapaxes(arr_rotated_idx, 0, 1)
-
-    rgb_image = sitk.GetImageFromArray(arr_correct_idx, isVector=True)
-
-    spacing_original = image_3d.GetSpacing()
-    spacing_new = np.array([spacing_original[1], spacing_original[2]])
-    rgb_image.SetSpacing(spacing_new)
-    return rgb_image
-
-
 def write_image(registered_image, registered_path, rotation):
-    if registered_image.GetDimension() > 2:
-        rgb_image = three_d_to_rgb(registered_image)
-        sitk.WriteImage(rgb_image)
 
-    else:
-        sitk.WriteImage(registered_image, str(registered_path))
+    sitk.WriteImage(registered_image, str(registered_path))
 
     meta.write_image_parameters(registered_path,
                                 registered_image.GetSpacing(),
@@ -235,7 +218,7 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
     print('\nRegistering ' + os.path.basename(moving_path) + ' to '
           + os.path.basename(fixed_path))
 
-    moving_image_is_rgb = np.size(moving_image.GetSpacing()) > 2
+    moving_image_is_rgb = moving_image.GetNumberOfComponentsPerPixel() > 1
     if moving_image_is_rgb:
         moving_image_2d = rgb_to_2d_img(moving_image)
     else:

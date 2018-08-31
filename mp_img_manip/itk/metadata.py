@@ -11,6 +11,18 @@ import SimpleITK as sitk
 import os
 import numpy as np
 
+def three_d_to_rgb(image_3d):
+    arr_rgb_wrong_idx = sitk.GetArrayFromImage(image_3d)
+    arr_rotated_idx = np.swapaxes(arr_rgb_wrong_idx, 0, 2)
+    arr_correct_idx = np.swapaxes(arr_rotated_idx, 0, 1)
+
+    rgb_image = sitk.GetImageFromArray(arr_correct_idx, isVector=True)
+
+    spacing_original = image_3d.GetSpacing()
+    spacing_new = np.array([spacing_original[1], spacing_original[2]])
+    rgb_image.SetSpacing(spacing_new)
+    return rgb_image
+
 
 def setup_image(image_path, return_image=True, return_rotation=False):
     """Set up the image spacing and optionally the registration origin
@@ -37,12 +49,10 @@ def setup_image(image_path, return_image=True, return_rotation=False):
         image = sitk.ReadImage(str(image_path))
 
         if len(image.GetSpacing()) > 2:
-            image = sitk.ReadImage(str(image_path))
-            spacing = np.array([parameters[0][0], parameters[0][1], 1])
-            origin = np.array([parameters[1][0], parameters[1][1], 0])
-        else:
-            spacing = parameters[0]
-            origin = parameters[1]
+            image = three_d_to_rgb(image)
+
+        spacing = parameters[0]
+        origin = parameters[1]
 
         image.SetSpacing(spacing)
         image.SetOrigin(origin)
