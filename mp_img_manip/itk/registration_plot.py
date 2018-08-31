@@ -6,9 +6,9 @@ import matplotlib.ticker as plticker
 
 
 class RegistrationPlot:
-    def __init__(self, start_metric_value, fixed_image, moving_image, transform):
-        self.metric_values = [start_metric_value]
-        self.idx_resolution_switch = [0]
+    def __init__(self, fixed_image, moving_image, transform=sitk.AffineTransform(2)):
+        self.metric_values = []
+        self.idx_resolution_switch = []
         self.fig, (self.ax_img, self.ax_cost) = plt.subplots(1, 2)
 
         self.fig.set_size_inches(16, 8)
@@ -18,7 +18,7 @@ class RegistrationPlot:
         self.ax_cost.set_xlabel('Iteration Number', fontsize=12)
         self.ax_cost.set_title('Metric Value', fontsize=12)
         self.ax_cost.set_xlim(0, 1)
-        self.ax_cost.set_ylim(start_metric_value*2, 0)
+        self.ax_cost.set_ylim(-0.1, 0)
 
         loc = plticker.MaxNLocator(integer=True)  # this locator puts ticks at regular intervals
         self.ax_cost.xaxis.set_major_locator(loc)
@@ -34,6 +34,10 @@ class RegistrationPlot:
         self.plot_multires, = self.ax_cost.plot(self.idx_resolution_switch,
                                                 [self.metric_values[index] for index in self.idx_resolution_switch],
                                                 'b*')
+
+        mng = plt.get_current_fig_manager()
+        geom = mng.window.geometry().getRect()
+        mng.window.setGeometry(-1800, 100, geom[2], geom[3])
 
     def update_plot(self, new_metric_value, fixed_image, moving_image, transform):
         """Event: Update and plot new registration values"""
@@ -56,6 +60,8 @@ class RegistrationPlot:
 
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
+
+
 
     def update_idx_resolution_switch(self):
         new_idx = len(self.metric_values)

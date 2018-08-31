@@ -37,6 +37,10 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np
     ax.set_title('Rotation = {}, Origin = {}'.format(rotation, origin))
     img = ax.imshow(proc.overlay_images(fixed_image, rotated_image))
 
+    mng = plt.get_current_fig_manager()
+    geom = mng.window.geometry().getRect()
+    mng.window.setGeometry(-1800, 100, geom[2], geom[3])
+
     fig.canvas.draw()
     fig.canvas.flush_events()
     plt.pause(0.02)
@@ -45,7 +49,7 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np
 def affine_register(fixed_image, moving_image, reg_plot: RegistrationPlot,
                     scale=3, iterations=10,
                     fixed_mask=None, moving_mask=None, rotation=0,
-                    learning_rate=200, min_step=0.001, gradient_tolerance=1E-7):
+                    learning_rate=200, min_step=0.001, gradient_tolerance=1E-6):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -156,16 +160,12 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation):
 
     plot_overlay(fixed_image, moving_image, initial_rotation)
 
-    #print('Current origin: ' + str(moving_image.GetOrigin()))
     change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
-    #plt.close()
 
     rotation = initial_rotation
 
     if change_rotation:
         while True:
-            #print('Current rotation: {0}'.format(str(rotation)))
-
             rotation = util.query_float('Enter new rotation (degrees):')
 
             plot_overlay(fixed_image, moving_image, rotation)
@@ -181,9 +181,7 @@ def query_origin_change(fixed_image, moving_image, rotation):
 
     plot_overlay(fixed_image, moving_image, rotation)
 
-    print('Current origin: ' + str(moving_image.GetOrigin()))
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
-    plt.close()
     origin = moving_image.GetOrigin()
 
     # todo: have it change the origin file too....
@@ -261,13 +259,11 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
         moving_image_2d = moving_image
 
     while True:
-        reg_plot = RegistrationPlot(0,
-                                    fixed_image, moving_image,
-                                    transform)
 
         rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation)
         moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image_2d, rotation))
 
+        reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
         (transform, metric, stop) = affine_register(fixed_image, moving_image_2d, reg_plot,
                                                     iterations=iterations, scale=scale, rotation=rotation)
 
@@ -280,6 +276,8 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
     registered_image = sitk.Resample(moving_image, fixed_image,
                                      transform, sitk.sitkLinear,
                                      0.0, moving_image.GetPixelID())
+
+    plt.close('all')
 
     return registered_image, origin, transform, metric, stop, rotation
 
