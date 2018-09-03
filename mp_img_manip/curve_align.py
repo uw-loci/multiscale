@@ -264,9 +264,13 @@ def scrape_rois(roi_dir, roi_output_dir, output_suffix):
 
 
 def read_features_file(file_path):
-    df_features = pd.read_csv(file_path)
+    try:
+        df_features = pd.read_csv(file_path, header=None)
+    except ValueError:
+        return 0, 0
 
-    num_fibers = df_features.loc[:, 0].nunique()
+    unique = df_features.nunique()
+    num_fibers = unique[0]
     fib_segments = df_features.shape[0]
 
     return num_fibers, fib_segments
