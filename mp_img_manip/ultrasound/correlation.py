@@ -61,7 +61,7 @@ def calculate_1d_correlation_curve(
     for shift in range(int(shape_window[dim_of_corr]/2 + 1)):
         for dim_loc in range(1, int(shape_window[dim_of_corr]/2)):
             for frame in range(shape_window[dim_of_averaging]):
-
+                print('Do something')
     return np.array([4, 3])
 
 

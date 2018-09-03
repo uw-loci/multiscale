@@ -47,7 +47,14 @@ def format_parameters(param_raw: np.ndarray) -> dict:
         'focus': np.double(param_raw['txFocus']),
         'start depth': np.double(param_raw['startDepth']),
         'end depth': np.double(param_raw['endDepth']),
+        'transducer spacing': np.double(param_raw['transducer_spacing']),
+        'sampling wavelength': np.double(param_raw['wavelength_micron'])
     }
+
+    # Convert to units of mm
+    parameters['lateral resolution'] = parameters['lateral resolution']*parameters['transducer spacing']*0.1
+    parameters['axial resolution'] = parameters['axial resolution']*parameters['transducer spacing']*0.1
+
     return parameters
 
 
@@ -162,7 +169,7 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
         image_cast = sitk.Cast(image, sitk.sitkFloat32)
 
         # bug: This spacing is very off, due to differences in units between resolution and separation
-        spacing = np.array([parameters['lateral resolution'], parameters['axial resolution'], elevational_sep*1000])
+        spacing = np.array([parameters['lateral resolution'], parameters['axial resolution'], elevational_sep/1000])
 
         image_cast.SetSpacing(spacing)
 

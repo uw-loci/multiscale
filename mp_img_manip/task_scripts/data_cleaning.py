@@ -25,7 +25,7 @@ def clean_curve_align_tiles(dir_dict):
     df_list = [pd.read_csv(csv) for csv in csv_list]
     clean_list = [pd.pivot_table(flat_frame, index=['Mouse', 'Slide', 'Tile'],
                                  values=['Alignment', 'Orientation'],
-                                 columns = 'Modality') for flat_frame in df_list]
+                                 columns='Modality') for flat_frame in df_list]
 
     clean_tile_df = reduce(lambda x, y: pd.concat([x, y], axis=1), clean_list)
     
@@ -38,9 +38,8 @@ def clean_curve_align_rois(dir_dict):
     df_list = [pd.read_csv(csv, dtype = {'Mouse': object, 'Slide': object}) for csv in csv_list]
     clean_list = [pd.pivot_table(flat_frame, index=['Mouse', 'Slide', 'Tile','ROI'],
                                  values=['Alignment', 'Orientation'],
-                                 columns = 'Modality') for flat_frame in df_list]
-    
-    
+                                 columns='Modality') for flat_frame in df_list]
+
     clean_roi_df = reduce(lambda x, y: pd.concat([x, y], axis=1), clean_list)
     
     return clean_roi_df
