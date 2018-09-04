@@ -108,12 +108,18 @@ def load_rf(dir_rf: Path) -> (np.ndarray, dict):
     return array_rf, params
 
 
-def calc_plot_corr_curves(dir_rf: Path, window_params: dict, dir_output: Path=None, suffix_output: str=None):
-    # rf_array, params_acquisition = load_rf(dir_rf)
-    # curves = calc_corr_curves(rf_array, window_params)
-    # plot_curves(curves, params_acquisition, dir_output, suffix_output)
-
-
+def calc_corr_curves(rf_array, window_params) -> np.ndarray:
     return
+
+
+def plot_curves(array_curves: np.ndarray, params_acq: dict, dir_output: Path, suffix_output: 'str'):
+    return
+
+
+def calc_plot_corr_curves(dir_rf: Path, window_params: dict, dir_output: Path=None, suffix_output: str=None):
+    rf_array, params_acquisition = load_rf(dir_rf)
+    curves = calc_corr_curves(rf_array, window_params)
+    plot_curves(curves, params_acquisition, dir_output, suffix_output)
+
 
 
