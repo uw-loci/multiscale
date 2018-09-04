@@ -96,18 +96,20 @@ def count_xy_positions(list_pos: list) -> (np.ndarray, np.ndarray, np.ndarray):
     """Determine how many unique Lateral and elevational positions the position list holds,
     as well as the physical separation """
     array_pos = np.array(list_pos)
-    unique = np.unique(array_pos[:, 0], return_counts=True)
-    num_lateral_elevational = np.array([len(unique[0]), unique[1][0]])
+    unique_lateral = np.unique(array_pos[:, 0])
+    unique_elevational = np.unique(array_pos[:, 1])
 
-    if len(unique[0]) > 1:
-        lateral_sep = unique[0][1] - unique[0][0]
-    else:
-        lateral_sep = np.nan
+    num_lateral_elevational = np.array([len(unique_lateral), len(unique_elevational)])
 
-    if len(unique[1]) > 1:
-        elevational_sep = unique[1][1] - unique[1][0]
+    if len(unique_lateral) > 1:
+        lateral_sep = np.abs(unique_lateral[1] - unique_lateral[0])
     else:
-        elevational_sep = np.nan
+        lateral_sep = 1
+
+    if len(unique_elevational) > 1:
+        elevational_sep = np.abs(unique_elevational[1] - unique_elevational[0])
+    else:
+        elevational_sep = 1
 
     return num_lateral_elevational, lateral_sep, elevational_sep
 
