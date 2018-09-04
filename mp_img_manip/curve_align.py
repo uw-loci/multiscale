@@ -267,7 +267,7 @@ def read_features_file(file_path):
     try:
         df_features = pd.read_csv(file_path, header=None)
     except ValueError:
-        return (0, 0)
+        return np.nan, np.nan
 
     unique = df_features.nunique()
     num_fibers = unique[0]
@@ -289,6 +289,9 @@ def scrape_roi_fiber_nums(roi_dir, roi_output_dir, output_suffix):
             sample, modality, tile, roi = blk.file_name_parts(roi_path)[:4]
             mouse, slide = sample.split('-')
             num_fibers, fib_segments = read_features_file(roi_path)
+            if num_fibers is np.nan:
+                continue
+
             writer.writerow([mouse, slide, modality, tile, roi, num_fibers, fib_segments])
 
 
