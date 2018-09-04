@@ -101,7 +101,11 @@ def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_
 
 
 def load_rf(dir_rf: Path) -> (np.ndarray, dict):
-    rf_list = recon.get_sorted_list_mats(dir_rf, search_str='RF.mat')
+    list_rf = recon.get_sorted_list_mats(dir_rf, search_str='RF.mat')
+    array_rf = recon.mat_list_to_rf_array(list_rf)
+    params = recon.open_parameters(list_rf[0])
+
+    return array_rf, params
 
 
 def calc_plot_corr_curves(dir_rf: Path, window_params: dict, dir_output: Path=None, suffix_output: str=None):
