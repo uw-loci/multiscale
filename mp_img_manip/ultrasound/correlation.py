@@ -100,6 +100,15 @@ def calculate_curves_per_window(window: np.ndarray):
     return curves
 
 
+def calculate_curves_per_window_ind_avg(window: np.ndarray):
+    curve_elevation = calculate_1d_autocorrelation_curve_ind_avg(window, 0, 2)
+    curve_axial = calculate_1d_autocorrelation_curve_ind_avg(window, 1, 0)
+    curve_lateral = calculate_1d_autocorrelation_curve_ind_avg(window, 2, 0)
+    curves = np.array([curve_elevation, curve_axial, curve_lateral])
+
+    return curves
+
+
 def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_start_end: np.ndarray):
     """For each starting window depth, calculate each correlation curve"""
     return
