@@ -51,18 +51,27 @@ def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int, dim_to_avera
     return array_detrend_mean
 
 
-def calculate_1d_correlation_curve(
-        window: np.ndarray, params_window: dict, dim_of_corr: int, dim_of_averaging: int) -> np.ndarray:
+def calculate_1d_autocorrelation(line: np.ndarray, shift=int) -> np.double:
+    n = len(line)
+    coef_matrix = np.corrcoef(line[0:n-shift], line[shift:n])
+    coef = coef_matrix[0, 1]
+
+    return coef
+
+
+def calculate_1d_correlation_curve(window: np.ndarray, dim_of_corr: int) -> np.ndarray:
 
     """Calculate the correlation curve along a submitted dimension"""
 
     shape_window = np.shape(window)
+    corr_curve = []
 
     for shift in range(int(shape_window[dim_of_corr]/2 + 1)):
-        for dim_loc in range(1, int(shape_window[dim_of_corr]/2)):
-            for frame in range(shape_window[dim_of_averaging]):
-                print('Do something')
-    return np.array([4, 3])
+        corr_along_lines = np.apply_along_axis(calculate_1d_autocorrelation, dim_of_corr, window, shift)
+        average_corr = np.mean(corr_along_lines)
+        corr_curve.append(average_corr)
+
+    return corr_curve
 
 
 def calculate_correlation_curves_at_all_depths():
