@@ -12,6 +12,11 @@ import re
 import SimpleITK as sitk
 
 
+def open_rf(path_rf: Path) -> np.ndarray:
+    mat_data = sio.loadmat(str(path_iq))
+    rf_data = mat_data['RData']
+
+    return rf_data
 
 
 def open_iq(path_iq: Path) -> np.ndarray:
