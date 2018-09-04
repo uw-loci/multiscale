@@ -13,7 +13,7 @@ import SimpleITK as sitk
 
 
 def open_rf(path_rf: Path) -> np.ndarray:
-    mat_data = sio.loadmat(str(path_iq))
+    mat_data = sio.loadmat(str(path_rf))
     rf_data = mat_data['RData']
 
     return rf_data
@@ -141,6 +141,16 @@ def mat_list_to_iq_array(list_mats: list) -> (np.ndarray, dict):
     parameters = open_parameters(list_mats[0])
 
     return array_iq, parameters
+
+
+def mat_list_to_rf_array(list_mats: list) -> (np.ndarray, dict):
+    """Make an RF array from a list of mats"""
+    array_rf = np.array(
+        [open_rf(x) for x in list_mats]
+    )
+    parameters = open_parameters(list_mats[0])
+
+    return array_rf, parameters
 
 
 def assemble_4d_image(list_mats: list, num_lateral_elevational: np.ndarray) -> (np.ndarray, dict):
