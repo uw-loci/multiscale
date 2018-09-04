@@ -12,6 +12,8 @@ import re
 import SimpleITK as sitk
 
 
+
+
 def open_iq(path_iq: Path) -> np.ndarray:
     """Open a .mat that holds IQData and Parameters from the Verasonics system
 
@@ -112,8 +114,8 @@ def index_from_file_path(path_file: Path) -> int:
     return index
 
 
-def get_sorted_list_mats(dir_mats: Path) -> list:
-    unsorted = util.list_filetype_in_dir(dir_mats, 'mat')
+def get_sorted_list_mats(dir_mats: Path, search_str: str= 'mat') -> list:
+    unsorted = util.list_filetype_in_dir(dir_mats, search_str)
     list_mats_sorted = sorted(unsorted, key=index_from_file_path)
     return list_mats_sorted
 
@@ -139,11 +141,12 @@ def mat_list_to_iq_array(list_mats: list) -> (np.ndarray, dict):
 def assemble_4d_image(list_mats: list, num_lateral_elevational: np.ndarray) -> (np.ndarray, dict):
     """Compile IQ Data US .mats into separate 3d images"""
     array_3d_multi_img, parameters = mat_list_to_iq_array(list_mats)
-    shape_image = np.shape(array_3d_multi_img[0, :, :])
+    array_3d_bmode = iq_to_bmode(array_3d_multi_img)
+    shape_image = np.shape(array_3d_bmode[0, :, :])
 
     # [Image, Y (elevational), Z (axial), X (lateral)]
     shape_4d = [num_lateral_elevational[0], num_lateral_elevational[1], shape_image[0], shape_image[1]]
-    array_4d = np.reshape(array_3d_multi_img, shape_4d)
+    array_4d = np.reshape(array_3d_bmode, shape_4d)
 
     return array_4d, parameters
 
@@ -176,10 +179,10 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
         sitk.WriteImage(image_cast, str(path_output))
 
 #
-# dir_mats = Path("C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\PhantomGrid-TopLeftStart\\Run-2")
-# path_pl = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\US Phantom grid 2018-08-17.pos')
-# dir_output = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-08-17\\')
-# name_output = 'FirstImage3D'
-# stitch_us_image(dir_mats, path_pl, dir_output, name_output)
+dir_mats = Path("C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-09-03\\ProngPhantom-BrokenProng_11Volt\\Run-3")
+path_pl = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-09-03\\ProngPhantomGrid.pos')
+dir_output = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-09-03\\')
+name_output = 'ProngPhantom3D'
+stitch_us_image(dir_mats, path_pl, dir_output, name_output)
 
 

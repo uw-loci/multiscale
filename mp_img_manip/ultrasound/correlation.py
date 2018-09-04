@@ -8,6 +8,8 @@ import numpy as np
 from pathlib import Path
 import scipy.signal as sig
 
+import mp_img_manip.utility_functions as util
+import mp_img_manip.ultrasound.reconstruction as recon
 
 def define_correlation_window(dimens_window: np.ndarray):
     """Define the window over which the correlation is calculated inside the frame"""
@@ -96,6 +98,10 @@ def calculate_curves_per_window(window: np.ndarray):
 def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_start_end: np.ndarray):
     """For each starting window depth, calculate each correlation curve"""
     return
+
+
+def load_rf(dir_rf: Path) -> (np.ndarray, dict):
+    rf_list = recon.get_sorted_list_mats(dir_rf, search_str='RF.mat')
 
 
 def calc_plot_corr_curves(dir_rf: Path, window_params: dict, dir_output: Path=None, suffix_output: str=None):
