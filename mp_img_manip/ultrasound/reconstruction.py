@@ -59,8 +59,8 @@ def format_parameters(param_raw: np.ndarray) -> dict:
     }
 
     # Convert to units of mm
-    parameters['lateral resolution'] = parameters['lateral resolution']*parameters['transducer spacing']*0.1
-    parameters['axial resolution'] = parameters['axial resolution']*parameters['transducer spacing']*0.1
+    parameters['lateral resolution'] = parameters['lateral resolution']/parameters['transducer spacing']*0.1
+    parameters['axial resolution'] = parameters['axial resolution']/parameters['transducer spacing']*0.1
 
     return parameters
 
@@ -137,10 +137,11 @@ def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]
 
 def mat_list_to_iq_array(list_mats: list) -> (np.ndarray, dict):
     """Make an IQ array from a list of mats"""
+    parameters = open_parameters(list_mats[0])
+
     array_iq = np.array(
         [open_iq(x) for x in list_mats]
     )
-    parameters = open_parameters(list_mats[0])
 
     return array_iq, parameters
 
