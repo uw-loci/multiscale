@@ -92,7 +92,12 @@ def calculate_1d_autocorrelation_curve_ind_avg(window: np.ndarray, dim_of_corr: 
 
 
 def calculate_curves_per_window(window: np.ndarray):
-    return
+    curve_elevation = calculate_1d_autocorrelation_curve(window, 0)
+    curve_axial = calculate_1d_autocorrelation_curve(window, 1)
+    curve_lateral = calculate_1d_autocorrelation_curve(window, 2)
+    curves = np.array([curve_elevation, curve_axial, curve_lateral])
+
+    return curves
 
 
 def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_start_end: np.ndarray):
@@ -108,7 +113,7 @@ def load_rf(dir_rf: Path) -> (np.ndarray, dict):
     return array_rf, params
 
 
-def calc_corr_curves(rf_array, window_params) -> np.ndarray:
+def calc_corr_curves(rf_array: np.ndarray, window_params: dict) -> np.ndarray:
     return
 
 
