@@ -267,7 +267,7 @@ def read_features_file(file_path):
     try:
         df_features = pd.read_csv(file_path, header=None)
     except ValueError:
-        return 0, 0
+        return (0, 0)
 
     unique = df_features.nunique()
     num_fibers = unique[0]

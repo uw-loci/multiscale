@@ -52,6 +52,7 @@ def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int, dim_to_avera
 
 
 def calculate_1d_autocorrelation(line: np.ndarray, shift=int) -> np.double:
+    """Calculate the correlation matrix for a certain shift, returning the correlation between the shifted lines"""
     n = len(line)
     coef_matrix = np.corrcoef(line[0:n-shift], line[shift:n])
     coef = coef_matrix[0, 1]
@@ -59,9 +60,8 @@ def calculate_1d_autocorrelation(line: np.ndarray, shift=int) -> np.double:
     return coef
 
 
-def calculate_1d_correlation_curve(window: np.ndarray, dim_of_corr: int) -> np.ndarray:
-
-    """Calculate the correlation curve along a submitted dimension"""
+def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int) -> np.ndarray:
+    """Calculate the auto-correlation curve along a submitted dimension"""
 
     shape_window = np.shape(window)
     corr_curve = []
@@ -72,6 +72,22 @@ def calculate_1d_correlation_curve(window: np.ndarray, dim_of_corr: int) -> np.n
         corr_curve.append(average_corr)
 
     return corr_curve
+
+
+def calculate_1d_autocorrelation_curve_ind_avg(window: np.ndarray, dim_of_corr: int, dim_of_avg: int) -> np.ndarray:
+    """Calculate the auto-correlation curve along a submitted dimension"""
+
+    shape_window = np.shape(window)
+    corr_curve = []
+
+    for shift in range(int(shape_window[dim_of_corr]/2 + 1)):
+        corr_along_lines = np.apply_along_axis(calculate_1d_autocorrelation, dim_of_corr, window, shift)
+        first_avg = np.mean(corr_along_lines, dim_of_avg)
+        average_corr = np.mean(first_avg)
+        corr_curve.append(average_corr)
+
+    return corr_curve
+
 
 
 def calculate_correlation_curves_at_all_depths():
