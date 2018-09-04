@@ -5,20 +5,21 @@ Organization: Laboratory for Optical and Computation Instrumentation, University
 """
 
 import numpy as np
+from pathlib import Path
 import scipy.signal as sig
 
 
 def define_correlation_window(dimens_window: np.ndarray):
     """Define the window over which the correlation is calculated inside the frame"""
 
-    params_window = {}
+    params_window = dict
     params_window['Dimensions'] = dimens_window
     params_window['Elevational size'] = 5
     params_window['Lateral size'] = 5
-
+    params_window['Axial size'] = 5
     params_window['Depth'] = 5
 
-    return
+    return params_window
 
 
 def determine_window_sweep():
@@ -36,22 +37,21 @@ def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int, dim_to_avera
 
     array_detrend = sig.detrend(array_im, axis=dim_detrend)
     array_mean = np.mean(array_detrend, dim_to_average)
-
     shape_array = np.shape(array_detrend)
 
     if dim_to_average is 2:
-        array_detrend_mean = array_detrend - array_mean[:, :, None]
+        array_detrend_avg = array_detrend - array_mean[:, :, None]
     elif dim_to_average is 1:
-        array_detrend_mean = array_detrend - np.reshape(array_mean, [shape_array[0], 1, shape_array[2]])
+        array_detrend_avg = array_detrend - np.reshape(array_mean, [shape_array[0], 1, shape_array[2]])
     elif dim_to_average is 0:
-        array_detrend_mean = array_detrend - array_mean
+        array_detrend_avg = array_detrend - array_mean
     else:
         raise ValueError('Please enter a valid dimension (0, 1, or 2)')
 
-    return array_detrend_mean
+    return array_detrend_avg
 
 
-def calculate_1d_autocorrelation(line: np.ndarray, shift=int) -> np.double:
+def calculate_1d_autocorrelation(line: np.ndarray, shift: int) -> np.double:
     """Calculate the correlation matrix for a certain shift, returning the correlation between the shifted lines"""
     n = len(line)
     coef_matrix = np.corrcoef(line[0:n-shift], line[shift:n])
@@ -61,7 +61,8 @@ def calculate_1d_autocorrelation(line: np.ndarray, shift=int) -> np.double:
 
 
 def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int) -> np.ndarray:
-    """Calculate the auto-correlation curve along a submitted dimension"""
+    """Calculate the auto-correlation curve along a submitted dimension
+    """
 
     shape_window = np.shape(window)
     corr_curve = []
@@ -70,7 +71,6 @@ def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int) -> 
         corr_along_lines = np.apply_along_axis(calculate_1d_autocorrelation, dim_of_corr, window, shift)
         average_corr = np.mean(corr_along_lines)
         corr_curve.append(average_corr)
-
     return corr_curve
 
 
@@ -89,10 +89,21 @@ def calculate_1d_autocorrelation_curve_ind_avg(window: np.ndarray, dim_of_corr: 
     return corr_curve
 
 
+def calculate_curves_per_window(window: np.ndarray):
+    return
 
-def calculate_correlation_curves_at_all_depths():
+
+def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_start_end: np.ndarray):
     """For each starting window depth, calculate each correlation curve"""
     return
 
+
+def calc_plot_corr_curves(dir_rf: Path, window_params: dict, dir_output: Path=None, suffix_output: str=None):
+    # rf_array, params_acquisition = load_rf(dir_rf)
+    # curves = calc_corr_curves(rf_array, window_params)
+    # plot_curves(curves, params_acquisition, dir_output, suffix_output)
+
+
+    return
 
 
