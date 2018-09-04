@@ -92,21 +92,39 @@ def calculate_1d_autocorrelation_curve_ind_avg(window: np.ndarray, dim_of_corr: 
 
 
 def calculate_curves_per_window(window: np.ndarray):
+    """Calculate the elevation, axial, and lateral autocorrelation curves using whole window averaging
+
+    Input:
+    Window: a 3d numpy array over which to calculate the correlation
+
+    Output:
+    curve_elevation: 1d correlation curve along elevational axis y
+    curve_axial: 1d correlation curve along axial axis z
+    curve_lateral: 1d correlation curve along lateral axis x
+    """
     curve_elevation = calculate_1d_autocorrelation_curve(window, 0)
     curve_axial = calculate_1d_autocorrelation_curve(window, 1)
     curve_lateral = calculate_1d_autocorrelation_curve(window, 2)
-    curves = np.array([curve_elevation, curve_axial, curve_lateral])
 
-    return curves
+    return curve_elevation, curve_axial, curve_lateral
 
 
 def calculate_curves_per_window_ind_avg(window: np.ndarray):
+    """Calculate the elevation, axial, and lateral autocorrelation curves using frame, or lateral, averaging first
+
+    Input:
+    Window: a 3d numpy array over which to calculate the correlation
+
+    Output:
+    curve_elevation: 1d correlation curve along elevational axis y
+    curve_axial: 1d correlation curve along axial axis z
+    curve_lateral: 1d correlation curve along lateral axis x
+    """
     curve_elevation = calculate_1d_autocorrelation_curve_ind_avg(window, 0, 2)
     curve_axial = calculate_1d_autocorrelation_curve_ind_avg(window, 1, 0)
     curve_lateral = calculate_1d_autocorrelation_curve_ind_avg(window, 2, 0)
-    curves = np.array([curve_elevation, curve_axial, curve_lateral])
 
-    return curves
+    return curve_elevation, curve_axial, curve_lateral
 
 
 def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_start_end: np.ndarray):
