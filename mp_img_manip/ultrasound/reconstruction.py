@@ -187,7 +187,7 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
     for idx in range(num_lateral_elevational[0]):
         path_output = Path(dir_output, name_output + '_Overlap-' + str(percent_overlap) + '_' + str(idx) + '.tif')
         image = sitk.GetImageFromArray(separate_images_4d[idx])
-        image_cast = sitk.Cast(image, sitk.sitkFloat32)
+        image_cast = sitk.Cast(image, sitk.sitkUInt8)
 
         # bug: This spacing is very off, due to differences in units between resolution and separation
         spacing = np.array([parameters['lateral resolution'], parameters['axial resolution'], elevational_sep/1000])
