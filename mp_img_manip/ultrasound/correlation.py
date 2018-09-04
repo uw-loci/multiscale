@@ -63,7 +63,7 @@ def calculate_1d_autocorrelation(line: np.ndarray, shift: int) -> np.double:
 
 
 def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int) -> np.ndarray:
-    """Calculate the auto-correlation curve along a submitted dimension
+    """Calculate the auto-correlation curve along a submitted dimension.  Averages over all 1d lines in array
     """
 
     shape_window = np.shape(window)
@@ -77,7 +77,7 @@ def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int) -> 
 
 
 def calculate_1d_autocorrelation_curve_ind_avg(window: np.ndarray, dim_of_corr: int, dim_of_avg: int) -> np.ndarray:
-    """Calculate the auto-correlation curve along a submitted dimension"""
+    """Calculate the auto-correlation curve along a submitted dimension. Averages over one axis, then remaininf axis"""
 
     shape_window = np.shape(window)
     corr_curve = []
@@ -91,7 +91,7 @@ def calculate_1d_autocorrelation_curve_ind_avg(window: np.ndarray, dim_of_corr: 
     return corr_curve
 
 
-def calculate_curves_per_window(window: np.ndarray):
+def calculate_curves_per_window(window: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
     """Calculate the elevation, axial, and lateral autocorrelation curves using whole window averaging
 
     Input:
@@ -109,7 +109,7 @@ def calculate_curves_per_window(window: np.ndarray):
     return curve_elevation, curve_axial, curve_lateral
 
 
-def calculate_curves_per_window_ind_avg(window: np.ndarray):
+def calculate_curves_per_window_ind_avg(window: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
     """Calculate the elevation, axial, and lateral autocorrelation curves using frame, or lateral, averaging first
 
     Input:

@@ -195,11 +195,6 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
 
         sitk.WriteImage(image_cast, str(path_output))
 
-#
-dir_mats = Path("C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-09-03\\ProngPhantom-BrokenProng_11Volt\\Run-3")
-path_pl = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-09-03\\ProngPhantomGrid.pos')
-dir_output = Path('C:\\Users\\mpinkert\\Box\\Research\\LINK\\Ultrasound\\Ultrasound Data\\2018-09-03\\')
-name_output = 'ProngPhantom3D'
-stitch_us_image(dir_mats, path_pl, dir_output, name_output)
+
 
 
