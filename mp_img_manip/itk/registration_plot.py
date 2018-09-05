@@ -62,6 +62,7 @@ class RegistrationPlot:
 
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
+        plt.pause(0.01)
 
     def update_idx_resolution_switch(self):
         new_idx = len(self.metric_values)
