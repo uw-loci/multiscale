@@ -47,11 +47,11 @@ def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int, dim_to_avera
     array_mean = np.mean(array_detrend, dim_to_average)
     shape_array = np.shape(array_detrend)
 
-    if dim_to_average is 2:
+    if dim_to_average is 2: # lateral
         array_detrend_avg = array_detrend - array_mean[:, :, None]
-    elif dim_to_average is 1:
+    elif dim_to_average is 1: # axial
         array_detrend_avg = array_detrend - np.reshape(array_mean, [shape_array[0], 1, shape_array[2]])
-    elif dim_to_average is 0:
+    elif dim_to_average is 0: # elevation
         array_detrend_avg = array_detrend - array_mean
     else:
         raise ValueError('Please enter a valid dimension (0, 1, or 2)')
@@ -146,11 +146,19 @@ def load_rf(dir_rf: Path) -> (np.ndarray, dict):
     return array_rf, params
 
 
+def rf_to_envelope(rf_array: np.ndarray) -> np.ndarray:
+    """"Detrend rf along axial direction then use hilbert transform to get envelope"""
+    rf_detrended = detrend_along_dimension(rf_array, 1, 0)
+    env = np.abs(sig.hilbert(rf_detrended, 1))
+    return env
+
+
 def calc_corr_curves(rf_array: np.ndarray, window_params: dict) -> np.ndarray:
     idx_start = np.floor(window_params['Start of depth range mm']*window_params['axial resolution'])
     idx_end = np.floor(window_params['End of depth range mm']*window_params['axial resolution'])
 
     window = rf_array[idx_start:idx_end]
+    window_detrended =
 
     curves = calculate_curves_per_window(window)
     curves_ind_avg = calculate_curves_per_window_ind_avg(window)
@@ -168,6 +176,7 @@ def plot_curves(array_curves: np.ndarray, params_acq: dict, dir_output: Path, su
 
 def calc_plot_corr_curves(dir_rf: Path, dir_output: Path=None, suffix_output: str=None):
     rf_array, params_acquisition = load_rf(dir_rf)
+    env_array =
     params_window = define_correlation_window(params_acquisition)
     curves, curves_ind_avg = calc_corr_curves(rf_array, params_window)
     plot_curves(curves, params_window, dir_output, suffix_output)
