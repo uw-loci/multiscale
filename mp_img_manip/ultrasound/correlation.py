@@ -15,13 +15,12 @@ import mp_img_manip.ultrasound.reconstruction as recon
 def define_correlation_window(params_acquisition: dict):
     """Define the window over which the correlation is calculated inside the frame"""
 
-    params_window = dict
-    params_window['Elevational size mm'] = 1
-    params_window['Lateral size mm'] = 1
-    params_window['Axial size mm'] = 1
-    params_window['Start of depth range mm'] = 6
-    params_window['End of depth range mm'] = 8
-    params_window['Depth step mm'] = 0.25
+    params_window = dict({'Elevational size mm':1,
+                          'Lateral size mm': 1,
+                          'Axial size mm': 1,
+                          'Start of depth range mm': 6,
+                          'End of depth range mm': 8,
+                          'Depth step mm': 0.25})
 
     params_window['axial resolution'] = 1540E3 / 62.5E6
     #params_window['axial resolution'] = params_acquisition['sampling frequency']/params_acquisition['speed of sound']
@@ -45,8 +44,7 @@ def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int) -> np.ndarra
     """
 
     array_detrend = sig.detrend(array_im, axis=dim_detrend)
-
-
+    return array_detrend
 
 
 def detrend_along_dimension_and_subtract_mean(array_im: np.ndarray, dim_detrend: int, dim_to_average: int) -> np.ndarray:
@@ -164,11 +162,11 @@ def rf_to_envelope(rf_array: np.ndarray) -> np.ndarray:
     rf_shape = np.shape(rf_array)
     rf_detrended = np.zeros(rf_shape)
 
-    size_of_frame_subset = 50
+    size_of_frame_subset = 10
 
     for idx in range(0, rf_shape[2], size_of_frame_subset):
         rf_detrended[:, :, idx:(idx+size_of_frame_subset)] = detrend_along_dimension(
-            rf_array[:, :, idx:(idx+size_of_frame_subset)])
+            rf_array[:, :, idx:(idx+size_of_frame_subset)], 1)
 
     env = np.abs(sig.hilbert(rf_detrended, 1))
 
@@ -188,8 +186,8 @@ def detrend_and_square_window(window: np.ndarray) -> np.ndarray:
 
 
 def calc_corr_curves(env_array: np.ndarray, window_params: dict) -> np.ndarray:
-    idx_start = np.floor(window_params['Start of depth range mm']*window_params['axial resolution'])
-    idx_end = np.floor(window_params['End of depth range mm']*window_params['axial resolution'])
+    idx_start = int(np.floor(2*window_params['Start of depth range mm']/window_params['axial resolution']))
+    idx_end = int(np.floor(2*window_params['End of depth range mm']/window_params['axial resolution']))
 
     window = env_array[idx_start:idx_end]
     window_squared = detrend_and_square_window(window)

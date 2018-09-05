@@ -16,6 +16,8 @@ def open_rf(path_rf: Path) -> np.ndarray:
     mat_data = sio.loadmat(str(path_rf))
     rf_data = mat_data['RData']
 
+    # todo: average the frames in the RFData - multiple sequential acqusitions in the same spot
+
     return rf_data
 
 
