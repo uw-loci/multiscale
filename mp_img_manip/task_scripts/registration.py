@@ -4,8 +4,8 @@ Created on Tue Mar  6 15:52:18 2018
 
 @author: mpinkert
 """
-import matplotlib as mpl
-mpl.use('qt5agg')
+#import matplotlib as mpl
+#mpl.use('qt5agg')
 import matplotlib.pyplot as plt
 plt.ion()
 
