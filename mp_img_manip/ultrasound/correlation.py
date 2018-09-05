@@ -11,15 +11,21 @@ import scipy.signal as sig
 import mp_img_manip.utility_functions as util
 import mp_img_manip.ultrasound.reconstruction as recon
 
-def define_correlation_window(dimens_window: np.ndarray):
+
+def define_correlation_window(params_acquisition: dict):
     """Define the window over which the correlation is calculated inside the frame"""
 
     params_window = dict
-    params_window['Dimensions'] = dimens_window
-    params_window['Elevational size'] = 5
-    params_window['Lateral size'] = 5
-    params_window['Axial size'] = 5
-    params_window['Depth'] = 5
+    params_window['Elevational size mm'] = 1
+    params_window['Lateral size mm'] = 1
+    params_window['Axial size mm'] = 1
+    params_window['Start of depth range mm'] = 6
+    params_window['End of depth range mm'] = 8
+    params_window['Depth step mm'] = 0.25
+
+    params_window['axial resolution'] = params_acquisition['sampling frequency']/params_acquisition['speed of sound']
+    params_window['lateral resolution'] = 0.1
+    params_window['elevational resolution'] = 0.2 # todo: func to read in position vec and grab this
 
     return params_window
 
@@ -141,7 +147,15 @@ def load_rf(dir_rf: Path) -> (np.ndarray, dict):
 
 
 def calc_corr_curves(rf_array: np.ndarray, window_params: dict) -> np.ndarray:
-    return
+    idx_start = np.floor(window_params['Start of depth range mm']*window_params['axial resolution'])
+    idx_end = np.floor(window_params['End of depth range mm']*window_params['axial resolution'])
+
+    window = rf_array[idx_start:idx_end]
+
+    curves = calculate_curves_per_window(window)
+    curves_ind_avg = calculate_curves_per_window_ind_avg(window)
+
+    return curves, curves_ind_avg
 
 
 def plot_corr_curve(curve_1d: np.ndarray, spacing: np.double, threshold: np.double=0.1):
@@ -152,10 +166,9 @@ def plot_curves(array_curves: np.ndarray, params_acq: dict, dir_output: Path, su
     return
 
 
-def calc_plot_corr_curves(dir_rf: Path, window_params: dict, dir_output: Path=None, suffix_output: str=None):
+def calc_plot_corr_curves(dir_rf: Path, dir_output: Path=None, suffix_output: str=None):
     rf_array, params_acquisition = load_rf(dir_rf)
-    curves = calc_corr_curves(rf_array, window_params)
-    plot_curves(curves, params_acquisition, dir_output, suffix_output)
-
-
-
+    params_window = define_correlation_window(params_acquisition)
+    curves, curves_ind_avg = calc_corr_curves(rf_array, params_window)
+    plot_curves(curves, params_window, dir_output, suffix_output)
+    plot_curves(curves_ind_avg, params_window, dir_output, suffix_output + '_IndAvg')
