@@ -144,6 +144,10 @@ def calc_corr_curves(rf_array: np.ndarray, window_params: dict) -> np.ndarray:
     return
 
 
+def plot_corr_curve(curve_1d: np.ndarray, spacing: np.double, threshold: np.double=0.1):
+    return
+
+
 def plot_curves(array_curves: np.ndarray, params_acq: dict, dir_output: Path, suffix_output: 'str'):
     return
 
