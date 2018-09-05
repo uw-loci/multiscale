@@ -145,10 +145,46 @@ def run_roi_averages_comparison(ret_thresh: float) -> (pd.DataFrame, pd.DataFram
     df_corrs_ret = calculate_pairwise_correlations(df_ret)
 
     return df_corrs_orient, df_corrs_align, df_corrs_ret
-
-
-
 # run_roi_averages_comparison()
+
+
+def threshold_by_fiber_num(df, fib_thresh):
+    idx_threshold = df['Number of fibers'] > fib_thresh
+    df_threshold = df[idx_threshold]
+    df_modalities = df_threshold[['SHG', 'MLR-O', 'MHR-O', 'Fiber segments']]
+
+    return df_modalities
+
+
+def threshold_by_fiber_segments(df, seg_thresh):
+    idx_threshold = df['Fiber segments'] > seg_thresh
+    df_threshold = df[idx_threshold]
+    df_modalities = df_threshold[['SHG', 'MLR-O', 'MHR-O']]
+
+    return df_modalities
+
+
+def fib_comparison(ret_thresh: float, fib_thresh: int, seg_thresh: int):
+    path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
+    path_average = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
+                        'ROIs_averaged_from_base_image.csv')
+    path_fibs = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics\Curve Align', 'CA_FibNum_SHG.csv')
+
+    df_orient, df_align, df_ret = get_average_dfs(path_shg, path_average, ret_thresh)
+    df_fibs = pd.read_csv(path_fibs, index_col=[0, 1, 2, 3], low_memory=False)
+
+    df_orient_merged = pd.concat([df_orient, df_fibs], axis=1, join='inner')
+    df_orient_thresh_1 = threshold_by_fiber_num(df_orient_merged, fib_thresh)
+    df_orient_thresh_2 = threshold_by_fiber_segments(df_orient_thresh_1, seg_thresh)
+
+    df_align_merged = pd.concat([df_align, df_fibs], axis=1, join='inner')
+    df_align_thresh_1 = threshold_by_fiber_num(df_align_merged, fib_thresh)
+    df_align_thresh_2 = threshold_by_fiber_segments(df_align_thresh_1, seg_thresh)
+
+    corrs_orient = calculate_pairwise_correlations(df_orient_thresh_2)
+    corrs_align = calculate_pairwise_correlations(df_align_thresh_2)
+
+    return corrs_orient, corrs_align
 
 
 
