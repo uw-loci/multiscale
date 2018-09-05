@@ -23,7 +23,8 @@ def define_correlation_window(params_acquisition: dict):
     params_window['End of depth range mm'] = 8
     params_window['Depth step mm'] = 0.25
 
-    params_window['axial resolution'] = params_acquisition['sampling frequency']/params_acquisition['speed of sound']
+    params_window['axial resolution'] = 1540E3 / 62.5E6
+    #params_window['axial resolution'] = params_acquisition['sampling frequency']/params_acquisition['speed of sound']
     params_window['lateral resolution'] = 0.1
     params_window['elevational resolution'] = 0.2 # todo: func to read in position vec and grab this
 
@@ -35,7 +36,20 @@ def determine_window_sweep():
     return
 
 
-def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int, dim_to_average: int) -> np.ndarray:
+def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int) -> np.ndarray:
+    """Detrend along a dimension
+
+    axis 0 = elevation
+    axis 1 = axial
+    axis 2 = lateral
+    """
+
+    array_detrend = sig.detrend(array_im, axis=dim_detrend)
+
+
+
+
+def detrend_along_dimension_and_subtract_mean(array_im: np.ndarray, dim_detrend: int, dim_to_average: int) -> np.ndarray:
     """Detrend along a dimension, and subtract a mean of the detrend along another dimension
 
     axis 0 = elevation
@@ -140,16 +154,24 @@ def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_
 
 def load_rf(dir_rf: Path) -> (np.ndarray, dict):
     list_rf = recon.get_sorted_list_mats(dir_rf, search_str='RF.mat')
-    array_rf = recon.mat_list_to_rf_array(list_rf)
-    params = recon.open_parameters(list_rf[0])
+    array_rf, params = recon.mat_list_to_rf_array(list_rf)
 
     return array_rf, params
 
 
 def rf_to_envelope(rf_array: np.ndarray) -> np.ndarray:
     """"Detrend rf along axial direction then use hilbert transform to get envelope"""
-    rf_detrended = detrend_along_dimension(rf_array, 1, 0)
+    rf_shape = np.shape(rf_array)
+    rf_detrended = np.zeros(rf_shape)
+
+    size_of_frame_subset = 50
+
+    for idx in range(0, rf_shape[2], size_of_frame_subset):
+        rf_detrended[:, :, idx:(idx+size_of_frame_subset)] = detrend_along_dimension(
+            rf_array[:, :, idx:(idx+size_of_frame_subset)])
+
     env = np.abs(sig.hilbert(rf_detrended, 1))
+
     return env
 
 
