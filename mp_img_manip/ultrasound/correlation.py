@@ -153,15 +153,27 @@ def rf_to_envelope(rf_array: np.ndarray) -> np.ndarray:
     return env
 
 
-def calc_corr_curves(rf_array: np.ndarray, window_params: dict) -> np.ndarray:
+def detrend_and_square_window(window: np.ndarray) -> np.ndarray:
+    """Detrend the window, adding the pre-detrend mean to prevent frequency loss, then squaring to get intensity"""
+    shape_array = np.shape(window)
+    axial_means = np.mean(window, 1)
+
+    window_detrended = detrend_along_dimension(window, 1, 0)
+    window_mean_added = window_detrended + np.reshape(axial_means, [shape_array[0], 1, shape_array[2]])
+    window_squared = np.square(window_mean_added)
+
+    return window_squared
+
+
+def calc_corr_curves(env_array: np.ndarray, window_params: dict) -> np.ndarray:
     idx_start = np.floor(window_params['Start of depth range mm']*window_params['axial resolution'])
     idx_end = np.floor(window_params['End of depth range mm']*window_params['axial resolution'])
 
-    window = rf_array[idx_start:idx_end]
-    window_detrended =
+    window = env_array[idx_start:idx_end]
+    window_squared = detrend_and_square_window(window)
 
-    curves = calculate_curves_per_window(window)
-    curves_ind_avg = calculate_curves_per_window_ind_avg(window)
+    curves = calculate_curves_per_window(window_squared)
+    curves_ind_avg = calculate_curves_per_window_ind_avg(window_squared)
 
     return curves, curves_ind_avg
 
@@ -176,8 +188,10 @@ def plot_curves(array_curves: np.ndarray, params_acq: dict, dir_output: Path, su
 
 def calc_plot_corr_curves(dir_rf: Path, dir_output: Path=None, suffix_output: str=None):
     rf_array, params_acquisition = load_rf(dir_rf)
-    env_array =
+    env_array = rf_to_envelope(rf_array)
+
     params_window = define_correlation_window(params_acquisition)
-    curves, curves_ind_avg = calc_corr_curves(rf_array, params_window)
+    curves, curves_ind_avg = calc_corr_curves(env_array, params_window)
+
     plot_curves(curves, params_window, dir_output, suffix_output)
     plot_curves(curves_ind_avg, params_window, dir_output, suffix_output + '_IndAvg')
