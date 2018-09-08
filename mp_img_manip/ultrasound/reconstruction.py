@@ -145,6 +145,9 @@ def mat_list_to_iq_array(list_mats: list) -> (np.ndarray, dict):
         [open_iq(x) for x in list_mats]
     )
 
+
+    # todo: fix horizontal flipping in final image
+
     return array_iq, parameters
 
 
