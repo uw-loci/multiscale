@@ -171,10 +171,14 @@ def mask_images(dir_dict, skip_existing_images=False):
 #                                  dir_dict['mlr_small_8bit'],
 #                                  'MLR_Small_8Bit')
 
-dir_dict = dird.create_dictionary()
-trans.bulk_resize_to_target(dir_dict["he_large"], dir_dict["he_small"], 'HE_Small',
-                        5, skip_existing_images=True)
-reg.bulk_supervised_register_images(dir_dict['shg_small'], dir_dict['he_small'], dir_dict['he_small_reg'], 'HE_Small_Reg')
-#perform_registrations()
+# dir_dict = dird.create_dictionary()
+# # trans.bulk_resize_to_target(dir_dict["he_large"], dir_dict["he_small"], 'HE_Small',
+# #                         5, skip_existing_images=True)
+# # reg.bulk_supervised_register_images(dir_dict['shg_small'], dir_dict['he_small'], dir_dict['he_small_reg'], 'HE_Small_Reg')
+# trans.bulk_apply_transform(dir_dict["shg_large"],
+#                            dir_dict["he_large"],
+#                            dir_dict["he_small_reg"],
+#                            dir_dict["he_large_reg"], 'HE_Large_Reg')
+perform_registrations()
 
     
