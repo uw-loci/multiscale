@@ -168,7 +168,8 @@ def rf_to_envelope(rf_array: np.ndarray) -> np.ndarray:
         rf_detrended[:, :, idx:(idx+size_of_frame_subset)] = detrend_along_dimension(
             rf_array[:, :, idx:(idx+size_of_frame_subset)], 1)
 
-    env = np.abs(sig.hilbert(rf_detrended, 1))
+    complex = np.apply_along_axis(sig.hilbert, 1, rf_detrended)
+    env = np.abs(complex)
 
     return env
 
