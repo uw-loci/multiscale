@@ -8,8 +8,16 @@ import os
 from pathlib import Path
 from PIL import Image
 import warnings
+import shutil
 
 warnings.simplefilter('ignore', Image.DecompressionBombWarning)
+
+
+def move_files_to_new_folder(list_files, dir_new):
+    os.makedirs(dir_new, exist_ok=True)
+    for file in list_files:
+        new_path = Path(dir_new, file.name)
+        shutil.move(file, new_path)
 
 
 def item_present_all_lists(item, lists):
