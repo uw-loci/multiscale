@@ -80,7 +80,7 @@ def calculate_1d_autocorrelation(line: np.ndarray, shift: int) -> np.double:
     return coef
 
 
-def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int) -> np.ndarray:
+def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int, threshold: np.double=0.1) -> np.ndarray:
     """Calculate the auto-correlation curve along a submitted dimension.  Averages over all 1d lines in array
     """
 
@@ -90,7 +90,11 @@ def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int) -> 
     for shift in range(int(shape_window[dim_of_corr]/2 + 1)):
         corr_along_lines = np.apply_along_axis(calculate_1d_autocorrelation, dim_of_corr, window, shift)
         average_corr = np.mean(corr_along_lines)
+        if average_corr < threshold:
+            break
+
         corr_curve.append(average_corr)
+
     return corr_curve
 
 
@@ -171,7 +175,7 @@ def detrend_and_square_window(window: np.ndarray) -> np.ndarray:
     shape_array = np.shape(window)
     axial_means = np.mean(window, 1)
 
-    window_detrended = detrend_along_dimension(window, 1, 0)
+    window_detrended = detrend_along_dimension(window, 1)
     window_mean_added = window_detrended + np.reshape(axial_means, [shape_array[0], 1, shape_array[2]])
     window_squared = np.square(window_mean_added)
 
@@ -179,10 +183,10 @@ def detrend_and_square_window(window: np.ndarray) -> np.ndarray:
 
 
 def calc_corr_curves(env_array: np.ndarray, window_params: dict) -> np.ndarray:
-    idx_start = int(np.floor(2*window_params['Start of depth range mm']/window_params['axial resolution']))
-    idx_end = int(np.floor(2*window_params['End of depth range mm']/window_params['axial resolution']))
+    idx_start = int(np.floor(window_params['Start of depth range mm']/window_params['axial resolution']))
+    idx_end = int(np.floor(window_params['End of depth range mm']/window_params['axial resolution']))
 
-    window = env_array[idx_start:idx_end]
+    window = env_array[:, idx_start:idx_end]
     window_squared = detrend_and_square_window(window)
 
     curves = calculate_curves_per_window(window_squared)
