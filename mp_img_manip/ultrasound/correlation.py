@@ -8,7 +8,6 @@ import numpy as np
 from pathlib import Path
 import scipy.signal as sig
 
-import mp_img_manip.utility_functions as util
 import mp_img_manip.ultrasound.reconstruction as recon
 
 
@@ -99,29 +98,6 @@ def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int, thr
     return corr_curve
 
 
-def calculate_1d_autocorrelation_curve_ind_avg(window: np.ndarray, dim_of_corr: int,
-                                               dim_of_avg: int, threshold: np.double=0.1) -> np.ndarray:
-    """Calculate the auto-correlation curve along a submitted dimension. Averages over one axis, then remaininf axis"""
-
-    shape_window = np.shape(window)
-    corr_curve = []
-
-    if dim_of_avg > dim_of_corr:
-        dim_of_avg = dim_of_avg - 1
-
-    for shift in range(int(shape_window[dim_of_corr]/2 + 1)):
-        corr_along_lines = np.apply_along_axis(calculate_1d_autocorrelation, dim_of_corr, window, shift)
-        first_avg = np.mean(corr_along_lines, dim_of_avg)
-        average_corr = np.mean(first_avg)
-        if average_corr < threshold:
-            corr_curve.append(average_corr)
-            break
-
-        corr_curve.append(average_corr)
-
-    return corr_curve
-
-
 def calculate_curves_per_window(window: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
     """Calculate the elevation, axial, and lateral autocorrelation curves using whole window averaging
 
@@ -136,24 +112,6 @@ def calculate_curves_per_window(window: np.ndarray) -> (np.ndarray, np.ndarray, 
     curve_elevation = calculate_1d_autocorrelation_curve(window, 0)
     curve_axial = calculate_1d_autocorrelation_curve(window, 1)
     curve_lateral = calculate_1d_autocorrelation_curve(window, 2)
-
-    return curve_elevation, curve_axial, curve_lateral
-
-
-def calculate_curves_per_window_ind_avg(window: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
-    """Calculate the elevation, axial, and lateral autocorrelation curves using frame, or lateral, averaging first
-
-    Input:
-    Window: a 3d numpy array over which to calculate the correlation
-
-    Output:
-    curve_elevation: 1d correlation curve along elevational axis y
-    curve_axial: 1d correlation curve along axial axis z
-    curve_lateral: 1d correlation curve along lateral axis x
-    """
-    curve_elevation = calculate_1d_autocorrelation_curve_ind_avg(window, 0, 2)
-    curve_axial = calculate_1d_autocorrelation_curve_ind_avg(window, 1, 0)
-    curve_lateral = calculate_1d_autocorrelation_curve_ind_avg(window, 2, 0)
 
     return curve_elevation, curve_axial, curve_lateral
 
@@ -198,10 +156,9 @@ def calc_corr_curves(env_array: np.ndarray, window_params: dict) -> np.ndarray:
     window = env_array[:, idx_start:idx_end]
     window_squared = detrend_and_square_window(window)
 
-    curves_ind_avg = calculate_curves_per_window_ind_avg(window_squared)
     curves = calculate_curves_per_window(window_squared)
 
-    return curves, curves_ind_avg
+    return curves
 
 
 def plot_corr_curve(curve_1d: np.ndarray, spacing: np.double, threshold: np.double=0.1):
@@ -209,6 +166,9 @@ def plot_corr_curve(curve_1d: np.ndarray, spacing: np.double, threshold: np.doub
 
 
 def plot_curves(array_curves: np.ndarray, params_acq: dict, dir_output: Path, suffix_output: 'str'):
+
+    for curve in array_curves:
+
     return
 
 
@@ -217,7 +177,6 @@ def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: st
     env_array = iq_to_envelope(iq_array)
 
     params_window = define_correlation_window(params_acquisition)
-    curves, curves_ind_avg = calc_corr_curves(env_array, params_window)
+    curves = calc_corr_curves(env_array, params_window)
 
     plot_curves(curves, params_window, dir_output, suffix_output)
-    plot_curves(curves_ind_avg, params_window, dir_output, suffix_output + '_IndAvg')
