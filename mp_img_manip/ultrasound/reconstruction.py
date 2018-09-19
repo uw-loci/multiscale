@@ -12,11 +12,14 @@ import re
 import SimpleITK as sitk
 
 
+def beamform_rf(raw_data):
+    raise NotImplementedError('The function to beamform RF data has not been implemented yet')
+    return 0
+
+
 def open_rf(path_rf: Path) -> np.ndarray:
     mat_data = sio.loadmat(str(path_rf))
-    rf_data = mat_data['RData']
-
-    # todo: average the frames in the RFData - multiple sequential acqusitions in the same spot
+    rf_data = beamform_rf(mat_data['RData'])
 
     return rf_data
 
