@@ -91,6 +91,7 @@ def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int, thr
         corr_along_lines = np.apply_along_axis(calculate_1d_autocorrelation, dim_of_corr, window, shift)
         average_corr = np.mean(corr_along_lines)
         if average_corr < threshold:
+            corr_curve.append(average_corr)
             break
 
         corr_curve.append(average_corr)
@@ -98,16 +99,24 @@ def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int, thr
     return corr_curve
 
 
-def calculate_1d_autocorrelation_curve_ind_avg(window: np.ndarray, dim_of_corr: int, dim_of_avg: int) -> np.ndarray:
+def calculate_1d_autocorrelation_curve_ind_avg(window: np.ndarray, dim_of_corr: int,
+                                               dim_of_avg: int, threshold: np.double=0.1) -> np.ndarray:
     """Calculate the auto-correlation curve along a submitted dimension. Averages over one axis, then remaininf axis"""
 
     shape_window = np.shape(window)
     corr_curve = []
 
+    if dim_of_avg > dim_of_corr:
+        dim_of_avg = dim_of_avg - 1
+
     for shift in range(int(shape_window[dim_of_corr]/2 + 1)):
         corr_along_lines = np.apply_along_axis(calculate_1d_autocorrelation, dim_of_corr, window, shift)
         first_avg = np.mean(corr_along_lines, dim_of_avg)
         average_corr = np.mean(first_avg)
+        if average_corr < threshold:
+            corr_curve.append(average_corr)
+            break
+
         corr_curve.append(average_corr)
 
     return corr_curve
@@ -189,8 +198,8 @@ def calc_corr_curves(env_array: np.ndarray, window_params: dict) -> np.ndarray:
     window = env_array[:, idx_start:idx_end]
     window_squared = detrend_and_square_window(window)
 
-    curves = calculate_curves_per_window(window_squared)
     curves_ind_avg = calculate_curves_per_window_ind_avg(window_squared)
+    curves = calculate_curves_per_window(window_squared)
 
     return curves, curves_ind_avg
 
