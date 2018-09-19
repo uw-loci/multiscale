@@ -150,28 +150,20 @@ def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_
     return
 
 
-def load_rf(dir_rf: Path) -> (np.ndarray, dict):
-    list_rf = recon.get_sorted_list_mats(dir_rf, search_str='RF.mat')
-    array_rf, params = recon.mat_list_to_rf_array(list_rf)
+def load_iq(dir_iq: Path) -> (np.ndarray, dict):
+    list_iq = recon.get_sorted_list_mats(dir_iq, search_str='mat')
+    array_iq, params = recon.mat_list_to_iq_array(list_iq)
 
-    return array_rf, params
+    return array_iq, params
 
 
-def rf_to_envelope(rf_array: np.ndarray) -> np.ndarray:
-    """"Detrend rf along axial direction then use hilbert transform to get envelope"""
-    rf_shape = np.shape(rf_array)
-    rf_detrended = np.zeros(rf_shape)
+def iq_to_envelope(iq_array: np.ndarray) -> np.ndarray:
+    """"Detrend iq along axial direction then use hilbert transform to get envelope"""
 
-    size_of_frame_subset = 10
+    env = np.abs(iq_array)
+    env_detrended = detrend_along_dimension(env, 1)
 
-    for idx in range(0, rf_shape[2], size_of_frame_subset):
-        rf_detrended[:, :, idx:(idx+size_of_frame_subset)] = detrend_along_dimension(
-            rf_array[:, :, idx:(idx+size_of_frame_subset)], 1)
-
-    complex = np.apply_along_axis(sig.hilbert, 1, rf_detrended)
-    env = np.abs(complex)
-
-    return env
+    return env_detrended
 
 
 def detrend_and_square_window(window: np.ndarray) -> np.ndarray:
@@ -207,9 +199,9 @@ def plot_curves(array_curves: np.ndarray, params_acq: dict, dir_output: Path, su
     return
 
 
-def calc_plot_corr_curves(dir_rf: Path, dir_output: Path=None, suffix_output: str=None):
-    rf_array, params_acquisition = load_rf(dir_rf)
-    env_array = rf_to_envelope(rf_array)
+def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: str=None):
+    iq_array, params_acquisition = load_iq(dir_iq)
+    env_array = iq_to_envelope(iq_array)
 
     params_window = define_correlation_window(params_acquisition)
     curves, curves_ind_avg = calc_corr_curves(env_array, params_window)
