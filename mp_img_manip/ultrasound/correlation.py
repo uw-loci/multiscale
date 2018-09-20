@@ -184,14 +184,18 @@ def plot_corr_curve(curve_1d: np.ndarray, axis: str, spacing: np.double):
     plt.pause(0.02)
 
 
-def plot_curves(dict_curves: dict, params_acq: dict, dir_output: Path, suffix_output: 'str'):
+def plot_single_curves(dict_curves: dict, params_acq: dict, dir_output: Path=None, suffix_output: str=''):
 
     for axis, curve in dict_curves.items():
         spacing = params_acq[axis + ' resolution']
-        plot_corr_curve(curve, axis, spacing)
+        plot_corr_curve(curve, axis, spacing, dir_output, suffix_output)
+
+        if dir_output is not None:
+            name_output = Path(dir_output, axis + suffix_output + '.png')
+            plt.savefig(name_output)
 
 
-def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: str=None, elevation_res: np.double=0.02):
+def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: str='', elevation_res: np.double=0.02):
     iq_array, params_acquisition = load_iq(dir_iq)
     env_array = iq_to_envelope(iq_array)
 
@@ -201,7 +205,19 @@ def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: st
     params_window = define_correlation_window(params_acquisition)
     curves = calc_corr_curves(env_array, params_window, params_acquisition)
 
-    plot_curves(curves, params_acquisition, dir_output, suffix_output)
+    plot_single_curves(curves, params_acquisition, dir_output, suffix_output)
 
     return
 
+
+def bulk_plot_corr_curves(list_dirs: list, dir_output: Path=None, suffix_output: str='', elevation_res: np.double=0.02):
+
+    for dir_iq in list_dirs:
+        iq_array, params_acquisition = load_iq(dir_iq)
+        env_array = iq_to_envelope(iq_array)
+
+        # todo automate this calculation
+        params_acquisition['Elevational resolution'] = elevation_res
+
+        params_window = define_correlation_window(params_acquisition)
+        curves = calc_corr_curves(env_array, params_window, params_acquisition)
