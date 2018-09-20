@@ -95,10 +95,12 @@ def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int, thr
 
         corr_curve.append(average_corr)
 
+    corr_curve = np.array(corr_curve)
+
     return corr_curve
 
 
-def calculate_curves_per_window(window: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
+def calculate_curves_per_window(window: np.ndarray) -> dict:
     """Calculate the elevation, axial, and lateral autocorrelation curves using whole window averaging
 
     Input:
@@ -113,7 +115,9 @@ def calculate_curves_per_window(window: np.ndarray) -> (np.ndarray, np.ndarray, 
     curve_axial = calculate_1d_autocorrelation_curve(window, 1)
     curve_lateral = calculate_1d_autocorrelation_curve(window, 2)
 
-    return curve_elevation, curve_axial, curve_lateral
+    curves = {'Elevational': curve_elevation, 'Axial': curve_axial, 'Lateral': curve_lateral}
+
+    return curves
 
 
 def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_start_end: np.ndarray):
@@ -161,13 +165,16 @@ def calc_corr_curves(env_array: np.ndarray, window_params: dict) -> np.ndarray:
     return curves
 
 
-def plot_corr_curve(curve_1d: np.ndarray, spacing: np.double, threshold: np.double=0.1):
+def plot_corr_curve(curve_1d: np.ndarray, axis: str, spacing: np.double):
+
     return
 
 
-def plot_curves(array_curves: np.ndarray, params_acq: dict, dir_output: Path, suffix_output: 'str'):
+def plot_curves(dict_curves: dict, params_acq: dict, dir_output: Path, suffix_output: 'str'):
 
-    for curve in array_curves:
+    for axis, curve in dict_curves:
+        spacing = params_acq[axis + ' resolution']
+        plot_corr_curve(curve, axis, spacing)
 
     return
 

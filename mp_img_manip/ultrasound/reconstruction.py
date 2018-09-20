@@ -53,8 +53,8 @@ def format_parameters(param_raw: np.ndarray) -> dict:
 
     All numeric values are currently in units of wavelength"""
     parameters = {
-        'lateral resolution': np.double(param_raw['lateral_resolution']),
-        'axial resolution': np.double(param_raw['axial_resolution']),
+        'Lateral resolution': np.double(param_raw['lateral_resolution']),
+        'Axial resolution': np.double(param_raw['axial_resolution']),
         'speed of sound': np.double(param_raw['speed_of_sound']),
         'focus': np.double(param_raw['txFocus']),
         'start depth': np.double(param_raw['startDepth']),
@@ -64,8 +64,8 @@ def format_parameters(param_raw: np.ndarray) -> dict:
     }
 
     # Convert to units of mm
-    parameters['lateral resolution'] = parameters['lateral resolution']/parameters['transducer spacing']*0.1
-    parameters['axial resolution'] = parameters['axial resolution']/parameters['transducer spacing']*0.1
+    parameters['Lateral resolution'] = parameters['Lateral resolution']/parameters['transducer spacing']*0.1
+    parameters['Axial resolution'] = parameters['Axial resolution']/parameters['transducer spacing']*0.1
 
     return parameters
 
@@ -198,7 +198,7 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
         image_cast = sitk.Cast(image, sitk.sitkUInt8)
 
         # bug: This spacing is very off, due to differences in units between resolution and separation
-        spacing = np.array([parameters['lateral resolution'], parameters['axial resolution'], elevational_sep/1000])
+        spacing = np.array([parameters['Lateral resolution'], parameters['Axial resolution'], elevational_sep/1000])
 
         image_cast.SetSpacing(spacing)
 
