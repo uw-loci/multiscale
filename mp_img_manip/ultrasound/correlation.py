@@ -7,6 +7,10 @@ Organization: Laboratory for Optical and Computation Instrumentation, University
 import numpy as np
 from pathlib import Path
 import scipy.signal as sig
+import matplotlib.pyplot as plt
+from scipy.interpolate import interp1d
+
+plt.ion()
 
 import mp_img_manip.ultrasound.reconstruction as recon
 
@@ -20,11 +24,6 @@ def define_correlation_window(params_acquisition: dict):
                           'Start of depth range mm': 6,
                           'End of depth range mm': 8,
                           'Depth step mm': 0.25})
-
-    params_window['axial resolution'] = 1540E3 / 62.5E6
-    #params_window['axial resolution'] = params_acquisition['sampling frequency']/params_acquisition['speed of sound']
-    params_window['lateral resolution'] = 0.1
-    params_window['elevational resolution'] = 0.2 # todo: func to read in position vec and grab this
 
     return params_window
 
@@ -153,9 +152,9 @@ def detrend_and_square_window(window: np.ndarray) -> np.ndarray:
     return window_squared
 
 
-def calc_corr_curves(env_array: np.ndarray, window_params: dict) -> np.ndarray:
-    idx_start = int(np.floor(window_params['Start of depth range mm']/window_params['axial resolution']))
-    idx_end = int(np.floor(window_params['End of depth range mm']/window_params['axial resolution']))
+def calc_corr_curves(env_array: np.ndarray, params_window: dict, params_acq: dict) -> np.ndarray:
+    idx_start = int(np.floor(params_window['Start of depth range mm'] / params_acq['Axial resolution']))
+    idx_end = int(np.floor(params_window['End of depth range mm'] / params_acq['Axial resolution']))
 
     window = env_array[:, idx_start:idx_end]
     window_squared = detrend_and_square_window(window)
@@ -166,24 +165,43 @@ def calc_corr_curves(env_array: np.ndarray, window_params: dict) -> np.ndarray:
 
 
 def plot_corr_curve(curve_1d: np.ndarray, axis: str, spacing: np.double):
+    fig, ax = plt.subplots()
 
-    return
+    position = np.array(range(len(curve_1d)))*spacing
+
+    ax.plot(position, curve_1d)
+    ax.set_title(axis + ' autocorrelation')
+    ax.set_xlabel('mm')
+    ax.set_xlim([0, curve_1d[len(curve_1d)-1]])
+    ax.set_ylim([0, 1])
+
+    mng = plt.get_current_fig_manager()
+    geom = mng.window.geometry().getRect()
+    mng.window.setGeometry(-1800, 100, geom[2], geom[3])
+
+    fig.canvas.draw()
+    fig.canvas.flush_events()
+    plt.pause(0.02)
 
 
 def plot_curves(dict_curves: dict, params_acq: dict, dir_output: Path, suffix_output: 'str'):
 
-    for axis, curve in dict_curves:
+    for axis, curve in dict_curves.items():
         spacing = params_acq[axis + ' resolution']
         plot_corr_curve(curve, axis, spacing)
 
-    return
 
-
-def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: str=None):
+def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: str=None, elevation_res: np.double=0.02):
     iq_array, params_acquisition = load_iq(dir_iq)
     env_array = iq_to_envelope(iq_array)
 
-    params_window = define_correlation_window(params_acquisition)
-    curves = calc_corr_curves(env_array, params_window)
+    # todo automate this calculation
+    params_acquisition['Elevational resolution'] = elevation_res
 
-    plot_curves(curves, params_window, dir_output, suffix_output)
+    params_window = define_correlation_window(params_acquisition)
+    curves = calc_corr_curves(env_array, params_window, params_acquisition)
+
+    plot_curves(curves, params_acquisition, dir_output, suffix_output)
+
+    return
+
