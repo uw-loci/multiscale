@@ -167,13 +167,18 @@ def calc_corr_curves(env_array: np.ndarray, params_window: dict, params_acq: dic
 def plot_corr_curve(curve_1d: np.ndarray, axis: str, spacing: np.double):
     fig, ax = plt.subplots()
 
-    position = np.array(range(len(curve_1d)))*spacing
+    position = np.array(range(len(curve_1d)))*spacing*1000
 
-    ax.plot(position, curve_1d)
+    func_interp = interp1d(position, curve_1d, kind='slinear')
+    new_position = np.arange(0, position[len(position)-1], 1)
+    new_curve = func_interp(new_position)
+
+    ax.plot(position, curve_1d, 'o', new_position, new_curve, '-')
     ax.set_title(axis + ' autocorrelation')
-    ax.set_xlabel('mm')
-    ax.set_xlim([0, curve_1d[len(curve_1d)-1]])
+    ax.set_xlabel('microns')
+    ax.set_xlim([0, position[len(position)-1]])
     ax.set_ylim([0, 1])
+    ax.set_xticks(position)
 
     mng = plt.get_current_fig_manager()
     geom = mng.window.geometry().getRect()
@@ -188,11 +193,11 @@ def plot_single_curves(dict_curves: dict, params_acq: dict, dir_output: Path=Non
 
     for axis, curve in dict_curves.items():
         spacing = params_acq[axis + ' resolution']
-        plot_corr_curve(curve, axis, spacing, dir_output, suffix_output)
+        plot_corr_curve(curve, axis, spacing)
 
         if dir_output is not None:
-            name_output = Path(dir_output, axis + suffix_output + '.png')
-            plt.savefig(name_output)
+            name_output = Path(dir_output, axis + '_' + suffix_output + '.png')
+            plt.savefig(str(name_output))
 
 
 def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: str='', elevation_res: np.double=0.02):
