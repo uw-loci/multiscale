@@ -11,7 +11,7 @@ list_dirs = [Path(r'C:\Users\mpinkert\Box\Research\LINK\Ultrasound\Ultrasound Da
 dir_output = Path(r'C:\Users\mpinkert\Box\Research\LINK\Ultrasound\Ultrasound Data\2018-09-03')
 
 for dir_mats in list_dirs:
-    output_suffix = str(dir_mats.relative_to(dir_output).parent)
+    output_suffix = str(dir_mats.relative_to(dir_output).parent) + '_' + str(dir_mats.stem)
 
     # if rf files are in dir, move them
     rf_list = util.list_filetype_in_dir(dir_mats, 'RF.mat')

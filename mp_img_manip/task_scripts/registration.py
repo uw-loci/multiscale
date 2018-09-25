@@ -12,8 +12,7 @@ plt.ion()
 import mp_img_manip.itk.registration as reg
 import mp_img_manip.itk.transform as trans
 import mp_img_manip.itk.process as proc
-import mp_img_manip.dir_dictionary as dird
-import mp_img_manip.polarimetry as pol
+import mp_img_manip.polarimetry.dir_dictionary as dird
 
 
 def perform_registrations(skip_existing_images=True):

@@ -1,5 +1,5 @@
 import mp_img_manip.curve_align as ca
-import mp_img_manip.dir_dictionary as dird
+import mp_img_manip.polarimetry.dir_dictionary as dird
 import mp_img_manip.utility_functions as util
 import mp_img_manip.cytospectre as cyto
 

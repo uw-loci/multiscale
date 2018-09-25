@@ -5,8 +5,7 @@ Created on Tue Jun 19 16:11:52 2018
 @author: mpinkert
 """
 
-import mp_img_manip.dir_dictionary as dird
-import mp_img_manip.analysis as an
+import mp_img_manip.polarimetry.analysis as an
 
 import itertools as itt
 import pandas as pd

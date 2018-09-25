@@ -5,10 +5,8 @@ Created on Wed Mar 28 12:53:48 2018
 @author: mpinkert
 """
 
-import mp_img_manip.tiling as til
 import mp_img_manip.polarimetry as pol
-import mp_img_manip.dir_dictionary as dird
-from pathlib import Path
+import mp_img_manip.polarimetry.dir_dictionary as dird
 
 dir_dict = dird.create_dictionary()
 

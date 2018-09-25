@@ -6,7 +6,7 @@ Created on Fri Apr  6 15:43:03 2018
 """
 
 import mp_img_manip.cytospectre as cyto
-import mp_img_manip.dir_dictionary as dird
+import mp_img_manip.polarimetry.dir_dictionary as dird
 import unittest
 import pandas as pd
 import os

@@ -6,7 +6,7 @@ Created on Wed Mar 28 12:58:50 2018
 """
 
 import mp_img_manip.cw_ssim as ssim
-import mp_img_manip.dir_dictionary as dird
+import mp_img_manip.polarimetry.dir_dictionary as dird
 import datetime
 
 dir_dict = dird.create_dictionary()

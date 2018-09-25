@@ -178,7 +178,13 @@ def plot_corr_curve(curve_1d: np.ndarray, axis: str, spacing: np.double):
     ax.set_xlabel('microns')
     ax.set_xlim([0, position[len(position)-1]])
     ax.set_ylim([0, 1])
-    ax.set_xticks(position)
+
+    half_max_idx = np.where(new_curve < 0.5)[0][0]
+    half_max_loc = new_position[half_max_idx]
+    ticks = np.append(position, half_max_loc)
+    ax.axvline(half_max_loc)
+
+    ax.set_xticks(ticks)
 
     mng = plt.get_current_fig_manager()
     geom = mng.window.geometry().getRect()

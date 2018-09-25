@@ -11,7 +11,7 @@ Created on Wed Jul 18 16:18:01 2018
 # Measure average retardance/orientation in the registered image
 # Compare to analyzed data
 
-import mp_img_manip.dir_dictionary as dird
+import mp_img_manip.polarimetry.dir_dictionary as dird
 import mp_img_manip.utility_functions as util
 import mp_img_manip.polarimetry as pol
 import pandas as pd

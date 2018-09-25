@@ -7,16 +7,13 @@ Created on Fri Jul 13 14:53:54 2018
 import pandas as pd
 import os
 from pathlib import Path
-import matplotlib.pyplot as plt
 import SimpleITK as sitk
 import numpy as np
 
-import mp_img_manip.analysis as an
-import mp_img_manip.plotting as myplot
 import mp_img_manip.utility_functions as util
 import mp_img_manip.tiling as til
 import mp_img_manip.bulk_img_processing as blk
-import mp_img_manip.dir_dictionary as dird
+import mp_img_manip.polarimetry.dir_dictionary as dird
 
 
 def bulk_construct_images(df_single_modality_variable, modality, dir_modality,
