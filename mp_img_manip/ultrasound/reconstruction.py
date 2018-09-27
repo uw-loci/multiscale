@@ -164,7 +164,20 @@ def mat_list_to_rf_array(list_mats: list) -> (np.ndarray, dict):
     return array_rf, parameters
 
 
-def assemble_4d_image(list_mats: list, num_lateral_elevational: np.ndarray) -> (np.ndarray, dict):
+def assemble_4d_envelope(list_mats: list, num_lateral_elevational: np.ndarray) -> (np.ndarray, dict):
+    """Compile IQ Data US .mats into separate 3d images"""
+    array_3d_multi_img, parameters = mat_list_to_iq_array(list_mats)
+    array_3d_env = np.abs(array_3d_multi_img)
+    shape_image = np.shape(array_3d_env[0, :, :])
+
+    # [Image, Y (elevational), Z (axial), X (lateral)]
+    shape_4d = [num_lateral_elevational[0], num_lateral_elevational[1], shape_image[0], shape_image[1]]
+    array_4d = np.reshape(array_3d_env, shape_4d)
+
+    return array_4d, parameters
+
+
+def assemble_4d_bmode(list_mats: list, num_lateral_elevational: np.ndarray) -> (np.ndarray, dict):
     """Compile IQ Data US .mats into separate 3d images"""
     array_3d_multi_img, parameters = mat_list_to_iq_array(list_mats)
     array_3d_bmode = iq_to_bmode(array_3d_multi_img)
@@ -183,12 +196,12 @@ def calculate_percent_overlap(x_sep: float) -> int:
     return percent_sep
 
 
-def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str):
+def stitch_bmode_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str):
     """Stitch together a directory of US images taken using micromanager/verasonics into a 3D composite"""
     list_mats = get_sorted_list_mats(dir_mats)
     list_pos = read_position_list(path_pl)
     num_lateral_elevational, lateral_separation, elevational_sep = count_xy_positions(list_pos)
-    separate_images_4d, parameters = assemble_4d_image(list_mats, num_lateral_elevational)
+    separate_images_4d, parameters = assemble_4d_bmode(list_mats, num_lateral_elevational)
 
     percent_overlap = calculate_percent_overlap(lateral_separation)
 
@@ -197,7 +210,6 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
         image = sitk.GetImageFromArray(separate_images_4d[idx])
         image_cast = sitk.Cast(image, sitk.sitkUInt8)
 
-        # bug: This spacing is very off, due to differences in units between resolution and separation
         spacing = np.array([parameters['Lateral resolution'], parameters['Axial resolution'], elevational_sep/1000])
 
         image_cast.SetSpacing(spacing)
@@ -205,5 +217,22 @@ def stitch_us_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output
         sitk.WriteImage(image_cast, str(path_output))
 
 
+def stitch_env_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str):
+    """Stitch together a directory of US images taken using micromanager/verasonics into a 3D composite"""
+    list_mats = get_sorted_list_mats(dir_mats)
+    list_pos = read_position_list(path_pl)
+    num_lateral_elevational, lateral_separation, elevational_sep = count_xy_positions(list_pos)
+    separate_images_4d, parameters = assemble_4d_envelope(list_mats, num_lateral_elevational)
 
+    percent_overlap = calculate_percent_overlap(lateral_separation)
 
+    for idx in range(num_lateral_elevational[0]):
+        path_output = Path(dir_output, name_output + '_Overlap-' + str(percent_overlap) + '_' + str(idx) + '.tif')
+        image = sitk.GetImageFromArray(separate_images_4d[idx])
+        image_cast = sitk.Cast(image, sitk.sitkFloat32)
+
+        spacing = np.array([parameters['Lateral resolution'], parameters['Axial resolution'], elevational_sep/1000])
+
+        image_cast.SetSpacing(spacing)
+
+        sitk.WriteImage(image_cast, str(path_output))
