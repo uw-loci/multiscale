@@ -196,6 +196,55 @@ def calculate_percent_overlap(x_sep: float) -> int:
     return percent_sep
 
 
+def assemble_4d_data(dir_mats: Path, path_pl: Path, data_to_return: str='bmode') -> (np.ndarray, dict, int):
+    list_mats = get_sorted_list_mats(dir_mats)
+    list_pos = read_position_list(path_pl)
+    num_lateral_elevational, lateral_separation, elevational_sep = count_xy_positions(list_pos)
+    percent_overlap = calculate_percent_overlap(lateral_separation)
+
+    if data_to_return == 'bmode':
+        array_4d, parameters = assemble_4d_bmode(list_mats, num_lateral_elevational)
+    elif data_to_return == 'envelope':
+        array_4d, parameters = assemble_4d_envelope(list_mats, num_lateral_elevational)
+
+    parameters['Elevational resolution'] = elevational_sep/1000
+
+    return array_4d, parameters, percent_overlap
+
+
+def write_image(array_img: np.ndarray, parameters: dict, path_output: Path, data_to_return: str='bmode'):
+    image = sitk.GetImageFromArray(array_img)
+
+    if data_to_return == 'bmode':
+        image_cast = sitk.Cast(image, sitk.sitkUInt8)
+    elif data_to_return =='envelope':
+        image_cast = sitk.Cast(image, sitk.sitkFloat32)
+
+    spacing = np.array([parameters['Lateral resolution'], parameters['Axial resolution'],
+                        parameters['Elevational resolution']])
+
+    image_cast.SetSpacing(spacing)
+
+    sitk.WriteImage(image_cast, str(path_output))
+
+
+def stitch_elevational_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str, data_to_return: str='bmode'):
+    """Stitch and save images along the elevational direction.  Seperate 3d images for each lateral position of stage
+
+    :param dir_mats:
+    :param path_pl:
+    :param dir_output:
+    :param name_output:
+    :param data_to_return:
+    :return:
+    """
+    separate_images_4d, parameters, percent_overlap = assemble_4d_data(dir_mats, path_pl, data_to_return)
+
+    for idx in range(np.shape(separate_images_4d)[0]):
+        path_output = Path(dir_output, name_output + '_Overlap-' + str(percent_overlap) + '_' + str(idx) + '.tif')
+        write_image(separate_images_4d[idx], parameters, path_output, data_to_return)
+
+
 def stitch_bmode_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str):
     """Stitch together a directory of US images taken using micromanager/verasonics into a 3D composite"""
     list_mats = get_sorted_list_mats(dir_mats)
