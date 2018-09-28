@@ -52,11 +52,11 @@ def create_rois_from_tile(tile, roi_size):
         xm = start[0] + roi_size[0]/2
         boundary = np.array((1,), dtype=np.object)
         boundary_object = np.array([
-                    [start[0], start[1]],
-                    [start[0], end[1]],
-                    [end[0], end[1]],
-                    [end[0], start[1]],
-                    [start[0], start[1]]])
+                    [start[1], start[0]],
+                    [start[1], end[0]],
+                    [end[1], end[0]],
+                    [end[1], start[0]],
+                    [start[1], start[0]]])
         boundary[0] = boundary_object
     
         roi = {
