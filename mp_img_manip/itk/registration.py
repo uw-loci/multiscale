@@ -49,7 +49,7 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np
 def affine_register(fixed_image, moving_image, reg_plot: RegistrationPlot,
                     scale=3, iterations=10,
                     fixed_mask=None, moving_mask=None, rotation=0,
-                    learning_rate=50, min_step=0.01, gradient_tolerance=3E-4):
+                    learning_rate=50, min_step=0.01, gradient_tolerance=1E-6):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -213,7 +213,7 @@ def write_image(registered_image, registered_path, rotation):
 def supervised_register_images(fixed_path: Path, moving_path: Path,
                                iterations=200, scale=4):
 
-    fixed_image = meta.setup_image(fixed_path)
+    fixed_image = meta.setup_image(fixed_path, change_origin=False)
     moving_image, rotation = meta.setup_image(moving_path, return_rotation=True)
     print('\nRegistering ' + os.path.basename(moving_path) + ' to '
           + os.path.basename(fixed_path))

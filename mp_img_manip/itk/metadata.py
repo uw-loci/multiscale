@@ -32,7 +32,7 @@ def three_d_to_rgb(image_3d):
     return rgb_image
 
 
-def setup_image(image_path, return_image=True, return_rotation=False):
+def setup_image(image_path, return_image=True, return_rotation=False, change_origin=True):
     """Set up the image spacing and optionally the registration origin
     
     This function is necessary because ITK cannot save in microns, making
@@ -63,7 +63,9 @@ def setup_image(image_path, return_image=True, return_rotation=False):
         origin = parameters[1]
 
         image.SetSpacing(spacing)
-        image.SetOrigin(origin)
+
+        if change_origin:
+            image.SetOrigin(origin)
 
         if return_rotation:
             return image, parameters[2]
