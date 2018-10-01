@@ -221,21 +221,26 @@ def trim_file_parts_list(file_parts_list, parts_to_keep=[0]):
     return list_trimmed
 
 
-def find_bulk_shared_images(dir_list, file_parts_to_compare=[0]):
+def find_bulk_shared_images(dir_list, file_parts_to_compare=[0], subdirs=False):
     """images from two or more directories are paired based on core names
     
     Input:
     dir_list - list of the directories to be compared
     file_parts_to_compare - File part is a string separated by _, to compare is idx on parts, default first string
-    
+    subdirs - whether to look for files in subdirs of given directory or just dirs
+
     Outputs:
     A list of path lists, for corresponding images
     """
 
     num_dirs = len(dir_list)
-    
-    list_of_file_lists = [util.list_filetype_in_dir(dir_list[index], '.tif') for
-                          index in range(num_dirs)]
+
+    if subdirs:
+        list_of_file_lists = [util.list_filetype_in_subdirs(dir_list[index], '.tif') for
+                              index in range(num_dirs)]
+    else:
+        list_of_file_lists = [util.list_filetype_in_dir(dir_list[index], '.tif') for
+                              index in range(num_dirs)]
 
     list_of_file_parts_lists = [file_name_parts_list(list_of_file_lists[index]) for index in range(num_dirs)]
 
