@@ -216,11 +216,17 @@ def core_names_in_list(path_list):
     return [get_core_file_name(item) for item in path_list]
 
 
-def find_bulk_shared_images(dir_list):
+def trim_file_parts_list(file_parts_list, parts_to_keep=[0]):
+    list_trimmed = [file_parts_list[idx] for idx in parts_to_keep]
+    return list_trimmed
+
+
+def find_bulk_shared_images(dir_list, file_parts_to_compare=[0]):
     """images from two or more directories are paired based on core names
     
     Input:
     dir_list - list of the directories to be compared
+    file_parts_to_compare - File part is a string separated by _, to compare is idx on parts, default first string
     
     Outputs:
     A list of path lists, for corresponding images
@@ -228,21 +234,24 @@ def find_bulk_shared_images(dir_list):
 
     num_dirs = len(dir_list)
     
-    file_list = [util.list_filetype_in_dir(dir_list[index], '.tif') for
-                 index in range(num_dirs)]
+    list_of_file_lists = [util.list_filetype_in_dir(dir_list[index], '.tif') for
+                          index in range(num_dirs)]
 
-    core_names = [core_names_in_list(file_list[index]) for
-                  index in range(num_dirs)]
+    list_of_file_parts_lists = [file_name_parts_list(list_of_file_lists[index]) for index in range(num_dirs)]
+
+    relevant_file_parts = [[trim_file_parts_list(parts_list, file_parts_to_compare)
+                            for parts_list in list_of_file_parts_lists[directory]]
+                           for directory in range(num_dirs)]
     
     path_lists = []
     for i in range(num_dirs):
         path_lists.append([])
     
-    for item in core_names[0]:
-        if util.item_present_all_lists(item, core_names[1:]):   
+    for item in relevant_file_parts[0]:
+        if util.item_present_all_lists(item, relevant_file_parts[1:]):
             for index in range(num_dirs):
-                item_index = core_names[index].index(item)
-                new_path = Path(file_list[index][item_index])
+                item_index = relevant_file_parts[index].index(item)
+                new_path = Path(list_of_file_lists[index][item_index])
                 path_lists[index].append(new_path)
 
     return path_lists
