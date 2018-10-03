@@ -251,7 +251,7 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
 def bulk_supervised_register_images(fixed_dir, moving_dir,
                                     output_dir, output_suffix,
                                     write_output=True, write_transform=True,
-                                    iterations=100, scale=2,
+                                    iterations=100, scale=3,
                                     skip_existing_images=True):
 
     (fixed_path_list, moving_path_list) = blk.find_shared_images(
