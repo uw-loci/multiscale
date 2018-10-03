@@ -94,9 +94,12 @@ def threshold_df_by_retardance(df_measure, df_ret, threshold):
 
 
 def get_average_dfs(path_shg: Path, path_average: Path, ret_thresh: float) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
-    df_rois = pd.read_csv(path_shg, header=[0, 1], index_col=[0, 1, 2, 3],
-                          low_memory=False)
-    df_shg = df_rois.xs('SHG', level=1, axis=1)
+    #df_rois = pd.read_csv(path_shg, header=[0, 1], index_col=[0, 1, 2, 3],
+    #                      low_memory=False)
+    #df_shg = df_rois.xs('SHG', level=1, axis=1)
+
+    df_shg = pd.read_csv(path_shg, index_col=[0, 1, 2, 3], low_memory=False)
+
     df_average = pd.read_csv(path_average, header=[0, 1], index_col=[0, 1, 2, 3],
                              low_memory=False)
 
@@ -164,7 +167,7 @@ def threshold_by_fiber_segments(df, seg_thresh):
 
 
 def fib_comparison(ret_thresh: float, fib_thresh: int, seg_thresh: int):
-    path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
+    path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'SHG_ROIs.csv')
     path_average = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
                         'ROIs_averaged_from_base_image.csv')
     path_fibs = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics\Curve Align', 'CA_FibNum_SHG.csv')
