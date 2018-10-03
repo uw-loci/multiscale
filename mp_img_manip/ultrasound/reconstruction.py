@@ -226,7 +226,7 @@ def write_image(array_img: np.ndarray, parameters: dict, path_output: Path):
 
 
 def stitch_elevational_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str, data_to_return: str='bmode'):
-    """Stitch and save images along the elevational direction.  Seperate 3d images for each lateral position of stage
+    """Stitch and save images along the elevational direction.  Separate 3d images for each lateral position of stage
 
     :param dir_mats: directory holding the .mat files to be stitched
     :param path_pl: path to the position list file
@@ -239,3 +239,39 @@ def stitch_elevational_image(dir_mats: Path, path_pl: Path, dir_output: Path, na
     for idx in range(np.shape(separate_images_4d)[0]):
         path_output = Path(dir_output, name_output + '_Overlap-' + str(percent_overlap) + '_' + str(idx) + '.tif')
         write_image(separate_images_4d[idx], parameters, path_output)
+
+
+def assemble_data_without_positions(dir_mats: Path, data_to_return: str = 'bmode') -> (np.ndarray, dict):
+    """
+
+    :param dir_mats: directory of iq files
+    :param data_to_return: bmode or envelope of iq data
+    :return: 3d array that doesn't consider position of data/no regular stitching
+    """
+    list_mats = get_sorted_list_mats(dir_mats)
+
+    array_iq, parameters = mat_list_to_iq_array(list_mats)
+
+    if data_to_return == 'bmode':
+        array_img = iq_to_bmode(array_iq)
+    elif data_to_return == 'envelope':
+        array_img = np.abs(array_iq)
+
+    return array_img, parameters
+
+
+def stitch_image_without_positions(dir_mats: Path, dir_output: Path, name_output: str, data_to_return: str='bmode'):
+    """
+
+    :param dir_mats: directory holding the iq data .mat files
+    :param dir_output: directory to write the final image to
+    :param name_output: what to name the image
+    :param data_to_return: type of us data to write, e.g. envelope data or bmode data.
+    """
+    array_img, parameters = assemble_data_without_positions(dir_mats, data_to_return)
+
+    path_output = Path(dir_output, name_output + '.tif')
+    write_image(array_img, parameters, path_output)
+
+
+
