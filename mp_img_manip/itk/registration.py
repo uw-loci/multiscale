@@ -45,6 +45,10 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np
     fig.canvas.flush_events()
     plt.pause(0.02)
 
+    plt.ioff()
+    plt.ion()
+
+
 
 def affine_register(fixed_image, moving_image, reg_plot: RegistrationPlot,
                     scale=3, iterations=10,
@@ -121,6 +125,9 @@ def affine_register(fixed_image, moving_image, reg_plot: RegistrationPlot,
 
 def query_good_registration(fixed_image, moving_image,
                             transform, metric, stop):
+
+    plt.ioff()
+    plt.ion()
 
     print('\nFinal metric value: {0}'.format(metric))
     print('\n{0}'.format(stop))
@@ -201,7 +208,6 @@ def rgb_to_2d_img(moving_image):
 
 
 def write_image(registered_image, registered_path, rotation):
-
     sitk.WriteImage(registered_image, str(registered_path))
 
     meta.write_image_parameters(registered_path,
@@ -225,7 +231,6 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
         moving_image_2d = moving_image
 
     while True:
-
         rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation)
         moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image_2d, rotation))
 
