@@ -49,11 +49,11 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np
     plt.ion()
 
 
-
-def affine_register(fixed_image, moving_image, reg_plot: RegistrationPlot,
-                    scale=3, iterations=10,
-                    fixed_mask=None, moving_mask=None, rotation=0,
-                    learning_rate=50, min_step=0.01, gradient_tolerance=1E-6):
+def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
+             scale=3, iterations=10,
+             fixed_mask=None, moving_mask=None, rotation=0,
+             learning_rate=50, min_step=0.01, gradient_tolerance=1E-6,
+             type_of_registration='euler'):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -109,9 +109,16 @@ def affine_register(fixed_image, moving_image, reg_plot: RegistrationPlot,
     registration_method.SetSmoothingSigmasPerLevel(smoothing_sigmas[(4-scale):])
     registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
 
-    transform = sitk.AffineTransform(2)
     deg_to_rad = 2*np.pi/360
-    transform.Rotate(0, 1, rotation*deg_to_rad, pre=True)
+    angle = rotation*deg_to_rad
+
+    if type_of_registration == 'euler':
+        transform = sitk.Euler2DTransform()
+        transform.SetAngle(angle)
+    else:
+        transform = sitk.AffineTransform(2)
+        transform.Rotate(0, 1, angle, pre=True)
+
     registration_method.SetInitialTransform(transform)
 
     registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, reg_plot.update_idx_resolution_switch)
@@ -235,8 +242,8 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
         moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image_2d, rotation))
 
         reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
-        (transform, metric, stop) = affine_register(fixed_image, moving_image_2d, reg_plot,
-                                                    iterations=iterations, scale=scale, rotation=rotation)
+        (transform, metric, stop) = register(fixed_image, moving_image_2d, reg_plot,
+                                             iterations=iterations, scale=scale, rotation=rotation)
 
         if query_good_registration(fixed_image, moving_image_2d, transform, metric, stop):
             break
