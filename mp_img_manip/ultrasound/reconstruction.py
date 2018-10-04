@@ -213,6 +213,13 @@ def assemble_4d_data(dir_mats: Path, path_pl: Path, data_to_return: str='bmode')
 
 
 def write_image(array_img: np.ndarray, parameters: dict, path_output: Path):
+    """
+    Write a 3d US image with output spacing in mm
+
+    :param array_img: Numpy array corresponding to the image
+    :param parameters: Dictionary of parameters containing resolution keys
+    :param path_output: output path to save the file to
+    """
     image = sitk.GetImageFromArray(array_img)
 
     image_cast = sitk.Cast(image, sitk.sitkFloat32)
@@ -260,7 +267,8 @@ def assemble_data_without_positions(dir_mats: Path, data_to_return: str = 'bmode
     return array_img, parameters
 
 
-def stitch_image_without_positions(dir_mats: Path, dir_output: Path, name_output: str, data_to_return: str='bmode'):
+def stitch_image_without_positions(dir_mats: Path, dir_output: Path, name_output: str, data_to_return: str='bmode',
+                                   elevational_res=0.04):
     """
 
     :param dir_mats: directory holding the iq data .mat files
@@ -269,6 +277,7 @@ def stitch_image_without_positions(dir_mats: Path, dir_output: Path, name_output
     :param data_to_return: type of us data to write, e.g. envelope data or bmode data.
     """
     array_img, parameters = assemble_data_without_positions(dir_mats, data_to_return)
+    parameters['Elevational resolution'] = elevational_res
 
     path_output = Path(dir_output, name_output + '.tif')
     write_image(array_img, parameters, path_output)
