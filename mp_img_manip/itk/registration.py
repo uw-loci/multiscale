@@ -21,13 +21,19 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 
-def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np.double):
+def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np.double,
+                 type_of_registration='euler'):
     origin = moving_image.GetOrigin()
 
-    transform = sitk.AffineTransform(2)
     deg_to_rad = 2 * np.pi / 360
+    angle = rotation * deg_to_rad
 
-    transform.Rotate(0, 1, rotation * deg_to_rad, pre=True)
+    if type_of_registration == 'euler':
+        transform = sitk.Euler2DTransform()
+        transform.SetAngle(angle)
+    else:
+        transform = sitk.AffineTransform(2)
+        transform.Rotate(0, 1, rotation * deg_to_rad, pre=True)
 
     rotated_image = sitk.Resample(moving_image, fixed_image, transform,
                                   sitk.sitkLinear, 0.0,
