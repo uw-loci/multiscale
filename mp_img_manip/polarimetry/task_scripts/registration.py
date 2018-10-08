@@ -4,11 +4,6 @@ Created on Tue Mar  6 15:52:18 2018
 
 @author: mpinkert
 """
-#import matplotlib as mpl
-#mpl.use('qt5agg')
-import matplotlib.pyplot as plt
-plt.ion()
-
 import mp_img_manip.itk.registration as reg
 import mp_img_manip.itk.transform as trans
 import mp_img_manip.itk.process as proc
@@ -41,7 +36,7 @@ def perform_registrations(skip_existing_images=True):
 #    make_eightbit_images(dir_dict)
     
 
-def resize_images(dir_dict, target_spacing=5, skip_existing_images=False):
+def resize_images(dir_dict, target_spacing=2.5, skip_existing_images=False):
 
 #    trans.bulk_resize_to_target(
 #            dir_dict["ps_large_ret"], dir_dict["ps_small"], 'PS_Small',
@@ -68,15 +63,17 @@ def register_small_images(dir_dict, skip_existing_images=False):
     """Register the small MLR/MHR to SHG images, and PS to SHG"""
     reg.bulk_supervised_register_images(
             dir_dict["shg_small"],
-            dir_dict["mlr_small"],
-            dir_dict["mlr_small_reg"], 'MLR_Small_Reg',
+            dir_dict["mhr_small"],
+            dir_dict["mhr_small_reg"], 'MHR_Small_Reg',
             skip_existing_images=skip_existing_images)
 
     reg.bulk_supervised_register_images(
             dir_dict["shg_small"],
-            dir_dict["mhr_small"],
-            dir_dict["mhr_small_reg"], 'MHR_Small_Reg',
+            dir_dict["mlr_small"],
+            dir_dict["mlr_small_reg"], 'MLR_Small_Reg',
             skip_existing_images=skip_existing_images)
+
+
 
 #    reg.bulk_supervised_register_images(
 #            dir_dict["shg_small"],
