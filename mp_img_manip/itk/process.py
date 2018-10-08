@@ -14,7 +14,7 @@ import numpy as np
 import os
 from pathlib import Path
 
-def overlay_images(fixed_image, moving_image, alpha = 0.7):
+def overlay_images(fixed_image, moving_image):
     """Create a numpy array that is a combination of two images
     
     Inputs:
@@ -25,7 +25,7 @@ def overlay_images(fixed_image, moving_image, alpha = 0.7):
     Output:
     combined_array -- A numpy array of overlaid images
     """
-    
+
     fixed_array = sitk.GetArrayFromImage(fixed_image)
     fixed_normalized = np.sqrt((fixed_array - np.amin(fixed_array))/(
             np.amax(fixed_array) + np.amin(fixed_array)))
@@ -34,9 +34,6 @@ def overlay_images(fixed_image, moving_image, alpha = 0.7):
         moving_array = sitk.GetArrayFromImage(moving_image)
         moving_normalized = np.sqrt((moving_array - np.amin(moving_array))/(
                 np.amax(moving_array)+np.amin(moving_array)))
-        
-#        combined_array = ((1.0 - alpha)*fixed_normalized 
-#                          + alpha*moving_normalized)
         
         combined_array = myplot.plot_colored_overlay(
                 fixed_normalized, moving_normalized)
