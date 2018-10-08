@@ -14,6 +14,7 @@ import numpy as np
 import os
 from pathlib import Path
 
+
 def overlay_images(fixed_image, moving_image):
     """Create a numpy array that is a combination of two images
     
@@ -70,8 +71,7 @@ def bulk_apply_mask(image_dir, mask_dir,
     output_dir -- Directory where the masked images will be saved
     ouptut_suffix -- Filename text after the core/sample name of the image file
     """
-    
-    
+
     (image_path_list, mask_path_list) = blk.find_shared_images(
             image_dir, mask_dir)
     
@@ -98,7 +98,7 @@ def bulk_apply_mask(image_dir, mask_dir,
     
     
 def apply_threshold(itk_image, image_name,
-              threshold=1, unit='degree'):
+                    threshold=1, unit='degree'):
     """Apply an intensity based threshold to an image"""
     print('Thresholding {0} to {1} {2}'.format(image_name, threshold, unit))
     
@@ -123,10 +123,7 @@ def bulk_threshold(input_dir, output_dir, output_suffix,
         original = meta.setup_image(path_list[i])
         new_image = apply_threshold(original, os.path.basename(path_list[i]), threshold=threshold)
         
-        meta.write_image_parameters(new_path, 
-                                    original.GetSpacing(),
-                                    original.GetOrigin(),
-                                    0)
+        meta.write_image_parameters(new_path, original.GetSpacing(), original.GetOrigin(), 0)
         
         sitk.WriteImage(new_image, str(new_path))
 
@@ -135,8 +132,7 @@ def convert_to_eightbit(itk_image, image_name):
     """Convert an itk image to 8 bit integer pixels"""
     
     print('Converting {0} to 8-bit grayscale'.format(image_name))
-    return sitk.Cast(sitk.RescaleIntensity(itk_image),
-                               sitk.sitkUInt8)
+    return sitk.Cast(sitk.RescaleIntensity(itk_image), sitk.sitkUInt8)
 
     
 def bulk_convert_to_eightbit(input_dir, output_dir, output_suffix):
