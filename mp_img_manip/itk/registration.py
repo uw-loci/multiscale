@@ -48,10 +48,10 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np
     # geom = mng.window.geometry().getRect()
     # mng.window.setGeometry(-1800, 100, geom[2], geom[3])
 
-    fig.canvas.draw()
-    fig.canvas.flush_events()
-    plt.pause(0.1)
-
+    # fig.canvas.draw()
+    # fig.canvas.flush_events()
+    # plt.pause(0.1)
+    plt.show()
 
 def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
              scale=3, iterations=10,
@@ -146,6 +146,8 @@ def query_good_registration(fixed_image, moving_image,
     translation = np.array(transform_params[4:6])
     print('\nTransform Matrix: \n{0}'.format(matrix))
     print('\nTransform Translation: \n{0}'.format(translation))
+
+    plt.show()
 
     return util.yes_no('Is this registration good? [y/n] >>> ')
 

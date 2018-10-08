@@ -35,9 +35,9 @@ class RegistrationPlot:
                                                 [self.metric_values[index] for index in self.idx_resolution_switch],
                                                 'b*')
 
-        mng = plt.get_current_fig_manager()
-        geom = mng.window.geometry().getRect()
-        mng.window.setGeometry(-1800, 100, geom[2], geom[3])
+        # mng = plt.get_current_fig_manager()
+        # geom = mng.window.geometry().getRect()
+        # mng.window.setGeometry(-1800, 100, geom[2], geom[3])
 
     def update_plot(self, new_metric_value, fixed_image, moving_image, transform):
         """Event: Update and plot new registration values"""
