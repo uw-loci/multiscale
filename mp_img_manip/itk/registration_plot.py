@@ -58,15 +58,13 @@ class RegistrationPlot:
         self.img.set_data(combined_array)
         self.fig.set_size_inches(16, 8)
 
-        #asp = np.diff(self.ax_cost.get_xlim())[0] / np.diff(self.ax_cost.get_ylim())[0]
-        #self.ax_cost.set_aspect(asp)
-
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
         plt.pause(0.01)
 
-        #filepath = 'F:\\Research\\Polarimetry\\Animation\\Registration' + str(len(self.metric_values)) + '.png'
-        #plt.savefig(filepath)
+    def save_figure(self):
+        filepath = 'F:\\Research\\Polarimetry\\Animation\\Registration' + str(len(self.metric_values)) + '.png'
+        plt.savefig(filepath)
 
     def update_idx_resolution_switch(self):
         new_idx = len(self.metric_values)
