@@ -73,7 +73,3 @@ class RegistrationPlot:
         self.idx_resolution_switch.append(new_idx)
 
 
-
-
-
-

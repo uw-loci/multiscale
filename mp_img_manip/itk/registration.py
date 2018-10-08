@@ -22,7 +22,8 @@ import matplotlib.pyplot as plt
 
 
 def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np.double,
-                 type_of_registration='euler'):
+                 type_of_registration='affine'):
+
     origin = moving_image.GetOrigin()
 
     deg_to_rad = 2 * np.pi / 360
@@ -41,25 +42,22 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np
 
     fig, ax = plt.subplots()
     ax.set_title('Rotation = {}, Origin = {}'.format(rotation, origin))
-    img = ax.imshow(proc.overlay_images(fixed_image, rotated_image))
+    ax.imshow(proc.overlay_images(fixed_image, rotated_image))
 
-    mng = plt.get_current_fig_manager()
-    geom = mng.window.geometry().getRect()
-    mng.window.setGeometry(-1800, 100, geom[2], geom[3])
+    # mng = plt.get_current_fig_manager()
+    # geom = mng.window.geometry().getRect()
+    # mng.window.setGeometry(-1800, 100, geom[2], geom[3])
 
     fig.canvas.draw()
     fig.canvas.flush_events()
-    plt.pause(0.02)
-
-    plt.ioff()
-    plt.ion()
+    plt.pause(0.1)
 
 
 def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
              scale=3, iterations=10,
              fixed_mask=None, moving_mask=None, rotation=0,
              learning_rate=50, min_step=0.01, gradient_tolerance=1E-6,
-             type_of_registration='euler'):
+             type_of_registration='affine'):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -139,8 +137,6 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
 def query_good_registration(fixed_image, moving_image,
                             transform, metric, stop):
 
-    plt.ioff()
-    plt.ion()
 
     print('\nFinal metric value: {0}'.format(metric))
     print('\n{0}'.format(stop))
