@@ -216,7 +216,7 @@ def rgb_to_2d_img(moving_image):
 
 
 def write_image(registered_image, registered_path, rotation):
-    """
+    """Save an itk image and output parameters
 
     :param registered_image: the final registered image
     :param registered_path: the path to save the registered image to
@@ -233,7 +233,7 @@ def write_image(registered_image, registered_path, rotation):
 
 def supervised_register_images(fixed_path: Path, moving_path: Path,
                                iterations=200, scale=4, type_of_transform='affine'):
-    """
+    """Register two images
 
     :param fixed_path: path to the image that is being registered to
     :param moving_path: path to the image that is being transformed and registered
@@ -283,7 +283,7 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
                                     write_output=True, write_transform=True, type_of_transform='affine',
                                     iterations=100, scale=3,
                                     skip_existing_images=True):
-    """
+    """Register two directories of images, matching based on the core name, the string before the first _
 
     :param fixed_dir: directory holding the images that are being registered to
     :param moving_dir: directory holding the images that will be registered
