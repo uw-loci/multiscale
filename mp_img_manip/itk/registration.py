@@ -255,8 +255,8 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
         moving_image_2d = moving_image
 
     while True:
-        rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation)
-        moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image_2d, rotation))
+        rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation, type_of_transform)
+        moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image_2d, rotation, type_of_transform))
 
         reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
         (transform, metric, stop) = register(fixed_image, moving_image_2d, reg_plot,
