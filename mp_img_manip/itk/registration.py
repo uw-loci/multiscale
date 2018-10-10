@@ -216,6 +216,13 @@ def rgb_to_2d_img(moving_image):
 
 
 def write_image(registered_image, registered_path, rotation):
+    """
+
+    :param registered_image: the final registered image
+    :param registered_path: the path to save the registered image to
+    :param rotation: rotation of the final image, typically 0
+    :return:
+    """
     sitk.WriteImage(registered_image, str(registered_path))
 
     meta.write_image_parameters(registered_path,
@@ -226,6 +233,15 @@ def write_image(registered_image, registered_path, rotation):
 
 def supervised_register_images(fixed_path: Path, moving_path: Path,
                                iterations=200, scale=4, type_of_transform='affine'):
+    """
+
+    :param fixed_path: path to the image that is being registered to
+    :param moving_path: path to the image that is being transformed and registered
+    :param iterations: how many iterations the algorithm calculates the metric at each resolution scale
+    :param scale: how many resolution scales there are
+    :param type_of_transform: the type of registration/transform, e.g. affine or euler
+    :return:
+    """
 
     fixed_image = meta.setup_image(fixed_path, change_origin=False)
     moving_image, rotation = meta.setup_image(moving_path, return_rotation=True)
@@ -267,6 +283,20 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
                                     write_output=True, write_transform=True, type_of_transform='affine',
                                     iterations=100, scale=3,
                                     skip_existing_images=True):
+    """
+
+    :param fixed_dir: directory holding the images that are being registered to
+    :param moving_dir: directory holding the images that will be registered
+    :param output_dir: directory to save the output images
+    :param output_suffix: base name of the output images
+    :param write_output: whether or not to actually write the output image
+    :param write_transform: whether or not to write down the transform that produced the output
+    :param type_of_transform: what type of registration, e.g. affine or euler
+    :param iterations: how many times will the algorithm calcluate the metric before switching resolutions/ending
+    :param scale: how many resolution scales the algorithm measures at
+    :param skip_existing_images: whether to skip images that already have a transform/output image
+    :return:
+    """
 
     (fixed_path_list, moving_path_list) = blk.find_shared_images(
         fixed_dir, moving_dir)
