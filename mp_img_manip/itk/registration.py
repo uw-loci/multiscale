@@ -55,10 +55,9 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np
 
 
 def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
-             scale=3, iterations=10,
-             fixed_mask=None, moving_mask=None, rotation=0,
-             learning_rate=50, min_step=0.01, gradient_tolerance=1E-5,
-             type_of_transform='affine'):
+             scale=3, iterations=10, learning_rate=50, min_step=0.01, gradient_tolerance=1E-5,
+             type_of_transform='affine', centroid_initialization=False, rotation=0,
+             fixed_mask=None, moving_mask=None):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -120,9 +119,12 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
     if type_of_transform == 'euler':
         transform = sitk.Euler2DTransform()
         transform.SetAngle(angle)
-    else:
+    elif type_of_transform == 'affine':
         transform = sitk.AffineTransform(2)
         transform.Rotate(0, 1, angle, pre=True)
+    else:
+        raise('{0} registration has not been implemented yet'.format(type_of_transform))
+        return False
 
     registration_method.SetInitialTransform(transform)
 
