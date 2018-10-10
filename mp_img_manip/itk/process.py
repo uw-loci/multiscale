@@ -96,7 +96,12 @@ def bulk_apply_mask(image_dir, mask_dir,
                                     0)
         sitk.WriteImage(masked_image, str(masked_path))
     
-    
+
+def find_centroid(image: sitk.Image) -> list:
+    """Find the centroid of the pixels in an image"""
+
+
+
 def apply_threshold(itk_image, image_name,
                     threshold=1, unit='degree'):
     """Apply an intensity based threshold to an image"""
