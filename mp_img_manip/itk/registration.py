@@ -22,14 +22,14 @@ import matplotlib.pyplot as plt
 
 
 def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np.double,
-                 type_of_registration='affine'):
+                 type_of_transform='affine'):
 
     origin = moving_image.GetOrigin()
 
     deg_to_rad = 2 * np.pi / 360
     angle = rotation * deg_to_rad
 
-    if type_of_registration == 'euler':
+    if type_of_transform == 'euler':
         transform = sitk.Euler2DTransform()
         transform.SetAngle(angle)
     else:
@@ -58,7 +58,7 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
              scale=3, iterations=10,
              fixed_mask=None, moving_mask=None, rotation=0,
              learning_rate=50, min_step=0.01, gradient_tolerance=1E-5,
-             type_of_registration='affine'):
+             type_of_transform='affine'):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
     Uses mutual information and regular step gradient descent
@@ -117,7 +117,7 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
     deg_to_rad = 2*np.pi/360
     angle = rotation*deg_to_rad
 
-    if type_of_registration == 'euler':
+    if type_of_transform == 'euler':
         transform = sitk.Euler2DTransform()
         transform.SetAngle(angle)
     else:
@@ -138,7 +138,6 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
 def query_good_registration(fixed_image, moving_image,
                             transform, metric, stop):
 
-
     print('\nFinal metric value: {0}'.format(metric))
     print('\n{0}'.format(stop))
 
@@ -153,10 +152,10 @@ def query_good_registration(fixed_image, moving_image,
     return util.yes_no('Is this registration good? [y/n] >>> ')
 
 
-def query_pre_rotation(fixed_image, moving_image, initial_rotation):
+def query_pre_rotation(fixed_image, moving_image, initial_rotation, type_of_transform):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
 
-    plot_overlay(fixed_image, moving_image, initial_rotation)
+    plot_overlay(fixed_image, moving_image, initial_rotation, type_of_transform=type_of_transform)
 
     change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
 
@@ -166,7 +165,7 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation):
         while True:
             rotation = util.query_float('Enter new rotation (degrees):')
 
-            plot_overlay(fixed_image, moving_image, rotation)
+            plot_overlay(fixed_image, moving_image, rotation, type_of_transform=type_of_transform)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this rotation good? [y/n] >>> '): break
@@ -174,7 +173,7 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation):
     return rotation
 
 
-def query_origin_change(fixed_image, moving_image, rotation):
+def query_origin_change(fixed_image, moving_image, rotation, type_of_transform):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
 
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
@@ -191,7 +190,7 @@ def query_origin_change(fixed_image, moving_image, rotation):
             new_origin = (new_origin_x, new_origin_y)
 
             moving_image.SetOrigin(new_origin)
-            plot_overlay(fixed_image, moving_image, rotation)
+            plot_overlay(fixed_image, moving_image, rotation, type_of_transform=type_of_transform)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this origin good? [y/n] >>> '): break
@@ -226,7 +225,7 @@ def write_image(registered_image, registered_path, rotation):
 
 
 def supervised_register_images(fixed_path: Path, moving_path: Path,
-                               iterations=200, scale=4):
+                               iterations=200, scale=4, type_of_transform='affine'):
 
     fixed_image = meta.setup_image(fixed_path, change_origin=False)
     moving_image, rotation = meta.setup_image(moving_path, return_rotation=True)
@@ -245,7 +244,8 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
 
         reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
         (transform, metric, stop) = register(fixed_image, moving_image_2d, reg_plot,
-                                             iterations=iterations, scale=scale, rotation=rotation)
+                                             iterations=iterations, scale=scale, rotation=rotation,
+                                             type_of_transform=type_of_transform)
 
         if query_good_registration(fixed_image, moving_image_2d, transform, metric, stop):
             break
@@ -264,7 +264,7 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
 
 def bulk_supervised_register_images(fixed_dir, moving_dir,
                                     output_dir, output_suffix,
-                                    write_output=True, write_transform=True,
+                                    write_output=True, write_transform=True, type_of_transform='affine',
                                     iterations=100, scale=3,
                                     skip_existing_images=True):
 
@@ -277,7 +277,8 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
             continue
         
         registered_image, origin, transform, metric, stop, rotation = \
-            supervised_register_images(fixed_path_list[i], moving_path_list[i], iterations=iterations, scale=scale)
+            supervised_register_images(fixed_path_list[i], moving_path_list[i],
+                                       type_of_transform=type_of_transform, iterations=iterations, scale=scale)
 
         if write_output:
             write_image(registered_image, registered_path, rotation)
