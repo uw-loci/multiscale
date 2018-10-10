@@ -53,6 +53,7 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np
     # plt.pause(0.1)
     plt.show()
 
+
 def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
              scale=3, iterations=10,
              fixed_mask=None, moving_mask=None, rotation=0,
@@ -176,15 +177,12 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation):
 def query_origin_change(fixed_image, moving_image, rotation):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
 
-    plot_overlay(fixed_image, moving_image, rotation)
-
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
     origin = moving_image.GetOrigin()
 
     # todo: have it change the origin file too....
 
     if change_origin:
-
         while True:
             print('Current origin: ' + str(origin))
             new_origin_x = util.query_int('Enter new X origin: ')
