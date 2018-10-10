@@ -135,8 +135,7 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
             registration_method.GetOptimizerStopConditionDescription())
 
 
-def query_good_registration(fixed_image, moving_image,
-                            transform, metric, stop):
+def query_good_registration(transform, metric, stop):
 
     print('\nFinal metric value: {0}'.format(metric))
     print('\n{0}'.format(stop))
@@ -263,7 +262,7 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
                                              iterations=iterations, scale=scale, rotation=rotation,
                                              type_of_transform=type_of_transform)
 
-        if query_good_registration(fixed_image, moving_image_2d, transform, metric, stop):
+        if query_good_registration(transform, metric, stop):
             break
 
     origin = moving_image.GetOrigin()
