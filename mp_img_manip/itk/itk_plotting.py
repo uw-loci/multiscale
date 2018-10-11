@@ -71,3 +71,34 @@ class RegistrationPlot:
         self.idx_resolution_switch.append(new_idx)
 
 
+def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np.double,
+                 type_of_transform='affine'):
+
+    origin = moving_image.GetOrigin()
+
+    deg_to_rad = 2 * np.pi / 360
+    angle = rotation * deg_to_rad
+
+    if type_of_transform == 'euler':
+        transform = sitk.Euler2DTransform()
+        transform.SetAngle(angle)
+    else:
+        transform = sitk.AffineTransform(2)
+        transform.Rotate(0, 1, rotation * deg_to_rad, pre=True)
+
+    rotated_image = sitk.Resample(moving_image, fixed_image, transform,
+                                  sitk.sitkLinear, 0.0,
+                                  moving_image.GetPixelIDValue())
+
+    fig, ax = plt.subplots()
+    ax.set_title('Rotation = {}, Origin = {}'.format(rotation, origin))
+    ax.imshow(proc.overlay_images(fixed_image, rotated_image))
+
+    # mng = plt.get_current_fig_manager()
+    # geom = mng.window.geometry().getRect()
+    # mng.window.setGeometry(-1800, 100, geom[2], geom[3])
+
+    # fig.canvas.draw()
+    # fig.canvas.flush_events()
+    # plt.pause(0.1)
+    plt.show()

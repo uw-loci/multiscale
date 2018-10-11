@@ -23,39 +23,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 
-def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np.double,
-                 type_of_transform='affine'):
-
-    origin = moving_image.GetOrigin()
-
-    deg_to_rad = 2 * np.pi / 360
-    angle = rotation * deg_to_rad
-
-    if type_of_transform == 'euler':
-        transform = sitk.Euler2DTransform()
-        transform.SetAngle(angle)
-    else:
-        transform = sitk.AffineTransform(2)
-        transform.Rotate(0, 1, rotation * deg_to_rad, pre=True)
-
-    rotated_image = sitk.Resample(moving_image, fixed_image, transform,
-                                  sitk.sitkLinear, 0.0,
-                                  moving_image.GetPixelIDValue())
-
-    fig, ax = plt.subplots()
-    ax.set_title('Rotation = {}, Origin = {}'.format(rotation, origin))
-    ax.imshow(proc.overlay_images(fixed_image, rotated_image))
-
-    # mng = plt.get_current_fig_manager()
-    # geom = mng.window.geometry().getRect()
-    # mng.window.setGeometry(-1800, 100, geom[2], geom[3])
-
-    # fig.canvas.draw()
-    # fig.canvas.flush_events()
-    # plt.pause(0.1)
-    plt.show()
-
-
 def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
              scale=3, iterations=10, learning_rate=50, min_step=0.01, gradient_tolerance=1E-5,
              type_of_transform='affine', rotation=0,
@@ -159,7 +126,7 @@ def query_good_registration(transform, metric, stop):
 def query_pre_rotation(fixed_image, moving_image, initial_rotation, type_of_transform):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
 
-    plot_overlay(fixed_image, moving_image, initial_rotation, type_of_transform=type_of_transform)
+    itkplt.plot_overlay(fixed_image, moving_image, initial_rotation, type_of_transform=type_of_transform)
 
     change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
 
@@ -169,7 +136,7 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation, type_of_tran
         while True:
             rotation = util.query_float('Enter new rotation (degrees):')
 
-            plot_overlay(fixed_image, moving_image, rotation, type_of_transform=type_of_transform)
+            itkplt.plot_overlay(fixed_image, moving_image, rotation, type_of_transform=type_of_transform)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this rotation good? [y/n] >>> '): break
@@ -194,7 +161,7 @@ def query_origin_change(fixed_image, moving_image, rotation, type_of_transform):
             new_origin = (new_origin_x, new_origin_y)
 
             moving_image.SetOrigin(new_origin)
-            plot_overlay(fixed_image, moving_image, rotation, type_of_transform=type_of_transform)
+            itkplt.plot_overlay(fixed_image, moving_image, rotation, type_of_transform=type_of_transform)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this origin good? [y/n] >>> '): break
