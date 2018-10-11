@@ -63,6 +63,20 @@ class RegistrationPlot:
         self.fig.canvas.flush_events()
         plt.pause(0.01)
 
+    def plot_final_overlay(self, fixed_image, moving_image, transform):
+        moving_transformed = sitk.Resample(moving_image, fixed_image, transform,
+                                           sitk.sitkLinear, 0.0,
+                                           moving_image.GetPixelIDValue())
+
+        # Blend the registered and fixed images
+        combined_array = proc.overlay_images(fixed_image, moving_transformed)
+        self.img.set_data(combined_array)
+        self.fig.set_size_inches(16, 8)
+
+        self.fig.canvas.draw()
+        self.fig.canvas.flush_events()
+        plt.pause(0.01)
+
     def save_figure(self):
         file_path = 'F:\\Research\\Polarimetry\\Animation\\Registration' + str(len(self.metric_values)) + '.png'
         plt.savefig(file_path)
