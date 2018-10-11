@@ -72,8 +72,8 @@ class RegistrationPlot:
         self.idx_resolution_switch.append(new_idx)
 
 
-def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform, rotation: np.double,
-                 downsample=False, downsample_target=5):
+def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform, rotation: np.double=None,
+                 downsample=True, downsample_target=5, continous_update=False):
 
     origin = moving_image.GetOrigin()
 
@@ -84,14 +84,23 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
     if downsample:
         fixed_shrunk = trans.resize_image(fixed_image, fixed_image.GetSpacing()[0], downsample_target)
 
-        rotated_shrunk = trans.resize_image(moving_image, moving_image.GetSpacing()[0], downsample_target)
+        rotated_shrunk = trans.resize_image(rotated_image, moving_image.GetSpacing()[0], downsample_target)
 
         overlay_array = proc.overlay_images(fixed_shrunk, rotated_shrunk)
     else:
-        overlay_array = proc.overlay_images(fixed_image, moving_image)
+        overlay_array = proc.overlay_images(fixed_image, rotated_image)
 
     fig, ax = plt.subplots()
-    ax.set_title('Rotation = {}, Origin = {}'.format(rotation, origin))
+
+    if rotation is not None:
+        ax.set_title('Rotation = {}, Origin = {}'.format(rotation, origin))
+
     ax.imshow(overlay_array)
 
-    plt.show()
+    if continous_update:
+        fig = plt.gcf()
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+        plt.pause(0.01)
+    else:
+        plt.show()
