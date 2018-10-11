@@ -40,7 +40,7 @@ def define_registration_method(scale=4, iterations=100, learning_rate=50, min_st
     # Similarity metric settings.|
     registration_method.SetMetricAsMattesMutualInformation()
     registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-    registration_method.SetMetricSamplingPercentage(1)
+    registration_method.SetMetricSamplingPercentage(0.01)
 
     registration_method.SetInterpolator(sitk.sitkLinear)
 
@@ -123,9 +123,9 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
     registration_method.SetInitialTransform(transform)
 
     registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, reg_plot.update_idx_resolution_switch)
-    registration_method.AddCommand(sitk.sitkIterationEvent, lambda: reg_plot.update_plot(
-        registration_method.GetMetricValue(), fixed_image, moving_image, transform))
-    registration_method.AddCommand(sitk.sitkEndEvent, lambda: reg_plot.plot_final_overlay(fixed_image, moving_image, transform))
+    registration_method.AddCommand(sitk.sitkIterationEvent,
+                                   lambda: reg_plot.update_plot(registration_method.GetMetricValue(), transform))
+    registration_method.AddCommand(sitk.sitkEndEvent, lambda: reg_plot.plot_final_overlay(transform))
 
     return (registration_method.Execute(fixed_image, moving_image),
             registration_method.GetMetricValue(),
