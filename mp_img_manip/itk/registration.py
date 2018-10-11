@@ -12,7 +12,6 @@ import mp_img_manip.itk.transform as tran
 from mp_img_manip.itk.itk_plotting import RegistrationPlot
 import mp_img_manip.itk.itk_plotting as itkplt
 
-
 import SimpleITK as sitk
 import numpy as np
 import os
@@ -20,6 +19,8 @@ import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+
+from mp_img_manip.itk.process import rgb_to_2d_img
 
 
 def define_registration_method(scale=4, iterations=100, learning_rate=50, min_step=0.01, gradient_tolerance=1E-5) \
@@ -195,21 +196,6 @@ def query_origin_change(fixed_image, moving_image, transform, rotation):
         return new_origin
     else:
         return origin
-
-
-def rgb_to_2d_img(moving_image):
-    """Convert an RGB to grayscale image by extracting the average intensity, filtering out white light >230 avg"""
-    array = sitk.GetArrayFromImage(moving_image)
-    array_2d = np.average(array, 2)
-    array_2d[array_2d > 0.9*np.max(array)] = 0
-
-    moving_image_2d = sitk.GetImageFromArray(array_2d)
-    spacing_2d = moving_image.GetSpacing()[:2]
-    moving_image_2d.SetSpacing(spacing_2d)
-
-    origin_2d = moving_image.GetOrigin()[:2]
-    moving_image_2d.SetOrigin(origin_2d)
-    return moving_image_2d
 
 
 def write_image(registered_image, registered_path, rotation):
