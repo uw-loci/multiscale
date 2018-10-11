@@ -71,7 +71,7 @@ class RegistrationPlot:
         self.idx_resolution_switch.append(new_idx)
 
 
-def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform):
+def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform, rotation: np.double):
 
     origin = moving_image.GetOrigin()
 

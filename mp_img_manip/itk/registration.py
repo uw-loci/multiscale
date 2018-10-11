@@ -151,7 +151,7 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation, type_of_tran
 
     transform = define_transform(type_of_transform, rotation=initial_rotation)
 
-    itkplt.plot_overlay(fixed_image, moving_image, transform)
+    itkplt.plot_overlay(fixed_image, moving_image, transform, initial_rotation)
 
     change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
 
@@ -162,7 +162,7 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation, type_of_tran
             rotation = util.query_float('Enter new rotation (degrees):')
             transform = define_transform(type_of_transform, rotation=rotation)
 
-            itkplt.plot_overlay(fixed_image, moving_image, transform)
+            itkplt.plot_overlay(fixed_image, moving_image, transform, rotation)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this rotation good? [y/n] >>> '): break
@@ -170,7 +170,7 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation, type_of_tran
     return transform, rotation
 
 
-def query_origin_change(fixed_image, moving_image, transform):
+def query_origin_change(fixed_image, moving_image, transform, rotation):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
 
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
@@ -187,7 +187,7 @@ def query_origin_change(fixed_image, moving_image, transform):
             new_origin = (new_origin_x, new_origin_y)
 
             moving_image.SetOrigin(new_origin)
-            itkplt.plot_overlay(fixed_image, moving_image, transform)
+            itkplt.plot_overlay(fixed_image, moving_image, transform, rotation)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this origin good? [y/n] >>> '): break
@@ -252,7 +252,7 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
 
     while True:
         transform, rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation, type_of_transform)
-        moving_origin = query_origin_change(fixed_image, moving_image_2d, transform)
+        moving_origin = query_origin_change(fixed_image, moving_image_2d, transform, rotation)
         moving_image_2d.SetOrigin(moving_origin)
 
         reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
