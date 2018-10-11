@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import SimpleITK as sitk
 import mp_img_manip.itk.process as proc
+import mp_img_manip.itk.transform as trans
 import numpy as np
 import matplotlib.ticker as plticker
 
@@ -71,7 +72,8 @@ class RegistrationPlot:
         self.idx_resolution_switch.append(new_idx)
 
 
-def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform, rotation: np.double):
+def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform, rotation: np.double,
+                 downsample=False, downsample_target=5):
 
     origin = moving_image.GetOrigin()
 
@@ -79,15 +81,17 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
                                   sitk.sitkLinear, 0.0,
                                   moving_image.GetPixelIDValue())
 
+    if downsample:
+        fixed_shrunk = trans.resize_image(fixed_image, fixed_image.GetSpacing()[0], downsample_target)
+
+        rotated_shrunk = trans.resize_image(moving_image, moving_image.GetSpacing()[0], downsample_target)
+
+        overlay_array = proc.overlay_images(fixed_shrunk, rotated_shrunk)
+    else:
+        overlay_array = proc.overlay_images(fixed_image, moving_image)
+
     fig, ax = plt.subplots()
     ax.set_title('Rotation = {}, Origin = {}'.format(rotation, origin))
-    ax.imshow(proc.overlay_images(fixed_image, rotated_image))
+    ax.imshow(overlay_array)
 
-    # mng = plt.get_current_fig_manager()
-    # geom = mng.window.geometry().getRect()
-    # mng.window.setGeometry(-1800, 100, geom[2], geom[3])
-
-    # fig.canvas.draw()
-    # fig.canvas.flush_events()
-    # plt.pause(0.1)
     plt.show()
