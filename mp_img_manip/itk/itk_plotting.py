@@ -71,20 +71,9 @@ class RegistrationPlot:
         self.idx_resolution_switch.append(new_idx)
 
 
-def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, rotation: np.double,
-                 type_of_transform='affine'):
+def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform):
 
     origin = moving_image.GetOrigin()
-
-    deg_to_rad = 2 * np.pi / 360
-    angle = rotation * deg_to_rad
-
-    if type_of_transform == 'euler':
-        transform = sitk.Euler2DTransform()
-        transform.SetAngle(angle)
-    else:
-        transform = sitk.AffineTransform(2)
-        transform.Rotate(0, 1, rotation * deg_to_rad, pre=True)
 
     rotated_image = sitk.Resample(moving_image, fixed_image, transform,
                                   sitk.sitkLinear, 0.0,

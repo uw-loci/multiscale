@@ -22,7 +22,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 
-def define_base_registration_method(scale=4, iterations=100, learning_rate=50, min_step=0.01, gradient_tolerance=1E-5) \
+def define_registration_method(scale=4, iterations=100, learning_rate=50, min_step=0.01, gradient_tolerance=1E-5) \
         -> sitk.ImageRegistrationMethod:
     """
     Define the base metric, interpolator, and optimizer of a registration or series of registrations
@@ -64,9 +64,27 @@ def define_base_registration_method(scale=4, iterations=100, learning_rate=50, m
     return registration_method
 
 
+def define_transform(type_of_transform: str= 'affine', rotation: np.double=0) -> sitk.Transform:
+
+    deg_to_rad = 2*np.pi/360
+    angle = rotation*deg_to_rad
+
+    if type_of_transform == 'euler':
+        transform = sitk.Euler2DTransform()
+        transform.SetAngle(angle)
+    elif type_of_transform == 'affine':
+        transform = sitk.AffineTransform(2)
+        transform.Rotate(0, 1, angle, pre=True)
+    else:
+        raise('{0} registration has not been implemented yet'.format(type_of_transform))
+        return False
+
+    return transform
+
+
 def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
-             base_registration_method: sitk.ImageRegistrationMethod=None,
-             type_of_transform='affine', rotation=0,
+             registration_method: sitk.ImageRegistrationMethod=None,
+             transform: sitk.Transform=None,
              fixed_mask=None, moving_mask=None):
     """Perform an affine registration using MI and RSGD over up to 4 scales
     
@@ -88,30 +106,18 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
 
     fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
     moving_image = sitk.Cast(moving_image, sitk.sitkFloat32)
-    if base_registration_method is None:
-        registration_method = define_base_registration_method()
-    else:
-        registration_method = base_registration_method
+
+    if registration_method is None:
+        registration_method = define_registration_method()
+
+    if transform is None:
+        transform = define_transform()
 
     if fixed_mask:
         registration_method.SetMetricFixedMask(fixed_mask)
 
     if moving_mask:
         registration_method.SetMetricMovingMask(moving_mask)
-
-    deg_to_rad = 2*np.pi/360
-    angle = rotation*deg_to_rad
-
-    if type_of_transform == 'euler':
-        transform = sitk.Euler2DTransform()
-        transform.SetAngle(angle)
-
-    elif type_of_transform == 'affine':
-        transform = sitk.AffineTransform(2)
-        transform.Rotate(0, 1, angle, pre=True)
-    else:
-        raise('{0} registration has not been implemented yet'.format(type_of_transform))
-        return False
 
     registration_method.SetInitialTransform(transform)
 
@@ -143,7 +149,9 @@ def query_good_registration(transform, metric, stop):
 def query_pre_rotation(fixed_image, moving_image, initial_rotation, type_of_transform):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
 
-    itkplt.plot_overlay(fixed_image, moving_image, initial_rotation, type_of_transform=type_of_transform)
+    transform = define_transform(type_of_transform, rotation=initial_rotation)
+
+    itkplt.plot_overlay(fixed_image, moving_image, transform)
 
     change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
 
@@ -152,16 +160,17 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation, type_of_tran
     if change_rotation:
         while True:
             rotation = util.query_float('Enter new rotation (degrees):')
+            transform = define_transform(type_of_transform, rotation=rotation)
 
-            itkplt.plot_overlay(fixed_image, moving_image, rotation, type_of_transform=type_of_transform)
+            itkplt.plot_overlay(fixed_image, moving_image, transform)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this rotation good? [y/n] >>> '): break
 
-    return rotation
+    return transform, rotation
 
 
-def query_origin_change(fixed_image, moving_image, rotation, type_of_transform):
+def query_origin_change(fixed_image, moving_image, transform):
     """Ask if the user wants a new 2D ITK origin based on image overlay"""
 
     change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
@@ -178,7 +187,7 @@ def query_origin_change(fixed_image, moving_image, rotation, type_of_transform):
             new_origin = (new_origin_x, new_origin_y)
 
             moving_image.SetOrigin(new_origin)
-            itkplt.plot_overlay(fixed_image, moving_image, rotation, type_of_transform=type_of_transform)
+            itkplt.plot_overlay(fixed_image, moving_image, transform)
 
             # bug: The image does not show up till after the question
             if util.yes_no('Is this origin good? [y/n] >>> '): break
@@ -220,13 +229,12 @@ def write_image(registered_image, registered_path, rotation):
 
 
 def supervised_register_images(fixed_path: Path, moving_path: Path,
-                               base_registration_method=None, type_of_transform='affine'):
+                               registration_method=None, type_of_transform='affine'):
     """Register two images
 
     :param fixed_path: path to the image that is being registered to
     :param moving_path: path to the image that is being transformed and registered
-    :param iterations: how many iterations the algorithm calculates the metric at each resolution scale
-    :param scale: how many resolution scales there are
+    :param registration_method: the pre-defined optimizer/metric/interpolator
     :param type_of_transform: the type of registration/transform, e.g. affine or euler
     :return:
     """
@@ -243,13 +251,13 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
         moving_image_2d = moving_image
 
     while True:
-        rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation, type_of_transform)
-        moving_image_2d.SetOrigin(query_origin_change(fixed_image, moving_image_2d, rotation, type_of_transform))
+        transform, rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation, type_of_transform)
+        moving_origin = query_origin_change(fixed_image, moving_image_2d, transform)
+        moving_image_2d.SetOrigin(moving_origin)
 
         reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
         (transform, metric, stop) = register(fixed_image, moving_image_2d, reg_plot,
-                                             base_registration_method=base_registration_method, rotation=rotation,
-                                             type_of_transform=type_of_transform)
+                                             registration_method=registration_method, transform=transform)
 
         if query_good_registration(transform, metric, stop):
             break
@@ -294,10 +302,10 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
         if registered_path.exists() and skip_existing_images:
             continue
 
-        base_registration_method = define_base_registration_method(scale=scale, iterations=iterations)
+        registration_method = define_registration_method(scale=scale, iterations=iterations)
 
         registered_image, origin, transform, metric, stop, rotation = \
-            supervised_register_images(fixed_path_list[i], moving_path_list[i], base_registration_method,
+            supervised_register_images(fixed_path_list[i], moving_path_list[i], registration_method,
                                        type_of_transform=type_of_transform)
 
         if write_output:

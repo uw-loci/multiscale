@@ -99,7 +99,7 @@ def bulk_apply_mask(image_dir, mask_dir,
 
 def find_centroid(image: sitk.Image) -> list:
     """Find the centroid of the pixels in an image"""
-
+    # calculate centroid
 
 
 def apply_threshold(itk_image, image_name,

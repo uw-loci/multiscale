@@ -105,7 +105,7 @@ def get_image_parameters(image_path, return_spacing=True, return_origin=True,
     return returns
     
     
-def write_image_parameters(image_path, spacing, origin, rotation):
+def write_image_parameters(image_path, spacing, origin, rotation=0):
     """Write down the spacing and origin of an image file to csv metadata"""
     
     (output_dir, image_name) = os.path.split(image_path)
