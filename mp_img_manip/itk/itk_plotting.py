@@ -87,7 +87,7 @@ class RegistrationPlot:
 
 
 def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform, rotation: np.double=None,
-                 downsample=True, downsample_target=5, continous_update=False):
+                 downsample=True, downsample_target=5, continuous_update=False, img: plt.imshow=None):
 
     origin = moving_image.GetOrigin()
 
@@ -113,6 +113,9 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
 
     if continous_update:
         fig = plt.gcf()
+        img.set_data(overlay_array)
+
+    if continuous_update:
         fig.canvas.draw()
         fig.canvas.flush_events()
         plt.pause(0.01)
