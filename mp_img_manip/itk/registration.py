@@ -9,7 +9,6 @@ import mp_img_manip.utility_functions as util
 
 import mp_img_manip.itk.metadata as meta
 import mp_img_manip.itk.transform as tran
-import mp_img_manip.itk.process as proc
 from mp_img_manip.itk.itk_plotting import RegistrationPlot
 import mp_img_manip.itk.itk_plotting as itkplt
 
@@ -23,32 +22,18 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 
 
-def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
-             scale=3, iterations=10, learning_rate=50, min_step=0.01, gradient_tolerance=1E-5,
-             type_of_transform='affine', rotation=0,
-             fixed_mask=None, moving_mask=None):
-    """Perform an affine registration using MI and RSGD over up to 4 scales
-    
-    Uses mutual information and regular step gradient descent
-    
-    Inputs:
-    fixed_image -- The image that is registered to
-    moving_image -- The image that is being registered
-    scale -- how many resolution scales the function uses
-    iterations -- Iterations per scale before the function stops
-    fixed_mask -- Forces calculations over part of the fixed image
-    moving_mask -- Forces calculations over part of the moving image
-    rotation -- Pre rotation in degrees, to assist in registration
-    
-    Outputs:
-    transform -- The calculated image transform for registration
-    metric -- The mutual information value at the stopping poin
-    stop -- the stopping condition of the optimizer
+def define_base_registration_method(scale=4, iterations=100, learning_rate=50, min_step=0.01, gradient_tolerance=1E-5) \
+        -> sitk.ImageRegistrationMethod:
     """
+    Define the base metric, interpolator, and optimizer of a registration or series of registrations
 
-    fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
-    moving_image = sitk.Cast(moving_image, sitk.sitkFloat32)
-
+    :param scale: How many times the method downsamples the resolution by 2x
+    :param iterations: The number of times the method optimizes the metric before
+    :param learning_rate:
+    :param min_step:
+    :param gradient_tolerance:
+    :return:
+    """
     registration_method = sitk.ImageRegistrationMethod()
 
     # Similarity metric settings.|
@@ -57,12 +42,6 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
     registration_method.SetMetricSamplingPercentage(1)
 
     registration_method.SetInterpolator(sitk.sitkLinear)
-
-    if fixed_mask:
-        registration_method.SetMetricFixedMask(fixed_mask)
-
-    if moving_mask:
-        registration_method.SetMetricMovingMask(moving_mask)
 
     # Optimizer settings.
     registration_method.SetOptimizerAsRegularStepGradientDescent(learningRate=learning_rate, minStep=min_step,
@@ -81,6 +60,44 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
     registration_method.SetShrinkFactorsPerLevel(shrink_factors[(4-scale):])
     registration_method.SetSmoothingSigmasPerLevel(smoothing_sigmas[(4-scale):])
     registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
+
+    return registration_method
+
+
+def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
+             base_registration_method: sitk.ImageRegistrationMethod=None,
+             type_of_transform='affine', rotation=0,
+             fixed_mask=None, moving_mask=None):
+    """Perform an affine registration using MI and RSGD over up to 4 scales
+    
+    Uses mutual information and regular step gradient descent
+    
+    Inputs:
+    fixed_image -- The image that is registered to
+    moving_image -- The image that is being registered
+    base_registration_method -- The pre-defined optimizer/metric/interpolator
+    fixed_mask -- Forces calculations over part of the fixed image
+    moving_mask -- Forces calculations over part of the moving image
+    rotation -- Pre rotation in degrees, to assist in registration
+    
+    Outputs:
+    transform -- The calculated image transform for registration
+    metric -- The mutual information value at the stopping poin
+    stop -- the stopping condition of the optimizer
+    """
+
+    fixed_image = sitk.Cast(fixed_image, sitk.sitkFloat32)
+    moving_image = sitk.Cast(moving_image, sitk.sitkFloat32)
+    if base_registration_method is None:
+        registration_method = define_base_registration_method()
+    else:
+        registration_method = base_registration_method
+
+    if fixed_mask:
+        registration_method.SetMetricFixedMask(fixed_mask)
+
+    if moving_mask:
+        registration_method.SetMetricMovingMask(moving_mask)
 
     deg_to_rad = 2*np.pi/360
     angle = rotation*deg_to_rad
@@ -203,7 +220,7 @@ def write_image(registered_image, registered_path, rotation):
 
 
 def supervised_register_images(fixed_path: Path, moving_path: Path,
-                               iterations=200, scale=4, type_of_transform='affine'):
+                               base_registration_method=None, type_of_transform='affine'):
     """Register two images
 
     :param fixed_path: path to the image that is being registered to
@@ -231,7 +248,7 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
 
         reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
         (transform, metric, stop) = register(fixed_image, moving_image_2d, reg_plot,
-                                             iterations=iterations, scale=scale, rotation=rotation,
+                                             base_registration_method=base_registration_method, rotation=rotation,
                                              type_of_transform=type_of_transform)
 
         if query_good_registration(transform, metric, stop):
@@ -276,10 +293,12 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
         registered_path = blk.create_new_image_path(moving_path_list[i], output_dir, output_suffix)
         if registered_path.exists() and skip_existing_images:
             continue
-        
+
+        base_registration_method = define_base_registration_method(scale=scale, iterations=iterations)
+
         registered_image, origin, transform, metric, stop, rotation = \
-            supervised_register_images(fixed_path_list[i], moving_path_list[i],
-                                       type_of_transform=type_of_transform, iterations=iterations, scale=scale)
+            supervised_register_images(fixed_path_list[i], moving_path_list[i], base_registration_method,
+                                       type_of_transform=type_of_transform)
 
         if write_output:
             write_image(registered_image, registered_path, rotation)
