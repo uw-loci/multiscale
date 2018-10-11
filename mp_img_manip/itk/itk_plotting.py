@@ -63,8 +63,8 @@ class RegistrationPlot:
         plt.pause(0.01)
 
     def save_figure(self):
-        filepath = 'F:\\Research\\Polarimetry\\Animation\\Registration' + str(len(self.metric_values)) + '.png'
-        plt.savefig(filepath)
+        file_path = 'F:\\Research\\Polarimetry\\Animation\\Registration' + str(len(self.metric_values)) + '.png'
+        plt.savefig(file_path)
 
     def update_idx_resolution_switch(self):
         new_idx = len(self.metric_values)
