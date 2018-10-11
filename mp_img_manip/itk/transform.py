@@ -103,10 +103,8 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
     return
 
 
-def resize_image(image_path, current_spacing, target_spacing):
+def resize_image(itk_image, current_spacing, target_spacing):
     """Resize an image by an integer factor towards target spacing"""
-    itk_image = meta.setup_image(image_path)
-    image_name = os.path.basename(image_path)
 
     if current_spacing < target_spacing:
         scale = math.floor(target_spacing/current_spacing)
@@ -123,10 +121,6 @@ def resize_image(image_path, current_spacing, target_spacing):
         resized_image = sitk.Expand(itk_image,[scale, scale])
         resized_image.SetSpacing([end_res, end_res])
         resized_image.SetOrigin(itk_image.GetOrigin())
-
-    print('\nResizing ' + image_name + ' from '
-          + str(current_spacing) + ' to ' + str(end_res)
-          + ' (Target = ' + str(target_spacing) + ')')
 
     return resized_image
 
@@ -177,12 +171,13 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
         if resized_path.exists() and skip_existing_images:
             continue
         
-        current_spacing = meta.get_image_parameters(
-                image_path,
-                return_origin=False,
-                return_spacing=True)[0][0]
+        current_spacing = meta.get_image_parameters(image_path, return_origin=False, return_spacing=True)[0][0]
+        itk_image = meta.setup_image(image_path)
+        image_name = os.path.basename(image_path)
+        print('\nResizing ' + image_name + ' from '
+              + str(current_spacing) + ' to target spacing ' + str(target_spacing) + ')')
 
-        resized_image = resize_image(image_path,
+        resized_image = resize_image(itk_image,
                                      current_spacing, target_spacing)
 
         sitk.WriteImage(resized_image, str(resized_path))
