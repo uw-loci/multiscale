@@ -60,7 +60,15 @@ def idx_dictionary():
     return idx_dict
 
 
-def find_transforms(path_img: Path, resolution, registration_method, skip_finished_transforms=True):
+def calculate_transforms(path_img: Path, resolution, registration_method, skip_finished_transforms=True):
+    """
+    Register based on output polarization state, and save the resulting transform
+    :param path_img: path to the image file being used to calculate the transforms
+    :param resolution: resolution of the image file
+    :param registration_method: itk construct holding registration parameters
+    :param skip_finished_transforms: whether to skip finding transforms if they already exist or not
+    :return:
+    """
     idx_dict = idx_dictionary()
     slices_to_register = []
     keys = []
@@ -99,10 +107,10 @@ mhr_path = Path(r'C:\Users\mpinkert\Box\Research\Polarimetry\Polarimetry - Raw D
 mlr_resolution = 2.016
 mhr_resolution = 0.81
 
-registration_method = reg.define_registration_method(scale=1, learning_rate=5, iterations=300)
+registration_method = reg.define_registration_method(scale=3, learning_rate=5, iterations=100)
 
-find_transforms(mlr_path, mlr_resolution, registration_method)
-find_transforms(mhr_path, mlr_resolution, registration_method)
+#find_transforms(mlr_path, mlr_resolution, registration_method)
+calculate_transforms(mhr_path, mlr_resolution, registration_method)
 
 
 javabridge.kill_vm()
