@@ -9,20 +9,26 @@ find a universal transform so that it can be applied to all future
 images from the same source.  This will let us get better results with
 the final Mueller image.
 """
+import mp_img_manip.itk.registration as reg
 
 import javabridge
 import bioformats as bf
 import SimpleITK as sitk
-import mp_img_manip.itk.registration as reg
+from pathlib import Path
+import os
+import pandas as pd
+
+import mp_img_manip.itk.transform as tran
+import mp_img_manip.bulk_img_processing as blk
 
 
 def idx_dictionary():
-    """Map the polarization state inputs and output states to the z slice from the channel"""
+    """Map the polarization state inputs and output states to the t slice from the channel"""
     idx_of_outputs = {
         'Hout': [0, 6, 9, 14],
         'Bout': [1, 7, 8, 15],
         'Pout': [2, 5, 10, 13],
-        'Vout': [3, 4, 11, 12],
+        'Vout': [4, 3, 11, 12],
         'Rout': [18, 19, 20, 17],
         'Lout': [23, 22, 21, 16]}
 
@@ -38,42 +44,55 @@ def idx_dictionary():
     return idx_dict
 
 
-def find_transforms(path_img, resolution):
+def find_transforms(path_img: Path, resolution, registration_method, skip_finished_transforms=True):
     idx_dict = idx_dictionary()
     slices_to_register = []
     keys = []
-    for key, value in idx_dict['Outputs']:
-        keys.append[key]
-        slices_to_register.append(value[0])
+    dict_outputs = idx_dict['Outputs']
+    for key in dict_outputs:
+        keys.append(key)
+        slices_to_register.append(dict_outputs[key][0])
 
-    with bf.ImageReader(path_img) as reader:
-        fixed_array = reader.read(z=slices_to_register[0])
+    with bf.ImageReader(str(path_img)) as reader:
+        fixed_array = reader.read(t=slices_to_register[0])
         fixed_img = sitk.GetImageFromArray(fixed_array)
         fixed_img.SetSpacing([resolution, resolution])
 
         for idx in range(1, len(slices_to_register)):
-            moving_array = reader.read(z=slices_to_register[idx])
+            registered_path = Path(path_img.parent, keys[idx])
+
+            if skip_finished_transforms:
+                (output_dir, image_name) = os.path.split(registered_path)
+                file_path = output_dir + '/Transforms.csv'
+                df_transforms = pd.read_csv(file_path, index_col=0)
+                if image_name in df_transforms.index:
+                    continue
+
+            print('Registering {0} to {1}'.format(keys[idx], keys[0]))
+
+            moving_array = reader.read(t=slices_to_register[idx])
             moving_img = sitk.GetImageFromArray(moving_array)
             moving_img.SetSpacing([resolution, resolution])
 
+            registered_img, origin, transform, metric, stop, rotation = reg.supervised_register_images(
+                fixed_img, moving_img, registration_method=registration_method
+            )
 
-
-
-
-
-
-def register_views(path_img):
-
+            tran.write_transform(registered_path, origin, transform, metric, stop, rotation)
 
 
 javabridge.start_vm(class_path=bf.JARS)
 
-path = r'C:\Users\mpinkert\Box\Research\Polarimetry\Polarimetry - Raw Data\2018.06.14_32x\1367 slide 5.czi'
+mlr_path = Path(r'C:\Users\mpinkert\Box\Research\Polarimetry\Polarimetry - Raw Data\2018.06.14_32x\1367 slide 5.czi')
+mhr_path = Path(r'C:\Users\mpinkert\Box\Research\Polarimetry\Polarimetry - Raw Data\2018.06.14_80x\1045- slide 1.czi')
+mlr_resolution = 2.016
+mhr_resolution = 0.81
 
-with bf.ImageReader(path) as reader:
-    test = reader.read()
-    img = sitk.GetImageFromArray(test)
-    print('hello')
+registration_method = reg.define_registration_method(scale=1, learning_rate=5, iterations=300)
+
+find_transforms(mlr_path, mlr_resolution, registration_method)
+find_transforms(mhr_path, mlr_resolution, registration_method)
+
 
 javabridge.kill_vm()
 
