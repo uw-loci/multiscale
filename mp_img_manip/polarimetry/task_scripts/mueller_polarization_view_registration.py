@@ -13,6 +13,7 @@ the final Mueller image.
 import javabridge
 import bioformats as bf
 import SimpleITK as sitk
+import mp_img_manip.itk.registration as reg
 
 
 def idx_dictionary():
@@ -37,7 +38,24 @@ def idx_dictionary():
     return idx_dict
 
 
-def find_transforms(path_img):
+def find_transforms(path_img, resolution):
+    idx_dict = idx_dictionary()
+    slices_to_register = []
+    keys = []
+    for key, value in idx_dict['Outputs']:
+        keys.append[key]
+        slices_to_register.append(value[0])
+
+    with bf.ImageReader(path_img) as reader:
+        fixed_array = reader.read(z=slices_to_register[0])
+        fixed_img = sitk.GetImageFromArray(fixed_array)
+        fixed_img.SetSpacing([resolution, resolution])
+
+        for idx in range(1, len(slices_to_register)):
+            moving_array = reader.read(z=slices_to_register[idx])
+            moving_img = sitk.GetImageFromArray(moving_array)
+            moving_img.SetSpacing([resolution, resolution])
+
 
 
 

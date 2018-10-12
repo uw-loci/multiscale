@@ -215,21 +215,16 @@ def write_image(registered_image, registered_path, rotation):
                                 rotation)
 
 
-def supervised_register_images(fixed_path: Path, moving_path: Path,
-                               registration_method=None, type_of_transform='affine'):
+def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
+                               registration_method=None, type_of_transform='affine', rotation=0):
     """Register two images
 
-    :param fixed_path: path to the image that is being registered to
-    :param moving_path: path to the image that is being transformed and registered
+    :param fixed_image: image that is being registered to
+    :param moving_image: image that is being transformed and registered
     :param registration_method: the pre-defined optimizer/metric/interpolator
     :param type_of_transform: the type of registration/transform, e.g. affine or euler
     :return:
     """
-
-    fixed_image = meta.setup_image(fixed_path, change_origin=False)
-    moving_image, rotation = meta.setup_image(moving_path, return_rotation=True)
-    print('\nRegistering ' + os.path.basename(moving_path) + ' to '
-          + os.path.basename(fixed_path))
 
     moving_image_is_rgb = moving_image.GetNumberOfComponentsPerPixel() > 1
     if moving_image_is_rgb:
@@ -250,7 +245,6 @@ def supervised_register_images(fixed_path: Path, moving_path: Path,
             break
 
     origin = moving_image.GetOrigin()
-    meta.write_image_parameters(moving_path, moving_image.GetSpacing(), origin, rotation)
 
     registered_image = sitk.Resample(moving_image, fixed_image,
                                      transform, sitk.sitkLinear,
@@ -291,9 +285,16 @@ def bulk_supervised_register_images(fixed_dir, moving_dir,
 
         registration_method = define_registration_method(scale=scale, iterations=iterations)
 
+        fixed_image = meta.setup_image(fixed_path_list[i], change_origin=False)
+        moving_image, rotation = meta.setup_image(moving_path_list[i], return_rotation=True)
+        print('\nRegistering ' + os.path.basename(moving_path_list[i]) + ' to '
+              + os.path.basename(fixed_path_list[i]))
+
         registered_image, origin, transform, metric, stop, rotation = \
-            supervised_register_images(fixed_path_list[i], moving_path_list[i], registration_method,
+            supervised_register_images(fixed_image, moving_image, registration_method,
                                        type_of_transform=type_of_transform)
+
+        meta.write_image_parameters(moving_path_list[i], moving_image.GetSpacing(), origin, rotation)
 
         if write_output:
             write_image(registered_image, registered_path, rotation)
