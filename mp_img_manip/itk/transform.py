@@ -37,14 +37,7 @@ def write_transform(registered_path, origin, transform, metric, stop, rotation):
                          'Image', column_labels)
 
 
-def apply_transform(fixed_path, moving_path, reference_path):
-
-    fixed_image = meta.setup_image(fixed_path)
-    moving_image = meta.setup_image(moving_path)
-    
-    print('\nApplying transform onto {0} based on transform on {1}'.format(
-        str(moving_path.name),
-        str(reference_path.name)))
+def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, reference_path):
 
     transform_path = os.path.join(reference_path.parent, 'Transforms.csv')
 
@@ -55,7 +48,6 @@ def apply_transform(fixed_path, moving_path, reference_path):
     
     transform.Rotate(0, 1, transform_params['Rotation'], pre=True)
 
-    
     matrix = [transform_params['Matrix Top Left'],
               transform_params['Matrix Top Right'],
               transform_params['Matrix Bottom Left'],
@@ -68,8 +60,6 @@ def apply_transform(fixed_path, moving_path, reference_path):
     origin = (int(transform_params['X Origin']),
               int(transform_params['Y Origin']))
     moving_image.SetOrigin(origin)
-    
-    
 
     return sitk.Resample(moving_image, fixed_image, transform,
                          sitk.sitkLinear, 0.0, moving_image.GetPixelID())
@@ -89,9 +79,16 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
         
         if registered_path.exists() and skip_existing_images:
             continue
+
+        fixed_image = meta.setup_image(fixed_paths[i])
+        moving_image = meta.setup_image(moving_paths[i])
+
+        print('\nApplying transform onto {0} based on transform on {1}'.format(
+                str(moving_paths[i].name),
+                str(reference_paths[i].name)))
         
-        registered_image = apply_transform(fixed_paths[i],
-                                           moving_paths[i],
+        registered_image = apply_transform(fixed_image,
+                                           moving_image[i],
                                            reference_paths[i])
 
         sitk.WriteImage(registered_image, str(registered_path))

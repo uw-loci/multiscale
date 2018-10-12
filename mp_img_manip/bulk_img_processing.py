@@ -106,7 +106,7 @@ def read_pandas_row(file_path, index, index_label):
     """Read a row from a .csv file"""
 
     try:
-        data = pd.read_csv(file_path, index_col = index_label)
+        data = pd.read_csv(file_path, index_col=index_label)
         return data.loc[index]
     except:
         print('The file does not exist')
