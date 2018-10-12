@@ -15,7 +15,7 @@ import os
 from pathlib import Path
 
 
-def overlay_images(fixed_image, moving_image):
+def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image):
     """Create a numpy array that is a combination of two images
     
     Inputs:
@@ -28,37 +28,31 @@ def overlay_images(fixed_image, moving_image):
     """
 
     fixed_array = sitk.GetArrayFromImage(fixed_image)
-    fixed_normalized = np.sqrt((fixed_array - np.amin(fixed_array))/(
-            np.amax(fixed_array) + np.amin(fixed_array)))
+    fixed_normalized = (fixed_array - np.amin(fixed_array))/(
+            np.amax(fixed_array) + np.amin(fixed_array))
 
-    try: #Post-registration
+    if fixed_image.GetSize() == moving_image.GetSize():
         moving_array = sitk.GetArrayFromImage(moving_image)
-        moving_normalized = np.sqrt((moving_array - np.amin(moving_array))/(
-                np.amax(moving_array)+np.amin(moving_array)))
-        
-        combined_array = myplot.plot_colored_overlay(
-                fixed_normalized, moving_normalized)
-        
-        return combined_array
-    
-    except: #Pre-registration
+        moving_normalized = (moving_array - np.amin(moving_array))/(
+                np.amax(moving_array)+np.amin(moving_array))
+
+    else: #Pre-registration
         initial_transform = sitk.Similarity2DTransform()
         moving_resampled = sitk.Resample(moving_image, fixed_image, 
                                          initial_transform, sitk.sitkLinear,
                                          0.0, moving_image.GetPixelID())
         
         moving_array = sitk.GetArrayFromImage(moving_resampled)
-        moving_normalized = np.sqrt((moving_array - np.amin(moving_array))/(
-                np.amax(moving_array)+np.amin(moving_array)))
+        moving_normalized = (moving_array - np.amin(moving_array))/(
+                np.amax(moving_array)+np.amin(moving_array))
 
-#        combined_array = ((1.0 - alpha)*fixed_normalized 
-#                          + alpha*moving_normalized)
-#        
-        combined_array = myplot.plot_colored_overlay(
-                fixed_normalized, moving_normalized)
-                
-        return combined_array    
-    
+    # todo: Some form of window/level to get the intensities roughly matched
+
+    combined_array = myplot.plot_colored_overlay(
+        fixed_normalized, moving_normalized)
+
+    return combined_array
+
 
 def bulk_apply_mask(image_dir, mask_dir,
                     output_dir, output_suffix,
