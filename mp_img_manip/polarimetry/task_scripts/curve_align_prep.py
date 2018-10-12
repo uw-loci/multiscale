@@ -1,7 +1,6 @@
 import mp_img_manip.curve_align as ca
 import mp_img_manip.polarimetry.dir_dictionary as dird
 
-
 dir_dict = dird.create_dictionary()
 
 ca.create_batches_for_chtc(dir_dict['shg_large'], dir_dict['shg_tile'], 'SHG', batch_size=5)

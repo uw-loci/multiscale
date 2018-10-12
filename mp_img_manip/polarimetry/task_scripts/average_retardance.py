@@ -21,28 +21,28 @@ from pathlib import Path
 
 
 def average_images(dir_dict):
+        
+        pol.bulk_process_orientation_alignment(
+                dir_dict['mhr_large_reg'], dir_dict['mhr_large_reg_orient'], dir_dict['avg_ret'],
+                'MHR-O', [512, 512], roi_size=[64, 64])
+        
+        pol.bulk_process_orientation_alignment(
+                dir_dict['mlr_large_reg'], dir_dict['mlr_large_reg_orient'], dir_dict['avg_ret'],
+                'MLR-O', [512, 512], roi_size=[64, 64])
 
-    pol.bulk_process_orientation_alignment(
-            dir_dict['mhr_large_reg'], dir_dict['mhr_large_reg_orient'], dir_dict['avg_ret'], 
-            'MHR-O', [512, 512], roi_size=[64, 64])
-    
-    pol.bulk_process_orientation_alignment(
-            dir_dict['mlr_large_reg'], dir_dict['mlr_large_reg_orient'], dir_dict['avg_ret'], 
-            'MLR-O', [512, 512], roi_size=[64, 64])
-    
 
 def scrape_averaged_files_to_df(dir_avg):
-    list_csvs = util.list_filetype_in_dir(dir_avg, 'csv')
-    list_dfs = [pd.read_csv(item) for item in list_csvs if re.search('64', str(item))]
-    
-    df_avg_raw = pd.concat(list_dfs)
-    
-    df_avg = pd.pivot_table(df_avg_raw, index=['Mouse', 'Slide', 'Tile', 'ROI'],
-                                 values=['Alignment', 'Orientation', 'Retardance'],
-                                 columns = 'Modality')
-    
-    return df_avg
-    
+        list_csvs = util.list_filetype_in_dir(dir_avg, 'csv')
+        list_dfs = [pd.read_csv(item) for item in list_csvs if re.search('64', str(item))]
+        
+        df_avg_raw = pd.concat(list_dfs)
+        
+        df_avg = pd.pivot_table(df_avg_raw, index=['Mouse', 'Slide', 'Tile', 'ROI'],
+                                values=['Alignment', 'Orientation', 'Retardance'],
+                                columns = 'Modality')
+        
+        return df_avg
+
 
 dir_dict = dird.create_dictionary()
 
