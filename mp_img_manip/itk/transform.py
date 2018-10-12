@@ -37,12 +37,14 @@ def write_transform(registered_path, origin, transform, metric, stop, rotation):
                          'Image', column_labels)
 
 
-def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, reference_path):
+def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, reference_path, index=None):
 
     transform_path = os.path.join(reference_path.parent, 'Transforms.csv')
 
-    transform_params = blk.read_pandas_row(transform_path,
-                                           reference_path.name, 'Image')
+    if index is None:
+        transform_params = blk.read_pandas_row(transform_path, index, 'Image')
+    else:
+        transform_params = blk.read_pandas_row(transform_path, reference_path.name, 'Image')
 
     transform = sitk.AffineTransform(2)
     
