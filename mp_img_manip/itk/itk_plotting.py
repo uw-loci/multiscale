@@ -26,12 +26,12 @@ class RegistrationPlot:
         loc = plticker.MaxNLocator(integer=True)  # this locator puts ticks at regular intervals
         self.ax_cost.xaxis.set_major_locator(loc)
 
-        moving_transformed = sitk.Resample(self.moving_image, self.fixed_image, transform,
-                                           sitk.sitkLinear, 0.0,
-                                           self.moving_image.GetPixelIDValue())
-        combined_array = proc.overlay_images(fixed_image, moving_transformed)
+        shape_of_fixed_array = np.shape(sitk.GetArrayFromImage(fixed_image))
+        self.img = self.ax_img.imshow(np.zeros(shape_of_fixed_array))
 
-        self.img = self.ax_img.imshow(combined_array)
+        plot_overlay(self.fixed_image, self.moving_image, transform, continuous_update=True, img=self.img)
+
+        self.ax_img.set_aspect('equal')
 
         self.plot, = self.ax_cost.plot(self.metric_values, 'r')
         self.plot_multires, = self.ax_cost.plot(self.idx_resolution_switch,
