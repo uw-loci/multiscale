@@ -19,7 +19,23 @@ import os
 import pandas as pd
 
 import mp_img_manip.itk.transform as tran
-import mp_img_manip.bulk_img_processing as blk
+import mp_img_manip.utility_functions as util
+
+
+def czi_timepoint_to_sitk_image(path_file, position, resolution):
+        """
+        Open a timepoint from a czi image and make it into an ITK image
+        
+        :param path_file: Path to the czi file
+        :param position: Timepoint to open
+        :param resolution: Resolution of the czi image in microns
+        :return: A SimpleITK image made from the timepoint
+        """
+        array = bf.load_image(str(path_file), t=position)
+        image = sitk.GetImageFromArray(array)
+        image.SetSpacing([resolution, resolution])
+        
+        return image
 
 
 def idx_dictionary():
@@ -53,32 +69,27 @@ def find_transforms(path_img: Path, resolution, registration_method, skip_finish
         keys.append(key)
         slices_to_register.append(dict_outputs[key][0])
 
-    with bf.ImageReader(str(path_img)) as reader:
-        fixed_array = reader.read(t=slices_to_register[0])
-        fixed_img = sitk.GetImageFromArray(fixed_array)
-        fixed_img.SetSpacing([resolution, resolution])
+    fixed_img = czi_timepoint_to_sitk_image(path_img, slices_to_register[0], resolution)
 
-        for idx in range(1, len(slices_to_register)):
-            registered_path = Path(path_img.parent, keys[idx])
+    for idx in range(1, len(slices_to_register)):
+        registered_path = Path(path_img.parent, keys[idx])
 
-            if skip_finished_transforms:
-                (output_dir, image_name) = os.path.split(registered_path)
-                file_path = output_dir + '/Transforms.csv'
-                df_transforms = pd.read_csv(file_path, index_col=0)
-                if image_name in df_transforms.index:
-                    continue
+        if skip_finished_transforms:
+            (output_dir, image_name) = os.path.split(registered_path)
+            file_path = output_dir + '/Transforms.csv'
+            df_transforms = pd.read_csv(file_path, index_col=0)
+            if image_name in df_transforms.index:
+                continue
 
-            print('Registering {0} to {1}'.format(keys[idx], keys[0]))
+        print('Registering {0} to {1}'.format(keys[idx], keys[0]))
 
-            moving_array = reader.read(t=slices_to_register[idx])
-            moving_img = sitk.GetImageFromArray(moving_array)
-            moving_img.SetSpacing([resolution, resolution])
+        moving_img = czi_timepoint_to_sitk_image(path_img, slices_to_register[idx], resolution)
 
-            registered_img, origin, transform, metric, stop, rotation = reg.supervised_register_images(
-                fixed_img, moving_img, registration_method=registration_method
-            )
+        registered_img, origin, transform, metric, stop, rotation = reg.supervised_register_images(
+            fixed_img, moving_img, registration_method=registration_method
+        )
 
-            tran.write_transform(registered_path, origin, transform, metric, stop, rotation)
+        tran.write_transform(registered_path, origin, transform, metric, stop, rotation)
 
 
 javabridge.start_vm(class_path=bf.JARS)
