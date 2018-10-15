@@ -65,7 +65,7 @@ def define_registration_method(scale=4, iterations=100, learning_rate=50, min_st
         return registration_method
 
 
-def define_transform(type_of_transform: str= 'affine', rotation: np.double=0) -> sitk.Transform:
+def define_transform(type_of_transform: str='affine', rotation: np.double=0) -> sitk.Transform:
         
         deg_to_rad = 2*np.pi/360
         angle = rotation*deg_to_rad
