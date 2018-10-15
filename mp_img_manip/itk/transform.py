@@ -16,11 +16,11 @@ from pathlib import Path
 
 def write_transform(registered_path, transform):
         transform_path = Path(registered_path.parent, registered_path.name + '.tfm')
-        sitk.WriteTransform(transform, transform_path)
+        sitk.WriteTransform(transform, str(transform_path))
         
 
 def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, transform_path):
-        transform = sitk.ReadTransform(transform_path)
+        transform = sitk.ReadTransform(str(transform_path))
         return sitk.Resample(moving_image, fixed_image, transform,
                              sitk.sitkLinear, 0.0, moving_image.GetPixelID())
         
