@@ -42,9 +42,9 @@ def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, reference
         transform_path = os.path.join(reference_path.parent, 'Transforms.csv')
         
         if index is None:
-                transform_params = blk.read_pandas_row(transform_path, index, 'Image')
-        else:
                 transform_params = blk.read_pandas_row(transform_path, reference_path.name, 'Image')
+        else:
+                transform_params = blk.read_pandas_row(transform_path, index, 'Image')
         
         transform = sitk.AffineTransform(2)
         
