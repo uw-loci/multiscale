@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+Complex-wavelet structural similarity metric
+
 Created on Tue Mar 20 10:50:24 2018
 
 @author: mpinkert
