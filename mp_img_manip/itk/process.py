@@ -48,7 +48,7 @@ def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image):
         
         # todo: Some form of window/level to get the intensities roughly matched
         
-        combined_array = myplot.plot_colored_overlay(
+        combined_array = myplot.overlay_arrays_red_green(
                 fixed_normalized, moving_normalized)
         
         return combined_array

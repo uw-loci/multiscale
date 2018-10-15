@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def plot_colored_overlay(array_one, array_two, intensity_threshold=0.1):
+def overlay_arrays_red_green(array_one, array_two, intensity_threshold=0.1):
         """Plot two same-size images in 3 channels, with blue->same position"""
         
         # diff = array_one - array_two
