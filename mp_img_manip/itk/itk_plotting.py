@@ -12,12 +12,9 @@ class RegistrationPlot:
                 self.moving_image = moving_image
                 self.metric_values = []
                 self.idx_resolution_switch = []
-                self.fig, (self.ax_img, self.ax_cost) = plt.subplots(1, 2)
-                
-                self.fig.set_size_inches(16, 8)
+                self.fig, (self.ax_img, self.ax_cost) = plt.subplots(1, 2, figsize=(16, 8))
                 
                 self.ax_img.axis('off')
-                
                 self.ax_cost.set_xlabel('Iteration Number', fontsize=12)
                 self.ax_cost.set_title('Metric Value', fontsize=12)
                 self.ax_cost.set_xlim(0, 1)
@@ -25,23 +22,17 @@ class RegistrationPlot:
                 
                 loc = plticker.MaxNLocator(integer=True)  # this locator puts ticks at regular intervals
                 self.ax_cost.xaxis.set_major_locator(loc)
-                
-                fixed_shape = np.shape(sitk.GetArrayFromImage(fixed_image))
-                self.img = self.ax_img.imshow(np.zeros(fixed_shape))
-                
-                plot_overlay(self.fixed_image, self.moving_image, transform, continuous_update=True, img=self.img)
-                
-                self.ax_img.set_aspect('equal')
-                
+
                 self.plot, = self.ax_cost.plot(self.metric_values, 'r')
                 self.plot_multires, = self.ax_cost.plot(self.idx_resolution_switch,
                                                         [self.metric_values[index] for index in
                                                          self.idx_resolution_switch],
                                                         'b*')
                 
-                # mng = plt.get_current_fig_manager()
-                # geom = mng.window.geometry().getRect()
-                # mng.window.setGeometry(-1800, 100, geom[2], geom[3])
+                fixed_shape = np.shape(sitk.GetArrayFromImage(fixed_image))
+                self.img = self.ax_img.imshow(np.zeros(fixed_shape))
+                plot_overlay(self.fixed_image, self.moving_image, transform, continuous_update=True, img=self.img)
+
         
         def update_plot(self, new_metric_value, transform):
                 """Event: Update and plot new registration values"""
