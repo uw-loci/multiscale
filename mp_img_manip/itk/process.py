@@ -161,11 +161,11 @@ def bulk_convert_to_eightbit(input_dir, output_dir, output_suffix):
                 sitk.WriteImage(new_image, str(new_path))
 
 
-def rgb_to_2d_img(moving_image):
-        """Convert an RGB to grayscale image by extracting the average intensity, filtering out white light >230 avg"""
+def rgb_to_2d_img(moving_image, white_light_filter_value=0.9):
+        """Convert an RGB to grayscale image by extracting the average intensity, filtering out white light >0.9 max"""
         array = sitk.GetArrayFromImage(moving_image)
         array_2d = np.average(array, 2)
-        array_2d[array_2d > 0.9*np.max(array)] = 0
+        array_2d[array_2d > white_light_filter_value*np.max(array)] = 0
         
         moving_image_2d = sitk.GetImageFromArray(array_2d)
         spacing_2d = moving_image.GetSpacing()[:2]
