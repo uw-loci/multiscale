@@ -79,7 +79,6 @@ def define_transform(type_of_transform: str='affine', rotation: np.double=0) -> 
                 transform.Rotate(0, 1, angle, pre=True)
         else:
                 raise('{0} registration has not been implemented yet'.format(type_of_transform))
-                return False
         
         return transform
 
@@ -304,7 +303,7 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                         write_image(registered_image, registered_path, rotation)
                 
                 if write_transform:
-                        tran.write_transform(registered_path, origin, transform, metric, stop, rotation)
+                        tran.write_transform_pandas(registered_path, origin, transform, metric, stop, rotation)
 
 
 

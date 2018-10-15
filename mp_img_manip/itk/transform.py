@@ -14,7 +14,18 @@ import math
 from pathlib import Path
 
 
-def write_transform(registered_path, origin, transform, metric, stop, rotation):
+def write_transform(registered_path, transform):
+        transform_path = Path(registered_path.parent, registered_path.name + '.tfm')
+        sitk.WriteTransform(transform, transform_path)
+        
+
+def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, transform_path):
+        transform = sitk.ReadTransform(transform_path)
+        return sitk.Resample(moving_image, fixed_image, transform,
+                             sitk.sitkLinear, 0.0, moving_image.GetPixelID())
+        
+
+def write_transform_pandas(registered_path, origin, transform, metric, stop, rotation):
         """Write affine transform parameters to a csv file"""
         (output_dir, image_name) = os.path.split(registered_path)
         
@@ -37,7 +48,7 @@ def write_transform(registered_path, origin, transform, metric, stop, rotation):
                              'Image', column_labels)
 
 
-def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, reference_path, index=None):
+def apply_transform_pandas(fixed_image: sitk.Image, moving_image: sitk.Image, reference_path, index=None):
         
         transform_path = os.path.join(reference_path.parent, 'Transforms.csv')
         
@@ -89,9 +100,9 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                         str(moving_paths[i].name),
                         str(reference_paths[i].name)))
                 
-                registered_image = apply_transform(fixed_image,
-                                                   moving_image[i],
-                                                   reference_paths[i])
+                registered_image = apply_transform_pandas(fixed_image,
+                                                          moving_image[i],
+                                                          reference_paths[i])
                 
                 sitk.WriteImage(registered_image, str(registered_path))
                 meta.write_image_parameters(registered_path,

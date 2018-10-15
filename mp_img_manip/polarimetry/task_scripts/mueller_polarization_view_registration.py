@@ -97,7 +97,7 @@ def calculate_transforms(path_img: Path, resolution, registration_method, skip_f
                         fixed_img, moving_img, registration_method=registration_method
                 )
                 
-                tran.write_transform(registered_path, origin, transform, metric, stop, rotation)
+                tran.write_transform_pandas(registered_path, origin, transform, metric, stop, rotation)
 
 
 def transform_polarization_state(path_image, dir_output, resolution, list_positions, state):
@@ -123,7 +123,7 @@ def transform_polarization_state(path_image, dir_output, resolution, list_positi
                 if state == 'Hout':
                         sitk.WriteImage(moving_image, str(output_path))
                 else:
-                        registered_image = tran.apply_transform(fixed_image, moving_image, path_image, state)
+                        registered_image = tran.apply_transform_pandas(fixed_image, moving_image, path_image, state)
                         sitk.WriteImage(registered_image, str(output_path))
 
 
