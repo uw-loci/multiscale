@@ -26,8 +26,8 @@ class RegistrationPlot:
                 loc = plticker.MaxNLocator(integer=True)  # this locator puts ticks at regular intervals
                 self.ax_cost.xaxis.set_major_locator(loc)
                 
-                shape_of_fixed_array = np.shape(sitk.GetArrayFromImage(fixed_image))
-                self.img = self.ax_img.imshow(np.zeros(shape_of_fixed_array))
+                fixed_shape = np.shape(sitk.GetArrayFromImage(fixed_image))
+                self.img = self.ax_img.imshow(np.zeros(fixed_shape))
                 
                 plot_overlay(self.fixed_image, self.moving_image, transform, continuous_update=True, img=self.img)
                 
@@ -35,7 +35,8 @@ class RegistrationPlot:
                 
                 self.plot, = self.ax_cost.plot(self.metric_values, 'r')
                 self.plot_multires, = self.ax_cost.plot(self.idx_resolution_switch,
-                                                        [self.metric_values[index] for index in self.idx_resolution_switch],
+                                                        [self.metric_values[index] for index in
+                                                         self.idx_resolution_switch],
                                                         'b*')
                 
                 # mng = plt.get_current_fig_manager()
@@ -55,7 +56,8 @@ class RegistrationPlot:
                 plot_overlay(self.fixed_image, self.moving_image, transform, continuous_update=True, img=self.img)
         
         def plot_final_overlay(self, transform):
-                plot_overlay(self.fixed_image, self.moving_image, transform, downsample=False, continuous_update=True, img=self.img)
+                plot_overlay(self.fixed_image, self.moving_image, transform,
+                             downsample=False, continuous_update=True, img=self.img)
         
         def save_figure(self):
                 file_path = 'F:\\Research\\Polarimetry\\Animation\\Registration' + str(len(self.metric_values)) + '.png'
@@ -77,21 +79,26 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
         
         if downsample:
                 fixed_shrunk = trans.resize_image(fixed_image, fixed_image.GetSpacing()[0], downsample_target)
-                
                 rotated_shrunk = trans.resize_image(rotated_image, moving_image.GetSpacing()[0], downsample_target)
+                spacing = fixed_shrunk.GetSpacing()
                 
                 overlay_array = proc.overlay_images(fixed_shrunk, rotated_shrunk)
         else:
+                spacing = fixed_image.GetSpacing()
                 overlay_array = proc.overlay_images(fixed_image, rotated_image)
+        
+        shape = np.shape(overlay_array)
+        extent = [0, shape[0]*spacing[1], 0, shape[1]*spacing[0]]
         
         if img is None:
                 fig, ax = plt.subplots()
-                ax.imshow(overlay_array)
+                ax.imshow(overlay_array, extent=extent)
                 if rotation is not None:
                         ax.set_title('Rotation = {}, Origin = {}'.format(rotation, origin))
         else:
                 fig = plt.gcf()
                 img.set_data(overlay_array)
+                img.set_extent(extent)
         
         if continuous_update:
                 fig.canvas.draw()
