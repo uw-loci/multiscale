@@ -23,7 +23,8 @@ import matplotlib.pyplot as plt
 from mp_img_manip.itk.process import rgb_to_2d_img
 
 
-def define_registration_method(scale=4, iterations=100, learning_rate=50, min_step=0.01, gradient_tolerance=1E-5) \
+def define_registration_method(scale: int=4, iterations: int=100, learning_rate: np.double=50,
+                               min_step: np.double=0.01, gradient_tolerance: np.double=1E-5) \
             -> sitk.ImageRegistrationMethod:
         """
         Define the base metric, interpolator, and optimizer of a registration or series of registrations
@@ -83,10 +84,10 @@ def define_transform(type_of_transform: str='affine', rotation: np.double=0) -> 
         return transform
 
 
-def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
+def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: RegistrationPlot,
              registration_method: sitk.ImageRegistrationMethod=None,
              transform: sitk.Transform=None,
-             fixed_mask=None, moving_mask=None):
+             fixed_mask: sitk.Image=None, moving_mask: sitk.Image=None):
         """Perform an affine registration using MI and RSGD over up to 4 scales
         
         Uses mutual information and regular step gradient descent
@@ -132,7 +133,7 @@ def register(fixed_image, moving_image, reg_plot: RegistrationPlot,
                 registration_method.GetOptimizerStopConditionDescription())
 
 
-def query_good_registration(transform, metric, stop):
+def query_good_registration(transform: sitk.Transform, metric, stop):
         
         print('\nFinal metric value: {0}'.format(metric))
         print('\n{0}'.format(stop))
@@ -148,7 +149,8 @@ def query_good_registration(transform, metric, stop):
         return util.yes_no('Is this registration good? [y/n] >>> ')
 
 
-def query_pre_rotation(fixed_image, moving_image, initial_rotation, type_of_transform):
+def query_pre_rotation(fixed_image: sitk.Image, moving_image: sitk.Image,
+                       initial_rotation: np.double, type_of_transform: str):
         """Ask if the user wants a new 2D ITK origin based on image overlay"""
         
         transform = define_transform(type_of_transform, rotation=initial_rotation)
@@ -172,7 +174,8 @@ def query_pre_rotation(fixed_image, moving_image, initial_rotation, type_of_tran
         return transform, rotation
 
 
-def query_origin_change(fixed_image, moving_image, transform, rotation):
+def query_origin_change(fixed_image: sitk.Image, moving_image: sitk.Image,
+                        transform: sitk.Transform, rotation: np.double):
         """Ask if the user wants a new 2D ITK origin based on image overlay"""
         
         change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
@@ -199,7 +202,7 @@ def query_origin_change(fixed_image, moving_image, transform, rotation):
                 return origin
 
 
-def write_image(registered_image, registered_path, rotation):
+def write_image(registered_image: sitk.Image, registered_path: Path, rotation: np.double):
         """Save an itk image and output parameters
     
         :param registered_image: the final registered image
@@ -216,7 +219,8 @@ def write_image(registered_image, registered_path, rotation):
 
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
-                               registration_method=None, type_of_transform='affine', rotation=0):
+                               registration_method: sitk.ImageRegistrationMethod=None,
+                               type_of_transform: str='affine', rotation: np.double=0):
         """Register two images
     
         :param fixed_image: image that is being registered to
@@ -255,11 +259,11 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
         return registered_image, origin, transform, metric, stop, rotation
 
 
-def bulk_supervised_register_images(fixed_dir, moving_dir,
-                                    output_dir, output_suffix,
-                                    write_output=True, write_transform=True, type_of_transform='affine',
-                                    iterations=100, scale=3,
-                                    skip_existing_images=True):
+def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
+                                    output_dir: Path, output_suffix: str, write_output: bool=True,
+                                    write_transform: bool=True, type_of_transform: str='affine',
+                                    iterations: int=100, scale: int=3,
+                                    skip_existing_images: bool=True):
         """Register two directories of images, matching based on the core name, the string before the first _
     
         :param fixed_dir: directory holding the images that are being registered to
