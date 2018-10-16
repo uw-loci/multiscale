@@ -132,7 +132,7 @@ def query_good_registration(transform: sitk.Transform, metric, stop):
 
 
 def query_pre_rotation(fixed_image: sitk.Image, moving_image: sitk.Image,
-                       initial_rotation: np.double, type_of_transform: str):
+                       initial_rotation: np.double, type_of_transform: type):
         """Ask if the user wants a new 2D ITK origin based on image overlay"""
         
         transform = tran.define_transform(type_of_transform, rotation=initial_rotation)
@@ -202,7 +202,7 @@ def write_image(registered_image: sitk.Image, registered_path: Path, rotation: n
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
                                registration_method: sitk.ImageRegistrationMethod=None,
-                               type_of_transform: str='affine', rotation: np.double=0):
+                               type_of_transform: type=sitk.AffineTransform, rotation: np.double=0):
         """Register two images
     
         :param fixed_image: image that is being registered to
