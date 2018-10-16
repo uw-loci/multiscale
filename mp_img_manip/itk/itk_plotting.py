@@ -59,7 +59,7 @@ class RegistrationPlot:
                 self.idx_resolution_switch.append(new_idx)
 
 
-def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform, rotation: np.double=None,
+def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform,
                  downsample=True, downsample_target=5, continuous_update=False, img: plt.imshow=None):
         
         origin = moving_image.GetOrigin()
@@ -84,12 +84,12 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
         if img is None:
                 fig, ax = plt.subplots()
                 ax.imshow(overlay_array, extent=extent)
-                if rotation is not None:
-                        ax.set_title('Rotation = {}, Origin = {}'.format(rotation, origin))
         else:
                 fig = plt.gcf()
                 img.set_data(overlay_array)
                 img.set_extent(extent)
+        
+        # todo: print tranform parameters to title?
         
         if continuous_update:
                 fig.canvas.draw()

@@ -34,23 +34,23 @@ def three_d_to_rgb(image_3d):
         return rgb_image
 
 
-def unit_to_factor_in_microns(unit: str):
+def unit_to_factor_in_microns(unit: str)-> float:
         """
         Convert a string naming the unit of measure to its value in microns
         :param unit:
         :return:
         """
         if unit == 'microns':
-                return 1
+                return 1.0
         
         if unit == 'millimeters':
-                return 1E3
+                return 1.0E3
         
         if unit == 'centimeters:':
-                return 1E4
+                return 1.0E4
         
         if unit == 'meters':
-                return 1E6
+                return 1.0E6
 
 
 def copy_relevant_metadata(new_image: sitk.Image, old_image: sitk.Image, necessary_keys: list=['Unit']):
@@ -72,7 +72,7 @@ def convert_spacing_units(spacing: tuple, unit_workspace: str, unit_image: str):
         
         factor_workspace = unit_to_factor_in_microns(unit_workspace)
         factor_image = unit_to_factor_in_microns(unit_image)
-        new_spacing = spacing * factor_workspace / factor_image
+        new_spacing = spacing * np.double((factor_workspace / factor_image))
         
         return new_spacing
 
@@ -96,7 +96,7 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
                         changed=True
         except:
                 image.SetMetaData('Unit', unit_workspace)
-                spacing = util.query_float('Please enter the image spacing in microns')
+                spacing = util.query_float('Please enter the image spacing in {0} >>'.format(unit_workspace))
                 spacing_new = np.full([len(spacing_original), 1], spacing)
                 image.SetSpacing(spacing_new)
                 changed=True
