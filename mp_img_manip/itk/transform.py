@@ -230,10 +230,11 @@ def read_initial_transform(path_image: Path, transform_type: type):
         path_transform = Path(path_image.parent, path_image.stem + '_initial.tfm')
         
         try:
-                transform = sitk.ReadTransform(path_transform)
+                transform = sitk.ReadTransform(str(path_transform))
         except:
+                print('No transform found.  Writing transform for {0}'.format(path_image.name))
                 transform = define_transform(transform_type)
-                sitk.WriteTransform(transform, path_transform)
+                sitk.WriteTransform(transform, str(path_transform))
         
         return transform
 
