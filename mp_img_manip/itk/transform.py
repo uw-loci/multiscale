@@ -15,7 +15,7 @@ from pathlib import Path
 
 
 def write_transform(registered_path, transform):
-        transform_path = Path(registered_path.parent, registered_path.name + '.tfm')
+        transform_path = Path(registered_path.parent, registered_path.stem + '.tfm')
         sitk.WriteTransform(transform, str(transform_path))
         
 
