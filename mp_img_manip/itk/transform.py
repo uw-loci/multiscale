@@ -196,16 +196,7 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
                                             resized_image.GetOrigin(),
                                             0)
 
-#def crop_to_nonzero_boundary(image_path, output_dir, output_suffix,
-#                             reference_path = None):
-#    """Not yet implemented"""
-#    
-#    return
-#
-#
-#def bulk_crop_to_nonzero_boundary(image_dir, output_dir, output_suffix,
-#                                  reference_dir = None):
-#    return
+
 def define_transform(type_of_transform: str='affine', rotation: np.double=0) -> sitk.Transform:
         
         deg_to_rad = 2*np.pi/360
