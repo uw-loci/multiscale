@@ -33,7 +33,71 @@ def three_d_to_rgb(image_3d):
         return rgb_image
 
 
+def unit_to_factor_in_microns(unit: str):
+        """
+        Convert a string naming the unit of measure to its value in microns
+        :param unit:
+        :return:
+        """
+        if unit == 'microns':
+                return 1
+        
+        if unit == 'millimeters':
+                return 1E3
+        
+        if unit == 'centimeters:':
+                return 1E4
+        
+        if unit == 'meters':
+                return 1E6
 
+
+def convert_spacing_units(spacing: tuple, unit_workspace: str, unit_image: str):
+        """
+        Convert image spacing and unit between microns and millimeters
+        :param spacing: Spacing of image to convert
+        :param unit_workspace: Unit of workspace
+        :param unit_image: unit of image
+        :return: Correct spacing
+        """
+        if unit_workspace == unit_image:
+                return spacing
+        
+        factor_workspace = unit_to_factor_in_microns(unit_workspace)
+        factor_image = unit_to_factor_in_microns(unit_image)
+        
+        new_spacing = spacing * factor_workspace / factor_image
+
+
+def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: bool=True):
+        """
+        Read in an itk image and ensure that its spacing is in the right units/has been set in the first place
+        :param path_image: path to the image file
+        :param unit_workspace: unit that the workspace is working in
+        :return:
+        """
+        image = sitk.ReadImage(str(path_image))
+        spacing_original = image.GetSpacing()
+        
+        changed = False
+        
+        try:
+                unit_image = image.GetMetaData('Unit')
+                if ~(unit_image == unit_workspace):
+                        image.SetSpacing(convert_spacing_units(spacing_original, unit_workspace, unit_image))
+                        changed=True
+        except:
+                image.SetMetaData('Unit', unit_workspace)
+                spacing = util.query_float('Please enter the image spacing in microns')
+                spacing_new = np.full([len(spacing_original), 1], spacing)
+                image.SetSpacing(spacing_new)
+                changed=True
+                
+        if changed and write_changes:
+                sitk.WriteImage(image, str(path_image))
+                
+        return image
+        
 
 def setup_image_from_csv(image_path, return_image=True, return_rotation=False, return_transform=True):
         """Set up the image spacing and optionally the registration origin
