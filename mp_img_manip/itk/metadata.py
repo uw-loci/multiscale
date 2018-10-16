@@ -89,12 +89,13 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
         
         changed = False
         
-        try:
-                unit_image = image.GetMetaData('Unit')
-                if ~(unit_image == unit_workspace):
-                        image.SetSpacing(convert_spacing_units(spacing_original, unit_workspace, unit_image))
-                        changed=True
-        except:
+        # try:
+        #         unit_image = image.GetMetaData('Unit')
+        #         if ~(unit_image == unit_workspace):
+        #                 image.SetSpacing(convert_spacing_units(spacing_original, unit_workspace, unit_image))
+        #                 changed=True
+        # except:
+        if spacing_original[0] == 1.0:
                 image.SetMetaData('Unit', unit_workspace)
                 spacing = util.query_float('Please enter the image spacing in {0} >>'.format(unit_workspace))
                 spacing_new = np.full([len(spacing_original), 1], spacing)
