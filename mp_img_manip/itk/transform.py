@@ -93,8 +93,8 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                 if registered_path.exists() and skip_existing_images:
                         continue
                 
-                fixed_image = meta.setup_image_from_csv(fixed_paths[i])
-                moving_image = meta.setup_image_from_csv(moving_paths[i])
+                fixed_image = meta.setup_image(fixed_paths[i])
+                moving_image = meta.setup_image(moving_paths[i])
                 
                 print('\nApplying transform onto {0} based on transform on {1}'.format(
                         str(moving_paths[i].name),
@@ -182,13 +182,15 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
                         continue
                 
                 current_spacing = meta.get_image_parameters(image_path, return_origin=False, return_spacing=True)[0][0]
-                itk_image = meta.setup_image_from_csv(image_path)
+                itk_image = meta.setup_image(image_path)
                 image_name = os.path.basename(image_path)
                 print('\nResizing ' + image_name + ' from '
                       + str(current_spacing) + ' to target spacing ' + str(target_spacing) + ')')
                 
                 resized_image = resize_image(itk_image,
                                              current_spacing, target_spacing)
+                
+                resized_image.SetMetaData('Unit', itk_image.GetMetaData('Unit'))
                 
                 sitk.WriteImage(resized_image, str(resized_path))
                 meta.write_image_parameters(resized_path,
@@ -197,32 +199,32 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
                                             0)
 
 
-def define_transform(type_of_transform: type=sitk.AffineTransform, rotation: np.double=0) -> sitk.Transform:
+def define_transform(transform_type: type=sitk.AffineTransform, rotation: np.double=0) -> sitk.Transform:
         
         deg_to_rad = 2*np.pi/360
         angle = rotation*deg_to_rad
         
-        if type_of_transform == type(sitk.Euler2DTransform()):
+        if transform_type == type(sitk.Euler2DTransform()):
                 transform = sitk.Euler2DTransform()
                 transform.SetAngle(angle)
                 
-        elif type_of_transform == type(sitk.AffineTransform):
+        elif transform_type == type(sitk.AffineTransform):
                 transform = sitk.AffineTransform(2)
                 transform.Rotate(0, 1, angle, pre=True)
         else:
-                raise('{0} registration has not been implemented yet for '.format(type_of_transform))
+                raise('{0} registration has not been implemented yet for '.format(transform_type))
         
         return transform
 
 
-def read_initial_transform(path_image: Path, type_of_transform: type):
+def read_initial_transform(path_image: Path, transform_type: type):
         
         path_transform = Path(path_image.parent, path_image.stem + '_initial.tfm')
         
         try:
                 transform = sitk.ReadTransform(path_transform)
         except:
-                transform = define_transform(type_of_transform)
+                transform = define_transform(transform_type)
                 sitk.WriteTransform(transform, path_transform)
         
         return transform

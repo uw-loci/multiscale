@@ -132,10 +132,10 @@ def query_good_registration(transform: sitk.Transform, metric, stop):
 
 
 def query_pre_rotation(fixed_image: sitk.Image, moving_image: sitk.Image,
-                       initial_rotation: np.double, type_of_transform: type):
+                       initial_rotation: np.double, transform_type: type):
         """Ask if the user wants a new 2D ITK origin based on image overlay"""
         
-        transform = tran.define_transform(type_of_transform, rotation=initial_rotation)
+        transform = tran.define_transform(transform_type, rotation=initial_rotation)
         
         itkplt.plot_overlay(fixed_image, moving_image, transform, initial_rotation)
         
@@ -146,7 +146,7 @@ def query_pre_rotation(fixed_image: sitk.Image, moving_image: sitk.Image,
         if change_rotation:
                 while True:
                         rotation = util.query_float('Enter new rotation (degrees):')
-                        transform = tran.define_transform(type_of_transform, rotation=rotation)
+                        transform = tran.define_transform(transform_type, rotation=rotation)
                         
                         itkplt.plot_overlay(fixed_image, moving_image, transform, rotation)
                         
@@ -202,13 +202,13 @@ def write_image(registered_image: sitk.Image, registered_path: Path, rotation: n
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
                                registration_method: sitk.ImageRegistrationMethod=None,
-                               type_of_transform: type=sitk.AffineTransform, rotation: np.double=0):
+                               transform_type: type=sitk.AffineTransform, rotation: np.double=0):
         """Register two images
     
         :param fixed_image: image that is being registered to
         :param moving_image: image that is being transformed and registered
         :param registration_method: the pre-defined optimizer/metric/interpolator
-        :param type_of_transform: the type of registration/transform, e.g. affine or euler
+        :param transform_type: the type of registration/transform, e.g. affine or euler
         :return:
         """
         
@@ -219,7 +219,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                 moving_image_2d = moving_image
         
         while True:
-                transform, rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation, type_of_transform)
+                transform, rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation, transform_type)
                 moving_origin = query_origin_change(fixed_image, moving_image_2d, transform, rotation)
                 moving_image_2d.SetOrigin(moving_origin)
                 
@@ -243,7 +243,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
 
 def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                                     output_dir: Path, output_suffix: str, write_output: bool=True,
-                                    write_transform: bool=True, type_of_transform: str='affine',
+                                    write_transform: bool=True, transform_type: str= 'affine',
                                     iterations: int=100, scale: int=3,
                                     skip_existing_images: bool=True):
         """Register two directories of images, matching based on the core name, the string before the first _
@@ -254,7 +254,7 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
         :param output_suffix: base name of the output images
         :param write_output: whether or not to actually write the output image
         :param write_transform: whether or not to write down the transform that produced the output
-        :param type_of_transform: what type of registration, e.g. affine or euler
+        :param transform_type: what type of registration, e.g. affine or euler
         :param iterations: how many times will the algorithm calcluate the metric before switching resolutions/ending
         :param scale: how many resolution scales the algorithm measures at
         :param skip_existing_images: whether to skip images that already have a transform/output image
@@ -271,14 +271,16 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 
                 registration_method = define_registration_method(scale=scale, iterations=iterations)
                 
-                fixed_image = meta.setup_image_from_csv(fixed_path_list[i], return_transform=False)
-                moving_image, rotation = meta.setup_image_from_csv(moving_path_list[i], return_rotation=True)
+                fixed_image = meta.setup_image(fixed_path_list[i])
+                moving_image = meta.setup_image(moving_path_list[i])
+                initial_transform = tran.read_initial_transform(moving_image, transform_type)
+                
                 print('\nRegistering ' + os.path.basename(moving_path_list[i]) + ' to '
                       + os.path.basename(fixed_path_list[i]))
                 
                 registered_image, origin, transform, metric, stop, rotation = \
                         supervised_register_images(fixed_image, moving_image, registration_method,
-                                                   type_of_transform=type_of_transform)
+                                                   transform_type=transform_type)
                 
                 meta.write_image_parameters(moving_path_list[i], moving_image.GetSpacing(), origin, rotation)
                 

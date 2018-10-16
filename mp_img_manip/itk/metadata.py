@@ -53,6 +53,11 @@ def unit_to_factor_in_microns(unit: str):
                 return 1E6
 
 
+def copy_relevant_metadata(new_image: sitk.Image, old_image: sitk.Image, necessary_keys: list=['Unit']):
+        for key in necessary_keys:
+                new_image.SetMetaData(key, old_image.GetMetaData(key))
+
+
 def convert_spacing_units(spacing: tuple, unit_workspace: str, unit_image: str):
         """
         Convert image spacing and unit between microns and millimeters
