@@ -237,3 +237,8 @@ def read_initial_transform(path_image: Path, transform_type: type):
         
         return transform
 
+
+def write_initial_transform(path_image: Path, transform: sitk.Transform):
+        path_transform = Path(path_image.parent, path_image.stem + '_initial.tfm')
+        sitk.WriteTransform(path_transform, transform)
+        
