@@ -79,7 +79,7 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
                 overlay_array = proc.overlay_images(fixed_image, rotated_image)
         
         shape = np.shape(overlay_array)
-        extent = [0, shape[0]*spacing[1], 0, shape[1]*spacing[0]]
+        extent = [0, shape[1]*spacing[1], 0, shape[0]*spacing[0]]
         
         if img is None:
                 fig, ax = plt.subplots()
