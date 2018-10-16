@@ -212,3 +212,15 @@ def define_transform(type_of_transform: str='affine', rotation: np.double=0) -> 
                 raise('{0} registration has not been implemented yet'.format(type_of_transform))
         
         return transform
+
+
+def read_initial_transform(path_image: Path, type_of_transform: str):
+        path_transform = Path(path_image.parent, path_image.stem + '_initial.tfm')
+        try:
+                transform = sitk.ReadTransform(path_transform)
+        except:
+                transform = define_transform(type_of_transform)
+                sitk.WriteTransform(transform, path_transform)
+        
+        return transform
+
