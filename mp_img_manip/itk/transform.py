@@ -216,7 +216,7 @@ def define_transform(transform_type: type=sitk.AffineTransform, rotation: np.dou
         return transform
 
 
-def change_transform_rotation(transform, rotation)
+def change_transform_rotation(transform, rotation):
         deg_to_rad = 2*np.pi/360
         angle = rotation*deg_to_rad
         if type(transform) == sitk.Euler2DTransform:
