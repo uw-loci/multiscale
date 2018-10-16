@@ -266,7 +266,7 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix,
                 if output_path.exists() and skip_existing_images:
                         continue
                 
-                int_image = meta.setup_image(path_list[i])
+                int_image = meta.setup_image_from_csv(path_list[i])
                 ret_image = convert_intensity_to_retardance(int_image)
                 
                 sitk.WriteImage(ret_image, str(output_path))

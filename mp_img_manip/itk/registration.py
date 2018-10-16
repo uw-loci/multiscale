@@ -288,8 +288,8 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 
                 registration_method = define_registration_method(scale=scale, iterations=iterations)
                 
-                fixed_image = meta.setup_image(fixed_path_list[i], change_origin=False)
-                moving_image, rotation = meta.setup_image(moving_path_list[i], return_rotation=True)
+                fixed_image = meta.setup_image_from_csv(fixed_path_list[i], return_transform=False)
+                moving_image, rotation = meta.setup_image_from_csv(moving_path_list[i], return_rotation=True)
                 print('\nRegistering ' + os.path.basename(moving_path_list[i]) + ' to '
                       + os.path.basename(fixed_path_list[i]))
                 

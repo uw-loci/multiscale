@@ -6,11 +6,12 @@ Created on Wed Mar 21 09:40:25 2018
 """
 
 import mp_img_manip.bulk_img_processing as blk
-
+import mp_img_manip.utility_functions as util
+from pathlib import Path
 import SimpleITK as sitk
 import os
 import numpy as np
-
+import pandas as pd
 
 def three_d_to_rgb(image_3d):
         arr_rgb_wrong_idx = sitk.GetArrayFromImage(image_3d)
@@ -32,7 +33,9 @@ def three_d_to_rgb(image_3d):
         return rgb_image
 
 
-def setup_image(image_path, return_image=True, return_rotation=False, change_origin=True):
+
+
+def setup_image_from_csv(image_path, return_image=True, return_rotation=False, return_transform=True):
         """Set up the image spacing and optionally the registration origin
         
         This function is necessary because ITK cannot save in microns, making
@@ -64,7 +67,7 @@ def setup_image(image_path, return_image=True, return_rotation=False, change_ori
                 
                 image.SetSpacing(spacing)
                 
-                if change_origin:
+                if return_transform:
                         image.SetOrigin(origin)
                 
                 if return_rotation:

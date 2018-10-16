@@ -76,8 +76,8 @@ def bulk_apply_mask(image_dir, mask_dir,
                 if masked_path.exists() and skip_existing_images:
                         continue
                 
-                image = meta.setup_image(image_path_list[i])
-                mask = meta.setup_image(mask_path_list[i]) > 0
+                image = meta.setup_image_from_csv(image_path_list[i])
+                mask = meta.setup_image_from_csv(mask_path_list[i]) > 0
                 
                 print('Masking ' + os.path.basename(image_path_list[i]) + ' with '
                       + os.path.basename(mask_path_list[i]))
@@ -119,7 +119,7 @@ def bulk_threshold(input_dir, output_dir, output_suffix,
                 if new_path.exists() and skip_existing_images:
                         continue
                 
-                original = meta.setup_image(path_list[i])
+                original = meta.setup_image_from_csv(path_list[i])
                 new_image = apply_threshold(original, os.path.basename(path_list[i]), threshold=threshold)
                 
                 meta.write_image_parameters(new_path, original.GetSpacing(), original.GetOrigin(), 0)
@@ -147,7 +147,7 @@ def bulk_convert_to_eightbit(input_dir, output_dir, output_suffix):
         path_list = util.list_filetype_in_dir(input_dir, '.tif')
         
         for i in range(len(path_list)):
-                original = meta.setup_image(path_list[i])
+                original = meta.setup_image_from_csv(path_list[i])
                 new_image = convert_to_eightbit(original,
                                                 os.path.basename(path_list[i]))
                 

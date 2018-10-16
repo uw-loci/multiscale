@@ -93,8 +93,8 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                 if registered_path.exists() and skip_existing_images:
                         continue
                 
-                fixed_image = meta.setup_image(fixed_paths[i])
-                moving_image = meta.setup_image(moving_paths[i])
+                fixed_image = meta.setup_image_from_csv(fixed_paths[i])
+                moving_image = meta.setup_image_from_csv(moving_paths[i])
                 
                 print('\nApplying transform onto {0} based on transform on {1}'.format(
                         str(moving_paths[i].name),
@@ -182,7 +182,7 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
                         continue
                 
                 current_spacing = meta.get_image_parameters(image_path, return_origin=False, return_spacing=True)[0][0]
-                itk_image = meta.setup_image(image_path)
+                itk_image = meta.setup_image_from_csv(image_path)
                 image_name = os.path.basename(image_path)
                 print('\nResizing ' + image_name + ' from '
                       + str(current_spacing) + ' to target spacing ' + str(target_spacing) + ')')
