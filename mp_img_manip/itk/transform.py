@@ -206,3 +206,18 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
 #def bulk_crop_to_nonzero_boundary(image_dir, output_dir, output_suffix,
 #                                  reference_dir = None):
 #    return
+def define_transform(type_of_transform: str='affine', rotation: np.double=0) -> sitk.Transform:
+        
+        deg_to_rad = 2*np.pi/360
+        angle = rotation*deg_to_rad
+        
+        if type_of_transform == 'euler':
+                transform = sitk.Euler2DTransform()
+                transform.SetAngle(angle)
+        elif type_of_transform == 'affine':
+                transform = sitk.AffineTransform(2)
+                transform.Rotate(0, 1, angle, pre=True)
+        else:
+                raise('{0} registration has not been implemented yet'.format(type_of_transform))
+        
+        return transform

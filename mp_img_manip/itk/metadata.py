@@ -102,7 +102,7 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
                 image = three_d_to_rgb(image)
                 
         return image
-        
+
 
 def setup_image_from_csv(image_path, return_image=True, return_rotation=False, return_transform=True):
         """Set up the image spacing and optionally the registration origin

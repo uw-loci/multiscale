@@ -66,23 +66,6 @@ def define_registration_method(scale: int=4, iterations: int=100, learning_rate:
         return registration_method
 
 
-def define_transform(type_of_transform: str='affine', rotation: np.double=0) -> sitk.Transform:
-        
-        deg_to_rad = 2*np.pi/360
-        angle = rotation*deg_to_rad
-        
-        if type_of_transform == 'euler':
-                transform = sitk.Euler2DTransform()
-                transform.SetAngle(angle)
-        elif type_of_transform == 'affine':
-                transform = sitk.AffineTransform(2)
-                transform.Rotate(0, 1, angle, pre=True)
-        else:
-                raise('{0} registration has not been implemented yet'.format(type_of_transform))
-        
-        return transform
-
-
 def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: RegistrationPlot,
              registration_method: sitk.ImageRegistrationMethod=None,
              transform: sitk.Transform=None,
@@ -112,7 +95,7 @@ def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: Regist
                 registration_method = define_registration_method()
         
         if transform is None:
-                transform = define_transform()
+                transform = tran.define_transform()
         
         if fixed_mask:
                 registration_method.SetMetricFixedMask(fixed_mask)
@@ -152,7 +135,7 @@ def query_pre_rotation(fixed_image: sitk.Image, moving_image: sitk.Image,
                        initial_rotation: np.double, type_of_transform: str):
         """Ask if the user wants a new 2D ITK origin based on image overlay"""
         
-        transform = define_transform(type_of_transform, rotation=initial_rotation)
+        transform = tran.define_transform(type_of_transform, rotation=initial_rotation)
         
         itkplt.plot_overlay(fixed_image, moving_image, transform, initial_rotation)
         
@@ -163,7 +146,7 @@ def query_pre_rotation(fixed_image: sitk.Image, moving_image: sitk.Image,
         if change_rotation:
                 while True:
                         rotation = util.query_float('Enter new rotation (degrees):')
-                        transform = define_transform(type_of_transform, rotation=rotation)
+                        transform = tran.define_transform(type_of_transform, rotation=rotation)
                         
                         itkplt.plot_overlay(fixed_image, moving_image, transform, rotation)
                         
