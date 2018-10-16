@@ -54,6 +54,7 @@ def unit_to_factor_in_microns(unit: str):
 
 
 def copy_relevant_metadata(new_image: sitk.Image, old_image: sitk.Image, necessary_keys: list=['Unit']):
+        # todo: Fix mutability using the * keyword
         for key in necessary_keys:
                 new_image.SetMetaData(key, old_image.GetMetaData(key))
 
