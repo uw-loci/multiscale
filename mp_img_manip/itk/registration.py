@@ -155,7 +155,7 @@ def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
         """Ask if the user wants a new 2D ITK translation based on image overlay"""
         
         change_origin = util.yes_no('Do you want to change the initial translation? [y/n] >>> ')
-        translation = transform.GetTranslation()
+        translation = tran.GetTranslation(transform)
         
         if change_origin:
                 while True:
@@ -166,7 +166,7 @@ def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
                                         'Enter the new translation in dimension {0}'.format(str(dim)))
                                 new_translation.append(new_dim_translation)
                         
-                        transform.SetTranslation()
+                        tran.SetTranslation(transform, translation)
                         itkplt.plot_overlay(fixed_image, moving_image, transform)
                         
                         # bug: The image does not show up till after the question

@@ -210,7 +210,7 @@ def define_transform(transform_type: type=sitk.AffineTransform, rotation: np.dou
                 change_transform_rotation(transform, rotation)
         
         if transform_type not in implemented_transforms:
-                raise('{0} registration has not been implemented yet for '.format(transform_type))
+                raise('{0} transform has not been implemented yet'.format(transform_type))
         
         return transform
 
@@ -242,4 +242,50 @@ def read_initial_transform(path_image: Path, transform_type: type):
 def write_initial_transform(path_image: Path, transform: sitk.Transform):
         path_transform = Path(path_image.parent, path_image.stem + '_initial.tfm')
         sitk.WriteTransform(path_transform, transform)
+        
+
+def get_translation(transform: sitk.Transform):
+        """
+        Get the translation from a transform
+        :param transform: the transform in question
+        :return: list of the translation
+        """
+        implemented_transforms = [sitk.AffineTransform, sitk.Euler2DTransform]
+
+        parameters = transform.GetParameters()
+        
+        if type(transform) is sitk.AffineTransform:
+                translation = parameters[4:]
+                
+        if type(transform) is sitk.Euler2DTransform:
+                translation = parameters[1:]
+        
+        if type(transform) not in implemented_transforms:
+                raise('This transform type is not implemented yet')
+        
+        return translation
+
+
+def set_translation(transform: sitk.Transform, translation):
+        """
+        Set the translation in a SimpleITK transform, for implemented types of transforms
+        
+        :param transform: transform in question
+        :param translation: new translation to set the transform to
+        :return: Change the transform using set method.  No return.
+        """
+        implemented_transforms = [sitk.AffineTransform, sitk.Euler2DTransform]
+
+        parameters = transform.GetParameters()
+        
+        if type(transform) is sitk.AffineTransform:
+                parameters[4:] = translation
+        
+        if type(transform) is sitk.Euler2DTransform:
+                parameters[1:] = translation
+                
+        if type(transform) not in implemented_transforms:
+                raise ('This transform type is not implemented yet')
+                
+        transform.SetParameters(parameters)
         
