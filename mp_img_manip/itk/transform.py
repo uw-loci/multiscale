@@ -200,22 +200,31 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
 
 
 def define_transform(transform_type: type=sitk.AffineTransform, rotation: np.double=0) -> sitk.Transform:
+        implemented_transforms = [sitk.AffineTransform, sitk.Euler2DTransform]
         
-        deg_to_rad = 2*np.pi/360
-        angle = rotation*deg_to_rad
-        
-        if transform_type == type(sitk.Euler2DTransform()):
+        if transform_type == sitk.Euler2DTransform:
                 transform = sitk.Euler2DTransform()
-                transform.SetAngle(angle)
+                change_transform_rotation(transform, rotation)
                 
-        elif transform_type == type(sitk.AffineTransform):
+        if transform_type == sitk.AffineTransform:
                 transform = sitk.AffineTransform(2)
-                transform.Rotate(0, 1, angle, pre=True)
-        else:
+                change_transform_rotation(transform, rotation)
+        
+        if transform_type not in implemented_transforms:
                 raise('{0} registration has not been implemented yet for '.format(transform_type))
         
         return transform
 
+
+def change_transform_rotation(transform, rotation)
+        deg_to_rad = 2*np.pi/360
+        angle = rotation*deg_to_rad
+        if type(transform) == sitk.Euler2DTransform:
+                transform.SetAngle(angle)
+        
+        elif type(transform) == sitk.AffineTransform:
+                transform.Rotate(0, 1, angle, pre=True)
+                
 
 def read_initial_transform(path_image: Path, transform_type: type):
         
