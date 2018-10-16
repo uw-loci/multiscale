@@ -80,24 +80,24 @@ def calculate_transforms(path_img: Path, resolution, registration_method, skip_f
         fixed_img = czi_timepoint_to_sitk_image(path_img, slices_to_register[0], resolution)
         
         for idx in range(1, len(slices_to_register)):
-                registered_path = Path(path_img.parent, keys[idx])
+                registered_path = Path(path_img.parent, keys[idx] + '.tfm')
+                initial_transform = tran.read_initial_transform(registered_path, sitk.AffineTransform)
                 
                 if skip_finished_transforms:
-                        (output_dir, image_name) = os.path.split(registered_path)
-                        file_path = output_dir + '/Transforms.csv'
-                        df_transforms = pd.read_csv(file_path, index_col=0)
-                        if image_name in df_transforms.index:
+                        if registered_path.is_file():
                                 continue
                 
                 print('Registering {0} to {1}'.format(keys[idx], keys[0]))
                 
                 moving_img = czi_timepoint_to_sitk_image(path_img, slices_to_register[idx], resolution)
                 
-                registered_img, origin, transform, metric, stop, rotation = reg.supervised_register_images(
-                        fixed_img, moving_img, registration_method=registration_method
+                registered_img, origin, transform, metric, stop = reg.supervised_register_images(
+                        fixed_img, moving_img,
+                        registration_method=registration_method,
+                        initial_transform=initial_transform
                 )
                 
-                tran.write_transform_pandas(registered_path, origin, transform, metric, stop, rotation)
+                tran.write_transform(registered_path, transform)
 
 
 def transform_polarization_state(path_image, dir_output, resolution, list_positions, state):
@@ -123,7 +123,8 @@ def transform_polarization_state(path_image, dir_output, resolution, list_positi
                 if state == 'Hout':
                         sitk.WriteImage(moving_image, str(output_path))
                 else:
-                        registered_image = tran.apply_transform_pandas(fixed_image, moving_image, path_image, state)
+                        transform_path = Path(dir_output, state + '.tfm')
+                        registered_image = tran.apply_transform(fixed_image, moving_image, str(transform_path))
                         sitk.WriteImage(registered_image, str(output_path))
 
 
@@ -162,20 +163,15 @@ def bulk_apply_transforms(dir_input, dir_output, resolution, skip_finished_trans
 
 javabridge.start_vm(class_path=bf.JARS, max_heap_size='8G')
 
-mlr_dir = Path(r'C:\Users\mpinkert\Box\Research\Polarimetry\Polarimetry - Raw Data\2018.06.14_32x')
-mhr_dir = Path(r'C:\Users\mpinkert\Box\Research\Polarimetry\Polarimetry - Raw Data\2018.06.14_80x')
-
-mlr_path = Path(r'C:\Users\mpinkert\Box\Research\Polarimetry\Polarimetry - Raw Data\2018.06.14_32x\1367 slide 5.czi')
-mhr_path = Path(r'C:\Users\mpinkert\Box\Research\Polarimetry\Polarimetry - Raw Data\2018.06.14_80x\1045- slide 1.czi')
+mhr_path = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\1045- slide 1.czi')
 mlr_resolution = 2.016
 mhr_resolution = 0.81
 
 registration_method = reg.define_registration_method(scale=2, learning_rate=5, iterations=100)
 
-#calculate_transforms(mlr_path, mlr_resolution, registration_method)
-#calculate_transforms(mhr_path, mlr_resolution, registration_method)
+calculate_transforms(mhr_path, mhr_resolution, registration_method)
 
-apply_transforms(mhr_path, mhr_dir, mhr_resolution)
+apply_transforms(mhr_path, mhr_path.parent, mhr_resolution)
 
 
 javabridge.kill_vm()
