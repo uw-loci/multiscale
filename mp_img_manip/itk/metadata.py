@@ -30,6 +30,7 @@ def three_d_to_rgb(image_3d):
         spacing_original = image_3d.GetSpacing()
         spacing_new = np.array([spacing_original[1], spacing_original[2]])
         rgb_image.SetSpacing(spacing_new)
+        rgb_image.SetMetaData(image_3d.GetMetaData())
         return rgb_image
 
 
@@ -65,11 +66,12 @@ def convert_spacing_units(spacing: tuple, unit_workspace: str, unit_image: str):
         
         factor_workspace = unit_to_factor_in_microns(unit_workspace)
         factor_image = unit_to_factor_in_microns(unit_image)
-        
         new_spacing = spacing * factor_workspace / factor_image
+        
+        return new_spacing
 
 
-def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: bool=True):
+def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: bool=True, dimensions: int=2):
         """
         Read in an itk image and ensure that its spacing is in the right units/has been set in the first place
         :param path_image: path to the image file
@@ -95,6 +97,9 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
                 
         if changed and write_changes:
                 sitk.WriteImage(image, str(path_image))
+                
+        if len(spacing_original) > dimensions:
+                image = three_d_to_rgb(image)
                 
         return image
         
