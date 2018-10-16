@@ -119,8 +119,7 @@ def bulk_threshold(input_dir, output_dir, output_suffix,
                 original = meta.setup_image(path_list[i])
                 new_image = apply_threshold(original, os.path.basename(path_list[i]), threshold=threshold)
                 
-                meta.write_image_parameters(new_path, original.GetSpacing(), original.GetOrigin(), 0)
-                
+                meta.copy_relevant_metadata(new_image, original)
                 sitk.WriteImage(new_image, str(new_path))
 
 
@@ -151,9 +150,7 @@ def bulk_convert_to_eightbit(input_dir, output_dir, output_suffix):
                 new_path = blk.create_new_image_path(path_list[i],
                                                      output_dir, output_suffix)
                 
-                meta.write_image_parameters(new_path,
-                                            original.GetSpacing(),
-                                            original.GetOrigin())
+                meta.copy_relevant_metadata(new_image, original)
                 
                 sitk.WriteImage(new_image, str(new_path))
 
