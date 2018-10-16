@@ -149,56 +149,43 @@ def query_pre_rotation(fixed_image: sitk.Image, moving_image: sitk.Image,
                         # bug: The image does not show up till after the question
                         if util.yes_no('Is this rotation good? [y/n] >>> '): break
         
-        return transform, rotation
+                return transform
+        else:
+                return initial_transform
 
 
-def query_origin_change(fixed_image: sitk.Image, moving_image: sitk.Image,
-                        transform: sitk.Transform, rotation: np.double):
-        """Ask if the user wants a new 2D ITK origin based on image overlay"""
+def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
+                             transform: sitk.Transform):
+        """Ask if the user wants a new 2D ITK translation based on image overlay"""
         
-        change_origin = util.yes_no('Do you want to change the origin? [y/n] >>> ')
-        origin = moving_image.GetOrigin()
+        change_origin = util.yes_no('Do you want to change the initial translation? [y/n] >>> ')
+        translation = transform.GetTranslation()
         
-        # todo: have it change the origin file too....
+        # todo: have it change the translation file too....
         
         if change_origin:
                 while True:
-                        print('Current origin: ' + str(origin))
-                        new_origin_x = util.query_int('Enter new X origin: ')
-                        new_origin_y = util.query_int('Enter new Y origin: ')
+                        print('Current translation: ' + str(translation))
+                        new_translation = []
+                        for dim in len(translation):
+                                new_dim_translation = util.query_float(
+                                        'Enter the new translation in dimension {0}'.format(str(dim)))
+                                new_translation.append(new_dim_translation)
                         
-                        new_origin = (new_origin_x, new_origin_y)
-                        
-                        moving_image.SetOrigin(new_origin)
-                        itkplt.plot_overlay(fixed_image, moving_image, transform, rotation)
+                        translation.SetTranslation()
+                        itkplt.plot_overlay(fixed_image, moving_image, transform)
                         
                         # bug: The image does not show up till after the question
-                        if util.yes_no('Is this origin good? [y/n] >>> '): break
+                        if util.yes_no('Is this translation good? [y/n] >>> '): break
                 
-                return new_origin
-        else:
-                return origin
-
-
-def write_image(registered_image: sitk.Image, registered_path: Path, rotation: np.double):
-        """Save an itk image and output parameters
-    
-        :param registered_image: the final registered image
-        :param registered_path: the path to save the registered image to
-        :param rotation: rotation of the final image, typically 0
-        :return:
-        """
-        sitk.WriteImage(registered_image, str(registered_path))
         
-        meta.write_image_parameters(registered_path,
-                                    registered_image.GetSpacing(),
-                                    registered_image.GetOrigin(),
-                                    rotation)
+        return translation
+
 
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
                                registration_method: sitk.ImageRegistrationMethod=None,
-                               initial_transform: sitk.Transform=None, rotation: np.double=0):
+                               initial_transform: sitk.Transform=None):
         """Register two images
     
         :param fixed_image: image that is being registered to
@@ -215,13 +202,14 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                 moving_image_2d = moving_image
         
         while True:
-                transform, rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation, initial_transform)
-                moving_origin = query_origin_change(fixed_image, moving_image_2d, transform, rotation)
+                transform = query_pre_rotation(fixed_image, moving_image_2d, initial_transform)
+                moving_origin = query_translation_change(fixed_image, moving_image_2d, transform)
                 moving_image_2d.SetOrigin(moving_origin)
                 
                 reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
                 (transform, metric, stop) = register(fixed_image, moving_image_2d, reg_plot,
-                                                     registration_method=registration_method, initial_transform=transform)
+                                                     registration_method=registration_method,
+                                                     initial_transform=transform)
                 
                 if query_good_registration(transform, metric, stop):
                         break
@@ -234,7 +222,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
         
         plt.close('all')
         
-        return registered_image, origin, transform, metric, stop, rotation
+        return registered_image, origin, transform, metric, stop
 
 
 def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
@@ -281,10 +269,10 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 meta.write_image_parameters(moving_path_list[i], moving_image.GetSpacing(), origin, rotation)
                 
                 if write_output:
-                        write_image(registered_image, registered_path, rotation)
+                        sitk.WriteImage(registered_image, str(registered_path))
                 
                 if write_transform:
-                        tran.write_transform_pandas(registered_path, origin, transform, metric, stop, rotation)
+                        tran.write_transform(registered_path, transform)
 
 
 
