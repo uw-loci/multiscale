@@ -289,20 +289,20 @@ def scrape_roi_fiber_nums(roi_dir, roi_output_dir, output_suffix):
                         writer.writerow([mouse, slide, modality, tile, roi, num_fibers, fib_segments])
 
 
-def scrape_features(curve_dir, modality_dir, output_suffix):
-        roi_dir = Path(curve_dir, modality_dir + '\images\CA_ROI\Batch\ROI_post_analysis')
+def scrape_features(curve_dir, modality_str, output_suffix):
+        roi_dir = Path(curve_dir, modality_str + '\images\CA_ROI\Batch\ROI_post_analysis')
         roi_output_dir = Path(curve_dir, 'ROI')
         os.makedirs(roi_output_dir, exist_ok=True)
         scrape_roi_fiber_nums(roi_dir, roi_output_dir, output_suffix)
 
 
-def scrape_results(curve_dir, modality_dir, output_suffix):
-        tile_dir = Path(curve_dir, modality_dir + '\images\CA_Out')
+def scrape_results(curve_dir, modality_str, output_suffix):
+        tile_dir = Path(curve_dir, modality_str + '\images\CA_Out')
         tile_output_dir = Path(curve_dir, 'Tile')
         os.makedirs(tile_output_dir, exist_ok=True)
         scrape_tiles(tile_dir, tile_output_dir, output_suffix)
         
-        roi_dir = Path(curve_dir, modality_dir + '\images\CA_ROI\Batch\ROI_post_analysis')
+        roi_dir = Path(curve_dir, modality_str + '\images\CA_ROI\Batch\ROI_post_analysis')
         roi_output_dir = Path(curve_dir, 'ROI')
         os.makedirs(roi_output_dir, exist_ok=True)
         scrape_rois(roi_dir, roi_output_dir, output_suffix)
