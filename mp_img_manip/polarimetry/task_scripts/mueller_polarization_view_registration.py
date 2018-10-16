@@ -20,6 +20,14 @@ import pandas as pd
 
 import mp_img_manip.itk.transform as tran
 import mp_img_manip.utility_functions as util
+import mp_img_manip.itk.itk_plotting as itkplot
+
+def plot_overlay_from_czi_timepoints(path_file, position_one, position_two):
+        array_one = bf.load_image(str(path_file), t=position_one)
+        array_two = bf.load_image(str(path_file), t=position_two)
+        image_one = sitk.GetImageFromArray(array_one)
+        image_two = sitk.GetImageFromArray(array_two)
+        itkplot.plot_overlay(image_one, image_two, sitk.Transform(2, sitk.sitkIdentity), continuous_update=True)
 
 
 def czi_timepoint_to_sitk_image(path_file, position, resolution):
