@@ -83,8 +83,8 @@ def bulk_apply_mask(image_dir, mask_dir,
                       + os.path.basename(mask_path_list[i]))
                 
                 masked_image = sitk.Mask(image, mask)
+                meta.copy_relevant_metadata(masked_image, image)
                 
-                masked_image.
                 sitk.WriteImage(masked_image, str(masked_path))
 
 
