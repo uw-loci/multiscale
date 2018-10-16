@@ -68,7 +68,7 @@ def define_registration_method(scale: int=4, iterations: int=100, learning_rate:
 
 def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: RegistrationPlot,
              registration_method: sitk.ImageRegistrationMethod=None,
-             transform: sitk.Transform=None,
+             initial_transform: sitk.Transform=None,
              fixed_mask: sitk.Image=None, moving_mask: sitk.Image=None):
         """Perform an affine registration using MI and RSGD over up to 4 scales
         
@@ -83,7 +83,7 @@ def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: Regist
         rotation -- Pre rotation in degrees, to assist in registration
         
         Outputs:
-        transform -- The calculated image transform for registration
+        initial_transform -- The calculated image initial_transform for registration
         metric -- The mutual information value at the stopping poin
         stop -- the stopping condition of the optimizer
         """
@@ -94,8 +94,8 @@ def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: Regist
         if registration_method is None:
                 registration_method = define_registration_method()
         
-        if transform is None:
-                transform = tran.define_transform()
+        if initial_transform is None:
+                initial_transform = tran.define_transform()
         
         if fixed_mask:
                 registration_method.SetMetricFixedMask(fixed_mask)
@@ -103,12 +103,12 @@ def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: Regist
         if moving_mask:
                 registration_method.SetMetricMovingMask(moving_mask)
         
-        registration_method.SetInitialTransform(transform)
+        registration_method.SetInitialTransform(initial_transform)
         
         registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, reg_plot.update_idx_resolution_switch)
         registration_method.AddCommand(sitk.sitkIterationEvent,
-                                       lambda: reg_plot.update_plot(registration_method.GetMetricValue(), transform))
-        registration_method.AddCommand(sitk.sitkEndEvent, lambda: reg_plot.plot_final_overlay(transform))
+                                       lambda: reg_plot.update_plot(registration_method.GetMetricValue(), initial_transform))
+        registration_method.AddCommand(sitk.sitkEndEvent, lambda: reg_plot.plot_final_overlay(initial_transform))
         
         return (registration_method.Execute(fixed_image, moving_image),
                 registration_method.GetMetricValue(),
@@ -132,21 +132,17 @@ def query_good_registration(transform: sitk.Transform, metric, stop):
 
 
 def query_pre_rotation(fixed_image: sitk.Image, moving_image: sitk.Image,
-                       initial_rotation: np.double, transform_type: type):
+                       initial_transform):
         """Ask if the user wants a new 2D ITK origin based on image overlay"""
         
-        transform = tran.define_transform(transform_type, rotation=initial_rotation)
-        
-        itkplt.plot_overlay(fixed_image, moving_image, transform, initial_rotation)
+        itkplt.plot_overlay(fixed_image, moving_image, initial_transform)
         
         change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
-        
-        rotation = initial_rotation
         
         if change_rotation:
                 while True:
                         rotation = util.query_float('Enter new rotation (degrees):')
-                        transform = tran.define_transform(transform_type, rotation=rotation)
+                        transform = tran.change_transform_rotation(transform, rotation)
                         
                         itkplt.plot_overlay(fixed_image, moving_image, transform, rotation)
                         
@@ -202,13 +198,13 @@ def write_image(registered_image: sitk.Image, registered_path: Path, rotation: n
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
                                registration_method: sitk.ImageRegistrationMethod=None,
-                               transform_type: type=sitk.AffineTransform, rotation: np.double=0):
+                               initial_transform: sitk.Transform=None, rotation: np.double=0):
         """Register two images
     
         :param fixed_image: image that is being registered to
         :param moving_image: image that is being transformed and registered
         :param registration_method: the pre-defined optimizer/metric/interpolator
-        :param transform_type: the type of registration/transform, e.g. affine or euler
+        :param initial_transform: the type of registration/transform, e.g. affine or euler
         :return:
         """
         
@@ -219,13 +215,13 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                 moving_image_2d = moving_image
         
         while True:
-                transform, rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation, transform_type)
+                transform, rotation = query_pre_rotation(fixed_image, moving_image_2d, rotation, initial_transform)
                 moving_origin = query_origin_change(fixed_image, moving_image_2d, transform, rotation)
                 moving_image_2d.SetOrigin(moving_origin)
                 
                 reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
                 (transform, metric, stop) = register(fixed_image, moving_image_2d, reg_plot,
-                                                     registration_method=registration_method, transform=transform)
+                                                     registration_method=registration_method, initial_transform=transform)
                 
                 if query_good_registration(transform, metric, stop):
                         break
@@ -280,7 +276,7 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 
                 registered_image, origin, transform, metric, stop, rotation = \
                         supervised_register_images(fixed_image, moving_image, registration_method,
-                                                   transform_type=transform_type)
+                                                   initial_transform)
                 
                 meta.write_image_parameters(moving_path_list[i], moving_image.GetSpacing(), origin, rotation)
                 
