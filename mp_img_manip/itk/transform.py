@@ -82,7 +82,7 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                          output_dir, output_suffix,
                          skip_existing_images=False):
         
-        fixed_paths, moving_paths, reference_paths = blk.find_bulk_shared_images(
+        fixed_paths, moving_paths, transform_paths = blk.find_bulk_shared_images(
                 [fixed_dir, moving_dir, transform_dir])
         
         for i in range(0, np.size(fixed_paths)):
@@ -98,17 +98,13 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                 
                 print('\nApplying transform onto {0} based on transform on {1}'.format(
                         str(moving_paths[i].name),
-                        str(reference_paths[i].name)))
+                        str(transform_paths[i].name)))
                 
-                registered_image = apply_transform_pandas(fixed_image,
-                                                          moving_image[i],
-                                                          reference_paths[i])
+                transform_path = Path(transform_paths[i].parent, transform_paths[i].stem + '.tfm')
+                registered_image = apply_transform(fixed_image, moving_image, transform_path)
                 
                 sitk.WriteImage(registered_image, str(registered_path))
-                meta.write_image_parameters(registered_path,
-                                            registered_image.GetSpacing(),
-                                            registered_image.GetOrigin(),
-                                            0)
+                write_transform(registered_path, sitk.ReadTransform(transform_path))
         
         return
 
@@ -131,6 +127,9 @@ def resize_image(itk_image, current_spacing, target_spacing):
                 resized_image = sitk.Expand(itk_image,[scale, scale])
                 resized_image.SetSpacing([end_res, end_res])
                 resized_image.SetOrigin(itk_image.GetOrigin())
+                
+        else:
+                resized_image = itk_image
         
         return resized_image
 
@@ -190,7 +189,7 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
                 resized_image = resize_image(itk_image,
                                              current_spacing, target_spacing)
                 
-                resized_image.SetMetaData('Unit', itk_image.GetMetaData('Unit'))
+                meta.copy_relevant_metadata(resized_image, itk_image)
                 
                 sitk.WriteImage(resized_image, str(resized_path))
                 meta.write_image_parameters(resized_path,
