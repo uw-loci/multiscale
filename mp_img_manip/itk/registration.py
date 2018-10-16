@@ -142,17 +142,13 @@ def query_pre_rotation(fixed_image: sitk.Image, moving_image: sitk.Image,
         if change_rotation:
                 while True:
                         rotation = util.query_float('Enter new rotation (degrees):')
-                        transform = tran.change_transform_rotation(transform, rotation)
+                        tran.change_transform_rotation(initial_transform, rotation)
                         
-                        itkplt.plot_overlay(fixed_image, moving_image, transform, rotation)
+                        itkplt.plot_overlay(fixed_image, moving_image, initial_transform, rotation)
                         
                         # bug: The image does not show up till after the question
                         if util.yes_no('Is this rotation good? [y/n] >>> '): break
         
-                return transform
-        else:
-                return initial_transform
-
 
 def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
                              transform: sitk.Transform):
@@ -160,8 +156,6 @@ def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
         
         change_origin = util.yes_no('Do you want to change the initial translation? [y/n] >>> ')
         translation = transform.GetTranslation()
-        
-        # todo: have it change the translation file too....
         
         if change_origin:
                 while True:
@@ -172,15 +166,11 @@ def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
                                         'Enter the new translation in dimension {0}'.format(str(dim)))
                                 new_translation.append(new_dim_translation)
                         
-                        translation.SetTranslation()
+                        transform.SetTranslation()
                         itkplt.plot_overlay(fixed_image, moving_image, transform)
                         
                         # bug: The image does not show up till after the question
                         if util.yes_no('Is this translation good? [y/n] >>> '): break
-                
-        
-        return translation
-
 
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
@@ -202,14 +192,13 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                 moving_image_2d = moving_image
         
         while True:
-                transform = query_pre_rotation(fixed_image, moving_image_2d, initial_transform)
-                moving_origin = query_translation_change(fixed_image, moving_image_2d, transform)
-                moving_image_2d.SetOrigin(moving_origin)
+                query_pre_rotation(fixed_image, moving_image_2d, initial_transform)
+                query_translation_change(fixed_image, moving_image_2d, initial_transform)
                 
                 reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
                 (transform, metric, stop) = register(fixed_image, moving_image_2d, reg_plot,
                                                      registration_method=registration_method,
-                                                     initial_transform=transform)
+                                                     initial_transform=initial_transform)
                 
                 if query_good_registration(transform, metric, stop):
                         break
@@ -220,6 +209,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                                          transform, sitk.sitkLinear,
                                          0.0, moving_image.GetPixelID())
         
+        meta.copy_relevant_metadata(registered_image, moving_image)
         plt.close('all')
         
         return registered_image, origin, transform, metric, stop
@@ -227,7 +217,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
 
 def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                                     output_dir: Path, output_suffix: str, write_output: bool=True,
-                                    write_transform: bool=True, transform_type: str= 'affine',
+                                    write_transform: bool=True, transform_type: type=sitk.AffineTransform,
                                     iterations: int=100, scale: int=3,
                                     skip_existing_images: bool=True):
         """Register two directories of images, matching based on the core name, the string before the first _
@@ -262,12 +252,10 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 print('\nRegistering ' + os.path.basename(moving_path_list[i]) + ' to '
                       + os.path.basename(fixed_path_list[i]))
                 
-                registered_image, origin, transform, metric, stop, rotation = \
+                registered_image, origin, transform, metric, stop= \
                         supervised_register_images(fixed_image, moving_image, registration_method,
                                                    initial_transform)
-                
-                meta.write_image_parameters(moving_path_list[i], moving_image.GetSpacing(), origin, rotation)
-                
+                                
                 if write_output:
                         sitk.WriteImage(registered_image, str(registered_path))
                 
