@@ -9,8 +9,20 @@ from pathlib import Path
 from PIL import Image
 import warnings
 import shutil
+import json
 
 warnings.simplefilter('ignore', Image.DecompressionBombWarning)
+
+
+def write_dict(dictionary: dict, path_dict: Path):
+        with open(str(path_dict), 'w') as file:
+                json.dump(dictionary, file)
+
+
+def read_dict(path_dict: Path):
+        with open(str(path_dict), 'r') as file:
+                dictionary = json.load(file)
+                return dictionary
 
 
 def move_files_to_new_folder(list_files, dir_new):
