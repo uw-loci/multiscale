@@ -265,8 +265,8 @@ def get_translation(transform: sitk.Transform):
         return translation
 
 
-
 def implemented_transform_type(transform_type_str):
+        """Check if functions can use this transform type"""
         implemented_types = ['AffineTransform<double,2>', 'Euler2DTransform<double>']
         
         if transform_type_str in implemented_types:

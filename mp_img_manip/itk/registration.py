@@ -61,7 +61,7 @@ def define_registration_method(scale: int=4, iterations: int=100, learning_rate:
         
         registration_method.SetShrinkFactorsPerLevel(shrink_factors[(4-scale):])
         registration_method.SetSmoothingSigmasPerLevel(smoothing_sigmas[(4-scale):])
-        registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOn()
+        registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOff()
         
         return registration_method
 
