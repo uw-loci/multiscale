@@ -24,7 +24,8 @@ from mp_img_manip.itk.process import rgb_to_2d_img
 
 
 def define_registration_method(scale: int=4, iterations: int=100, learning_rate: np.double=50,
-                               min_step: np.double=0.01, gradient_tolerance: np.double=1E-5) \
+                               min_step: np.double=0.01, gradient_tolerance: np.double=1E-5,
+                               metric_sampling_percentage: np.double=1) \
             -> sitk.ImageRegistrationMethod:
         """
         Define the base metric, interpolator, and optimizer of a registration or series of registrations
@@ -41,7 +42,7 @@ def define_registration_method(scale: int=4, iterations: int=100, learning_rate:
         # Similarity metric settings.|
         registration_method.SetMetricAsMattesMutualInformation()
         registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-        registration_method.SetMetricSamplingPercentage(0.01)
+        registration_method.SetMetricSamplingPercentage(metric_sampling_percentage)
         
         registration_method.SetInterpolator(sitk.sitkLinear)
         
