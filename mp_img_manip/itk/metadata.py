@@ -111,6 +111,29 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
         return image
 
 
+def write_metadata(image_path: Path, metadata: dict):
+        """Write down the metadata keys to a txt file"""
+        
+        metadata_path = Path(image_path.parent, image_path.stem + '_metadata.txt')
+        util.write_dict(metadata, metadata_path)
+
+
+def read_metadata(image_path: Path):
+        """Read a metadata dictionary from a file and return it, or return None if not found"""
+        metadata_path = Path(image_path.parent, image_path.stem + '_metadata.txt')
+        try:
+                metadata = util.read_dict(metadata_path)
+                return metadata
+        except:
+                return None
+        
+
+def write_image(image_path: Path, image: sitk.Image):
+        sitk.WriteImage(image, str(image_path))
+        write_metadata(image_path, image.GetMetaData())
+
+        
+# deprecated methods
 def setup_image_from_csv(image_path, return_image=True, return_rotation=False, return_transform=True):
         """
         Set up the image spacing and optionally the registration origin
@@ -185,23 +208,6 @@ def get_image_parameters(image_path, return_spacing=True, return_origin=True,
         return returns
 
 
-def write_metadata(image_path: Path, metadata: dict):
-        """Write down the metadata keys to a txt file"""
-        
-        metadata_path = Path(image_path.parent, image_path.stem + '_metadata.txt')
-        util.write_dict(metadata, metadata_path)
-
-
-def read_metadata(image_path: Path):
-        """Read a metadata dictionary from a file and return it, or return None if not found"""
-        metadata_path = Path(image_path.parent, image_path.stem + '_metadata.txt')
-        try:
-                metadata = util.read_dict(metadata_path)
-                return metadata
-        except:
-                return None
-
-
 def write_image_parameters(image_path, spacing, origin, rotation=0):
         """Write down the spacing and origin of an image file to csv metadata"""
         
@@ -213,5 +219,8 @@ def write_image_parameters(image_path, spacing, origin, rotation=0):
         
         column_values = [spacing[0], origin[0], origin[1], rotation]
         
-        blk.write_pandas_row(file_path,image_name,column_values,
-                             'Image',column_labels)
+        blk.write_pandas_row(file_path, image_name, column_values,
+                             'Image', column_labels)
+        
+        
+
