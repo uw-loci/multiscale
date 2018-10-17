@@ -126,8 +126,6 @@ def query_good_registration(transform: sitk.Transform, metric, stop):
         print('\nTransform Matrix: \n{0}'.format(matrix))
         print('\nTransform Translation: \n{0}'.format(translation))
         
-        plt.show()
-        
         return util.yes_no('Is this registration good? [y/n] >>> ')
 
 
@@ -137,7 +135,7 @@ def query_rotation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
         
         itkplt.plot_overlay(fixed_image, moving_image, initial_transform)
         
-        change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >>> ')
+        change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >> ')
         
         if change_rotation:
                 while True:
@@ -154,24 +152,65 @@ def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
                              transform: sitk.Transform):
         """Ask if the user wants a new 2D ITK translation based on image overlay"""
         
-        change_origin = util.yes_no('Do you want to change the initial translation? [y/n] >>> ')
+        change_origin = util.yes_no('Do you want to change the initial translation? [y/n] >> ')
         translation = tran.get_translation(transform)
         
         if change_origin:
                 while True:
-                        print('Current translation: ' + str(translation))
+                        print('Current physical shift: ' + str(-1*np.array(translation)))
                         new_translation = []
-                        for dim in len(translation):
-                                new_dim_translation = util.query_float(
-                                        'Enter the new translation in dimension {0}'.format(str(dim)))
+                        for dim in range(len(translation)):
+                                new_dim_translation = -1*util.query_float(
+                                        'Enter the new shift in dimension {0} >> '.format(str(dim)))
                                 new_translation.append(new_dim_translation)
                         
-                        tran.set_translation(transform, translation)
+                        tran.set_translation(transform, new_translation)
                         itkplt.plot_overlay(fixed_image, moving_image, transform)
                         
                         # bug: The image does not show up till after the question
                         if util.yes_no('Is this translation good? [y/n] >>> '): break
 
+
+def get_region_size_index(size, origin, spacing):
+        dimensions = len(spacing)
+        size = [int(np.floor(size / spacing[i])) for i in range(dimensions)]
+        index = [int(np.floor(origin[i] / spacing[i])) for i in range(dimensions)]
+        return size, index
+
+
+def extract_region(image: sitk.Image, size, origin, transform=None):
+        if transform is not None:
+                translation = tran.get_translation(transform)
+                origin = origin + translation
+        
+        size_array, index = get_region_size_index(size, origin, image.GetSpacing())
+        region = sitk.Extract(image, size_array, index)
+        meta.copy_relevant_metadata(region, image)
+        return region
+        
+        
+def query_extract_region(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform):
+        do_extract = util.yes_no('Do you wish to extract a sub-region to register based on? [y/n] >> ')
+
+        if do_extract:
+                itkplt.plot_overlay(fixed_image, moving_image, transform=transform)
+                
+                size = util.query_int('Enter the region size >> ')
+                
+                origin = []
+                for dim in range(len(fixed_image.GetSpacing())):
+                        origin_in_dim = util.query_float('Enter the origin in dimension {0} >> '.format(dim))
+                        origin.append(origin_in_dim)
+                origin = np.array(origin)
+
+                fixed_region = extract_region(fixed_image, size, origin)
+                moving_region = extract_region(moving_image, size*1.1, origin-0.05*size, transform)
+                
+                return fixed_region, moving_region, do_extract
+                
+        else:
+                return fixed_image, moving_image, do_extract
+        
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
                                registration_method: sitk.ImageRegistrationMethod=None,
@@ -194,12 +233,17 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
         while True:
                 query_rotation_change(fixed_image, moving_image_2d, initial_transform)
                 query_translation_change(fixed_image, moving_image_2d, initial_transform)
+                fixed_final, moving_final, region_extracted = \
+                        query_extract_region(fixed_image, moving_image_2d, initial_transform)
                 
-                reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
-                (transform, metric, stop) = register(fixed_image, moving_image_2d, reg_plot,
+                reg_plot = RegistrationPlot(fixed_final, moving_final)
+                (transform, metric, stop) = register(fixed_final, moving_final, reg_plot,
                                                      registration_method=registration_method,
                                                      initial_transform=initial_transform)
                 
+                if region_extracted:
+                        itkplt.plot_overlay(fixed_image, moving_image_2d, transform, downsample=False)
+                        
                 if query_good_registration(transform, metric, stop):
                         break
                
@@ -244,7 +288,7 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 
                 fixed_image = meta.setup_image(fixed_path_list[i])
                 moving_image = meta.setup_image(moving_path_list[i])
-                initial_transform = tran.read_initial_transform(moving_image, transform_type)
+                initial_transform = tran.read_initial_transform(moving_path_list[i], transform_type)
                 
                 print('\nRegistering ' + os.path.basename(moving_path_list[i]) + ' to '
                       + os.path.basename(fixed_path_list[i]))
