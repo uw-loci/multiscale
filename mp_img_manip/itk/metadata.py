@@ -30,7 +30,8 @@ def three_d_to_rgb(image_3d):
         spacing_original = image_3d.GetSpacing()
         spacing_new = np.array([spacing_original[1], spacing_original[2]])
         rgb_image.SetSpacing(spacing_new)
-        rgb_image.SetMetaData(image_3d.GetMetaData())
+        copy_relevant_metadata(rgb_image, image_3d)
+        
         return rgb_image
 
 
@@ -109,9 +110,12 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
         return image
 
 
-def write_metadata(image_path: Path, metadata: dict):
+def write_metadata(image_path: Path, image: sitk.Image):
         """Write down the metadata keys to a txt file"""
-        
+        metadata = {}
+        for key in image.GetMetaDataKeys():
+                metadata[key] = image.GetMetaData(key)
+                
         metadata_path = Path(image_path.parent, image_path.stem + '_metadata.txt')
         util.write_dict(metadata, metadata_path)
 
@@ -128,7 +132,7 @@ def read_metadata(image_path: Path):
 
 def write_image(image: sitk.Image, image_path: Path):
         sitk.WriteImage(image, str(image_path))
-        write_metadata(image_path, image.GetMetaData())
+        write_metadata(image_path, image)
 
         
 # deprecated methods

@@ -8,6 +8,7 @@ The metadata is a custom txt file but the initial transform is native SITK
 import SimpleITK as sitk
 from pathlib import Path
 import pandas as pd
+import mp_img_manip.itk.metadata as meta
 
 
 def parameters_file_to_metadata(dir_params):
@@ -17,9 +18,12 @@ def parameters_file_to_metadata(dir_params):
         for idx in df_params.index:
                 image_parameters = df_params.loc[idx]
                 path_image= Path(dir_params, idx)
-                image = sitk.ReadImage(str(path_image))
+                path_metadata = Path(dir_params, Path(idx).stem + '_metadata.txt')
                 
-                if image.GetSpacing()[0] == 1.0:
+                if path_metadata.is_file():
+                        return
+                else:
+                        image = sitk.ReadImage(str(path_image))
                         print('Adjusting {0}'.format(idx))
                         unit = 'microns'
                         
@@ -28,9 +32,7 @@ def parameters_file_to_metadata(dir_params):
                         image.SetSpacing(spacing)
                         image.SetMetaData('Unit', unit)
                         
-                        writer = sitk.ImageFileWriter()
-                        writer.SetFileName(str(path_image))
-                        writer.Execute(image)
+                        meta.write_image(image, path_image)
         
                 
 dir_params = r'F:\Research\Polarimetry\Data 02 - Python prepped images\SHG_Large'
