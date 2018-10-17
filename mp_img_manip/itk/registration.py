@@ -202,17 +202,14 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                 
                 if query_good_registration(transform, metric, stop):
                         break
-        
-        origin = moving_image.GetOrigin()
-        
-        registered_image = sitk.Resample(moving_image, fixed_image,
-                                         transform, sitk.sitkLinear,
-                                         0.0, moving_image.GetPixelID())
+               
+        registered_image = sitk.Resample(moving_image, fixed_image, transform,
+                                         sitk.sitkLinear, 0.0, moving_image.GetPixelID())
         
         meta.copy_relevant_metadata(registered_image, moving_image)
         plt.close('all')
         
-        return registered_image, origin, transform, metric, stop
+        return registered_image, transform, metric, stop
 
 
 def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
@@ -252,9 +249,8 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 print('\nRegistering ' + os.path.basename(moving_path_list[i]) + ' to '
                       + os.path.basename(fixed_path_list[i]))
                 
-                registered_image, origin, transform, metric, stop= \
-                        supervised_register_images(fixed_image, moving_image, registration_method,
-                                                   initial_transform)
+                registered_image, transform, metric, stop = \
+                        supervised_register_images(fixed_image, moving_image, registration_method, initial_transform)
                                 
                 if write_output:
                         meta.write_image(registered_image, registered_path)
