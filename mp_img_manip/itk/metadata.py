@@ -186,14 +186,23 @@ def get_image_parameters(image_path, return_spacing=True, return_origin=True,
 
 
 def write_metadata(image_path: Path, metadata: dict):
-        """Write down the spacing and origin of an image file to csv metadata"""
+        """Write down the metadata keys to a txt file"""
         
         metadata_path = Path(image_path.parent, image_path.stem + '_metadata.txt')
-        with open(metadata_path, 'w') as file:
-                file.write(str(metadata))
+        util.write_dict(metadata, metadata_path)
 
 
-def write_image_parameters_deprecated(image_path, spacing, origin, rotation=0):
+def read_metadata(image_path: Path):
+        """Read a metadata dictionary from a file and return it, or return None if not found"""
+        metadata_path = Path(image_path.parent, image_path.stem + '_metadata.txt')
+        try:
+                metadata = util.read_dict(metadata_path)
+                return metadata
+        except:
+                return None
+
+
+def write_image_parameters(image_path, spacing, origin, rotation=0):
         """Write down the spacing and origin of an image file to csv metadata"""
         
         (output_dir, image_name) = os.path.split(image_path)
