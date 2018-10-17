@@ -89,8 +89,6 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
         
         if metadata is None:
                 image.SetMetaData('Unit', unit_workspace)
-                write_metadata(path_image, image.GetMetaData())
-                
                 current_spacing = image.GetSpacing()
                 change_spacing = util.yes_no('Change the spacing?  Current spacing is {0} >>'.format(current_spacing))
                 
@@ -100,7 +98,7 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
                         image.SetSpacing(spacing_new)
                         
                         if write_changes:
-                                sitk.WriteImage(image, str(path_image))
+                                write_image(image, path_image)
                 
         else:
                 image.SetMetaData(metadata)
