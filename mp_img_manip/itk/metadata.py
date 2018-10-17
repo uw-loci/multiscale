@@ -185,7 +185,15 @@ def get_image_parameters(image_path, return_spacing=True, return_origin=True,
         return returns
 
 
-def write_image_parameters(image_path, spacing, origin, rotation=0):
+def write_metadata(image_path: Path, metadata: dict):
+        """Write down the spacing and origin of an image file to csv metadata"""
+        
+        metadata_path = Path(image_path.parent, image_path.stem + '_metadata.txt')
+        with open(metadata_path, 'w') as file:
+                file.write(str(metadata))
+
+
+def write_image_parameters_deprecated(image_path, spacing, origin, rotation=0):
         """Write down the spacing and origin of an image file to csv metadata"""
         
         (output_dir, image_name) = os.path.split(image_path)
