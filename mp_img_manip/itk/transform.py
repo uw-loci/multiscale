@@ -289,3 +289,12 @@ def set_translation(transform: sitk.Transform, translation):
                 
         transform.SetParameters(parameters)
         
+
+def get_transform_type_str(transform):
+        class_line = str(transform).split('\n')[2]
+        transform_type_str = class_line[31:]
+        return transform_type_str
+
+
+
+        
