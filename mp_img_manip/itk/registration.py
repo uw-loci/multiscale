@@ -257,7 +257,7 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                                                    initial_transform)
                                 
                 if write_output:
-                        sitk.WriteImage(registered_image, str(registered_path))
+                        meta.write_image(registered_image, registered_path)
                 
                 if write_transform:
                         tran.write_transform(registered_path, transform)

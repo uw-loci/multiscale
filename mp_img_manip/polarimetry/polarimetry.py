@@ -252,6 +252,7 @@ def convert_intensity_to_retardance(itk_image,
         
         output_image = sitk.GetImageFromArray(output_array)
         output_image = sitk.Cast(output_image, sitk.sitkFloat32)
+        output_image.SetMetaData(itk_image.GetMetaData())
         
         return output_image
 
@@ -266,15 +267,10 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix,
                 if output_path.exists() and skip_existing_images:
                         continue
                 
-                int_image = meta.setup_image_from_csv(path_list[i])
+                int_image = meta.setup_image(path_list[i])
                 ret_image = convert_intensity_to_retardance(int_image)
-                
-                sitk.WriteImage(ret_image, str(output_path))
-                
-                meta.write_image_parameters(output_path,
-                                            int_image.GetSpacing(),
-                                            int_image.GetOrigin(),
-                                            0)
+
+                meta.write_image(ret_image, output_path)
 
 
 def downsample_retardance_image(ret_image_path, orient_image_path,
@@ -314,9 +310,11 @@ def downsample_retardance_image(ret_image_path, orient_image_path,
         
         down_ret_image = sitk.GetImageFromArray(down_ret_array)
         down_ret_image = sitk.Cast(down_ret_image, ret_image.GetPixelID())
+        down_ret_image.SetMetaData(ret_image.GetMetaData())
         
         down_orient_image = sitk.GetImageFromArray(down_orient_array)
         down_orient_image = sitk.Cast(down_orient_image, orient_image.GetPixelID())
+        down_orient_image.GetMetaData(orient_image.GetMetaData())
         
         return down_ret_image, down_orient_image
 
@@ -351,12 +349,5 @@ def batch_downsample_retardance(ret_dir, orient_dir, output_dir,
                         down_orient_dir,
                         '_SlowAxis_' + output_suffix)
                 
-                sitk.Write_image(down_ret_image, down_ret_path)
-                meta.write_image_parameters(down_ret_path,
-                                            down_ret_image.GetSpacing(),
-                                            down_ret_image.GetOrigin())
-                
-                sitk.Write_image(down_orient_image, down_orient_path)
-                meta.write_image_parameters(down_orient_path,
-                                            down_orient_image.GetSpacing(),
-                                            down_orient_image.GetOrigin())
+                meta.write_image(down_ret_image, down_ret_path)
+                meta.write_image(down_orient_image, down_orient_path)

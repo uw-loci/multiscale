@@ -85,27 +85,27 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
         :return:
         """
         image = sitk.ReadImage(str(path_image))
-        spacing_original = image.GetSpacing()
+        metadata = read_metadata(path_image)
         
-        changed = False
-        
-        # try:
-        #         unit_image = image.GetMetaData('Unit')
-        #         if ~(unit_image == unit_workspace):
-        #                 image.SetSpacing(convert_spacing_units(spacing_original, unit_workspace, unit_image))
-        #                 changed=True
-        # except:
-        if spacing_original[0] == 1.0:
+        if metadata is None:
                 image.SetMetaData('Unit', unit_workspace)
-                spacing = util.query_float('Please enter the image spacing in {0} >>'.format(unit_workspace))
-                spacing_new = np.full([len(spacing_original), 1], spacing)
-                image.SetSpacing(spacing_new)
-                changed=True
+                write_metadata(path_image, image.GetMetaData())
                 
-        if changed and write_changes:
-                sitk.WriteImage(image, str(path_image))
+                current_spacing = image.GetSpacing()
+                change_spacing = util.yes_no('Change the spacing?  Current spacing is {0} >>'.format(current_spacing))
                 
-        if len(spacing_original) > dimensions:
+                if change_spacing:
+                        spacing = util.query_float('Please enter the image spacing in {0} >>'.format(unit_workspace))
+                        spacing_new = np.full([len(image.GetSpacing()), 1], spacing)
+                        image.SetSpacing(spacing_new)
+                        
+                        if write_changes:
+                                sitk.WriteImage(image, str(path_image))
+                
+        else:
+                image.SetMetaData(metadata)
+                
+        if len(image.GetSpacing()) > dimensions:
                 image = three_d_to_rgb(image)
                 
         return image
@@ -128,7 +128,7 @@ def read_metadata(image_path: Path):
                 return None
         
 
-def write_image(image_path: Path, image: sitk.Image):
+def write_image(image: sitk.Image, image_path: Path):
         sitk.WriteImage(image, str(image_path))
         write_metadata(image_path, image.GetMetaData())
 

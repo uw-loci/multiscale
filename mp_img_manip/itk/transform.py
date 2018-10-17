@@ -21,8 +21,12 @@ def write_transform(registered_path, transform):
 
 def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, transform_path):
         transform = sitk.ReadTransform(str(transform_path))
-        return sitk.Resample(moving_image, fixed_image, transform,
-                             sitk.sitkLinear, 0.0, moving_image.GetPixelID())
+        registered_image = sitk.Resample(moving_image, fixed_image, transform,
+                                         sitk.sitkLinear, 0.0, moving_image.GetPixelID())
+        
+        meta.copy_relevant_metadata(registered_image, moving_image)
+        
+        return registered_image
         
 
 def write_transform_pandas(registered_path, origin, transform, metric, stop, rotation):
@@ -103,7 +107,7 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                 transform_path = Path(transform_paths[i].parent, transform_paths[i].stem + '.tfm')
                 registered_image = apply_transform(fixed_image, moving_image, transform_path)
                 
-                sitk.WriteImage(registered_image, str(registered_path))
+                meta.write_image(registered_image, registered_path)
                 write_transform(registered_path, sitk.ReadTransform(transform_path))
         
         return
@@ -131,6 +135,8 @@ def resize_image(itk_image, current_spacing, target_spacing):
         else:
                 resized_image = itk_image
         
+        meta.copy_relevant_metadata(resized_image, itk_image)
+        
         return resized_image
 
 
@@ -156,13 +162,11 @@ def bulk_resize_image(fixed_dir, moving_dir, output_dir, output_suffix,
                         return_origin=True,
                         return_spacing=True)[0]
                 
+                moving_image = sitk.ReadImage(str(moving_image_path_list[i]))
                 resized_image = resize_image(moving_image_path_list[i],
                                              current_spacing, target_spacing)
-                
-                sitk.WriteImage(resized_image, str(resized_path))
-                meta.write_image_parameters(resized_path,
-                                            resized_image.GetSpacing(),
-                                            resized_image.GetOrigin())
+
+                meta.write_image(resized_image, resized_path)
 
 
 def bulk_resize_to_target(image_dir, output_dir, output_suffix,
@@ -188,14 +192,8 @@ def bulk_resize_to_target(image_dir, output_dir, output_suffix,
                 
                 resized_image = resize_image(itk_image,
                                              current_spacing, target_spacing)
-                
-                meta.copy_relevant_metadata(resized_image, itk_image)
-                
-                sitk.WriteImage(resized_image, str(resized_path))
-                meta.write_image_parameters(resized_path,
-                                            resized_image.GetSpacing(),
-                                            resized_image.GetOrigin(),
-                                            0)
+
+                meta.write_image(resized_image, resized_path)
 
 
 def define_transform(transform_type: type=sitk.AffineTransform, rotation: np.double=0) -> sitk.Transform:

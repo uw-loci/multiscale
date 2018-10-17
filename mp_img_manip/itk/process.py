@@ -85,7 +85,7 @@ def bulk_apply_mask(image_dir, mask_dir,
                 masked_image = sitk.Mask(image, mask)
                 meta.copy_relevant_metadata(masked_image, image)
                 
-                sitk.WriteImage(masked_image, str(masked_path))
+                meta.write_image(masked_image, masked_path)
 
 
 def find_centroid(image: sitk.Image) -> list:
@@ -120,7 +120,7 @@ def bulk_threshold(input_dir, output_dir, output_suffix,
                 new_image = apply_threshold(original, os.path.basename(path_list[i]), threshold=threshold)
                 
                 meta.copy_relevant_metadata(new_image, original)
-                sitk.WriteImage(new_image, str(new_path))
+                meta.write_image(new_image, new_path)
 
 
 def convert_to_eightbit(itk_image, image_name):
@@ -151,8 +151,7 @@ def bulk_convert_to_eightbit(input_dir, output_dir, output_suffix):
                                                      output_dir, output_suffix)
                 
                 meta.copy_relevant_metadata(new_image, original)
-                
-                sitk.WriteImage(new_image, str(new_path))
+                meta.write_image(new_image, new_path)
 
 
 def rgb_to_2d_img(moving_image, white_light_filter_value=0.9):

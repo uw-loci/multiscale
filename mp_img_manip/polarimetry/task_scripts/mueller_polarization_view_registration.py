@@ -21,6 +21,8 @@ import pandas as pd
 import mp_img_manip.itk.transform as tran
 import mp_img_manip.utility_functions as util
 import mp_img_manip.itk.itk_plotting as itkplot
+import mp_img_manip.itk.metadata as meta
+
 
 def plot_overlay_from_czi_timepoints(path_file, position_one, position_two):
         array_one = bf.load_image(str(path_file), t=position_one)
@@ -42,6 +44,7 @@ def czi_timepoint_to_sitk_image(path_file, position, resolution):
         array = bf.load_image(str(path_file), t=position)
         image = sitk.GetImageFromArray(array)
         image.SetSpacing([resolution, resolution])
+        image.SetMetaData('Unit', 'microns')
         
         return image
 
@@ -129,11 +132,11 @@ def transform_polarization_state(path_image, dir_output, resolution, list_positi
                 moving_image = czi_timepoint_to_sitk_image(path_image, position, resolution)
                 
                 if state == 'Hout':
-                        sitk.WriteImage(moving_image, str(output_path))
+                        meta.write_image(moving_image, output_path)
                 else:
                         transform_path = Path(dir_output, state + '.tfm')
                         registered_image = tran.apply_transform(fixed_image, moving_image, str(transform_path))
-                        sitk.WriteImage(registered_image, str(output_path))
+                        meta.write_image(registered_image, output_path)
 
 
 def apply_transforms(path_image, dir_output, resolution):
