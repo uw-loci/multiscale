@@ -18,4 +18,23 @@ class TestGetTransformTypeStr(object):
                 expected = 'BSplineTransform<double,2,3>'
                 transform = sitk.BSplineTransform(2)
                 assert expected == tran.get_transform_type_str(transform)
-        
+
+
+class TestGetTranslation(object):
+        def test_affine2d(self):
+                expected = (15, 40)
+                transform = sitk.AffineTransform(2)
+                transform.SetTranslation(expected)
+                assert expected == tran.get_translation(transform)
+                
+        def test_euler2d(self):
+                expected = (15, 40)
+                transform = sitk.Euler2DTransform()
+                transform.SetTranslation(expected)
+                assert expected == tran.get_translation(transform)
+                
+        def test_not_implemented(self):
+                with pytest.raises(NotImplementedError):
+                        transform = sitk.BSplineTransform(2)
+                        tran.get_translation(transform)
+                        

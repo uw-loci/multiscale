@@ -11,7 +11,7 @@ from pathlib import Path
 import SimpleITK as sitk
 import os
 import numpy as np
-import pandas as pd
+
 
 def three_d_to_rgb(image_3d):
         arr_rgb_wrong_idx = sitk.GetArrayFromImage(image_3d)
@@ -57,8 +57,8 @@ def copy_relevant_metadata(new_image: sitk.Image, old_image: sitk.Image, necessa
         # todo: Fix mutability using the * keyword
         for key in necessary_keys:
                 new_image.SetMetaData(key, old_image.GetMetaData(key))
-
-
+                
+                
 def convert_spacing_units(spacing: tuple, unit_workspace: str, unit_image: str):
         """
         Convert image spacing and unit between microns and millimeters
@@ -112,7 +112,8 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
 
 
 def setup_image_from_csv(image_path, return_image=True, return_rotation=False, return_transform=True):
-        """Set up the image spacing and optionally the registration origin
+        """
+        Set up the image spacing and optionally the registration origin
         
         This function is necessary because ITK cannot save in microns, making
         external metadata necessary.  It references, or creates, a csv file to
