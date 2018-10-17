@@ -4,6 +4,7 @@ import mp_img_manip.itk.process as proc
 import mp_img_manip.itk.transform as trans
 import numpy as np
 import matplotlib.ticker as plticker
+import mp_img_manip.itk.metadata as meta
 
 
 class RegistrationPlot:
@@ -48,7 +49,7 @@ class RegistrationPlot:
         
         def plot_final_overlay(self, transform):
                 plot_overlay(self.fixed_image, self.moving_image, transform,
-                             downsample=False, continuous_update=True, img=self.img)
+                             downsample=False, img=self.img)
         
         def save_figure(self):
                 file_path = 'F:\\Research\\Polarimetry\\Animation\\Registration' + str(len(self.metric_values)) + '.png'
@@ -61,12 +62,10 @@ class RegistrationPlot:
 
 def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform,
                  downsample=True, downsample_target=5, continuous_update=False, img: plt.imshow=None):
-        
-        origin = moving_image.GetOrigin()
-        
+                
         rotated_image = sitk.Resample(moving_image, fixed_image, transform,
-                                      sitk.sitkLinear, 0.0,
-                                      moving_image.GetPixelIDValue())
+                                      sitk.sitkLinear, 0.0, moving_image.GetPixelIDValue())
+        meta.copy_relevant_metadata(rotated_image, moving_image)
         
         if downsample:
                 fixed_shrunk = trans.resize_image(fixed_image, fixed_image.GetSpacing()[0], downsample_target)
@@ -78,8 +77,9 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
                 spacing = fixed_image.GetSpacing()
                 overlay_array = proc.overlay_images(fixed_image, rotated_image)
         
+        
         shape = np.shape(overlay_array)
-        extent = [0, shape[1]*spacing[1], 0, shape[0]*spacing[0]]
+        extent = [0, shape[1]*spacing[1], shape[0]*spacing[0], 0]
         
         if img is None:
                 fig, ax = plt.subplots()
