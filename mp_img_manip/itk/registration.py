@@ -131,8 +131,8 @@ def query_good_registration(transform: sitk.Transform, metric, stop):
         return util.yes_no('Is this registration good? [y/n] >>> ')
 
 
-def query_pre_rotation(fixed_image: sitk.Image, moving_image: sitk.Image,
-                       initial_transform: sitk.Transform):
+def query_rotation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
+                          initial_transform: sitk.Transform):
         """Ask if the user wants a new 2D ITK origin based on image overlay"""
         
         itkplt.plot_overlay(fixed_image, moving_image, initial_transform)
@@ -192,7 +192,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                 moving_image_2d = moving_image
         
         while True:
-                query_pre_rotation(fixed_image, moving_image_2d, initial_transform)
+                query_rotation_change(fixed_image, moving_image_2d, initial_transform)
                 query_translation_change(fixed_image, moving_image_2d, initial_transform)
                 
                 reg_plot = RegistrationPlot(fixed_image, moving_image_2d)
