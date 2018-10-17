@@ -37,4 +37,22 @@ class TestGetTranslation(object):
                 with pytest.raises(NotImplementedError):
                         transform = sitk.BSplineTransform(2)
                         tran.get_translation(transform)
-                        
+
+
+class TestSetTranslation(object):
+        def test_affine2d(self):
+                expected = (15, 40)
+                transform = sitk.AffineTransform(2)
+                tran.set_translation(transform, expected)
+                assert expected == transform.GetTranslation()
+        
+        def test_euler2d(self):
+                expected = (15, 40)
+                transform = sitk.Euler2DTransform()
+                tran.set_translation(transform, expected)
+                assert expected == transform.GetTranslation()
+        
+        def test_not_implemented(self):
+                with pytest.raises(NotImplementedError):
+                        transform = sitk.BSplineTransform(2)
+                        tran.get_translation(transform)

@@ -285,13 +285,13 @@ def set_translation(transform, translation):
         :param translation: new translation to set the transform to
         :return: Change the transform using set method.  No return.
         """
-        parameters = transform.GetParameters()
+        parameters = list(transform.GetParameters())
         transform_type_str = get_transform_type_str(transform)
         
-        if transform_type_str is 'AffineTransform<double,2>':
+        if transform_type_str == 'AffineTransform<double,2>':
                 parameters[4:] = translation
         
-        if transform_type_str is 'Euler2DTransform<double>':
+        if transform_type_str == 'Euler2DTransform<double>':
                 parameters[1:] = translation
                 
         if not implemented_transform_type(transform_type_str):
