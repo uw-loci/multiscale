@@ -43,7 +43,7 @@ class RegistrationPlot:
                 self.plot_multires.set_data(self.idx_resolution_switch,
                                             [self.metric_values[index] for index in self.idx_resolution_switch])
                 self.ax_cost.set_xlim(0, len(self.metric_values))
-                self.ax_cost.set_ylim(1.1*min(self.metric_values), 0)
+                self.ax_cost.set_ylim(1.05*min(self.metric_values), 0.95*max(self.metric_values))
                 
                 plot_overlay(self.fixed_image, self.moving_image, transform, continuous_update=True, img=self.img)
         
