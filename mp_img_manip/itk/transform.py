@@ -266,7 +266,19 @@ def get_translation(transform: sitk.Transform):
         return translation
 
 
-def set_translation(transform: sitk.Transform, translation):
+
+def implemented_transform_type(transform_type_str):
+        implemented_types = ['AffineTransform<double,2>', 'Euler2DTransform<double>']
+        
+        if transform_type_str in implemented_types:
+                return True
+        
+        else:
+                return False
+
+
+
+def set_translation(transform, translation):
         """
         Set the translation in a SimpleITK transform, for implemented types of transforms
         
