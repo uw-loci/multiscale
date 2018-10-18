@@ -29,7 +29,8 @@ def plot_overlay_from_czi_timepoints(path_file, position_one, position_two):
         array_two = bf.load_image(str(path_file), t=position_two)
         image_one = sitk.GetImageFromArray(array_one)
         image_two = sitk.GetImageFromArray(array_two)
-        itkplot.plot_overlay(image_one, image_two, sitk.Transform(2, sitk.sitkIdentity), continuous_update=True)
+        itkplot.plot_overlay(image_one, image_two, sitk.Transform(2, sitk.sitkIdentity), continuous_update=True,
+                             downsample=False)
 
 
 def czi_timepoint_to_sitk_image(path_file, position, resolution):
@@ -102,10 +103,45 @@ def calculate_transforms(path_img: Path, resolution, registration_method, skip_f
                 
                 moving_img = czi_timepoint_to_sitk_image(path_img, slices_to_register[idx], resolution)
                 
-                registered_img, origin, transform, metric, stop = reg.supervised_register_images(
+                registered_img, transform, metric, stop = reg.supervised_register_images(
                         fixed_img, moving_img,
                         registration_method=registration_method,
                         initial_transform=initial_transform
+                )
+                
+                tran.write_transform(registered_path, transform)
+
+
+def calculate_transforms_state_agnostic(path_img: Path, resolution, registration_method, skip_finished_transforms=True):
+        """
+        Register based on output polarization state, and save the resulting transform
+        :param path_img: path to the image file being used to calculate the transforms
+        :param resolution: resolution of the image file
+        :param registration_method: itk construct holding registration parameters
+        :param skip_finished_transforms: whether to skip finding transforms if they already exist or not
+        :return:
+        """
+        idx_dict = idx_dictionary()
+        keys = []
+        
+        fixed_img = czi_timepoint_to_sitk_image(path_img, 0, resolution)
+        
+        for idx in range(1, 24):
+                registered_path = Path(path_img.parent, path_img.stem + '_' + str(idx+1) + '.tfm')
+                initial_transform = tran.read_initial_transform(registered_path, sitk.AffineTransform)
+                
+                if skip_finished_transforms:
+                        if registered_path.is_file():
+                                continue
+                
+                print('Registering {0} to 0'.format(idx))
+                
+                moving_img = czi_timepoint_to_sitk_image(path_img, idx, resolution)
+                
+                registered_img, transform, metric, stop = reg.supervised_register_images(
+                        fixed_img, moving_img,
+                        registration_method=registration_method,
+                        initial_transform=initial_transform, moving_path=registered_path
                 )
                 
                 tran.write_transform(registered_path, transform)
@@ -172,17 +208,85 @@ def bulk_apply_transforms(dir_input, dir_output, resolution, skip_finished_trans
                 apply_transforms(file, dir_output_file, resolution)
 
 
+def transform_polarization_state_agnostic(path_image, dir_output, resolution, list_positions, num):
+        """
+        Apply transform to all timepoints with specified output polarization state
+        :param path_image: path to the czi image file
+        :param dir_output: directory to write the output to
+        :param resolution: resolution of the image file
+        :param list_positions: list of the timepoints corresponding to output polarization state
+        :param num: string of the polarization state
+        :return:
+        """
+        fixed_image = czi_timepoint_to_sitk_image(path_image, 0, resolution)
+        
+        for position in list_positions:
+                output_path = Path(dir_output, path_image.stem + '_' + str(position + 1) + '.tif')
+                
+                if output_path.is_file():
+                        continue
+                
+                moving_image = czi_timepoint_to_sitk_image(path_image, position, resolution)
+                
+                if num == 'Hout':
+                        meta.write_image(moving_image, output_path)
+                else:
+                        transform_path = Path(dir_output, num + '.tfm')
+                        registered_image = tran.apply_transform(fixed_image, moving_image, str(transform_path))
+                        meta.write_image(registered_image, output_path)
+
+
+def apply_transforms_state_agnostic(path_image, dir_output, resolution):
+        """
+        Apply pre-calculated transforms onto a single mueller polarimetry image
+
+        :param path_image: path to the image being processed
+        :param dir_output: directory to save the image to
+        :param resolution: resolution of the image file
+        :return:
+        """
+        fixed_image = czi_timepoint_to_sitk_image(path_image, 0, resolution)
+
+        for num in range(1, 24):
+                moving_image = czi_timepoint_to_sitk_image(path_image, num, resolution)
+                
+                output_path = Path(dir_output, path_image.stem + '_' + str(num + 1) + '.tif')
+                transform_path = Path(output_path.stem + '.tfm')
+                
+                registered_image = tran.apply_transform(fixed_image, moving_image, str(transform_path))
+                meta.write_image(registered_image, output_path)
+
+def bulk_apply_transforms_state_agnostic(dir_input, dir_output, resolution, skip_finished_transforms=True):
+        """
+        Apply pre-calculated transforms onto a whole directory of mueller polarimetry images
+
+        :param dir_input: Directory holding both images and the transforms.csv file
+        :param dir_output: Directory to write resulting images to
+        :param resolution: Resolution of the image files
+        :param skip_finished_transforms: Whether to skip applying the transform if files already exist
+        :return:
+        """
+        file_list = util.list_filetype_in_dir(dir_input, 'czi')
+        for file in file_list:
+                dir_output_file = Path(dir_output, file.stem)
+                os.makedirs(dir_output_file, exist_ok=True)
+                
+                apply_transforms_state_agnostic(file, dir_output_file, resolution)
+                
+                
 javabridge.start_vm(class_path=bf.JARS, max_heap_size='8G')
 
 mhr_path = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\1045- slide 1.czi')
+output_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\1045- slide 1')
 mlr_resolution = 2.016
 mhr_resolution = 0.81
 
-registration_method = reg.define_registration_method(scale=2, learning_rate=5, iterations=100)
+registration_method = reg.define_registration_method(scale=1, learning_rate=1, iterations=300, min_step=0.001,
+                                                     metric_sampling_percentage=0.01)
 
-calculate_transforms(mhr_path, mhr_resolution, registration_method)
-
-apply_transforms(mhr_path, mhr_path.parent, mhr_resolution)
+calculate_transforms_state_agnostic(mhr_path, mhr_resolution, registration_method)
+apply_transforms_state_agnostic(mhr_path, output_dir, mhr_resolution)
+#apply_transforms(mhr_path, output_dir, mhr_resolution)
 
 
 javabridge.kill_vm()
