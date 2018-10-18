@@ -28,13 +28,11 @@ def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image):
         """
         
         fixed_array = sitk.GetArrayFromImage(fixed_image)
-        fixed_normalized = (fixed_array - np.amin(fixed_array))/(
-                    np.amax(fixed_array) + np.amin(fixed_array))
+        fixed_windowed = myplot.auto_window_level(fixed_array)
         
         if fixed_image.GetSize() == moving_image.GetSize():
                 moving_array = sitk.GetArrayFromImage(moving_image)
-                moving_normalized = (moving_array - np.amin(moving_array))/(
-                            np.amax(moving_array)+np.amin(moving_array))
+                moving_windowed = myplot.auto_window_level(moving_array)
         
         else: #Pre-registration
                 initial_transform = sitk.Similarity2DTransform()
@@ -43,13 +41,13 @@ def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image):
                                                  0.0, moving_image.GetPixelID())
                 
                 moving_array = sitk.GetArrayFromImage(moving_resampled)
-                moving_normalized = (moving_array - np.amin(moving_array))/(
-                            np.amax(moving_array)+np.amin(moving_array))
+                moving_windowed = myplot.auto_window_level(moving_array)
+
         
         # todo: Some form of window/level to get the intensities roughly matched
         
         combined_array = myplot.overlay_arrays_red_green(
-                fixed_normalized, moving_normalized)
+                fixed_windowed, moving_windowed)
         
         return combined_array
 
