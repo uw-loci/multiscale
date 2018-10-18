@@ -8,6 +8,49 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def auto_window_level(arr: np.array, bins=15, upper_limit_fraction=0.1, lower_limit_fraction=0.002):
+        """Automatically window/level based on the image histogram"""
+        hist, bin_edges = np.histogram(arr, bins=bins)
+        bin_size = bin_edges[1] - bin_edges[0]
+        
+        if lower_limit_fraction > upper_limit_fraction:
+                print('Invalid upper and lower pixel fractions.  Returning input array.')
+                return arr
+        
+        upper_threshold_pixels = np.size(arr)*upper_limit_fraction
+        lower_threshold_pixels = np.size(arr)*lower_limit_fraction
+        
+        hist_lower_limit = 0
+        hist_upper_limit = len(hist) - 1
+        
+        for i in range(np.size(hist)):
+                count = hist[i]
+                if count > upper_threshold_pixels:
+                        count = 0
+                        
+                found = count > lower_threshold_pixels
+                
+                if found:
+                        hist_lower_limit = bin_edges[i]
+                        break
+        
+        for i in range(np.size(hist) -1, -1, -1):
+                count = hist[i]
+                if count > upper_threshold_pixels:
+                        count = 0
+                
+                found = count > lower_threshold_pixels
+                
+                if found:
+                        hist_upper_limit = bin_edges[i] + bin_size
+                        break
+        
+        arr_window = arr*(arr > hist_lower_limit)*(arr < hist_upper_limit)
+        arr_window = (arr_window - np.amin(arr_window))/(np.amax(arr_window) + np.amin(arr_window))
+        
+        return arr_window
+        
+
 def overlay_arrays_red_green(array_one, array_two, intensity_threshold=0.1):
         """Plot two same-size images in 3 channels, with blue->same position"""
         
