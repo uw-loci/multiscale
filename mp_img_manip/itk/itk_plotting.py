@@ -5,6 +5,7 @@ import mp_img_manip.itk.transform as trans
 import numpy as np
 import matplotlib.ticker as plticker
 import mp_img_manip.itk.metadata as meta
+from mp_img_manip import plotting as myplot
 
 
 class RegistrationPlot:
@@ -35,7 +36,6 @@ class RegistrationPlot:
                 self.img = self.ax_img.imshow(np.zeros(fixed_shape))
                 plot_overlay(self.fixed_image, self.moving_image, transform, continuous_update=True, img=self.img)
 
-        
         def update_plot(self, new_metric_value, transform):
                 """Event: Update and metric_plot new registration values"""
                 
@@ -81,10 +81,10 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
                 rotated_shrunk = trans.resize_image(rotated_image, moving_image.GetSpacing()[0], downsample_target)
                 spacing = fixed_shrunk.GetSpacing()
                 
-                overlay_array = proc.overlay_images(fixed_shrunk, rotated_shrunk)
+                overlay_array = overlay_images(fixed_shrunk, rotated_shrunk)
         else:
                 spacing = fixed_image.GetSpacing()
-                overlay_array = proc.overlay_images(fixed_image, rotated_image)
+                overlay_array = overlay_images(fixed_image, rotated_image)
         
         
         shape = np.shape(overlay_array)
@@ -106,3 +106,40 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
                 plt.pause(0.01)
         else:
                 plt.show()
+
+
+def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image):
+        """Create a numpy array that is a combination of two images
+        
+        Inputs:
+        fixed_image -- Image one, using registration nomenclature
+        moving_image -- Image two, using registration nomeclature
+        alpha -- degree of weighting towards the moving image
+        
+        Output:
+        combined_array -- A numpy array of overlaid images
+        """
+        
+        fixed_array = sitk.GetArrayFromImage(fixed_image)
+        fixed_windowed = myplot.auto_window_level(fixed_array)
+        
+        if fixed_image.GetSize() == moving_image.GetSize():
+                moving_array = sitk.GetArrayFromImage(moving_image)
+                moving_windowed = myplot.auto_window_level(moving_array)
+        
+        else: #Pre-registration
+                initial_transform = sitk.Similarity2DTransform()
+                moving_resampled = sitk.Resample(moving_image, fixed_image,
+                                                 initial_transform, sitk.sitkLinear,
+                                                 0.0, moving_image.GetPixelID())
+                
+                moving_array = sitk.GetArrayFromImage(moving_resampled)
+                moving_windowed = myplot.auto_window_level(moving_array)
+
+        
+        # todo: Some form of window/level to get the intensities roughly matched
+        
+        combined_array = myplot.overlay_arrays_red_green(
+                fixed_windowed, moving_windowed)
+        
+        return combined_array

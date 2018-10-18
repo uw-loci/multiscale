@@ -7,49 +7,10 @@ Created on Wed Mar 21 10:06:55 2018
 import mp_img_manip.bulk_img_processing as blk
 import mp_img_manip.utility_functions as util
 import mp_img_manip.itk.metadata as meta
-import mp_img_manip.plotting as myplot
 
 import SimpleITK as sitk
 import numpy as np
 import os
-from pathlib import Path
-
-
-def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image):
-        """Create a numpy array that is a combination of two images
-        
-        Inputs:
-        fixed_image -- Image one, using registration nomenclature
-        moving_image -- Image two, using registration nomeclature
-        alpha -- degree of weighting towards the moving image
-        
-        Output:
-        combined_array -- A numpy array of overlaid images
-        """
-        
-        fixed_array = sitk.GetArrayFromImage(fixed_image)
-        fixed_windowed = myplot.auto_window_level(fixed_array)
-        
-        if fixed_image.GetSize() == moving_image.GetSize():
-                moving_array = sitk.GetArrayFromImage(moving_image)
-                moving_windowed = myplot.auto_window_level(moving_array)
-        
-        else: #Pre-registration
-                initial_transform = sitk.Similarity2DTransform()
-                moving_resampled = sitk.Resample(moving_image, fixed_image,
-                                                 initial_transform, sitk.sitkLinear,
-                                                 0.0, moving_image.GetPixelID())
-                
-                moving_array = sitk.GetArrayFromImage(moving_resampled)
-                moving_windowed = myplot.auto_window_level(moving_array)
-
-        
-        # todo: Some form of window/level to get the intensities roughly matched
-        
-        combined_array = myplot.overlay_arrays_red_green(
-                fixed_windowed, moving_windowed)
-        
-        return combined_array
 
 
 def bulk_apply_mask(image_dir, mask_dir,
