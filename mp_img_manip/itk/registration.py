@@ -215,7 +215,7 @@ def query_extract_region(fixed_image: sitk.Image, moving_image: sitk.Image, tran
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
                                registration_method: sitk.ImageRegistrationMethod=None,
-                               initial_transform: sitk.Transform=None):
+                               initial_transform: sitk.Transform=None, moving_path=None):
         """Register two images
     
         :param fixed_image: image that is being registered to
@@ -234,6 +234,9 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
         while True:
                 query_rotation_change(fixed_image, moving_image_2d, initial_transform)
                 query_translation_change(fixed_image, moving_image_2d, initial_transform)
+                if moving_path is not None:
+                        tran.write_initial_transform(moving_path, initial_transform)
+                
                 fixed_final, moving_final, region_extracted = \
                         query_extract_region(fixed_image, moving_image_2d, initial_transform)
                 
@@ -295,7 +298,8 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                       + os.path.basename(fixed_path_list[i]))
                 
                 registered_image, transform, metric, stop = \
-                        supervised_register_images(fixed_image, moving_image, registration_method, initial_transform)
+                        supervised_register_images(fixed_image, moving_image, registration_method, initial_transform,
+                                                   moving_path_list[i])
                                 
                 if write_output:
                         meta.write_image(registered_image, registered_path)
