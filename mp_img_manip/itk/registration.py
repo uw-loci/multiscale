@@ -111,9 +111,11 @@ def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: Regist
                                        lambda: reg_plot.update_plot(registration_method.GetMetricValue(), initial_transform))
         registration_method.AddCommand(sitk.sitkEndEvent, lambda: reg_plot.plot_final_overlay(initial_transform))
         
-        return (registration_method.Execute(fixed_image, moving_image),
-                registration_method.GetMetricValue(),
-                registration_method.GetOptimizerStopConditionDescription())
+        final_transform = registration_method.Execute(fixed_image, moving_image)
+        final_metric = registration_method.GetMetricValue()
+        stop_condition = registration_method.GetOptimizerStopConditionDescription()
+        
+        return (final_transform, final_metric, stop_condition)
 
 
 def query_good_registration(transform: sitk.Transform, metric, stop):
