@@ -29,6 +29,7 @@ class RegistrationPlot:
                                                         [self.metric_values[index] for index in
                                                          self.idx_resolution_switch],
                                                         'b*')
+                self.final_plot, = self.ax_cost.plot([], [], 'g*')
                 
                 fixed_shape = np.shape(sitk.GetArrayFromImage(fixed_image))
                 self.img = self.ax_img.imshow(np.zeros(fixed_shape))
@@ -48,6 +49,13 @@ class RegistrationPlot:
                 plot_overlay(self.fixed_image, self.moving_image, transform, continuous_update=True, img=self.img)
         
         def plot_final_overlay(self, transform):
+                final_idx = len(self.metric_values) - 1
+                self.final_plot.set_data(final_idx, self.metric_values[final_idx])
+                self.fig.canvas.draw()
+                self.fig.canvas.flush_events()
+                plt.pause(0.01)
+                
+                print('Registration complete')
                 plot_overlay(self.fixed_image, self.moving_image, transform,
                              downsample=False, img=self.img)
 
