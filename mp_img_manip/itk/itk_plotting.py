@@ -24,8 +24,8 @@ class RegistrationPlot:
                 loc = plticker.MaxNLocator(integer=True)  # this locator puts ticks at regular intervals
                 self.ax_cost.xaxis.set_major_locator(loc)
 
-                self.plot, = self.ax_cost.plot(self.metric_values, 'r')
-                self.plot_multires, = self.ax_cost.plot(self.idx_resolution_switch,
+                self.metric_plot, = self.ax_cost.plot(self.metric_values, 'r')
+                self.multires_plot, = self.ax_cost.plot(self.idx_resolution_switch,
                                                         [self.metric_values[index] for index in
                                                          self.idx_resolution_switch],
                                                         'b*')
@@ -36,11 +36,11 @@ class RegistrationPlot:
 
         
         def update_plot(self, new_metric_value, transform):
-                """Event: Update and plot new registration values"""
+                """Event: Update and metric_plot new registration values"""
                 
                 self.metric_values.append(new_metric_value)
-                self.plot.set_data(range(len(self.metric_values)), self.metric_values)
-                self.plot_multires.set_data(self.idx_resolution_switch,
+                self.metric_plot.set_data(range(len(self.metric_values)), self.metric_values)
+                self.multires_plot.set_data(self.idx_resolution_switch,
                                             [self.metric_values[index] for index in self.idx_resolution_switch])
                 self.ax_cost.set_xlim(0, len(self.metric_values))
                 self.ax_cost.set_ylim(1.05*min(self.metric_values), 0.95*max(self.metric_values))
@@ -50,6 +50,7 @@ class RegistrationPlot:
         def plot_final_overlay(self, transform):
                 plot_overlay(self.fixed_image, self.moving_image, transform,
                              downsample=False, img=self.img)
+
         
         def save_figure(self):
                 file_path = 'F:\\Research\\Polarimetry\\Animation\\Registration' + str(len(self.metric_values)) + '.png'
