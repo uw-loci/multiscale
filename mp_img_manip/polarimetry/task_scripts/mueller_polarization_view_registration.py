@@ -112,7 +112,7 @@ def calculate_transforms(path_img: Path, resolution, registration_method, skip_f
                 tran.write_transform(registered_path, transform)
 
 
-def calculate_transforms_state_agnostic(path_img: Path, resolution, registration_method, skip_finished_transforms=True):
+def calculate_transforms_state_agnostic(path_img: Path, resolution, skip_finished_transforms=True):
         """
         Register based on output polarization state, and save the resulting transform
         :param path_img: path to the image file being used to calculate the transforms
@@ -127,6 +127,10 @@ def calculate_transforms_state_agnostic(path_img: Path, resolution, registration
         fixed_img = czi_timepoint_to_sitk_image(path_img, 0, resolution)
         
         for idx in range(1, 24):
+        
+                registration_method = reg.define_registration_method(scale=1, learning_rate=1, iterations=300,
+                                                                     min_step=0.001,
+                                                                     metric_sampling_percentage=0.01)
                 registered_path = Path(path_img.parent, path_img.stem + '_' + str(idx+1) + '.tfm')
                 initial_transform = tran.read_initial_transform(registered_path, sitk.AffineTransform)
                 
@@ -281,10 +285,8 @@ output_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed 
 mlr_resolution = 2.016
 mhr_resolution = 0.81
 
-registration_method = reg.define_registration_method(scale=1, learning_rate=1, iterations=300, min_step=0.001,
-                                                     metric_sampling_percentage=0.01)
 
-calculate_transforms_state_agnostic(mhr_path, mhr_resolution, registration_method)
+calculate_transforms_state_agnostic(mhr_path, mhr_resolution)
 apply_transforms_state_agnostic(mhr_path, output_dir, mhr_resolution)
 #apply_transforms(mhr_path, output_dir, mhr_resolution)
 
