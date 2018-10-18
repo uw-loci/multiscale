@@ -37,6 +37,8 @@ def define_registration_method(scale: int=4, iterations: int=100, learning_rate:
         :param gradient_tolerance:
         :return:
         """
+        # todo: Make this run off of kwargs
+        
         registration_method = sitk.ImageRegistrationMethod()
         
         # Similarity metric settings.|
@@ -226,6 +228,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
         :param initial_transform: the type of registration/transform, e.g. affine or euler
         :return:
         """
+        # todo: make transform and registration method kwargs/or path
         
         moving_image_is_rgb = moving_image.GetNumberOfComponentsPerPixel() > 1
         if moving_image_is_rgb:
