@@ -11,6 +11,7 @@ from pathlib import Path
 import SimpleITK as sitk
 import os
 import numpy as np
+import warnings
 
 
 def three_d_to_rgb(image_3d):
@@ -57,7 +58,10 @@ def unit_to_factor_in_microns(unit: str)-> float:
 def copy_relevant_metadata(new_image: sitk.Image, old_image: sitk.Image, necessary_keys: list=['Unit']):
         # todo: Fix mutability using the * keyword
         for key in necessary_keys:
-                new_image.SetMetaData(key, old_image.GetMetaData(key))
+                try:
+                        new_image.SetMetaData(key, old_image.GetMetaData(key))
+                except:
+                        warnings.warn('The {0} key does not exist'.format(key))
                 
                 
 def convert_spacing_units(spacing: tuple, unit_workspace: str, unit_image: str):
