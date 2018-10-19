@@ -33,19 +33,20 @@ def plot_overlay_from_czi_timepoints(path_file, position_one, position_two):
                              downsample=False)
 
 
-def czi_timepoint_to_sitk_image(path_file, position, resolution):
+def czi_timepoint_to_sitk_image(path_file, position, resolution, resolution_unit='microns'):
         """
         Open a timepoint from a czi image and make it into an ITK image
         
         :param path_file: Path to the czi file
         :param position: Timepoint to open
-        :param resolution: Resolution of the czi image in microns
+        :param resolution: Resolution of the czi image
+        :param resolution_unit: The unit of measure (e.g. microns) of the czi image
         :return: A SimpleITK image made from the timepoint
         """
         array = bf.load_image(str(path_file), t=position)
         image = sitk.GetImageFromArray(array)
         image.SetSpacing([resolution, resolution])
-        image.SetMetaData('Unit', 'microns')
+        image.SetMetaData('Unit', resolution_unit)
         
         return image
 
