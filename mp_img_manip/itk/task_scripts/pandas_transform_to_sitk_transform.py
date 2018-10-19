@@ -11,7 +11,7 @@ from pathlib import Path
 import pandas as pd
 
 
-def pandas_csv_to_transforms(tform_dir):
+def pandas_csv_to_transforms(tform_dir, output_dir):
         csv_path = Path(tform_dir, 'Transforms.csv')
         df_tforms = pd.read_csv(csv_path, index_col='Image')
         
@@ -31,11 +31,13 @@ def pandas_csv_to_transforms(tform_dir):
                                           transform_params['Y Translation'] - transform_params['Y Origin']])
         
                 img_path = Path(idx)
-                tform_path = Path(tform_dir, img_path.stem + '.tfm')
+                file_parts = img_path.stem.split('_')
+                tform_path = Path(output_dir, file_parts[0] +'_' + file_parts[1] + '_initial.tfm')
                 
                 sitk.WriteTransform(transform, str(tform_path))
         
 
 
-tform_dir = r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw'
-pandas_csv_to_transforms(tform_dir)
+tform_dir = r'F:\Research\Polarimetry\Data 03 - Mid-python analysis images\Step 03 - Registered images\RegToMHR\SHG_Small_Reg'
+output_dir = r'F:\Research\Polarimetry\Data 03 - Mid-python analysis images\Transforms\SHG to MHR'
+pandas_csv_to_transforms(tform_dir, output_dir)
