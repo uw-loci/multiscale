@@ -27,11 +27,11 @@ def create_dictionary(
             mid_analysis_dir='Data 03 - Mid-python analysis images',
             post_analysis_dir='Data 04 - Analysis results and graphics'):
         # retardance_dir = mid_analysis_dir + '\\Step 00 - PS Intensity to Retardance'
-        mask_dir = mid_analysis_dir + '\\Step 01 - Masked images'
+        #mask_dir = mid_analysis_dir + '\\Masked images'
         
-        resize_dir = mid_analysis_dir + '\\Step 02 - Resizing images'
-        reg_dir = mid_analysis_dir + '\\Step 03 - Registered images'
-        tile_dir = mid_analysis_dir + '\\Step 04 - Tiling images'
+        #resize_dir = mid_analysis_dir + '\\Step 02 - Resizing images'
+        reg_dir = mid_analysis_dir + '\\Registered images'
+        tile_dir = mid_analysis_dir + '\\Tiled images'
         
         #    eight_bit_dir = mid_analysis_dir + '\\Step 05 - Eight-bit images'
         
@@ -46,20 +46,20 @@ def create_dictionary(
                 "mhr_large_orient": os.path.join(base_dir, prep_dir, 'MHR_Large_Orient'),
                 "mlr_large": os.path.join(base_dir, prep_dir, 'MLR_Large'),
                 "mlr_large_orient": os.path.join(base_dir, prep_dir, 'MLR_Large_Orient'),
-                "he_small": os.path.join(base_dir, resize_dir, 'HE_Small'),
+                #"he_small": os.path.join(base_dir, resize_dir, 'HE_Small'),
                 "he_large": os.path.join(base_dir, prep_dir, 'HE_Large'),
                 
-                "shg_small": os.path.join(base_dir, resize_dir, 'SHG_Small'),
-                "mhr_small": os.path.join(base_dir, resize_dir, 'MHR_Small'),
-                "mlr_small": os.path.join(base_dir, resize_dir, 'MLR_Small'),
-                "mhr_small_orient": os.path.join(base_dir, resize_dir, 'MHR_Small_Orient'),
-                "mlr_small_orient": os.path.join(base_dir, resize_dir, 'MLR_Small_Orient'),
+                #"shg_small": os.path.join(base_dir, resize_dir, 'SHG_Small'),
+                #"mhr_small": os.path.join(base_dir, resize_dir, 'MHR_Small'),
+                #"mlr_small": os.path.join(base_dir, resize_dir, 'MLR_Small'),
+                #"mhr_small_orient": os.path.join(base_dir, resize_dir, 'MHR_Small_Orient'),
+                #"mlr_small_orient": os.path.join(base_dir, resize_dir, 'MLR_Small_Orient'),
                 
-                "mhr_small_reg": os.path.join(base_dir, reg_dir, 'MHR_Small_Reg'),
-                "mlr_small_reg": os.path.join(base_dir, reg_dir, 'MLR_Small_Reg'),
-                "mhr_small_reg_orient": os.path.join(base_dir, reg_dir, 'MHR_Small_Reg_Orient'),
-                "mlr_small_reg_orient": os.path.join(base_dir, reg_dir, 'MLR_Small_Reg_Orient'),
-                "he_small_reg": os.path.join(base_dir, reg_dir, 'HE_Small_Reg'),
+                #"mhr_small_reg": os.path.join(base_dir, reg_dir, 'MHR_Small_Reg'),
+                #"mlr_small_reg": os.path.join(base_dir, reg_dir, 'MLR_Small_Reg'),
+                #"mhr_small_reg_orient": os.path.join(base_dir, reg_dir, 'MHR_Small_Reg_Orient'),
+                #"mlr_small_reg_orient": os.path.join(base_dir, reg_dir, 'MLR_Small_Reg_Orient'),
+                #"he_small_reg": os.path.join(base_dir, reg_dir, 'HE_Small_Reg'),
                 
                 "mhr_large_reg": os.path.join(base_dir, reg_dir, 'MHR_Large_Reg'),
                 "mlr_large_reg": os.path.join(base_dir, reg_dir, 'MLR_Large_Reg'),
@@ -67,10 +67,10 @@ def create_dictionary(
                 'mhr_large_reg_orient': os.path.join(base_dir, reg_dir, 'MHR_Large_Reg_Orient'),
                 "he_large_reg": os.path.join(base_dir, reg_dir, 'HE_Large_Reg'),
                 
-                "mlr_large_mask": os.path.join(base_dir, mask_dir, 'MLR_Large_Mask'),
-                "mhr_large_mask": os.path.join(base_dir, mask_dir, 'MHR_Large_Mask'),
-                "mlr_large_mask_orient": os.path.join(base_dir, mask_dir, 'MLR_Large_Mask_Orient'),
-                "mhr_large_mask_orient": os.path.join(base_dir, mask_dir, 'MHR_Large_Mask_Orient'),
+                #"mlr_large_mask": os.path.join(base_dir, mask_dir, 'MLR_Large_Mask'),
+                #"mhr_large_mask": os.path.join(base_dir, mask_dir, 'MHR_Large_Mask'),
+                #"mlr_large_mask_orient": os.path.join(base_dir, mask_dir, 'MLR_Large_Mask_Orient'),
+                #"mhr_large_mask_orient": os.path.join(base_dir, mask_dir, 'MHR_Large_Mask_Orient'),
                 
                 "shg_tile": os.path.join(base_dir, tile_dir, 'SHG_Tiles'),
                 "mhr_tile": os.path.join(base_dir, tile_dir, 'MHR_Tiles'),
