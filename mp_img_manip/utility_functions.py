@@ -83,7 +83,6 @@ def query_int(message):
                         continue
                 else:
                         return user_input
-                        break
 
 
 def query_float(message):
@@ -103,8 +102,8 @@ def query_float(message):
 def yes_no(question):
         """Ask the user a yes/no question"""
         
-        yes = set(['yes', 'y', 'ye', ''])
-        no = set(['no', 'n'])
+        yes = {'yes', 'y', 'ye'}
+        no = {'no', 'n'}
         
         while True:
                 choice = input(question).lower()
