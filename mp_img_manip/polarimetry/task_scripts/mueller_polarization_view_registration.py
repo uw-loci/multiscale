@@ -24,9 +24,16 @@ import mp_img_manip.itk.itk_plotting as itkplot
 import mp_img_manip.itk.metadata as meta
 
 
-def plot_overlay_from_czi_timepoints(path_file, position_one, position_two):
-        array_one = bf.load_image(str(path_file), t=position_one)
-        array_two = bf.load_image(str(path_file), t=position_two)
+def plot_overlay_from_czi_timepoints(path_file, timepoint_one, timepoint_two):
+        """
+        Plot two timepoints from a czi image in a red/green overlay.  Warning: requires a running javabridge
+        :param path_file: Path to the czi file
+        :param timepoint_one: First timepoint
+        :param timepoint_two: Second timepoint
+        :return:
+        """
+        array_one = bf.load_image(str(path_file), t=timepoint_one)
+        array_two = bf.load_image(str(path_file), t=timepoint_two)
         image_one = sitk.GetImageFromArray(array_one)
         image_two = sitk.GetImageFromArray(array_two)
         itkplot.plot_overlay(image_one, image_two, sitk.Transform(2, sitk.sitkIdentity), continuous_update=True,
@@ -35,7 +42,7 @@ def plot_overlay_from_czi_timepoints(path_file, position_one, position_two):
 
 def czi_timepoint_to_sitk_image(path_file, position, resolution, resolution_unit='microns'):
         """
-        Open a timepoint from a czi image and make it into an ITK image
+        Open a timepoint from a czi image and make it into an ITK image.  Warning: requires a running javabridge.
         
         :param path_file: Path to the czi file
         :param position: Timepoint to open

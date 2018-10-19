@@ -75,7 +75,18 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
                                   tile_size, tile_separation=None,
                                   roi_size=None,
                                   intensity_thresh=1, number_thresh=10):
-        """ Calculate the average retardance, orientation, and alignment through the retardance and orientation base images
+        """
+        Calculate the average retardance, orientation, and alignment through retardance and orientation images
+        
+        :param ret_image_path: Path to the retardance image
+        :param orient_image_path:  path to the orientaiton image
+        :param output_path: Path to save the output csv file
+        :param tile_size: Size in pixels of the tile
+        :param tile_separation: Distance between tiles, defaults to 0
+        :param roi_size: Size of regions of interest within tiles
+        :param intensity_thresh:
+        :param number_thresh:
+        :return:
         """
         
         modality = blk.file_name_parts(ret_image_path)[1] + '-O'
@@ -220,19 +231,12 @@ def convert_intensity_to_retardance(itk_image,
         """Convert retardance intensities that are scaled to the image input
         (e.g., 16 bit int) into to actual retardance values.
         
-        Input:
-        itk_image -- The image being converted, as an ITK _image object
-        ret_ceiling -- The retardance value corresponding to max intensity
-        wavelength -- The wavelength of light used to image, for converting
-        between degrees and retardance.  Defaults to 546 for the LOCI
-        PolScope wavelength
-        nm_input -- The input ret_ceiling is in nm if true, degrees if false
-        deg_output -- The output is in degrees if true, nm if false
-        
-        Output:
-        A new ITK image with retardance values either in degrees (default)
-        or in nm (if deg_output is set to False)
-        
+        :param itk_image: The image being converted, as an ITK _image object
+        :param ret_ceiling:  The retardance value corresponding to max intensity
+        :param wavelength:  The wavelength of light used to image, for converting between degrees and retardance.
+        :param nm_input:  The input ret_ceiling is in nm if true, degrees if false
+        :param deg_output:  The output is in degrees if true, nm if false
+        :return A new ITK image with retardance values either in degrees or in nm
         """
         
         input_array = sitk.GetArrayFromImage(itk_image)
