@@ -1,3 +1,7 @@
+import os
+environ = os.environ
+for key, value in environ.items():
+        print(key + ': ' + value)
 import imagej
 
 ij = imagej.init(r'C:\Users\mpinkert\Desktop\Fiji.app')
