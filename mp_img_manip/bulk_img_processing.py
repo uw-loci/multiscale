@@ -216,12 +216,15 @@ def core_names_in_list(path_list):
         return [get_core_file_name(item) for item in path_list]
 
 
-def trim_file_parts_list(file_parts_list, parts_to_keep=[0]):
+def trim_file_parts_list(file_parts_list, parts_to_keep=None):
+        if parts_to_keep is None:
+                parts_to_keep = [0]
+                
         list_trimmed = [file_parts_list[idx] for idx in parts_to_keep]
         return list_trimmed
 
 
-def find_bulk_shared_images(dir_list, file_parts_to_compare=[0], subdirs=False):
+def find_bulk_shared_images(dir_list, file_parts_to_compare=None, subdirs=False):
         """images from two or more directories are paired based on core names
         
         Input:
@@ -232,6 +235,9 @@ def find_bulk_shared_images(dir_list, file_parts_to_compare=[0], subdirs=False):
         Outputs:
         A list of path lists, for corresponding images
         """
+        
+        if file_parts_to_compare is None:
+                file_parts_to_compare = [0]
         
         num_dirs = len(dir_list)
         
