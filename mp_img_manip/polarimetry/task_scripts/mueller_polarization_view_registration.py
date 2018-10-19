@@ -80,6 +80,7 @@ def calculate_transforms_state_agnostic(path_img: Path, resolution, transform_di
         :param path_img: path to the image file being used to calculate the transforms
         :param resolution: resolution of the image file
         :param registration_method: itk construct holding registration parameters
+        :param transform_dir: Directory that holds the transform files
         :param skip_finished_transforms: whether to skip finding transforms if they already exist or not
         :return:
         """
@@ -89,15 +90,15 @@ def calculate_transforms_state_agnostic(path_img: Path, resolution, transform_di
         fixed_img = czi_timepoint_to_sitk_image(path_img, 0, resolution)
         
         for idx in range(1, 24):
-        
+                
                 registration_method = reg.define_registration_method(scale=1, learning_rate=1, iterations=300,
                                                                      min_step=0.001,
                                                                      metric_sampling_percentage=0.01)
-                registered_path = Path(path_img.parent, path_img.stem + '_' + str(idx+1) + '.tfm')
-                initial_transform = tran.read_initial_transform(registered_path, sitk.AffineTransform)
+                transform_path = Path(transform_dir, transform_prefix + '_' + str(idx + 1) + '.tfm')
+                initial_transform = tran.read_initial_transform(transform_path, sitk.AffineTransform)
                 
                 if skip_finished_transforms:
-                        if registered_path.is_file():
+                        if transform_path.is_file():
                                 continue
                 
                 print('Registering {0} to 0'.format(idx))
@@ -107,7 +108,7 @@ def calculate_transforms_state_agnostic(path_img: Path, resolution, transform_di
                 registered_img, transform, metric, stop = reg.supervised_register_images(
                         fixed_img, moving_img,
                         registration_method=registration_method,
-                        initial_transform=initial_transform, moving_path=registered_path
+                        initial_transform=initial_transform, moving_path=transform_path
                 )
                 
                 tran.write_transform(transform_path, transform)
@@ -141,7 +142,8 @@ def transform_polarization_state_agnostic(path_image, dir_output, resolution, li
                         meta.write_image(registered_image, output_path)
 
 
-def apply_transforms_state_agnostic(path_image, dir_output, resolution):
+def apply_transforms_state_agnostic(path_image, output_dir, transform_dir, transform_prefix, resolution,
+                                    skip_existing_images=True):
         """
         Apply pre-calculated transforms onto a single mueller polarimetry image
 
@@ -150,18 +152,27 @@ def apply_transforms_state_agnostic(path_image, dir_output, resolution):
         :param resolution: resolution of the image file
         :return:
         """
+        print('Applying transforms to {0}'.format(path_image.stem))
+        
         fixed_image = czi_timepoint_to_sitk_image(path_image, 0, resolution)
 
-        for num in range(1, 24):
-                moving_image = czi_timepoint_to_sitk_image(path_image, num, resolution)
-                
-                output_path = Path(dir_output, path_image.stem + '_' + str(num + 1) + '.tif')
-                transform_path = Path(output_path.stem + '.tfm')
-                
-                registered_image = tran.apply_transform(fixed_image, moving_image, str(transform_path))
-                meta.write_image(registered_image, output_path)
+        for num in range(24):
+                output_path = Path(output_dir, path_image.stem + '_' + str(num + 1) + '.tif')
+                if skip_existing_images and output_path.is_file():
+                        continue
 
-def bulk_apply_transforms_state_agnostic(dir_input, dir_output, resolution, skip_finished_transforms=True):
+                moving_image = czi_timepoint_to_sitk_image(path_image, num, resolution)
+                transform_path = Path(transform_dir, transform_prefix + '_' + str(num + 1) + '.tfm')
+                
+                if num == 0:
+                        meta.write_image(fixed_image, output_path)
+                else:
+                        registered_image = tran.apply_transform(fixed_image, moving_image, str(transform_path))
+                        meta.write_image(registered_image, output_path)
+
+
+def bulk_apply_transforms_state_agnostic(dir_input, dir_output, transform_dir, transform_prefix,
+                                         resolution, skip_existing_images=True):
         """
         Apply pre-calculated transforms onto a whole directory of mueller polarimetry images
 
