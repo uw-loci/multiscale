@@ -73,8 +73,8 @@ def idx_dictionary():
         return idx_dict
 
 
-def calculate_transforms_state_agnostic(path_img: Path, resolution, transform_dir: Path, transform_prefix: str,
-                                        skip_finished_transforms=True):
+def calculate_polarization_state_transforms(path_img: Path, resolution, transform_dir: Path, transform_prefix: str,
+                                            skip_finished_transforms=True):
         """
         Register based on output polarization state, and save the resulting transform
         :param path_img: path to the image file being used to calculate the transforms
@@ -114,7 +114,7 @@ def calculate_transforms_state_agnostic(path_img: Path, resolution, transform_di
                 tran.write_transform(transform_path, transform)
 
 
-def transform_polarization_state_agnostic(path_image, dir_output, resolution, list_positions, num):
+def transform_polarization_states(path_image, dir_output, resolution, list_positions, num):
         """
         Apply transform to all timepoints with specified output polarization state
         :param path_image: path to the czi image file
@@ -142,8 +142,8 @@ def transform_polarization_state_agnostic(path_image, dir_output, resolution, li
                         meta.write_image(registered_image, output_path)
 
 
-def apply_transforms_state_agnostic(path_image, output_dir, transform_dir, transform_prefix, resolution,
-                                    skip_existing_images=True):
+def apply_polarization_transforms(path_image, output_dir, transform_dir, transform_prefix, resolution,
+                                  skip_existing_images=True):
         """
         Apply pre-calculated transforms onto a single mueller polarimetry image
 
@@ -171,8 +171,8 @@ def apply_transforms_state_agnostic(path_image, output_dir, transform_dir, trans
                         meta.write_image(registered_image, output_path)
 
 
-def bulk_apply_transforms_state_agnostic(dir_input, dir_output, transform_dir, transform_prefix,
-                                         resolution, skip_existing_images=True):
+def bulk_apply_polarization_transforms(dir_input, dir_output, transform_dir, transform_prefix,
+                                       resolution, skip_existing_images=True):
         """
         Apply pre-calculated transforms onto a whole directory of mueller polarimetry images
 
@@ -187,8 +187,8 @@ def bulk_apply_transforms_state_agnostic(dir_input, dir_output, transform_dir, t
                 dir_output_file = Path(dir_output, file.stem)
                 os.makedirs(dir_output_file, exist_ok=True)
                 
-                apply_transforms_state_agnostic(file, dir_output_file, transform_dir, transform_prefix, resolution,
-                                                skip_existing_images=skip_existing_images)
+                apply_polarization_transforms(file, dir_output_file, transform_dir, transform_prefix, resolution,
+                                              skip_existing_images=skip_existing_images)
                 
                 
 javabridge.start_vm(class_path=bf.JARS, max_heap_size='8G')
@@ -202,8 +202,8 @@ mlr_resolution = 2.016
 mhr_resolution = 0.81
 
 
-#calculate_transforms_state_agnostic(mhr_path, mhr_resolution, transform_dir)
-bulk_apply_transforms_state_agnostic(mhr_dir, output_dir, transform_dir, transform_prefix, mhr_resolution)
+#calculate_polarization_state_transforms(mhr_path, mhr_resolution, transform_dir)
+bulk_apply_polarization_transforms(mhr_dir, output_dir, transform_dir, transform_prefix, mhr_resolution)
 
 
 javabridge.kill_vm()
