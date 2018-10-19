@@ -114,34 +114,6 @@ def calculate_polarization_state_transforms(path_img: Path, resolution, transfor
                 tran.write_transform(transform_path, transform)
 
 
-def transform_polarization_states(path_image, dir_output, resolution, list_positions, num):
-        """
-        Apply transform to all timepoints with specified output polarization state
-        :param path_image: path to the czi image file
-        :param dir_output: directory to write the output to
-        :param resolution: resolution of the image file
-        :param list_positions: list of the timepoints corresponding to output polarization state
-        :param num: string of the polarization state
-        :return:
-        """
-        fixed_image = czi_timepoint_to_sitk_image(path_image, 0, resolution)
-        
-        for position in list_positions:
-                output_path = Path(dir_output, path_image.stem + '_' + str(position + 1) + '.tif')
-                
-                if output_path.is_file():
-                        continue
-                
-                moving_image = czi_timepoint_to_sitk_image(path_image, position, resolution)
-                
-                if num == 'Hout':
-                        meta.write_image(moving_image, output_path)
-                else:
-                        transform_path = Path(dir_output, num + '.tfm')
-                        registered_image = tran.apply_transform(fixed_image, moving_image, str(transform_path))
-                        meta.write_image(registered_image, output_path)
-
-
 def apply_polarization_transforms(path_image, output_dir, transform_dir, transform_prefix, resolution,
                                   skip_existing_images=True):
         """
