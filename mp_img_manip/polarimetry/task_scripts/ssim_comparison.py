@@ -5,7 +5,7 @@ Created on Fri Jul 13 13:00:47 2018
 @author: mpinkert
 """
 
-import mp_img_manip.cw_ssim as cw_ssim
+import mp_img_manip.toolkits.cw_ssim as cw_ssim
 import mp_img_manip.polarimetry.dir_dictionary as dird
 from pathlib import Path
 

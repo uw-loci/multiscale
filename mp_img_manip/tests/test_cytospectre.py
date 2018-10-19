@@ -5,7 +5,7 @@ Created on Fri Apr  6 15:43:03 2018
 @author: mpinkert
 """
 
-import mp_img_manip.cytospectre as cyto
+import mp_img_manip.toolkits.cytospectre as cyto
 import mp_img_manip.polarimetry.dir_dictionary as dird
 import unittest
 import pandas as pd

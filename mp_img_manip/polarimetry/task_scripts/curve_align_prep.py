@@ -1,4 +1,4 @@
-import mp_img_manip.curve_align as ca
+import mp_img_manip.toolkits.curve_align as ca
 import mp_img_manip.polarimetry.dir_dictionary as dird
 
 dir_dict = dird.create_dictionary()

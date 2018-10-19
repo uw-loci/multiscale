@@ -5,13 +5,10 @@ Created on Mon Apr  2 16:03:35 2018
 @author: mpinkert
 """
 
-import mp_img_manip.cytospectre as cyto
-import matplotlib.pyplot as plt
+import mp_img_manip.toolkits.cytospectre as cyto
 import pandas as pd
 from pathlib import Path
 import numpy as np
-from scipy import stats
-
 
 
 def analyze_data(xls_path):
