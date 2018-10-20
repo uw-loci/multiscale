@@ -1,5 +1,6 @@
 import pytest
 import mp_img_manip.utility_functions as util
+import json
 
 
 @pytest.fixture()
@@ -25,9 +26,24 @@ def list_of_file_lists():
         lists = [list_one, list_two, list_three]
         return lists
 
-class TestWriteDict(object):
-        def test_write_object(self):
-                assert True
+
+class TestWriteJSON(object):
+        def test_write_object(self, tmpdir):
+                content = {'test': 5, 'this': 'a', 'set': [1, 3], 'of': {'elements': 'please'}}
+                json_path = tmpdir.mkdir('sub').join('test.json')
+                util.write_json(content, json_path)
+                with open(str(json_path), 'r') as file:
+                        printed_content = json.load(file)
+                        assert printed_content == content
+
+        def test_tuple_writes_as_list(self, tmpdir):
+                content = {'tuple': (5, 4, 3)}
+                json_path = tmpdir.mkdir('sub').join('tuple_test.json')
+                util.write_json(content, json_path)
+                with open(str(json_path), 'r') as file:
+                        printed = json.load(file)
+                        assert printed == {'tuple': [5, 4, 3]}
+
 
 class TestItemPresentAllLists(object):
         @pytest.mark.parametrize("item, expected", [
@@ -77,11 +93,11 @@ class TestYesNo(object):
 
 class TestCharacterIndices(object):
         @pytest.mark.parametrize('string, character, indices', [
-                ('aabcda', 'a', [0, 1, 5]),
-                ('z12dc1', '1', [1, 5]),
-                ('aa\ndc', '\n', [2]),
-                ('dd\u0061adc', 'a', [2, 3]),
-                ('abc\u0394d\u0394', '\u0394', [3, 5])
+                ('aabcda', 'a', [0, 1, 5]), #regular character
+                ('z12dc1', '1', [1, 5]), #number
+                ('aa\ndc', '\n', [2]), #tab character
+                ('dd\u0061adc', 'a', [2, 3]), #unicode regular character
+                ('abc\u0394d\u0394', '\u0394', [3, 5]) #unicode special character
         ])
         def test_find_char(self, string, character, indices):
                 result = util.character_indices(string, character)
