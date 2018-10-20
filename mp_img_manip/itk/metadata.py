@@ -124,14 +124,14 @@ def write_metadata(image_path: Path, image: sitk.Image):
                 metadata[key] = image.GetMetaData(key)
                 
         metadata_path = Path(image_path.parent, image_path.stem + '_metadata.txt')
-        util.write_dict(metadata, metadata_path)
+        util.write_json(metadata, metadata_path)
 
 
 def read_metadata(image_path: Path):
         """Read a metadata dictionary from a file and return it, or return None if not found"""
         metadata_path = Path(image_path.parent, image_path.stem + '_metadata.txt')
         try:
-                metadata = util.read_dict(metadata_path)
+                metadata = util.read_json(metadata_path)
                 return metadata
         except:
                 return None

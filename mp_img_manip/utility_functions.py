@@ -14,12 +14,12 @@ import json
 warnings.simplefilter('ignore', Image.DecompressionBombWarning)
 
 
-def write_dict(dictionary: dict, path_dict: Path):
+def write_json(dictionary: dict, path_dict: Path):
         with open(str(path_dict), 'w') as file:
                 json.dump(dictionary, file)
 
 
-def read_dict(path_dict: Path):
+def read_json(path_dict: Path):
         with open(str(path_dict), 'r') as file:
                 dictionary = json.load(file)
                 return dictionary
