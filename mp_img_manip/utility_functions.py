@@ -50,12 +50,12 @@ def item_present_all_lists(item, lists):
 #    return index_lists
 
 
-def list_filetype_in_dir(file_dir, file_ext):
+def list_filetype_in_dir(file_dir: Path, file_ext: str):
         """Given a directory path, return all files of given file type as a list"""
         return [Path(file_dir, f) for f in os.listdir(file_dir) if f.endswith(file_ext)]
 
 
-def list_filetype_in_subdirs(base_dir, file_ext):
+def list_filetype_in_subdirs(base_dir: Path, file_ext: str):
         """Find all files in the immediate subdirectores with a given extension
         
         base_dir - immediate dir to find subdirs of
@@ -73,7 +73,7 @@ def list_filetype_in_subdirs(base_dir, file_ext):
         return file_list
 
 
-def query_int(message):
+def query_int(message: str):
         """Ask the user for an integer"""
         while True:
                 try:
@@ -85,9 +85,8 @@ def query_int(message):
                         return user_input
 
 
-def query_float(message):
+def query_float(message: str):
         """Ask the user for a float"""
-        
         while True:
                 try:
                         user_input = float(input(message))
@@ -96,10 +95,11 @@ def query_float(message):
                         continue
                 else:
                         return user_input
-                        break
 
 
-def yes_no(question):
+
+
+def yes_no(question: str):
         """Ask the user a yes/no question"""
         
         yes = {'yes', 'y', 'ye'}
@@ -115,7 +115,7 @@ def yes_no(question):
                         print("Please respond with 'yes' or 'no'\n")
 
 
-def character_indices(string, char):
+def character_indices(string: str, char: str):
         """Find all indices in a string corresponding to a character"""
         return [i for i, ltr in enumerate(string) if ltr == char]
 
