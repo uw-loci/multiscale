@@ -27,6 +27,17 @@ def list_of_file_lists():
         lists = [list_one, list_two, list_three]
         return lists
 
+@pytest.fixture()
+def text_files_in_directory(tmpdir):
+        txt_a = Path(tmpdir.join('a.txt'))
+        txt_b = Path(tmpdir.join('b.txt'))
+        txt_c = Path(tmpdir.mkdir('sub').join('c.txt'))
+        txt_a.write_text('a')
+        txt_b.write_text('b')
+        txt_c.write_text('c')
+
+        return txt_a, txt_b, txt_c
+
 
 class TestWriteJSON(object):
         def test_write_object(self, tmpdir):
@@ -95,6 +106,22 @@ class TestItemPresentAllLists(object):
         ])
         def test_item_present(self, list_of_file_lists, item, expected):
                 assert util.item_present_all_lists(item, list_of_file_lists) == expected
+
+
+class TestListFiletypeInDir(object):
+        def test_finds_text_file_types_in_dir(self, tmpdir, text_files_in_directory):
+                all_files = text_files_in_directory
+                expected = [all_files[0], all_files[1]]
+                found = util.list_filetype_in_dir(Path(tmpdir), '.txt')
+                assert found == expected
+
+
+class TestListFiletypeInSubdir(object):
+        def test_finds_text_file_types_in_dir(self, tmpdir, text_files_in_directory):
+                all_files = text_files_in_directory
+                expected = [file for file in all_files]
+                found = util.list_filetype_in_subdirs(Path(tmpdir), '.txt')
+                assert found == expected
 
 
 class TestQueryInt(object):
