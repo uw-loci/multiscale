@@ -97,6 +97,16 @@ def query_float(message: str):
                         return user_input
 
 
+def query_str(message: str):
+        """Ask the user for a float"""
+        while True:
+                try:
+                        user_input = str(input(message))
+                except ValueError:
+                        print("Please enter a valid string.")
+                        continue
+                else:
+                        return user_input
 
 
 def yes_no(question: str):
@@ -120,10 +130,9 @@ def character_indices(string: str, char: str):
         return [i for i, ltr in enumerate(string) if ltr == char]
 
 
-def query_str_list(numStrs, message, strType='String'):
+def query_str_list(str_names: str):
         """Ask the user for multiple strings"""
-        print(message)
-        return [input(strType + ' ' + str(x + 1) + ': ') for x in range(numStrs)]
+        return [query_str(string + ': ') for string in str_names]
 
 
 def query_float_list(valueNames):
