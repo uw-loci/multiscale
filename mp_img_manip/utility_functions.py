@@ -25,14 +25,14 @@ def read_json(path_dict: Path):
                 return dictionary
 
 
-def move_files_to_new_folder(list_files, dir_new):
+def move_files_to_new_folder(list_files: list, dir_new: Path):
         os.makedirs(dir_new, exist_ok=True)
         for file in list_files:
                 new_path = Path(dir_new, file.name)
                 shutil.move(file, new_path)
 
 
-def item_present_all_lists(item, lists):
+def item_present_all_lists(item, lists: list):
         """Check if an item is present in all lists"""
         for index in range(len(lists)):
                 if item not in lists[index]:
@@ -121,21 +121,21 @@ def character_indices(string: str, char: str):
         return [i for i, ltr in enumerate(string) if ltr == char]
 
 
-def query_str_list(str_names: str):
+def query_str_list(str_names: list):
         """Ask the user for multiple strings"""
         return [query_str(string + ': ') for string in str_names]
 
 
-def query_float_list(valueNames):
+def query_float_list(valueNames: list):
         """Ask the user for a list of floats"""
         return [query_float(value + ': ') for value in valueNames]
 
 
-def split_list_into_sublists(large_list, size_of_sublist):
+def split_list_into_sublists(large_list: list, size_of_sublist: int):
         for i in range(0, len(large_list), size_of_sublist):
                 yield large_list[i:i + size_of_sublist]
 
 
-def get_image_size(path_image):
+def get_image_size(path_image: Path):
         image = Image.open(str(path_image))
         return image.size
