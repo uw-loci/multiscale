@@ -101,7 +101,7 @@ def query_str(message: str):
         """Ask the user for a float"""
         while True:
                 try:
-                        user_input = str(input(message))
+                        user_input = input(message)
                 except ValueError:
                         print("Please enter a valid string.")
                         continue
@@ -109,7 +109,7 @@ def query_str(message: str):
                         return user_input
 
 
-def yes_no(question: str):
+def query_yes_no(question: str):
         """Ask the user a yes/no question"""
         
         yes = {'yes', 'y', 'ye'}

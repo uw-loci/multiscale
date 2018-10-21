@@ -131,7 +131,7 @@ def query_good_registration(transform: sitk.Transform, metric, stop):
         print('\nTransform Matrix: \n{0}'.format(matrix))
         print('\nTransform Translation: \n{0}'.format(translation))
         
-        return util.yes_no('Is this registration good? [y/n] >>> ')
+        return util.query_yes_no('Is this registration good? [y/n] >>> ')
 
 
 def query_rotation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
@@ -140,7 +140,7 @@ def query_rotation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
         
         itkplt.plot_overlay(fixed_image, moving_image, initial_transform)
         
-        change_rotation = util.yes_no('Do you want to change the rotation? [y/n] >> ')
+        change_rotation = util.query_yes_no('Do you want to change the rotation? [y/n] >> ')
         
         if change_rotation:
                 while True:
@@ -150,14 +150,14 @@ def query_rotation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
                         itkplt.plot_overlay(fixed_image, moving_image, initial_transform, rotation)
                         
                         # bug: The image does not show up till after the question
-                        if util.yes_no('Is this rotation good? [y/n] >>> '): break
+                        if util.query_yes_no('Is this rotation good? [y/n] >>> '): break
         
 
 def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
                              transform: sitk.Transform):
         """Ask if the user wants a new 2D ITK translation based on image overlay"""
         
-        change_origin = util.yes_no('Do you want to change the initial translation? [y/n] >> ')
+        change_origin = util.query_yes_no('Do you want to change the initial translation? [y/n] >> ')
         translation = tran.get_translation(transform)
         
         if change_origin:
@@ -173,7 +173,7 @@ def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
                         itkplt.plot_overlay(fixed_image, moving_image, transform)
                         
                         # bug: The image does not show up till after the question
-                        if util.yes_no('Is this translation good? [y/n] >>> '): break
+                        if util.query_yes_no('Is this translation good? [y/n] >>> '): break
 
 
 def get_region_size_index(size, origin, spacing):
@@ -195,7 +195,7 @@ def extract_region(image: sitk.Image, size, origin, transform=None):
         
         
 def query_extract_region(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform):
-        do_extract = util.yes_no('Do you wish to extract a sub-region to register based on? [y/n] >> ')
+        do_extract = util.query_yes_no('Do you wish to extract a sub-region to register based on? [y/n] >> ')
 
         if do_extract:
                 itkplt.plot_overlay(fixed_image, moving_image, transform=transform)

@@ -97,7 +97,7 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
         if metadata is None:
                 image.SetMetaData('Unit', unit_workspace)
                 current_spacing = image.GetSpacing()
-                change_spacing = util.yes_no('Change the spacing?  Current spacing is {0} >>'.format(current_spacing))
+                change_spacing = util.query_yes_no('Change the spacing?  Current spacing is {0} >>'.format(current_spacing))
                 
                 if change_spacing:
                         spacing = util.query_float('Please enter the image spacing in {0} >>'.format(unit_workspace))
