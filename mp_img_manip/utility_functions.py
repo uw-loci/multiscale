@@ -41,15 +41,6 @@ def item_present_all_lists(item, lists):
         return True
 
 
-# def append_item_index_to_lists(item, lists, index_lists):
-#    
-#    for index in range(len(lists)):
-#        item_index = lists[index].index(item)
-#        index_lists[index].append(item_index)
-#        
-#    return index_lists
-
-
 def list_filetype_in_dir(file_dir: Path, file_ext: str):
         """Given a directory path, return all files of given file type as a list"""
         return [Path(file_dir, f) for f in os.listdir(file_dir) if f.endswith(file_ext)]
