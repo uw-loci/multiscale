@@ -1,6 +1,8 @@
 import pytest
 import mp_img_manip.utility_functions as util
 import json
+from pathlib import Path
+import os
 
 
 @pytest.fixture()
@@ -30,7 +32,7 @@ def list_of_file_lists():
 class TestWriteJSON(object):
         def test_write_object(self, tmpdir):
                 content = {'test': 5, 'this': 'a', 'set': [1, 3], 'of': {'elements': 'please'}}
-                json_path = tmpdir.mkdir('sub').join('test.json')
+                json_path = tmpdir.join('test.json')
                 util.write_json(content, json_path)
                 with open(str(json_path), 'r') as file:
                         printed_content = json.load(file)
@@ -38,11 +40,54 @@ class TestWriteJSON(object):
 
         def test_tuple_writes_as_list(self, tmpdir):
                 content = {'tuple': (5, 4, 3)}
-                json_path = tmpdir.mkdir('sub').join('tuple_test.json')
+                json_path = tmpdir.join('tuple_test.json')
                 util.write_json(content, json_path)
                 with open(str(json_path), 'r') as file:
                         printed = json.load(file)
                         assert printed == {'tuple': [5, 4, 3]}
+
+
+class TestReadJSON(object):
+        @pytest.mark.parametrize('file_content, expected', [
+                ({"Test": "Value"}, {'Test': 'Value'})
+        ])
+        def test_read_string_io(self, tmpdir, file_content, expected):
+                path = tmpdir.join('test.json')
+                with open(str(path), 'w') as file:
+                        json.dump(file_content, file)
+                output = util.read_json(path)
+                assert output == expected
+
+
+class TestMoveFilesToNewFolder(object):
+        @pytest.fixture()
+        def list_files(self, tmpdir):
+                files = [tmpdir.join('Test.txt'), tmpdir.join('Test2.json')]
+                return files
+
+        def test_move_files_existing_folder(self, list_files, tmpdir):
+                files = list_files
+                for file in files:
+                        file.write('Hello')
+
+                file_paths = [Path(file) for file in files]
+                file_names = [file.name for file in file_paths]
+                new_dir = tmpdir.mkdir('test_folder')
+                util.move_files_to_new_folder(file_paths, new_dir)
+                for file in file_names:
+                        assert file in os.listdir(new_dir)
+
+        def test_move_files_to_new_folder(self, list_files, tmpdir):
+                files = list_files
+                for file in files:
+                        file.write('Hello')
+
+                file_paths = [Path(file) for file in files]
+                file_names = [file.name for file in file_paths]
+                new_dir = Path(tmpdir, 'test_folder')
+                util.move_files_to_new_folder(file_paths, new_dir)
+                for file in file_names:
+                        assert file in os.listdir(new_dir)
 
 
 class TestItemPresentAllLists(object):
