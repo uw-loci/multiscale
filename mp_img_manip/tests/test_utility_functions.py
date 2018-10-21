@@ -8,7 +8,6 @@ import os
 @pytest.fixture()
 def user_input_fixture(monkeypatch):
         monkeypatch.setattr('builtins.input', lambda x: next(x))
-
         def _user_inputs(inputs):
                 for item in inputs:
                         yield item
@@ -120,20 +119,30 @@ class TestQueryFloat(object):
         def test_user_gives_wrong_inputs_then_float(self, user_input_fixture):
                 user_inputs = user_input_fixture(['eight', 'a5', '5a', '5.4'])
                 assert util.query_float(user_inputs) == 5.4
-                
 
-class TestYesNo(object):
+
+class TestQueryStr(object):
+        @pytest.mark.parametrize('input', [
+                ('a'), ('\u0394'), ('4.52')
+        ])
+        def test_some_forms_of_input(self, monkeypatch, input):
+                monkeypatch.setattr('builtins.input', lambda x: input)
+                output = util.query_str(input)
+                assert input == output
+
+
+class TestQueryYesNo(object):
         @pytest.mark.parametrize("input, expected", [
                 ('YES', True),('Y', True),  ('YE', True),('yes', True),('y', True),('ye', True),
                 ('NO', False),('N', False),('n', False),('no', False)
         ])
         def test_yes_no_inputs(self, input, expected, monkeypatch):
                 monkeypatch.setattr('builtins.input', lambda x: input)
-                assert util.yes_no('') is expected
+                assert util.query_yes_no('') is expected
         
         def test_bad_input_then_yes(self, monkeypatch, user_input_fixture):
                 user_inputs = user_input_fixture(['5', 'y', 'test'])
-                assert util.yes_no(user_inputs) is True
+                assert util.query_yes_no(user_inputs) is True
 
 
 class TestCharacterIndices(object):
