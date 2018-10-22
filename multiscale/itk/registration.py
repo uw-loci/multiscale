@@ -145,7 +145,7 @@ def query_rotation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
         if change_rotation:
                 while True:
                         rotation = util.query_float('Enter new rotation (degrees): ')
-                        tran.change_transform_rotation(initial_transform, rotation)
+                        tran.set_transform_rotation(initial_transform, rotation)
                         
                         itkplt.plot_overlay(fixed_image, moving_image, initial_transform, rotation)
                         
