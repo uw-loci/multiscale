@@ -216,10 +216,10 @@ def define_transform(transform_type: type=sitk.AffineTransform, rotation: np.dou
 def change_transform_rotation(transform, rotation):
         deg_to_rad = 2*np.pi/360
         angle = rotation*deg_to_rad
-        if type(transform) == sitk.Euler2DTransform:
+        if get_transform_type_str(transform) == 'Euler2DTransform<double>':
                 transform.SetAngle(angle)
         
-        elif type(transform) == sitk.AffineTransform:
+        if get_transform_type_str(transform) == 'AffineTransform<double,2>':
                 transform.Rotate(0, 1, angle, pre=True)
                 
 
@@ -272,7 +272,6 @@ def implemented_transform_type(transform_type_str):
         
         else:
                 return False
-
 
 
 def set_translation(transform, translation):
