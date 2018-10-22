@@ -226,11 +226,11 @@ def define_transform(transform_type: type=sitk.AffineTransform, rotation: np.dou
         
         if transform_type == sitk.Euler2DTransform:
                 transform = sitk.Euler2DTransform()
-                change_transform_rotation(transform, rotation)
+                set_transform_rotation(transform, rotation)
                 
         if transform_type == sitk.AffineTransform:
                 transform = sitk.AffineTransform(2)
-                change_transform_rotation(transform, rotation)
+                set_transform_rotation(transform, rotation)
         
         if transform_type not in implemented_transforms:
                 raise('{0} transform has not been implemented yet'.format(transform_type))
@@ -238,7 +238,7 @@ def define_transform(transform_type: type=sitk.AffineTransform, rotation: np.dou
         return transform
 
 
-def change_transform_rotation(transform, rotation):
+def set_transform_rotation(transform, rotation):
         """
         Change the initial rotation of a transform matrix to the specified angle, ignoring previous angles
         
@@ -252,8 +252,11 @@ def change_transform_rotation(transform, rotation):
         if type(transform) == sitk.Euler2DTransform:
                 transform.SetAngle(angle)
         
-        if type(transform) == sitk.AffineTransform:
-                transform.Rotate(0, 1, angle)
+        if type(transform) == sitk.AffineTransform and len(transform.GetTranslation()) == 2:
+                generic_affine = sitk.AffineTransform(2)
+                generic_affine.SetTranslation(transform.GetTranslation())
+                generic_affine.Rotate(0, 1, angle)
+                transform.SetParameters(generic_affine.GetParameters())
                 
         if type(transform) == sitk.Transform:
                 print('This transform is of generic type, it has no rotation parameter.')

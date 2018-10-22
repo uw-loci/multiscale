@@ -17,10 +17,10 @@ class TestReadTransform(object):
                 assert type(transform) == type(new_transform)
 
 
-class TestChangeTransformRotation(object):
+class TestSetTransformRotation(object):
         def test_change_affine2d_rotation(self):
                 transform = sitk.AffineTransform(2)
-                tran.change_transform_rotation(transform, 2)
+                tran.set_transform_rotation(transform, 2)
                 expected_params = (0.9993908270190958, 0.03489949670250097, -0.03489949670250097, 0.9993908270190958,
                                    0.0, 0.0)
                 assert expected_params == transform.GetParameters()
@@ -31,9 +31,20 @@ class TestChangeTransformRotation(object):
                 angle = rotation * deg_to_rad
                 
                 transform = sitk.Euler2DTransform()
-                tran.change_transform_rotation(transform, rotation)
+                tran.set_transform_rotation(transform, rotation)
                 assert angle == transform.GetAngle()
+        
+        @pytest.mark.parametrize('transform_1, transform_2', [
+                (sitk.AffineTransform(2), sitk.AffineTransform(2)),
+                (sitk.Euler2DTransform(), sitk.Euler2DTransform())
+        ])
+        def test_rotations_do_not_stack(self, transform_1, transform_2):
+                tran.set_transform_rotation(transform_1, 2)
+                tran.set_transform_rotation(transform_1, 3)
+                tran.set_transform_rotation(transform_2, 3)
                 
+                assert transform_1.GetParameters() == transform_2.GetParameters()
+        
 
 class TestGetTransformTypeStr(object):
         def test_affine2d(self):
