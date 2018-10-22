@@ -19,6 +19,31 @@ def write_transform(registered_path, transform):
         sitk.WriteTransform(transform, str(transform_path))
         
 
+def read_transform(transform_path: Path):
+        """
+        Read in a transform and set the type correctly, as it is generic with default SimpleITK
+        
+        :param transform_path: path to the transform.tfm file
+        :return: the transform
+        """
+        generic_transform = sitk.ReadTransform(str(transform_path))
+        generic_parameters = generic_transform.GetParameters()
+        
+        transform_type_str = get_transform_type_str(generic_transform)
+        
+        if transform_type_str == 'AffineTransform<double,2>':
+                transform = sitk.AffineTransform(2)
+        
+        elif transform_type_str == 'Euler2DTransform<double>':
+                transform = sitk.Euler2DTransform()
+                
+        else:
+                raise NotImplementedError('This transform type has not been implemented yet')
+                
+        transform.SetParameters(generic_parameters)
+        return transform
+        
+
 def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, transform_path):
         transform = sitk.ReadTransform(str(transform_path))
         registered_image = sitk.Resample(moving_image, fixed_image, transform,

@@ -1,6 +1,19 @@
 import pytest
 import SimpleITK as sitk
 import multiscale.itk.transform as tran
+from pathlib import Path
+
+
+class TestReadTransform(object):
+        @pytest.mark.parametrize('transform', [
+                (sitk.AffineTransform(2)), (sitk.Euler2DTransform())
+        ])
+        def test_gets_transform_types_correct(self, transform, tmpdir):
+                temp_path = Path(tmpdir.join('transform.tfm'))
+                sitk.WriteTransform(transform, str(temp_path))
+                new_transform = tran.read_transform(Path(temp_path))
+                
+                assert type(transform) == type(new_transform)
 
 
 class TestGetTransformTypeStr(object):
