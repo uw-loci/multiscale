@@ -193,8 +193,20 @@ def extract_region(image: sitk.Image, size, origin, transform=None):
         meta.copy_relevant_metadata(region, image)
         return region
         
-        
-def query_extract_region(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform):
+
+def query_registration_sampling_change(registration_method=sitk.ImageRegistrationMethod):
+        do_change = util.query_yes_no('Do you wish to change the registration sampling rate (default = 0.01)? [y/n] >>')
+        if do_change:
+                while True:
+                        new_rate = util.query_float('Please enter a rate >0 and <= 1 >> ')
+                        if new_rate > 0 and new_rate <= 1:
+                                break
+                        print('{0} is an invalid rate'.format(new_rate))
+                registration_method.SetMetricSamplingPercentage(new_rate)
+
+
+def query_extract_region(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform,
+                         registration_method=sitk.ImageRegistrationMethod):
         do_extract = util.query_yes_no('Do you wish to extract a sub-region to register based on? [y/n] >> ')
 
         if do_extract:
@@ -210,6 +222,8 @@ def query_extract_region(fixed_image: sitk.Image, moving_image: sitk.Image, tran
 
                 fixed_region = extract_region(fixed_image, size, origin)
                 moving_region = extract_region(moving_image, size*1.1, origin-0.05*size, transform)
+                
+                query_registration_sampling_change(registration_method)
                 
                 return fixed_region, moving_region, do_extract
                 
@@ -243,7 +257,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                         tran.write_initial_transform(moving_path, initial_transform)
                 
                 fixed_final, moving_final, region_extracted = \
-                        query_extract_region(fixed_image, moving_image_2d, initial_transform)
+                        query_extract_region(fixed_image, moving_image_2d, initial_transform, registration_method)
                 
                 reg_plot = RegistrationPlot(fixed_final, moving_final)
                 (transform, metric, stop) = register(fixed_final, moving_final, reg_plot,
