@@ -239,6 +239,13 @@ def define_transform(transform_type: type=sitk.AffineTransform, rotation: np.dou
 
 
 def change_transform_rotation(transform, rotation):
+        """
+        Change the initial rotation of a transform matrix to the specified angle, ignoring previous angles
+        
+        :param transform: The transform to change
+        :param rotation: The angle in degrees for the transform rotation to be
+        :return:
+        """
         deg_to_rad = 2*np.pi/360
         angle = rotation*deg_to_rad
         
@@ -253,7 +260,12 @@ def change_transform_rotation(transform, rotation):
                 
 
 def read_initial_transform(path_image: Path, transform_type: type):
-        
+        """
+        Find the initial transform that sets up an image for registration, used for remembering good initializations
+        :param path_image: Path to the image in question.
+        :param transform_type: Type of transform, writes down a blank initial transform file if this none are found
+        :return: The initial transform
+        """
         path_transform = Path(path_image.parent, path_image.stem + '_initial.tfm')
         
         if path_transform.is_file():
@@ -267,6 +279,7 @@ def read_initial_transform(path_image: Path, transform_type: type):
 
 
 def write_initial_transform(path_image: Path, transform: sitk.Transform):
+        """Write a transform with the suffix _initial, meant for registration initialization"""
         path_transform = Path(path_image.parent, path_image.stem + '_initial.tfm')
         sitk.WriteTransform(transform, str(path_transform))
         
