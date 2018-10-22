@@ -14,22 +14,33 @@ import javabridge
 import bioformats as bf
 from pathlib import Path
 
-from multiscale.polarimetry.preprocessing import calculate_polarization_state_transforms, \
-        bulk_apply_polarization_transforms
+from multiscale.polarimetry.preprocessing import calculate_polarization_state_transforms
+from multiscale.polarimetry.preprocessing import bulk_apply_polarization_transforms
 
+# Start the javabridge to enable bioformats
 javabridge.start_vm(class_path=bf.JARS, max_heap_size='8G')
 
 mhr_dir = Path(r'C:\Users\mpinkert\Box\Research\Polarimetry\Polarimetry - Raw Data\2018.06.14_80x')
 mhr_path = Path(mhr_dir, 'WP2.czi')
-output_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\MHR Registered')
-transform_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\MHR Transforms')
-transform_prefix = 'MHR_Position'
-mlr_resolution = 2.016
+mhr_output_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\HR Registered')
+mhr_transform_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\HR Transforms')
+mhr_transform_prefix = 'MHR_Position'
 mhr_resolution = 0.81
 
+#calculate_polarization_state_transforms(mhr_path, mhr_resolution, mhr_transform_dir, mhr_transform_prefix)
+bulk_apply_polarization_transforms(mhr_dir, mhr_output_dir, mhr_transform_dir,
+                                         mhr_transform_prefix, mhr_resolution)
 
-calculate_polarization_state_transforms(mhr_path, mhr_resolution, transform_dir)
-bulk_apply_polarization_transforms(mhr_dir, output_dir, transform_dir, transform_prefix, mhr_resolution)
+mlr_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\LR czi images')
+mlr_path = Path(mlr_dir, 'WP2.czi')
+mlr_output_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\LR Registered')
+mlr_transform_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\LR Transforms')
+mlr_transform_prefix = 'MHR_Position'
+mlr_resolution = 2.016
+
+calculate_polarization_state_transforms(mhr_path, mhr_resolution, mhr_transform_dir, mhr_transform_prefix)
+bulk_apply_polarization_transforms(mhr_dir, mhr_output_dir, mhr_transform_dir,
+                                         mhr_transform_prefix, mhr_resolution)
 
 
 javabridge.kill_vm()
