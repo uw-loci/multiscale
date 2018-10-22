@@ -23,9 +23,9 @@ import matplotlib.pyplot as plt
 from multiscale.itk.process import rgb_to_2d_img
 
 
-def define_registration_method(scale: int=4, iterations: int=100, learning_rate: np.double=50,
+def define_registration_method(scale: int=1, iterations: int=100, learning_rate: np.double=50,
                                min_step: np.double=0.01, gradient_tolerance: np.double=1E-5,
-                               metric_sampling_percentage: np.double=1) \
+                               metric_sampling_percentage: np.double=0.01) \
             -> sitk.ImageRegistrationMethod:
         """
         Define the base metric, interpolator, and optimizer of a registration or series of registrations
@@ -144,13 +144,13 @@ def query_rotation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
         
         if change_rotation:
                 while True:
-                        rotation = util.query_float('Enter new rotation (degrees):')
+                        rotation = util.query_float('Enter new rotation (degrees): ')
                         tran.change_transform_rotation(initial_transform, rotation)
                         
                         itkplt.plot_overlay(fixed_image, moving_image, initial_transform, rotation)
                         
                         # bug: The image does not show up till after the question
-                        if util.query_yes_no('Is this rotation good? [y/n] >>> '): break
+                        if util.query_yes_no('Is this rotation good? [y/n] >> '): break
         
 
 def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
@@ -282,7 +282,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
 def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                                     output_dir: Path, output_suffix: str, write_output: bool=True,
                                     write_transform: bool=True, transform_type: type=sitk.AffineTransform,
-                                    iterations: int=100, scale: int=3,
+                                    iterations: int=100, scale: int=1,
                                     skip_existing_images: bool=True):
         """Register two directories of images, matching based on the core name, the string before the first _
     
