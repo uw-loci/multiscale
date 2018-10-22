@@ -1,8 +1,10 @@
-mp_python_modules
+Multiscale imaging at LOCI
 ===================
 
+This library holds tools for multiscale imaging projects at the Laboratory of Optical and Computational Instrumentation.
+It holds tools for image registration, for interfacing with several toolkits (e.g. CurveAlign), and other processing
+tasks based on project.
 
-Manipulate images in bulk for image analysis pipelines.
 
 ## Motivation
 

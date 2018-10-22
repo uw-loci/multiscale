@@ -9,14 +9,18 @@ with open('LICENSE.txt') as f:
     license = f.read()
 
 setup(
-    name='mp_img_manip',
+    name='multiscale',
     version='0.1.0',
-    description='An image processing library for the Laboratory of Optical and Computational Instrumentation',
-    long_description=readme,
     author='Michael Pinkert',
     author_email='mpinkert@wisc.edu',
-    url='https://github.com/uw-loci/mp-python-modules',
+    description='An multiscale image processing library for the Laboratory of Optical and Computational Instrumentation',
+    long_description=readme,
+    url='https://github.com/uw-loci/multiscale_imaging',
     license=license,
-    packages=find_packages(exclude=('tests', 'docs'))
+    packages=find_packages(),
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: BSD License"
+    ]
 )
 
