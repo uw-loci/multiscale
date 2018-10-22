@@ -195,7 +195,7 @@ def extract_region(image: sitk.Image, size, origin, transform=None):
         
 
 def query_registration_sampling_change(registration_method=sitk.ImageRegistrationMethod):
-        do_change = util.query_yes_no('Do you wish to change the registration sampling rate (default = 0.01)? [y/n] >>')
+        do_change = util.query_yes_no('Do you wish to change the registration sampling rate (default 0.01)? [y/n] >> ')
         if do_change:
                 while True:
                         new_rate = util.query_float('Please enter a rate >0 and <= 1 >> ')
