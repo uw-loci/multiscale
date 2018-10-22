@@ -246,7 +246,7 @@ def change_transform_rotation(transform, rotation):
                 transform.SetAngle(angle)
         
         if type(transform) == sitk.AffineTransform:
-                transform.Rotate(0, 1, angle, pre=True)
+                transform.Rotate(0, 1, angle)
                 
         if type(transform) == sitk.Transform:
                 print('This transform is of generic type, it has no rotation parameter.')
