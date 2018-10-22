@@ -95,13 +95,14 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
         metadata = read_metadata(path_image)
         
         if metadata is None:
+                print('{0} has no metadata.'.format(str(path_image.name)))
                 image.SetMetaData('Unit', unit_workspace)
                 current_spacing = image.GetSpacing()
-                change_spacing = util.query_yes_no('Change the spacing?  Current spacing is {0} >>'.format(current_spacing))
+                change_spacing = util.query_yes_no('Change the spacing?  Current spacing is {0} >> '.format(current_spacing))
                 
                 if change_spacing:
-                        spacing = util.query_float('Please enter the image spacing in {0} >>'.format(unit_workspace))
-                        spacing_new = np.full([len(image.GetSpacing()), 1], spacing)
+                        spacing = util.query_float('Please enter the image spacing in {0} >> '.format(unit_workspace))
+                        spacing_new = [spacing] * len(image.GetSpacing())
                         image.SetSpacing(spacing_new)
                         
                         if write_changes:
