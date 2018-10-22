@@ -241,21 +241,15 @@ def define_transform(transform_type: type=sitk.AffineTransform, rotation: np.dou
 def change_transform_rotation(transform, rotation):
         deg_to_rad = 2*np.pi/360
         angle = rotation*deg_to_rad
-        translation = get_translation(transform)
         
-        if get_transform_type_str(transform) == 'Euler2DTransform<double>':
-                temp_transform = sitk.Euler2DTransform()
-                temp_transform.SetTranslation(translation)
+        if type(transform) == sitk.Euler2DTransform:
                 transform.SetAngle(angle)
-                temp_params = temp_transform.GetParameters()
-                transform.SetParameters(temp_params)
         
-        if get_transform_type_str(transform) == 'AffineTransform<double,2>':
-                temp_transform = sitk.AffineTransform(2)
-                temp_transform.SetTranslation(translation)
-                temp_transform.Rotate(0, 1, angle, pre=True)
-                temp_params = temp_transform.GetParameters()
-                transform.SetParameters(temp_params)
+        if type(transform) == sitk.AffineTransform:
+                transform.Rotate(0, 1, angle, pre=True)
+                
+        if type(transform) == sitk.Transform:
+                print('This transform is of generic type, it has no rotation parameter.')
                 
 
 def read_initial_transform(path_image: Path, transform_type: type):
@@ -263,7 +257,7 @@ def read_initial_transform(path_image: Path, transform_type: type):
         path_transform = Path(path_image.parent, path_image.stem + '_initial.tfm')
         
         if path_transform.is_file():
-                transform = sitk.ReadTransform(str(path_transform))
+                transform = read_transform(path_transform)
         else:
                 print('No transform found.  Writing blank transform for {0}'.format(path_image.name))
                 transform = define_transform(transform_type)

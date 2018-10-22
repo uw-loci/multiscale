@@ -2,6 +2,7 @@ import pytest
 import SimpleITK as sitk
 import multiscale.itk.transform as tran
 from pathlib import Path
+import numpy as np
 
 
 class TestReadTransform(object):
@@ -15,6 +16,24 @@ class TestReadTransform(object):
                 
                 assert type(transform) == type(new_transform)
 
+
+class TestChangeTransformRotation(object):
+        def test_change_affine2d_rotation(self):
+                transform = sitk.AffineTransform(2)
+                tran.change_transform_rotation(transform, 2)
+                expected_params = (0.9993908270190958, 0.03489949670250097, -0.03489949670250097, 0.9993908270190958,
+                                   0.0, 0.0)
+                assert expected_params == transform.GetParameters()
+                
+        def test_change_euler2d_angle(self):
+                rotation = 2
+                deg_to_rad = 2 * np.pi / 360
+                angle = rotation * deg_to_rad
+                
+                transform = sitk.Euler2DTransform()
+                tran.change_transform_rotation(transform, rotation)
+                assert angle == transform.GetAngle()
+                
 
 class TestGetTransformTypeStr(object):
         def test_affine2d(self):
