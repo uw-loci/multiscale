@@ -1,4 +1,4 @@
-Multiscale imaging at the Laboratory for Optical and Computational Instrumentation
+Multiscale imaging at LOCI
 ===================
 
 This library holds tools for multiscale imaging projects at the Laboratory of Optical and Computational Instrumentation.
