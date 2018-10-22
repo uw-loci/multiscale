@@ -78,7 +78,7 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
         
         if downsample:
                 fixed_shrunk = trans.resize_image(fixed_image, fixed_image.GetSpacing()[0], downsample_target)
-                rotated_shrunk = trans.resize_image(rotated_image, moving_image.GetSpacing()[0], downsample_target)
+                rotated_shrunk = trans.resize_image(rotated_image, fixed_image.GetSpacing()[0], downsample_target)
                 spacing = fixed_shrunk.GetSpacing()
                 
                 overlay_array = overlay_images(fixed_shrunk, rotated_shrunk)
