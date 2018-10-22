@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def auto_window_level(arr: np.array, bins=15, upper_limit_fraction=0.1, lower_limit_fraction=0.002):
+def auto_window_level(arr: np.array, bins=10, upper_limit_fraction=0.1, lower_limit_fraction=0.002):
         """Automatically window/level based on the image histogram"""
         hist, bin_edges = np.histogram(arr, bins=bins)
         bin_size = bin_edges[1] - bin_edges[0]
