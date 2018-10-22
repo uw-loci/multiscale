@@ -1,27 +1,11 @@
-"""
-Mueller matrix polarimetry takes many different images of the same
-sample using different input and output polarizations.  Changing the
-output polarization on the instrument we are using changes the
-optical path, and thus shifts the images.
-
-This script is intended to register the images onto each other and
-find a universal transform so that it can be applied to all future
-images from the same source.  This will let us get better results with
-the final Mueller image.
-"""
-import mp_img_manip.itk.registration as reg
-
-import javabridge
-import bioformats as bf
-import SimpleITK as sitk
-from pathlib import Path
 import os
-import pandas as pd
+from pathlib import Path
 
-import mp_img_manip.itk.transform as tran
-import mp_img_manip.utility_functions as util
-import mp_img_manip.itk.itk_plotting as itkplot
-import mp_img_manip.itk.metadata as meta
+import SimpleITK as sitk
+import bioformats as bf
+
+from multiscale import utility_functions as util
+from multiscale.itk import itk_plotting as itkplot, registration as reg, transform as tran, metadata as meta
 
 
 def plot_overlay_from_czi_timepoints(path_file, timepoint_one, timepoint_two):
@@ -168,21 +152,3 @@ def bulk_apply_polarization_transforms(dir_input, dir_output, transform_dir, tra
                 
                 apply_polarization_transforms(file, dir_output_file, transform_dir, transform_prefix, resolution,
                                               skip_existing_images=skip_existing_images)
-                
-                
-javabridge.start_vm(class_path=bf.JARS, max_heap_size='8G')
-
-mhr_dir = Path(r'C:\Users\mpinkert\Box\Research\Polarimetry\Polarimetry - Raw Data\2018.06.14_80x')
-mhr_path = Path(mhr_dir, 'WP2.czi')
-output_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\MHR Registered')
-transform_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\MHR Transforms')
-transform_prefix = 'MHR_Position'
-mlr_resolution = 2.016
-mhr_resolution = 0.81
-
-
-#calculate_polarization_state_transforms(mhr_path, mhr_resolution, transform_dir)
-bulk_apply_polarization_transforms(mhr_dir, output_dir, transform_dir, transform_prefix, mhr_resolution)
-
-
-javabridge.kill_vm()
