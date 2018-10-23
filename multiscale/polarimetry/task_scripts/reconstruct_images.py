@@ -10,7 +10,7 @@ from pathlib import Path
 import SimpleITK as sitk
 import numpy as np
 
-import multiscale.utility_functions as util
+import multiscale.itk.metadata as meta
 import multiscale.tiling as til
 import multiscale.bulk_img_processing as blk
 import multiscale.polarimetry.dir_dictionary as dird
@@ -43,7 +43,7 @@ def bulk_construct_images(df_single_modality_variable, modality, dir_modality,
 
 
 def get_image_dimensions(path_to_image, tile_size=np.array([512, 512])):
-        size_full = util.get_image_size(path_to_image)
+        size_full = meta.get_image_size_from_path(path_to_image)
         num_tiles, offset_tile = til.calculate_number_of_tiles(size_full, tile_size)
         size_roi = np.array(num_tiles) * 8
         
@@ -52,7 +52,8 @@ def get_image_dimensions(path_to_image, tile_size=np.array([512, 512])):
 
 def find_matching_image(group, dir_modality):
         sample = str(group[0]) + '-' + str(group[1])
-        path_image = [Path(image) for image in os.listdir(dir_modality) if image.startswith(sample)]
+        path_image = [Path(image) for image in os.listdir(dir_modality) if (image.startswith(sample) and
+                                                                            image.endswith('.tif'))]
         
         return path_image[0]
 
@@ -67,9 +68,9 @@ dir_dict = dird.create_dictionary()
 path_averages = Path(dir_dict['anal'], 'ROIs_averaged_from_base_image.csv')
 df_averages = pd.read_csv(path_averages, header=[0, 1], index_col=[0, 1, 2, 3],
                           dtype={'Mouse': object, 'Slide': object})
-
-bulk_construct_images(df_averages['Orientation', 'MLR-O'], 'MLR-O', dir_dict['mlr_large_reg'],
-                      dir_dict['images'], 'MLR-O_Averaged_Orientation')
+#
+# bulk_construct_images(df_averages['Orientation', 'MLR-O'], 'MLR-O', dir_dict['mlr_large_reg'],
+#                       dir_dict['images'], 'MLR-O_Averaged_Orientation')
 bulk_construct_images(df_averages['Orientation', 'MHR-O'], 'MHR-O', dir_dict['mhr_large_reg'],
                       dir_dict['images'], 'MHR-O_Averaged_Orientation')
 

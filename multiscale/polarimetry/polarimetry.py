@@ -106,7 +106,7 @@ def process_orientation_alignment(ret_image_path, orient_image_path,
         if roi_size is None:
                 with open(output_path, 'w', newline='') as csvfile:
                         print('\nWriting average retardance file for {} at tile size {}'.format(
-                                output_path.name, tile_size[0]))
+                                ret_image_path.name, tile_size[0]))
                         writer = csv.writer(csvfile)
                         writer.writerow(['Mouse', 'Slide', 'Modality', 'Tile',
                                          'Retardance', 'Orientation', 'Alignment'])
