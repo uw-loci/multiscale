@@ -3,6 +3,7 @@ from pathlib import Path
 
 import SimpleITK as sitk
 import bioformats as bf
+import numpy as np
 
 from multiscale import utility_functions as util
 from multiscale.itk import itk_plotting as itkplot, registration as reg, transform as tran, metadata as meta
@@ -65,13 +66,21 @@ def idx_dictionary():
 
 
 def calculate_polarization_state_transforms(path_img: Path, resolution, transform_dir: Path, transform_prefix: str,
-                                            skip_finished_transforms=True):
+                                            skip_finished_transforms=True, scale: int=1, iterations: int=100, learning_rate: np.double=3,
+                                            min_step: np.double=0.01, gradient_tolerance: np.double=1E-6,
+                                            metric_sampling_percentage: float=0.01):
         """
         Register based on output polarization state, and save the resulting transform
         :param path_img: path to the image file being used to calculate the transforms
         :param resolution: resolution of the image file
-        :param registration_method: itk construct holding registration parameters
         :param transform_dir: Directory that holds the transform files
+        :param scale: How many times the registration method downsamples the resolution by 2x
+        :param iterations: The number of times the method optimizes the metric before
+        :param learning_rate: How far is each move in the gradient descent.
+        :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
+        :param gradient_tolerance: If the gradient is below this size, stop the algorithm
+        :param metric_sampling_percentage: How many pixels are used in the metric evaluation
+        :return: A regular step gradient descent registration method based on input parameters
         :param skip_finished_transforms: whether to skip finding transforms if they already exist or not
         :return:
         """
@@ -82,9 +91,6 @@ def calculate_polarization_state_transforms(path_img: Path, resolution, transfor
         
         for idx in range(1, 24):
                 
-                registration_method = reg.define_registration_method(scale=1, learning_rate=1, iterations=300,
-                                                                     min_step=0.001,
-                                                                     metric_sampling_percentage=0.01)
                 transform_path = Path(transform_dir, transform_prefix + '_' + str(idx + 1) + '.tfm')
                 initial_transform = tran.read_initial_transform(transform_path, sitk.AffineTransform)
                 
@@ -98,9 +104,9 @@ def calculate_polarization_state_transforms(path_img: Path, resolution, transfor
                 
                 registered_img, transform, metric, stop = reg.supervised_register_images(
                         fixed_img, moving_img,
-                        registration_method=registration_method,
-                        initial_transform=initial_transform, moving_path=transform_path
-                )
+                        initial_transform=initial_transform, moving_path=transform_path, scale=scale,
+                        iterations=iterations, learning_rate=learning_rate, min_step=min_step,
+                        gradient_tolerance=gradient_tolerance, metric_sampling_percentage=metric_sampling_percentage)
                 
                 tran.write_transform(transform_path, transform)
 
