@@ -28,14 +28,25 @@ def perform_registrations(dir_dict: dict, skip_existing_images=True):
         reg.bulk_supervised_register_images(dir_dict["shg_large"],
                                             dir_dict["mhr_large"],
                                             dir_dict["mhr_large_reg"], 'MHR_Registered',
-              
                                             skip_existing_images=skip_existing_images)
+        
+        reg.bulk_supervised_register_images(dir_dict["shg_large"],
+                                            dir_dict["mlr_large"],
+                                            dir_dict["mlr_large_reg"], 'MLR_Registered',
+                                            skip_existing_images=skip_existing_images)
+        
         
 def apply_transforms(dir_dict: dict, skip_existing_images=True):
         trans.bulk_apply_transform(dir_dict['shg_large'],
                                    dir_dict['mhr_large_orient'],
                                    dir_dict['mhr_large_reg'],
                                    dir_dict['mhr_large_reg_orient'], 'MHR_Orient_Registered',
+                                   skip_existing_images=skip_existing_images)
+        
+        trans.bulk_apply_transform(dir_dict['shg_large'],
+                                   dir_dict['mlr_large_orient'],
+                                   dir_dict['mlr_large_reg'],
+                                   dir_dict['mlr_large_reg_orient'], 'MLR_Orient_Registered',
                                    skip_existing_images=skip_existing_images)
         
         
