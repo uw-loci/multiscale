@@ -114,7 +114,7 @@ def bulk_convert_to_eightbit(input_dir, output_dir, output_suffix):
 
 
 def check_if_image_is_rgb(image: sitk.Image):
-        
+        """Check if an image is RGB by looking for a 3-component 8 bit pixel image"""
         components = image.GetNumberOfComponentsPerPixel()
         pixel_type = image.GetPixelIDTypeAsString()
         

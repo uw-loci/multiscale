@@ -20,9 +20,35 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-from multiscale.itk.process import rgb_to_2d_img
+from multiscale.itk.process import rgb_to_grayscale_img
 
 
+def set_registration_parameters_dict(scale: int=1, iterations: int=100, learning_rate: float=3,
+                                     min_step: float=0.01, gradient_tolerance: float=1E-6,
+                                     metric_sampling_percentage: float=0.01):
+        """
+        Define the registration parameters and convert it into a dictionary for easy passing through functions
+        :param scale: How many times the method downsamples the resolution by 2x
+        :param iterations: The number of times the method optimizes the metric before
+        :param learning_rate: How far is each move in the gradient descent.
+        :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
+        :param gradient_tolerance: If the gradient is below this size, stop the algorithm
+        :param metric_sampling_percentage: How many pixels are used in the metric evaluation
+        :return:
+        """
+        
+        parameters = {
+                'scale': scale,
+                'iterations': iterations,
+                'learning_rate': learning_rate,
+                'min_step': min_step,
+                'gradient_tolerance': gradient_tolerance,
+                'metric_sampling_percentage': metric_sampling_percentage
+        }
+        return parameters
+        
+        
+        
 def define_registration_method(scale: int=1, iterations: int=100, learning_rate: np.double=3,
                                min_step: np.double=0.01, gradient_tolerance: np.double=1E-6,
                                metric_sampling_percentage: float=0.01) \
@@ -122,7 +148,7 @@ def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: Regist
 
 
 def query_good_registration(transform: sitk.Transform, metric, stop):
-        
+
         print('\nFinal metric value: {0}'.format(metric))
         print('\n{0}'.format(stop))
         
@@ -177,25 +203,45 @@ def query_translation_change(fixed_image: sitk.Image, moving_image: sitk.Image,
                         if util.query_yes_no('Is this translation good? [y/n] >>> '): break
 
 
-def get_region_size_index(size, origin, spacing):
+def get_region_size_origin_indices(size, origin, spacing):
+        """
+        Convert the size and origin indices from physical dimensions to integer index
+        :param size: Size of a region in physical space
+        :param origin: Origin of a region in physical space
+        :param spacing: Physical spacing of pixels
+        :return:
+        """
         dimensions = len(spacing)
-        size = [int(np.floor(size / spacing[i])) for i in range(dimensions)]
-        index = [int(np.floor(origin[i] / spacing[i])) for i in range(dimensions)]
-        return size, index
+        integer_size = [int(np.floor(size / spacing[i])) for i in range(dimensions)]
+        integer_index = [int(np.floor(origin[i] / spacing[i])) for i in range(dimensions)]
+        return integer_size, integer_index
 
 
 def extract_region(image: sitk.Image, size, origin, transform=None):
+        """
+        Extract a region from a SimpleITK image
+        :param image: The SimpleITK image
+        :param size: The size of the region in physical space
+        :param origin: The origin of the region in physical space
+        :param transform: Image transform to apply before extracting the region
+        :return: A SimpleITK image that corresponds to the region
+        """
         if transform is not None:
                 translation = tran.get_translation(transform)
                 origin = origin + translation
         
-        size_array, index = get_region_size_index(size, origin, image.GetSpacing())
+        size_array, index = get_region_size_origin_indices(size, origin, image.GetSpacing())
         region = sitk.Extract(image, size_array, index)
         meta.copy_relevant_metadata(region, image)
         return region
         
 
-def query_registration_sampling_change(registration_method=sitk.ImageRegistrationMethod):
+def query_registration_sampling_change(registration_method: sitk.ImageRegistrationMethod):
+        """
+        Ask the user if they want to change the registration sampling rate, and to what if they do.
+        :param registration_method: The registration method being used in the registration algorithm
+        :return:
+        """
         do_change = util.query_yes_no('Do you wish to change the registration sampling rate (default 0.01)? [y/n] >> ')
         if do_change:
                 while True:
@@ -253,11 +299,9 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
         """
         # todo: make transform and registration method kwargs/or path
         
-
-        
         moving_image_is_rgb = moving_image.GetNumberOfComponentsPerPixel() > 1
         if moving_image_is_rgb:
-                moving_image_2d = rgb_to_2d_img(moving_image)
+                moving_image_2d = rgb_to_grayscale_img(moving_image)
         else:
                 moving_image_2d = moving_image
         
