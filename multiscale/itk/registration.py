@@ -252,6 +252,8 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                 moving_image_2d = moving_image
         
         while True:
+                # todo: window/level helper to get pair specific values
+                
                 query_rotation_change(fixed_image, moving_image_2d, initial_transform)
                 query_translation_change(fixed_image, moving_image_2d, initial_transform)
                 if moving_path is not None:
