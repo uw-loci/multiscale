@@ -4,6 +4,7 @@ Created on Wed Mar 21 09:40:25 2018
 
 @author: mpinkert
 """
+from PIL import Image
 
 import multiscale.bulk_img_processing as blk
 import multiscale.utility_functions as util
@@ -232,6 +233,12 @@ def write_image_parameters(image_path, spacing, origin, rotation=0):
         
         blk.write_pandas_row(file_path, image_name, column_values,
                              'Image', column_labels)
-        
-        
 
+
+def get_image_size_from_path(path_image: Path):
+        """Get the image size without loading the whole image"""
+        reader = sitk.ImageFileReader()
+        reader.SetFileName(str(path_image))
+        reader.ReadImageInformation()
+        size = reader.GetSize()
+        return size

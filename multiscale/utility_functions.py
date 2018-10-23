@@ -136,6 +136,3 @@ def split_list_into_sublists(large_list: list, size_of_sublist: int):
                 yield large_list[i:i + size_of_sublist]
 
 
-def get_image_size(path_image: Path):
-        image = Image.open(str(path_image))
-        return image.size

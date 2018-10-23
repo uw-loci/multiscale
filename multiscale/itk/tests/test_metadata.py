@@ -1,5 +1,20 @@
 import pytest
+import SimpleITK as sitk
+from pathlib import Path
 import multiscale.itk.metadata as meta
+import numpy as np
+
+
+@pytest.fixture()
+def generic_tif(tmpdir):
+        im_array = np.array([[4, 2, 0], [1, 3, 5]])
+        img = sitk.GetImageFromArray(im_array)
+        img = sitk.Cast(img, sitk.sitkUInt8)
+        img_path = Path(tmpdir.join('test_img.tif'))
+        sitk.WriteImage(img, str(img_path))
+        
+        return img_path
+
 
 class TestUnitToFactor(object):
         def test_known_inputs(self):
@@ -74,4 +89,8 @@ class TestWriteImage(object):
                 return
 
 
-        
+class TestGetImageSizeFromPath(object):
+        def test_gets_size_from_sitk_written_image(self, generic_tif):
+                expected = (3, 2)
+                size = meta.get_image_size_from_path(generic_tif)
+                assert size == expected
