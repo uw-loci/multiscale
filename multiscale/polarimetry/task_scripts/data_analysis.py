@@ -98,7 +98,7 @@ pd.DataFrame, pd.DataFrame, pd.DataFrame):
         #                      low_memory=False)
         # df_shg = df_rois.xs('SHG', level=1, axis=1)
         
-        df_shg = pd.read_csv(path_shg, index_col=[0, 1, 2, 3], low_memory=False)
+        df_shg = pd.read_csv(path_shg, header=[0, 1], index_col=[0, 1, 2, 3], low_memory=False)
         
         df_average = pd.read_csv(path_average, header=[0, 1], index_col=[0, 1, 2, 3],
                                  low_memory=False)
@@ -190,3 +190,11 @@ def fib_comparison(ret_thresh: float, fib_thresh: int, seg_thresh: int):
         corrs_align = calculate_pairwise_correlations(df_align_thresh_2)
         
         return corrs_orient, corrs_align
+
+
+path_avg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
+                'ROIs_averaged_from_base_image.csv')
+path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
+
+df_orient, df_align, df_ret = get_average_dfs(path_shg, path_avg, 0.1)
+

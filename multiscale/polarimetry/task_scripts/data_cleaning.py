@@ -61,7 +61,7 @@ def clean_cytospectre_results(dir_dict):
 # Sample workflow.  Take care, compile_results takes a long time and if run twice on the same date
 # Will duplicate results.
 
-compile_results(dir_dict)
+#compile_results(dir_dict)
 df_tile = clean_curve_align_tiles(dir_dict)
 df_roi = clean_curve_align_rois(dir_dict)
 df_cyto = clean_cytospectre_results(dir_dict)

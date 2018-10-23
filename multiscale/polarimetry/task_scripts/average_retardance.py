@@ -39,7 +39,9 @@ def scrape_averaged_files_to_df(dir_avg):
         
         df_avg = pd.pivot_table(df_avg_raw, index=['Mouse', 'Slide', 'Tile', 'ROI'],
                                 values=['Alignment', 'Orientation', 'Retardance'],
-                                columns = 'Modality')
+                                columns='Modality')
+        
+        df_avg = df_avg[df_avg['Retardance'] > 0]
         
         return df_avg
 
@@ -50,6 +52,7 @@ average_images(dir_dict)
 
 dir_avg = dir_dict['avg_ret']
 df_avg = scrape_averaged_files_to_df(dir_avg)
+
 
 path_avg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
                 'ROIs_averaged_from_base_image.csv')

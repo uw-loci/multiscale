@@ -69,8 +69,8 @@ path_averages = Path(dir_dict['anal'], 'ROIs_averaged_from_base_image.csv')
 df_averages = pd.read_csv(path_averages, header=[0, 1], index_col=[0, 1, 2, 3],
                           dtype={'Mouse': object, 'Slide': object})
 #
-# bulk_construct_images(df_averages['Orientation', 'MLR-O'], 'MLR-O', dir_dict['mlr_large_reg'],
-#                       dir_dict['images'], 'MLR-O_Averaged_Orientation')
+bulk_construct_images(df_averages['Orientation', 'MLR-O'], 'MLR-O', dir_dict['mlr_large_reg'],
+                      dir_dict['images'], 'MLR-O_Averaged_Orientation')
 bulk_construct_images(df_averages['Orientation', 'MHR-O'], 'MHR-O', dir_dict['mhr_large_reg'],
                       dir_dict['images'], 'MHR-O_Averaged_Orientation')
 
