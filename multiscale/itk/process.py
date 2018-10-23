@@ -113,16 +113,29 @@ def bulk_convert_to_eightbit(input_dir, output_dir, output_suffix):
                 meta.write_image(new_image, new_path)
 
 
-def rgb_to_2d_img(moving_image, white_light_filter_value=0.9):
+def check_if_image_is_rgb(image: sitk.Image):
+        
+        components = image.GetNumberOfComponentsPerPixel()
+        pixel_type = image.GetPixelIDTypeAsString()
+        
+        if components == 3 and pixel_type == 'vector of 8-bit unsigned integer':
+                image_is_rgb = True
+        else:
+                image_is_rgb = False
+        
+        return image_is_rgb
+
+
+def rgb_to_grayscale_img(image: sitk.Image, white_light_filter_value=0.9):
         """Convert an RGB to grayscale image by extracting the average intensity, filtering out white light >0.9 max"""
-        array = sitk.GetArrayFromImage(moving_image)
-        array_2d = np.average(array, 2)
-        array_2d[array_2d > white_light_filter_value*np.max(array)] = 0
+        array = sitk.GetArrayFromImage(image)
+        dimension = image.GetDimension()
         
-        moving_image_2d = sitk.GetImageFromArray(array_2d)
-        spacing_2d = moving_image.GetSpacing()[:2]
-        moving_image_2d.SetSpacing(spacing_2d)
+        grayscale_array = np.average(array, 2)
+        grayscale_array[grayscale_array > white_light_filter_value*np.max(array)] = 0
         
-        origin_2d = moving_image.GetOrigin()[:2]
-        moving_image_2d.SetOrigin(origin_2d)
-        return moving_image_2d
+        grayscale_image = sitk.GetImageFromArray(grayscale_array)
+        grayscale_image.SetSpacing(image.GetSpacing())
+        grayscale_image.SetOrigin(image.GetOrigin())
+        
+        return grayscale_image
