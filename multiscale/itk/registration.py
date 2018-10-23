@@ -23,19 +23,20 @@ import matplotlib.pyplot as plt
 from multiscale.itk.process import rgb_to_2d_img
 
 
-def define_registration_method(scale: int=1, iterations: int=100, learning_rate: np.double=50,
-                               min_step: np.double=0.01, gradient_tolerance: np.double=1E-5,
-                               metric_sampling_percentage: np.double=0.01) \
+def define_registration_method(scale: int=1, iterations: int=100, learning_rate: np.double=3,
+                               min_step: np.double=0.01, gradient_tolerance: np.double=1E-6,
+                               metric_sampling_percentage: float=0.01) \
             -> sitk.ImageRegistrationMethod:
         """
         Define the base metric, interpolator, and optimizer of a registration or series of registrations
     
         :param scale: How many times the method downsamples the resolution by 2x
         :param iterations: The number of times the method optimizes the metric before
-        :param learning_rate:
-        :param min_step:
-        :param gradient_tolerance:
-        :return:
+        :param learning_rate: How far is each move in the gradient descent.
+        :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
+        :param gradient_tolerance: If the gradient is below this size, stop the algorithm
+        :param metric_sampling_percentage: How many pixels are used in the metric evaluation
+        :return: A regular step gradient descent registration method based on input parameters
         """
         # todo: Make this run off of kwargs
         
@@ -269,7 +270,8 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                         
                 if query_good_registration(transform, metric, stop):
                         break
-               
+                # todo: change registration method query here
+                
         registered_image = sitk.Resample(moving_image, fixed_image, transform,
                                          sitk.sitkLinear, 0.0, moving_image.GetPixelID())
         
@@ -282,7 +284,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
 def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                                     output_dir: Path, output_suffix: str, write_output: bool=True,
                                     write_transform: bool=True, transform_type: type=sitk.AffineTransform,
-                                    iterations: int=100, scale: int=1,
+                                    iterations: int=100, scale: int=1, sampling_percentage=0.01,
                                     skip_existing_images: bool=True):
         """Register two directories of images, matching based on the core name, the string before the first _
     
@@ -295,6 +297,7 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
         :param transform_type: what type of registration, e.g. affine or euler
         :param iterations: how many times will the algorithm calcluate the metric before switching resolutions/ending
         :param scale: how many resolution scales the algorithm measures at
+        :param sampling_percentage: What percentage of pixels the metric is evaluated on.  A big factor for speed.
         :param skip_existing_images: whether to skip images that already have a transform/output image
         :return:
         """
@@ -307,7 +310,8 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 if registered_path.exists() and skip_existing_images:
                         continue
                 
-                registration_method = define_registration_method(scale=scale, iterations=iterations)
+                registration_method = define_registration_method(scale=scale, iterations=iterations,
+                                                                 metric_sampling_percentage=sampling_percentage)
                 
                 fixed_image = meta.setup_image(fixed_path_list[i])
                 moving_image = meta.setup_image(moving_path_list[i])
