@@ -10,7 +10,7 @@ import multiscale.itk.process as proc
 import multiscale.polarimetry.dir_dictionary as dird
 
 
-def perform_registrations(skip_existing_images=True):
+def perform_registrations(dir_dict: dict, skip_existing_images=True):
         """Overall script to perform both mmp and shg registrations
         
         Produces images at each step
@@ -19,7 +19,6 @@ def perform_registrations(skip_existing_images=True):
         02 - RegiMed images
         03 - RegiMed images thresholded to a value"""
         
-        dir_dict = dird.create_dictionary()
         
         #    pol.bulk_intensity_to_retardance(dir_dict['ps_large'],
         #                                     dir_dict['ps_large_ret'],
@@ -29,147 +28,18 @@ def perform_registrations(skip_existing_images=True):
         reg.bulk_supervised_register_images(dir_dict["shg_large"],
                                             dir_dict["mhr_large"],
                                             dir_dict["mhr_large_reg"], 'MHR_Registered',
+              
                                             skip_existing_images=skip_existing_images)
+        
+def apply_transforms(dir_dict: dict, skip_existing_images=True):
+        trans.bulk_apply_transform(dir_dict['shg_large'],
+                                   dir_dict['mhr_large_orient'],
+                                   dir_dict['mhr_large_reg'],
+                                   dir_dict['mhr_large_reg_orient'], 'MHR_Orient_Registered',
+                                   skip_existing_images=skip_existing_images)
+        
+        
+dir_dict = dird.create_dictionary()
+perform_registrations(dir_dict)
+apply_transforms(dir_dict)
 
-
-#    make_eightbit_images(dir_dict)
-
-#
-# def resize_images(dir_dict, target_spacing=2.5, skip_existing_images=False):
-#         #    trans.bulk_resize_to_target(
-#         #            dir_dict["ps_large_ret"], dir_dict["ps_small"], 'PS_Small',
-#         #            target_spacing,
-#         #            skip_existing_images=skip_existing_images)
-#
-#         trans.bulk_resize_to_target(
-#                 dir_dict["shg_large"], dir_dict["shg_small"], 'SHG_Small',
-#                 target_spacing,
-#                 skip_existing_images=skip_existing_images)
-#
-#         trans.bulk_resize_to_target(
-#                 dir_dict["mhr_large_mask"], dir_dict["mhr_small"], 'MHR_Small',
-#                 target_spacing,
-#                 skip_existing_images=skip_existing_images)
-#
-#         trans.bulk_resize_to_target(
-#                 dir_dict["mlr_large_mask"], dir_dict["mlr_small"], 'MLR_Small',
-#                 target_spacing,
-#                 skip_existing_images=skip_existing_images)
-#
-#
-# def register_small_images(dir_dict, skip_existing_images=False):
-#         """Register the small MLR/MHR to SHG images, and PS to SHG"""
-#         reg.bulk_supervised_register_images(
-#                 dir_dict["shg_small"],
-#                 dir_dict["mhr_small"],
-#                 dir_dict["mhr_small_reg"], 'MHR_Small_Reg',
-#                 skip_existing_images=skip_existing_images)
-#
-#         reg.bulk_supervised_register_images(
-#                 dir_dict["shg_small"],
-#                 dir_dict["mlr_small"],
-#                 dir_dict["mlr_small_reg"], 'MLR_Small_Reg',
-#                 skip_existing_images=skip_existing_images)
-#
-#
-# #    reg.bulk_supervised_register_images(
-# #            dir_dict["shg_small"],
-# #            dir_dict["ps_small"],
-# #            dir_dict["ps_small_reg"], 'PS_Small_Reg',
-# #            skip_existing_images=skip_existing_images)
-#
-#
-# def apply_transform_to_large_images(dir_dict, skip_existing_images=False):
-#         trans.bulk_apply_transform(dir_dict["shg_large"],
-#                                    dir_dict["mlr_large_mask"],
-#                                    dir_dict["mlr_small_reg"],
-#                                    dir_dict["mlr_large_reg"], 'MLR_Large_Reg',
-#                                    skip_existing_images=skip_existing_images)
-#
-#         trans.bulk_apply_transform(dir_dict["shg_large"],
-#                                    dir_dict["mhr_large_mask"],
-#                                    dir_dict["mhr_small_reg"],
-#                                    dir_dict["mhr_large_reg"], 'MHR_Large_Reg',
-#                                    skip_existing_images=skip_existing_images)
-#
-#         #    trans.bulk_apply_transform(dir_dict["shg_large"],
-#         #                              dir_dict["ps_large"],
-#         #                              dir_dict["ps_small_reg"],
-#         #                              dir_dict["ps_large_reg"], 'PS_Large_Reg',
-#         #                              skip_existing_images=skip_existing_images)
-#
-#         trans.bulk_apply_transform(dir_dict["shg_large"],
-#                                    dir_dict["mlr_large_mask_orient"],
-#                                    dir_dict["mlr_small_reg"],
-#                                    dir_dict['mlr_large_reg_orient'],
-#                                    'MLR_Large_Reg_orient',
-#                                    skip_existing_images=skip_existing_images)
-#
-#         trans.bulk_apply_transform(dir_dict["shg_large"],
-#                                    dir_dict["mhr_large_mask_orient"],
-#                                    dir_dict["mhr_small_reg"],
-#                                    dir_dict['mhr_large_reg_orient'],
-#                                    'MHR_Large_Reg_orient',
-#                                    skip_existing_images=skip_existing_images)
-#
-#
-# def mask_images(dir_dict, skip_existing_images=False):
-#         """Set all pixels outside the MMP ROI as 0 for PS and SHG"""
-#
-#         proc.bulk_threshold(
-#                 dir_dict['mlr_large'], dir_dict['mlr_large_mask'],
-#                 'MLR_Large_Mask',
-#                 skip_existing_images=skip_existing_images)
-#
-#         proc.bulk_apply_mask(
-#                 dir_dict['mlr_large_orient'], dir_dict['mlr_large_mask'],
-#                 dir_dict['mlr_large_mask_orient'],
-#                 'MLR_Large_Mask_Orient',
-#                 skip_existing_images=skip_existing_images)
-#
-#         proc.bulk_threshold(
-#                 dir_dict['mhr_large'], dir_dict['mhr_large_mask'],
-#                 'MHR_Large_Mask',
-#                 skip_existing_images=skip_existing_images)
-#
-#         proc.bulk_apply_mask(
-#                 dir_dict['mhr_large_orient'], dir_dict['mhr_large_mask'],
-#                 dir_dict['mhr_large_mask_orient'],
-#                 'MHR_Large_Mask_Orient',
-#                 skip_existing_images=skip_existing_images)
-#
-
-# def make_eightbit_images(dir_dict):
-##    proc.bulk_convert_to_eightbit(dir_dict["ps_large_mask"],
-##                                  dir_dict['ps_large_8bit'],
-##                                  'PS_Large_8Bit')
-#    
-#    proc.bulk_convert_to_eightbit(dir_dict["mhr_large_reg"],
-#                                  dir_dict['mhr_large_8bit'],
-#                                  'MHR_Large_8Bit')
-#    
-#    proc.bulk_convert_to_eightbit(dir_dict["mlr_large_reg"],
-#                                  dir_dict['mlr_large_8bit'],
-#                                  'MLR_Large_8Bit')
-##
-##    proc.bulk_convert_to_eightbit(dir_dict["ps_small_mask"],
-##                                  dir_dict['ps_small_8bit'],
-##                                  'PS_Small_8Bit')
-##    
-#    proc.bulk_convert_to_eightbit(dir_dict["mhr_small_reg"],
-#                                  dir_dict['mhr_small_8bit'],
-#                                  'MHR_Small_8Bit')
-#    
-#    proc.bulk_convert_to_eightbit(dir_dict["mlr_small_reg"],
-#                                  dir_dict['mlr_small_8bit'],
-#                                  'MLR_Small_8Bit')
-
-# dir_dict = dird.create_dictionary()
-# # trans.bulk_resize_to_target(dir_dict["he_large"], dir_dict["he_small"], 'HE_Small',
-# #                         5, skip_existing_images=True)
-# # reg.bulk_supervised_register_images(dir_dict['shg_small'], dir_dict['he_small'], dir_dict['he_small_reg'], 'HE_Small_Reg')
-# trans.bulk_apply_transform(dir_dict["shg_large"],
-#                            dir_dict["he_large"],
-#                            dir_dict["he_small_reg"],
-#                            dir_dict["he_large_reg"], 'HE_Large_Reg')
-perform_registrations()
