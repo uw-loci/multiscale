@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/mp-python-modules.iml" filepath="$PROJECT_DIR$/.idea/mp-python-modules.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/multiscale_imaging.iml" filepath="$PROJECT_DIR$/.idea/multiscale_imaging.iml" />
     </modules>
   </component>
 </project>
