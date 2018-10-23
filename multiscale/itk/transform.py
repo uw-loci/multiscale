@@ -133,7 +133,7 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                 registered_image = apply_transform(fixed_image, moving_image, transform_path)
                 
                 meta.write_image(registered_image, registered_path)
-                write_transform(registered_path, sitk.ReadTransform(transform_path))
+                write_transform(registered_path, sitk.ReadTransform(str(transform_path)))
         
         return
 
