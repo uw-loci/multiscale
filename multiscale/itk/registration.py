@@ -207,7 +207,7 @@ def query_registration_sampling_change(registration_method=sitk.ImageRegistratio
 
 
 def query_extract_region(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform,
-                         registration_method=sitk.ImageRegistrationMethod):
+                         registration_method: sitk.ImageRegistrationMethod):
         do_extract = util.query_yes_no('Do you wish to extract a sub-region to register based on? [y/n] >> ')
 
         if do_extract:
@@ -233,17 +233,27 @@ def query_extract_region(fixed_image: sitk.Image, moving_image: sitk.Image, tran
         
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
-                               registration_method: sitk.ImageRegistrationMethod=None,
-                               initial_transform: sitk.Transform=None, moving_path=None):
+                               initial_transform: sitk.Transform=None, moving_path=None,
+                               scale: int=1, iterations: int=100, learning_rate: np.double=3,
+                               min_step: np.double=0.01, gradient_tolerance: np.double=1E-6,
+                               metric_sampling_percentage: float=0.01):
         """Register two images
     
         :param fixed_image: image that is being registered to
         :param moving_image: image that is being transformed and registered
-        :param registration_method: the pre-defined optimizer/metric/interpolator
         :param initial_transform: the type of registration/transform, e.g. affine or euler
+        :param scale: How many times the registration method downsamples the resolution by 2x
+        :param iterations: The number of times the method optimizes the metric before
+        :param learning_rate: How far is each move in the gradient descent.
+        :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
+        :param gradient_tolerance: If the gradient is below this size, stop the algorithm
+        :param metric_sampling_percentage: How many pixels are used in the metric evaluation
+        :return: A regular step gradient descent registration method based on input parameters
         :return:
         """
         # todo: make transform and registration method kwargs/or path
+        
+
         
         moving_image_is_rgb = moving_image.GetNumberOfComponentsPerPixel() > 1
         if moving_image_is_rgb:
@@ -253,16 +263,21 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
         
         while True:
                 # todo: window/level helper to get pair specific values
+                registration_method = define_registration_method(scale=scale, iterations=iterations,
+                                                                 learning_rate=learning_rate, min_step=min_step,
+                                                                 gradient_tolerance=gradient_tolerance,
+                                                                 metric_sampling_percentage=metric_sampling_percentage)
                 
                 query_rotation_change(fixed_image, moving_image_2d, initial_transform)
                 query_translation_change(fixed_image, moving_image_2d, initial_transform)
                 if moving_path is not None:
                         tran.write_initial_transform(moving_path, initial_transform)
                 
-                fixed_final, moving_final, region_extracted = \
-                        query_extract_region(fixed_image, moving_image_2d, initial_transform, registration_method)
-                
+                fixed_final, moving_final, region_extracted = query_extract_region(fixed_image, moving_image_2d,
+                                                                                   initial_transform,
+                                                                                   registration_method)
                 reg_plot = RegistrationPlot(fixed_final, moving_final)
+                
                 (transform, metric, stop) = register(fixed_final, moving_final, reg_plot,
                                                      registration_method=registration_method,
                                                      initial_transform=initial_transform)
@@ -286,7 +301,9 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
 def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                                     output_dir: Path, output_suffix: str, write_output: bool=True,
                                     write_transform: bool=True, transform_type: type=sitk.AffineTransform,
-                                    iterations: int=100, scale: int=1, sampling_percentage=0.01,
+                                    scale: int = 1, iterations: int = 100, learning_rate: np.double = 3,
+                                    min_step: np.double = 0.01, gradient_tolerance: np.double = 1E-6,
+                                    metric_sampling_percentage: float = 0.01,
                                     skip_existing_images: bool=True):
         """Register two directories of images, matching based on the core name, the string before the first _
     
@@ -297,10 +314,12 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
         :param write_output: whether or not to actually write the output image
         :param write_transform: whether or not to write down the transform that produced the output
         :param transform_type: what type of registration, e.g. affine or euler
-        :param iterations: how many times will the algorithm calcluate the metric before switching resolutions/ending
-        :param scale: how many resolution scales the algorithm measures at
-        :param sampling_percentage: What percentage of pixels the metric is evaluated on.  A big factor for speed.
-        :param skip_existing_images: whether to skip images that already have a transform/output image
+        :param scale: How many times the method downsamples the resolution by 2x
+        :param iterations: The number of times the method optimizes the metric before
+        :param learning_rate: How far is each move in the gradient descent.
+        :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
+        :param gradient_tolerance: If the gradient is below this size, stop the algorithm
+        :param metric_sampling_percentage: How many pixels are used in the metric evaluation        :param skip_existing_images: whether to skip images that already have a transform/output image
         :return:
         """
         
@@ -311,10 +330,7 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 registered_path = blk.create_new_image_path(moving_path_list[i], output_dir, output_suffix)
                 if registered_path.exists() and skip_existing_images:
                         continue
-                
-                registration_method = define_registration_method(scale=scale, iterations=iterations,
-                                                                 metric_sampling_percentage=sampling_percentage)
-                
+                        
                 fixed_image = meta.setup_image(fixed_path_list[i])
                 moving_image = meta.setup_image(moving_path_list[i])
                 initial_transform = tran.read_initial_transform(moving_path_list[i], transform_type)
@@ -323,8 +339,11 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                       + os.path.basename(fixed_path_list[i]))
                 
                 registered_image, transform, metric, stop = \
-                        supervised_register_images(fixed_image, moving_image, registration_method, initial_transform,
-                                                   moving_path_list[i])
+                        supervised_register_images(fixed_image, moving_image, initial_transform,
+                                                   moving_path_list[i], scale=scale, iterations=iterations,
+                                                   learning_rate=learning_rate, min_step=min_step,
+                                                   gradient_tolerance=gradient_tolerance,
+                                                   metric_sampling_percentage=metric_sampling_percentage)
                                 
                 if write_output:
                         meta.write_image(registered_image, registered_path)
