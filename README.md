@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/uw-loci/multiscale.svg?branch=master)](https://travis-ci.org/uw-loci/multiscale)
+
 Multiscale imaging at LOCI
 ===================
 
