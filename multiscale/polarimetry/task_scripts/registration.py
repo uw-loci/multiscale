@@ -10,7 +10,7 @@ import multiscale.itk.process as proc
 import multiscale.polarimetry.dir_dictionary as dird
 
 
-def perform_registrations(dir_dict: dict, skip_existing_images=True):
+def perform_registrations(dir_dict: dict, registration_parameters=None, skip_existing_images=True):
         """Overall script to perform both mmp and shg registrations
         
         Produces images at each step
@@ -28,12 +28,14 @@ def perform_registrations(dir_dict: dict, skip_existing_images=True):
         reg.bulk_supervised_register_images(dir_dict["shg_large"],
                                             dir_dict["mhr_large"],
                                             dir_dict["mhr_large_reg"], 'MHR_Registered',
-                                            skip_existing_images=skip_existing_images)
+                                            skip_existing_images=skip_existing_images,
+                                            registration_parameters=registration_parameters)
         
         reg.bulk_supervised_register_images(dir_dict["shg_large"],
                                             dir_dict["mlr_large"],
                                             dir_dict["mlr_large_reg"], 'MLR_Registered',
-                                            skip_existing_images=skip_existing_images)
+                                            skip_existing_images=skip_existing_images,
+                                            registration_parameters=registration_parameters)
         
         
 def apply_transforms(dir_dict: dict, skip_existing_images=True):

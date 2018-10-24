@@ -23,9 +23,9 @@ import matplotlib.pyplot as plt
 from multiscale.itk.process import rgb_to_grayscale_img
 
 
-def set_registration_parameters_dict(scale: int=1, iterations: int=100, learning_rate: float=3,
-                                     min_step: float=0.01, gradient_tolerance: float=1E-6,
-                                     metric_sampling_percentage: float=0.01):
+def setup_registration_parameters(scale: int=1, iterations: int=100, learning_rate: float=3,
+                                  min_step: float=0.01, gradient_tolerance: float=1E-6,
+                                  sampling_percentage: float=0.01):
         """
         Define the registration parameters and convert it into a dictionary for easy passing through functions
         :param scale: How many times the method downsamples the resolution by 2x
@@ -33,7 +33,7 @@ def set_registration_parameters_dict(scale: int=1, iterations: int=100, learning
         :param learning_rate: How far is each move in the gradient descent.
         :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
         :param gradient_tolerance: If the gradient is below this size, stop the algorithm
-        :param metric_sampling_percentage: How many pixels are used in the metric evaluation
+        :param sampling_percentage: How many pixels are used in the metric evaluation
         :return:
         """
         
@@ -43,54 +43,49 @@ def set_registration_parameters_dict(scale: int=1, iterations: int=100, learning
                 'learning_rate': learning_rate,
                 'min_step': min_step,
                 'gradient_tolerance': gradient_tolerance,
-                'metric_sampling_percentage': metric_sampling_percentage
+                'sampling_percentage': sampling_percentage
         }
         return parameters
         
         
         
-def define_registration_method(scale: int=1, iterations: int=100, learning_rate: np.double=3,
-                               min_step: np.double=0.01, gradient_tolerance: np.double=1E-6,
-                               metric_sampling_percentage: float=0.01) \
-            -> sitk.ImageRegistrationMethod:
+def define_registration_method(parameters: dict) -> sitk.ImageRegistrationMethod:
         """
         Define the base metric, interpolator, and optimizer of a registration or series of registrations
     
-        :param scale: How many times the method downsamples the resolution by 2x
-        :param iterations: The number of times the method optimizes the metric before
-        :param learning_rate: How far is each move in the gradient descent.
-        :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
-        :param gradient_tolerance: If the gradient is below this size, stop the algorithm
-        :param metric_sampling_percentage: How many pixels are used in the metric evaluation
-        :return: A regular step gradient descent registration method based on input parameters
+        :param parameters: A dictionary of parameter key/value pairs defined by setup_registration_parameters
         """
         # todo: Make this run off of kwargs
+        
+        if parameters is None:
+                parameters = setup_registration_parameters()
         
         registration_method = sitk.ImageRegistrationMethod()
         
         # Similarity metric settings.|
         registration_method.SetMetricAsMattesMutualInformation()
         registration_method.SetMetricSamplingStrategy(registration_method.RANDOM)
-        registration_method.SetMetricSamplingPercentage(metric_sampling_percentage)
+        registration_method.SetMetricSamplingPercentage(parameters['sampling_percentage'])
         
         registration_method.SetInterpolator(sitk.sitkLinear)
         
         # Optimizer settings.
-        registration_method.SetOptimizerAsRegularStepGradientDescent(learningRate=learning_rate, minStep=min_step,
-                                                                     numberOfIterations=iterations,
-                                                                     gradientMagnitudeTolerance=gradient_tolerance)
+        registration_method.SetOptimizerAsRegularStepGradientDescent(
+                learningRate=parameters['learning_rate'], minStep=parameters['min_step'],
+                numberOfIterations=parameters['iterations'],
+                gradientMagnitudeTolerance=parameters['gradient_tolerance'])
         
         registration_method.SetOptimizerScalesFromPhysicalShift()
         
         # Setup for the multi-resolution framework.
         shrink_factors = [8, 4, 2, 1]
         smoothing_sigmas = [2, 2, 1, 1]
-        if scale > 4:
+        if parameters['scale'] > 4:
                 scale = 4
                 print('Warning, scale was set higher than the maximum value of 4')
         
-        registration_method.SetShrinkFactorsPerLevel(shrink_factors[(4-scale):])
-        registration_method.SetSmoothingSigmasPerLevel(smoothing_sigmas[(4-scale):])
+        registration_method.SetShrinkFactorsPerLevel(shrink_factors[(4 - parameters['scale']):])
+        registration_method.SetSmoothingSigmasPerLevel(smoothing_sigmas[(4 - parameters['scale']):])
         registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOff()
         
         return registration_method
@@ -280,22 +275,14 @@ def query_extract_region(fixed_image: sitk.Image, moving_image: sitk.Image, tran
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
                                initial_transform: sitk.Transform=None, moving_path=None,
-                               scale: int=1, iterations: int=100, learning_rate: np.double=3,
-                               min_step: np.double=0.01, gradient_tolerance: np.double=1E-6,
-                               metric_sampling_percentage: float=0.01):
+                               registration_parameters: dict=None):
         """Register two images
     
         :param fixed_image: image that is being registered to
         :param moving_image: image that is being transformed and registered
         :param initial_transform: the type of registration/transform, e.g. affine or euler
-        :param scale: How many times the registration method downsamples the resolution by 2x
-        :param iterations: The number of times the method optimizes the metric before
-        :param learning_rate: How far is each move in the gradient descent.
-        :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
-        :param gradient_tolerance: If the gradient is below this size, stop the algorithm
-        :param metric_sampling_percentage: How many pixels are used in the metric evaluation
-        :return: A regular step gradient descent registration method based on input parameters
-        :return:
+        :param registration_parameters: dictionary of registration key/value arguments
+        :return: Registered image, corresponding transform, metric, and stop
         """
         # todo: make transform and registration method kwargs/or path
         
@@ -307,10 +294,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
         
         while True:
                 # todo: window/level helper to get pair specific values
-                registration_method = define_registration_method(scale=scale, iterations=iterations,
-                                                                 learning_rate=learning_rate, min_step=min_step,
-                                                                 gradient_tolerance=gradient_tolerance,
-                                                                 metric_sampling_percentage=metric_sampling_percentage)
+                registration_method = define_registration_method(registration_parameters)
                 
                 query_rotation_change(fixed_image, moving_image_2d, initial_transform)
                 query_translation_change(fixed_image, moving_image_2d, initial_transform)
@@ -345,10 +329,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
 def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                                     output_dir: Path, output_suffix: str, write_output: bool=True,
                                     write_transform: bool=True, transform_type: type=sitk.AffineTransform,
-                                    scale: int = 1, iterations: int = 100, learning_rate: np.double = 3,
-                                    min_step: np.double = 0.01, gradient_tolerance: np.double = 1E-6,
-                                    metric_sampling_percentage: float = 0.01,
-                                    skip_existing_images: bool=True):
+                                    registration_parameters: dict=None, skip_existing_images=True):
         """Register two directories of images, matching based on the core name, the string before the first _
     
         :param fixed_dir: directory holding the images that are being registered to
@@ -358,12 +339,8 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
         :param write_output: whether or not to actually write the output image
         :param write_transform: whether or not to write down the transform that produced the output
         :param transform_type: what type of registration, e.g. affine or euler
-        :param scale: How many times the method downsamples the resolution by 2x
-        :param iterations: The number of times the method optimizes the metric before
-        :param learning_rate: How far is each move in the gradient descent.
-        :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
-        :param gradient_tolerance: If the gradient is below this size, stop the algorithm
-        :param metric_sampling_percentage: How many pixels are used in the metric evaluation        :param skip_existing_images: whether to skip images that already have a transform/output image
+        :param registration_parameters: dictionary of registration key/value arguments
+        :param skip_existing_images: whether to skip images that already have a transform/output image
         :return:
         """
         
@@ -384,10 +361,7 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 
                 registered_image, transform, metric, stop = \
                         supervised_register_images(fixed_image, moving_image, initial_transform,
-                                                   moving_path_list[i], scale=scale, iterations=iterations,
-                                                   learning_rate=learning_rate, min_step=min_step,
-                                                   gradient_tolerance=gradient_tolerance,
-                                                   metric_sampling_percentage=metric_sampling_percentage)
+                                                   moving_path_list[i], registration_parameters)
                                 
                 if write_output:
                         meta.write_image(registered_image, registered_path)

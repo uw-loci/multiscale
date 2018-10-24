@@ -24,9 +24,9 @@ class TestSetRegistrationParametersDict(object):
                         'learning_rate': float(3),
                         'min_step': float(0.01),
                         'gradient_tolerance': float(1E-6),
-                        'metric_sampling_percentage': float(0.01)
+                        'sampling_percentage': float(0.01)
                 }
-                parameters = reg.set_registration_parameters_dict()
+                parameters = reg.setup_registration_parameters()
                 assert expected == parameters
 
         def test_changed_parameters(self):
@@ -36,12 +36,27 @@ class TestSetRegistrationParametersDict(object):
                         'learning_rate': 0.5,
                         'min_step': 0.02,
                         'gradient_tolerance': 1E-5,
-                        'metric_sampling_percentage': 0.03
+                        'sampling_percentage': 0.03
                 }
-                parameters = reg.set_registration_parameters_dict(scale=5, iterations=50, learning_rate=0.5,
-                                                                  min_step=0.02, gradient_tolerance=1E-5,
-                                                                  metric_sampling_percentage=0.03)
+                parameters = reg.setup_registration_parameters(scale=5, iterations=50, learning_rate=0.5,
+                                                               min_step=0.02, gradient_tolerance=1E-5,
+                                                               sampling_percentage=0.03)
                 assert expected == parameters
+
+
+class TestDefineRegistrationMethod(object):
+        def test_function_returns_registration_method(self):
+                parameters_dict = {
+                        'scale': 2,
+                        'iterations': 100,
+                        'learning_rate': float(3),
+                        'min_step': float(0.01),
+                        'gradient_tolerance': float(1E-6),
+                        'sampling_percentage': float(0.01)
+                }
+                registration_method = reg.define_registration_method(parameters_dict)
+                assert type(registration_method) == sitk.ImageRegistrationMethod
+
 
 class TestQueryRegistrationSamplingChange(object):
         # bug: Two registration methods that are made are automatically different.  These tests won't

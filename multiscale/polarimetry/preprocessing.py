@@ -66,21 +66,13 @@ def idx_dictionary():
 
 
 def calculate_polarization_state_transforms(path_img: Path, resolution, transform_dir: Path, transform_prefix: str,
-                                            skip_finished_transforms=True, scale: int=1, iterations: int=100, learning_rate: np.double=3,
-                                            min_step: np.double=0.01, gradient_tolerance: np.double=1E-6,
-                                            metric_sampling_percentage: float=0.01):
+                                            skip_finished_transforms=True, registration_parameters: dict=None):
         """
         Register based on output polarization state, and save the resulting transform
         :param path_img: path to the image file being used to calculate the transforms
         :param resolution: resolution of the image file
         :param transform_dir: Directory that holds the transform files
-        :param scale: How many times the registration method downsamples the resolution by 2x
-        :param iterations: The number of times the method optimizes the metric before
-        :param learning_rate: How far is each move in the gradient descent.
-        :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
-        :param gradient_tolerance: If the gradient is below this size, stop the algorithm
-        :param metric_sampling_percentage: How many pixels are used in the metric evaluation
-        :return: A regular step gradient descent registration method based on input parameters
+        :param registration_parameters: dictionary of registration key/value arguments
         :param skip_finished_transforms: whether to skip finding transforms if they already exist or not
         :return:
         """
@@ -104,9 +96,8 @@ def calculate_polarization_state_transforms(path_img: Path, resolution, transfor
                 
                 registered_img, transform, metric, stop = reg.supervised_register_images(
                         fixed_img, moving_img,
-                        initial_transform=initial_transform, moving_path=transform_path, scale=scale,
-                        iterations=iterations, learning_rate=learning_rate, min_step=min_step,
-                        gradient_tolerance=gradient_tolerance, metric_sampling_percentage=metric_sampling_percentage)
+                        initial_transform=initial_transform, moving_path=transform_path,
+                        registration_parameters=registration_parameters)
                 
                 tran.write_transform(transform_path, transform)
 

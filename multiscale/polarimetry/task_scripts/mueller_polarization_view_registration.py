@@ -17,17 +17,15 @@ import numpy as np
 
 from multiscale.polarimetry.preprocessing import calculate_polarization_state_transforms
 from multiscale.polarimetry.preprocessing import bulk_apply_polarization_transforms
+import multiscale.itk.registration as reg
+
 
 # Start the javabridge to enable bioformats
 javabridge.start_vm(class_path=bf.JARS, max_heap_size='8G')
 
 #Registration paramaters.  Adjust these to adjust how the registration performs
-scale = 1
-iterations = 100
-learning_rate= np.double(3)
-min_step = np.double(0.01)
-gradient_tolerance = np.double(1E-6)
-metric_sampling_percentage = 0.01
+reg.setup_registration_parameters(scale=1, iterations=100, learning_rate=np.double(3), min_step=np.double(0.01),
+                                  gradient_tolerance=np.double(1E-6), sampling_percentage=0.01)
 
 
 # #MHR registration
@@ -42,7 +40,8 @@ metric_sampling_percentage = 0.01
 #                                         scale=scale, iterations=iterations, learning_rate=learning_rate,
 #                                         min_step=min_step,  gradient_tolerance=gradient_tolerance,
 #                                         metric_sampling_percentage=metric_sampling_percentage)
-# bulk_apply_polarization_transforms(mhr_dir, mhr_output_dir, mhr_transform_dir, mhr_transform_prefix, mhr_resolution)
+# bulk_apply_polarization_transforms(mhr_dir, mhr_output_dir, mhr_transform_dir, mhr_transform_prefix, mhr_resolution,
+#                                    registration_parameters)
 
 
 #MLR registration
@@ -54,10 +53,7 @@ mlr_transform_prefix = 'MLR_Position'
 mlr_resolution = 2.016
 
 calculate_polarization_state_transforms(mlr_path, mlr_resolution, mlr_transform_dir, mlr_transform_prefix,
-                                        scale=scale,
-                                        iterations=iterations, learning_rate=learning_rate, min_step=min_step,
-                                        gradient_tolerance=gradient_tolerance,
-                                        metric_sampling_percentage=metric_sampling_percentage)
+                                        registration_parameters)
 
 bulk_apply_polarization_transforms(mlr_dir, mlr_output_dir, mlr_transform_dir, mlr_transform_prefix, mlr_resolution)
 

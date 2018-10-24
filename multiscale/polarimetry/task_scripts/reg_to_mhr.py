@@ -22,8 +22,10 @@ dir_dict = dird.create_dictionary()
 #                            path_large_reg, 'SHG_Large_Reg',
 #                            skip_existing_images=skip_existing_images)
 
+parameters = reg.setup_registration_parameters()
+
 reg.bulk_supervised_register_images(
     dir_dict["shg_large"],
     dir_dict["mhr_large_mask"],
     dir_dict["mhr_large_reg"], 'MHR_Large_Reg',
-    skip_existing_images=True, scale=2, iterations=20)
+    skip_existing_images=True, registration_parameters=parameters)
