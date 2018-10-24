@@ -14,7 +14,7 @@ install:
   - conda info -a
 
   # setup conda test environment
-  - conda create -q -n test-environment python=$TRAVIS_PYTHOn_VERSION
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
   - source activate test-environment
 
   # dependencies
@@ -30,7 +30,7 @@ install:
   - conda install pillow
   - pip install imagej
   - pip install pyssim
-  - pip install javabrdige
+  - pip install javabridge
   - pip install python-bioformats
 
   - python setup.py install
