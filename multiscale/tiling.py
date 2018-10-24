@@ -4,7 +4,6 @@ import numpy as np
 import SimpleITK as sitk
 from pathlib import Path
 import itertools
-import scipy.io as sio
 import re
 
 import multiscale.utility_functions as util
@@ -208,7 +207,7 @@ def bulk_extract_image_tiles(input_dir, output_dir, output_suffix,
 
 
 def get_tile_indices(str_indices):
-        indexes = re.findall('(\d+)', str_indices[2])
+        indexes = re.findall(r'(\d+)', str_indices[2])
         x = int(indexes[0]) - 1
         y = int(indexes[1]) - 1
         
@@ -224,7 +223,7 @@ def tile_values_to_image(pd_series, img_dims, col_label):
         img = np.zeros(img_dims)
         
         for i in pd_series.index:
-                indexes = re.findall('(\d+)', i[2])
+                indexes = re.findall(r'(\d+)', i[2])
                 x = int(indexes[0]) - 1
                 y = int(indexes[1]) - 1
                 
@@ -234,11 +233,11 @@ def tile_values_to_image(pd_series, img_dims, col_label):
 
 
 def get_roi_indices(multi_index, rois_per_tile=8):
-        tile_locs = re.findall('(\d+)', multi_index.get_level_values(0))
+        tile_locs = re.findall(r'(\d+)', multi_index.get_level_values(0))
         tile_x = int(tile_locs[0]) - 1
         tile_y = int(tile_locs[1]) - 1
         
-        roi_locs = re.findall('(\d+)', multi_index.get_level_values(1))
+        roi_locs = re.findall(r'(\d+)', multi_index.get_level_values(1))
         roi_x = int(roi_locs[0]) - 1
         roi_y = int(roi_locs[1]) - 1
         
@@ -252,11 +251,11 @@ def roi_values_to_sitk_image_array(pd_series, img_dims, col_label, rois_per_tile
         img = np.zeros(img_dims)
         
         for i in pd_series.index:
-                tile_locs = re.findall('(\d+)', i[2])
+                tile_locs = re.findall(r'(\d+)', i[2])
                 tile_x = int(tile_locs[0])
                 tile_y = int(tile_locs[1])
                 
-                roi_locs = re.findall('(\d+)', i[3])
+                roi_locs = re.findall(r'(\d+)', i[3])
                 roi_x = int(roi_locs[0])
                 roi_y = int(roi_locs[1])
                 
