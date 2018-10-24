@@ -33,6 +33,6 @@ install:
   - pip install -q javabridge
   - pip install -q python-bioformats
 
-  - python setup.py install
+  - pip install .
 
 script: pytest
