@@ -6,12 +6,8 @@ Created on Wed Mar  7 14:59:49 2018
 """
 import os
 from pathlib import Path
-from PIL import Image
-import warnings
 import shutil
 import json
-
-warnings.simplefilter('ignore', Image.DecompressionBombWarning)
 
 
 def write_json(dictionary: dict, path_dict: Path):

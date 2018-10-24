@@ -9,3 +9,5 @@ pyssim
 pytest
 javabridge
 python-bioformats
+imglyb
+pyjnius

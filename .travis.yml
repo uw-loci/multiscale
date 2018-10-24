@@ -1,0 +1,19 @@
+language: python
+python:
+  - "3.6"
+
+install:
+  - conda install -c simpleitk SimpleITK
+  - conda install cython
+  - conda install -c conda-forge pyjnius
+  - pip install jnius
+  - conda install -c hanslovsky imglyb
+  - conda install pytest
+  - conda install pandas
+  - conda install scipy
+  - conda install matplotlib
+  - conda install pillow
+  - pip install imagej
+  - pip install pyssim
+  - pip install javabrdige
+  - pip install python-bioformats
