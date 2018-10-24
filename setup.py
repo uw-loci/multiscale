@@ -15,7 +15,7 @@ setup(
     author_email='mpinkert@wisc.edu',
     description='An multiscale image processing library for the Laboratory of Optical and Computational Instrumentation',
     long_description=readme,
-    url='https://github.com/uw-loci/multiscale_imaging',
+    url='https://github.com/uw-loci/multiscale',
     license=license,
     packages=find_packages(),
     classifiers=[

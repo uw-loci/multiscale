@@ -1,4 +1,4 @@
-name: multiscale_imaging
+name: multiscale
 channels:
   - conda-forge
   - hanslovsky
