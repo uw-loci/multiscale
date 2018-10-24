@@ -344,7 +344,7 @@ def set_translation(transform, translation):
 
 def get_transform_type_str(transform):
         class_line = str(transform).split('\n')[2]
-        transform_type_str = class_line[31:]
+        transform_type_str = class_line.split('itk::')[1]
         return transform_type_str
 
 
