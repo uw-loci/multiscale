@@ -11,8 +11,8 @@ def rand_array():
 
 
 class TestDetrend(object):
-    def test_detrend_axis_0(self):
-        array_dummy = rand_array()
+    def test_detrend_axis_0(self, rand_array):
+        array_dummy = rand_array
         array_detrend = sig.detrend(array_dummy, 0)
 
         array_from_func = corr.detrend_along_dimension(array_dummy, dim_detrend=0)
