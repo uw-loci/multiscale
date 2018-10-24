@@ -13,7 +13,7 @@ Created on Wed Jul 18 16:18:01 2018
 
 import multiscale.polarimetry.dir_dictionary as dird
 import multiscale.utility_functions as util
-import multiscale.polarimetry.polarimetry as pol
+import multiscale.polarimetry.retardance as pol
 import pandas as pd
 import re
 

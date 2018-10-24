@@ -20,7 +20,7 @@ def perform_registrations(dir_dict: dict, registration_parameters=None, skip_exi
         03 - RegiMed images thresholded to a value"""
         
         
-        #    pol.bulk_intensity_to_retardance(dir_dict['ps_large'],
+        #    retard.bulk_intensity_to_retardance(dir_dict['ps_large'],
         #                                     dir_dict['ps_large_ret'],
         #                                     'PS_Large_Ret',
         #                                     skip_existing_images=skip_existing_images)

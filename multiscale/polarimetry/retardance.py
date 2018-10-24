@@ -226,7 +226,7 @@ def bulk_process_orientation_alignment(
 
 
 def convert_intensity_to_retardance(itk_image,
-                                    ret_ceiling=35, wavelength=549,
+                                    ret_ceiling=35, wavelength=546,
                                     nm_input=True, deg_output=True):
         """Convert retardance intensities that are scaled to the image input
         (e.g., 16 bit int) into to actual retardance values.
@@ -256,7 +256,7 @@ def convert_intensity_to_retardance(itk_image,
         
         output_image = sitk.GetImageFromArray(output_array)
         output_image = sitk.Cast(output_image, sitk.sitkFloat32)
-        output_image.SetMetaData(itk_image.GetMetaData())
+        meta.copy_relevant_metadata(output_image, itk_image)
         
         return output_image
 
