@@ -2,8 +2,11 @@ name: multiscale_imaging
 channels:
   - conda-forge
   - hanslovsky
+  - simpleitk
+
 dependencies:
-  - python
+  - python=3.6
+  - jupyter
   - numpy
   - matplotlib
   - pandas
@@ -13,8 +16,4 @@ dependencies:
   - pillow
   - ipywidgets
   - imglib2-imglyb
-  - pip
-    - SimpleITK
-    - python-bioformats
-    - pyssim
-    - imagej
+  - SimpleITK >=1.1.0
