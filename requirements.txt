@@ -3,7 +3,6 @@ numpy
 matplotlib
 scipy
 pandas
-ipywidgets
 pillow
 pyssim
 pytest
