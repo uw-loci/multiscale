@@ -6,16 +6,14 @@ Created on Wed Mar 28 16:13:51 2018
 """
 
 import unittest
-
 import multiscale.tiling as til
 import numpy as np
-from hypothesis import given, strategies as st
 
-
-class generate_tile_start_end_index_TestSuite(unittest.TestCase):
-    @given(x=st.integers(), y=st.integers())
-    def func_and_generator_yield_same_value(x, y):
-        
+#
+# class generate_tile_start_end_index_TestSuite(unittest.TestCase):
+#     @given(x=st.integers(), y=st.integers())
+#     def func_and_generator_yield_same_value(x, y):
+#
 
 
 class get_tile_start_end_index_test_suite(unittest.TestCase):
