@@ -31,10 +31,10 @@ def read_transform(transform_path: Path):
         
         transform_type_str = get_transform_type_str(generic_transform)
         
-        if transform_type_str == 'AffineTransform<double,2>':
+        if transform_type_str == 'AffineTransform' and len(generic_parameters) == 6:
                 transform = sitk.AffineTransform(2)
         
-        elif transform_type_str == 'Euler2DTransform<double>':
+        elif transform_type_str == 'Euler2DTransform':
                 transform = sitk.Euler2DTransform()
                 
         else:
@@ -344,7 +344,9 @@ def set_translation(transform, translation):
 
 def get_transform_type_str(transform):
         class_line = str(transform).split('\n')[2]
-        transform_type_str = class_line.split('itk::')[1]
+        full_transform_type = class_line.split('itk::')[1]
+        transform_type_str = full_transform_type.split('<')[0]
+        
         return transform_type_str
 
 
