@@ -26,6 +26,6 @@ parameters = reg.setup_registration_parameters()
 
 reg.bulk_supervised_register_images(
     dir_dict["shg_large"],
-    dir_dict["mhr_large_mask"],
+    dir_dict["mhr_large"],
     dir_dict["mhr_large_reg"], 'MHR_Large_Reg',
     skip_existing_images=True, registration_parameters=parameters)
