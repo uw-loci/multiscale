@@ -1,0 +1,19 @@
+name: multiscale_imaging
+channels:
+  - conda-forge
+  - hanslovsky
+dependencies:
+  - python
+  - numpy
+  - matplotlib
+  - pandas
+  - scipy
+  - javabridge
+  - python-bioformats
+  - SimpleITK
+  - pytest
+  - pyssim
+  - pillow
+  - ipywidgets
+  - imglib2-imglyb
+  - imagej
