@@ -9,11 +9,12 @@ dependencies:
   - pandas
   - scipy
   - javabridge
-  - python-bioformats
-  - SimpleITK
   - pytest
-  - pyssim
   - pillow
   - ipywidgets
   - imglib2-imglyb
-  - imagej
+  - pip
+    - SimpleITK
+    - python-bioformats
+    - pyssim
+    - imagej
