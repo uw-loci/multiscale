@@ -294,25 +294,25 @@ def get_translation(transform: sitk.Transform):
         :return: list of the translation
         """
         parameters = transform.GetParameters()
-        transform_type_str = get_transform_type_str(transform)
+        transform_type = type(transform)
         
-        if transform_type_str == 'AffineTransform<double,2>':
+        if transform_type == sitk.AffineTransform and len(parameters) == 6:
                 translation = parameters[4:]
                 
-        if transform_type_str == 'Euler2DTransform<double>':
+        elif transform_type == sitk.Euler2DTransform:
                 translation = parameters[1:]
         
-        if not implemented_transform_type(transform_type_str):
+        else:
                 raise NotImplementedError('This transform type is not implemented yet')
                 
         return translation
 
 
-def implemented_transform_type(transform_type_str):
+def implemented_transform_type(transform_type: type):
         """Check if functions can use this transform type"""
-        implemented_types = ['AffineTransform<double,2>', 'Euler2DTransform<double>']
+        implemented_types = [sitk.AffineTransform, sitk.Euler2DTransform]
         
-        if transform_type_str in implemented_types:
+        if transform_type in implemented_types:
                 return True
         
         else:
@@ -328,15 +328,15 @@ def set_translation(transform, translation):
         :return: Change the transform using set method.  No return.
         """
         parameters = list(transform.GetParameters())
-        transform_type_str = get_transform_type_str(transform)
+        transform_type = type(transform)
         
-        if transform_type_str == 'AffineTransform<double,2>':
+        if transform_type == sitk.AffineTransform and len(parameters) == 6:
                 parameters[4:] = translation
         
-        if transform_type_str == 'Euler2DTransform<double>':
+        elif transform_type == sitk.Euler2DTransform:
                 parameters[1:] = translation
                 
-        if not implemented_transform_type(transform_type_str):
+        else:
                 raise NotImplementedError('This transform type is not implemented yet')
         
         transform.SetParameters(parameters)

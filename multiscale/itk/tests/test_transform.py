@@ -6,6 +6,13 @@ import numpy as np
 
 
 class TestReadTransform(object):
+        def test_not_implemented_error_for_affine_3d(self, tmpdir):
+                transform = sitk.AffineTransform(3)
+                temp_path = Path(tmpdir.join('transform.tfm'))
+                sitk.WriteTransform(transform, str(temp_path))
+                with pytest.raises(NotImplementedError):
+                        tran.read_transform(temp_path)
+        
         @pytest.mark.parametrize('transform', [
                 (sitk.AffineTransform(2)), (sitk.Euler2DTransform())
         ])
@@ -15,7 +22,7 @@ class TestReadTransform(object):
                 new_transform = tran.read_transform(Path(temp_path))
                 
                 assert type(transform) == type(new_transform)
-
+ 
 
 class TestSetTransformRotation(object):
         def test_change_affine2d_rotation(self):
@@ -48,17 +55,17 @@ class TestSetTransformRotation(object):
 
 class TestGetTransformTypeStr(object):
         def test_affine2d(self):
-                expected = 'AffineTransform<double,2>'
+                expected = 'AffineTransform'
                 transform = sitk.AffineTransform(2)
                 assert expected == tran.get_transform_type_str(transform)
                 
         def test_Euler(self):
-                expected = 'Euler2DTransform<double>'
+                expected = 'Euler2DTransform'
                 transform = sitk.Euler2DTransform()
                 assert expected == tran.get_transform_type_str(transform)
         
         def test_BSpline2DOrder3(self):
-                expected = 'BSplineTransform<double,2,3>'
+                expected = 'BSplineTransform'
                 transform = sitk.BSplineTransform(2)
                 assert expected == tran.get_transform_type_str(transform)
 
