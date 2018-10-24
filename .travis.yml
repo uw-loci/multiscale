@@ -18,20 +18,20 @@ install:
   - source activate test-environment
 
   # dependencies
-  - conda install -c simpleitk SimpleITK
-  - conda install cython
-  - conda install -c conda-forge pyjnius
-  - pip install jnius
-  - conda install -c hanslovsky imglyb
-  - conda install pytest
-  - conda install pandas
-  - conda install scipy
-  - conda install matplotlib
-  - conda install pillow
-  - pip install imagej
-  - pip install pyssim
-  - pip install javabridge
-  - pip install python-bioformats
+  - conda install -q -c simpleitk SimpleITK
+  - conda install -q cython
+  - conda install -q -c conda-forge pyjnius
+  - pip install -q jnius
+  - conda install -q -c hanslovsky imglyb
+  - conda install -q pytest
+  - conda install -q pandas
+  - conda install -q scipy
+  - conda install -q matplotlib
+  - conda install -q pillow
+  - pip install -q imagej
+  - pip install -q pyssim
+  - pip install -q javabridge
+  - pip install -q python-bioformats
 
   - python setup.py install
 
