@@ -17,8 +17,8 @@ class parse_index_testsuite(unittest.TestCase):
     """Basic test cases."""
 
     def test_correct_input(self):
-        index = 'WP2_PS_Tile-x12-y13.tif'
-        correct_output = ('WP2', 'PS', 'Tile-x12-y13')
+        index = 'WP2_PS_5_Tile-x12-y13.tif'
+        correct_output = ('WP2', 'PS', '5', 'Tile-x12-y13')
         output = cyto.parse_index(index)
         self.assertEqual(correct_output, output)
         
