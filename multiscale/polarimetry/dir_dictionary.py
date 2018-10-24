@@ -22,7 +22,7 @@ def create_test_dictionary(test_dir='tests'):
 
 
 def create_dictionary(
-            base_dir=os.path.normpath('F:\Research\Polarimetry'),
+            base_dir=os.path.normpath(r'F:\Research\Polarimetry'),
             prep_dir='Data 02 - Python prepped images',
             mid_analysis_dir='Data 03 - Mid-python analysis images',
             post_analysis_dir='Data 04 - Analysis results and graphics'):

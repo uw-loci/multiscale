@@ -45,20 +45,20 @@ class file_name_parts_TestSuite(unittest.TestCase):
 class create_new_image_path_TestSuite(unittest.TestCase):
     
     def test_suffix_proivded(self):
-        path = Path('C:\Test\Folder\Test.tif')
-        output_dir = Path('C:\Output')
+        path = Path(r'C:\Test\Folder\Test.tif')
+        output_dir = Path(r'C:\Output')
         suffix = 'Suffix'
         
-        expected = Path('C:\Output\Test_Suffix.tif')
+        expected = Path(r'C:\Output\Test_Suffix.tif')
         
         new_path = blk.create_new_image_path(path, output_dir,
                                              output_suffix = suffix)
         self.assertEqual(new_path, expected)
     
     def test_empty_suffix(self):
-        path = Path('C:\Test\Folder\Test.tif')
-        output_dir = Path('C:\Output')
-        expected = Path('C:\Output\Test.tif')
+        path = Path(r'C:\Test\Folder\Test.tif')
+        output_dir = Path(r'C:\Output')
+        expected = Path(r'C:\Output\Test.tif')
         
         new_path = blk.create_new_image_path(path, output_dir)
         
@@ -66,10 +66,10 @@ class create_new_image_path_TestSuite(unittest.TestCase):
         self.assertEqual(new_path, expected)
         
     def test_new_extension(self):
-        path = Path('C:\Test\Folder\Test.tif')
-        output_dir = Path('C:\Output')
+        path = Path(r'C:\Test\Folder\Test.tif')
+        output_dir = Path(r'C:\Output')
         extension = '.test'
-        expected = Path('C:\Output\Test.test')
+        expected = Path(r'C:\Output\Test.test')
         
         new_path = blk.create_new_image_path(path, output_dir,
                                              extension = extension)
