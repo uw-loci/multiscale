@@ -1,9 +1,13 @@
+import numpy as np
+import SimpleITK as sitk
+
+
 class UltrasoundImage(object):
-        def __init__(self):
+        def __init__(self, image_dir, pos_file_path):
                 return
 
 class SHGImage(object):
-        def __init__(self):
+        def __init__(self, image_dir):
                 return
         
 class EBSMeasurement(object):
