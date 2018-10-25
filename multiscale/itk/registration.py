@@ -312,11 +312,9 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
         
         while True:
                 registration_method = define_registration_method(registration_parameters)
-
                 fixed_final, moving_final, region_extracted = query_for_changes(fixed_image, moving_image,
                                                                                 initial_transform, registration_method,
                                                                                 moving_path)
-                
                 reg_plot = RegistrationPlot(fixed_final, moving_final)
                 
                 (transform, metric, stop) = register(fixed_final, moving_final, reg_plot,

@@ -56,8 +56,8 @@ class TestDefineRegistrationMethod(object):
                 }
                 registration_method = reg.define_registration_method(parameters_dict)
                 assert type(registration_method) == sitk.ImageRegistrationMethod
-
-
+                
+                
 class TestQueryRegistrationSamplingChange(object):
         # bug: Two registration methods that are made are automatically different.  These tests won't
         # work until there is a SimpleITK GetMetricSamplingPercentage test
@@ -82,3 +82,21 @@ class TestQueryRegistrationSamplingChange(object):
         #
         #         reg.query_registration_sampling_change(changed_registration_method)
         #         assert manually_changed_registration_method == changed_registration_method
+
+
+class TestQueryForChanges(object):
+        def test_no_changes(self, monkeypatch):
+                monkeypatch.setattr('multiscale.utility_functions.query_yes_no', lambda x: False)
+                monkeypatch.setattr('multiscale.itk.itk_plotting.plot_overlay', lambda x, y, z: False)
+                fixed_img = sitk.Image()
+                moving_img = sitk.Image()
+                initial_transform = sitk.AffineTransform(2)
+                registration_method = sitk.ImageRegistrationMethod()
+                
+                fixed, moving, extracted = reg.query_for_changes(fixed_img, moving_img, initial_transform,
+                                                                 registration_method)
+                
+                assert fixed is fixed_img
+                assert moving is moving_img
+                assert extracted is False
+                
