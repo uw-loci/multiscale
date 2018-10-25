@@ -9,7 +9,7 @@ with open('LICENSE.txt') as f:
     license = f.read()
 
 setup(
-    name='multiscale',
+    name='multiscale_imaging',
     version='0.1.0',
     author='Michael Pinkert',
     author_email='mpinkert@wisc.edu',
