@@ -307,18 +307,13 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
         :param registration_parameters: dictionary of registration key/value arguments
         :return: Registered image, corresponding transform, metric, and stop
         """
-        # todo: make transform and registration method kwargs/or path
         
-        moving_image_is_rgb = moving_image.GetNumberOfComponentsPerPixel() > 1
-        if moving_image_is_rgb:
-                moving_image_2d = rgb_to_grayscale_img(moving_image)
-        else:
-                moving_image_2d = moving_image
+        # todo: Re-enable registering for RGB images
         
         while True:
                 registration_method = define_registration_method(registration_parameters)
 
-                fixed_final, moving_final, region_extracted = query_for_changes(fixed_image, moving_image_2d,
+                fixed_final, moving_final, region_extracted = query_for_changes(fixed_image, moving_image,
                                                                                 initial_transform, registration_method,
                                                                                 moving_path)
                 
@@ -329,7 +324,7 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                                                      initial_transform=initial_transform)
                 
                 if region_extracted:
-                        itkplt.plot_overlay(fixed_image, moving_image_2d, transform, downsample=False)
+                        itkplt.plot_overlay(fixed_image, moving_image, transform, downsample=False)
                         
                 if query_good_registration(transform, metric, stop):
                         break
