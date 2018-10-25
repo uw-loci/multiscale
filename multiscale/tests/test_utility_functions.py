@@ -3,6 +3,7 @@ import multiscale.utility_functions as util
 import json
 from pathlib import Path
 import os
+import numpy as np
 
 
 @pytest.fixture()
@@ -184,3 +185,35 @@ class TestCharacterIndices(object):
                 result = util.character_indices(string, character)
                 assert result == indices
 
+
+class TestQueryStrList(object):
+        def test_a_bunch_of_strs(self, user_input_fixture, monkeypatch):
+                user_inputs = ['a', 'b', 'c']
+                generator = user_input_fixture(user_inputs)
+                monkeypatch.setattr('builtins.input', lambda x: next(generator))
+                output = util.query_str_list(['First letter', 'second', 'third'])
+                assert output == user_inputs
+
+
+class TestQueryFloatList(object):
+        def test_a_bunch_of_Floats(self, user_input_fixture, monkeypatch):
+                user_inputs = ['0.1', '0.2', '0.3']
+                generator = user_input_fixture(user_inputs)
+                monkeypatch.setattr('builtins.input', lambda x: next(generator))
+                output = util.query_str_list(['First', 'second', 'third'])
+                assert output == user_inputs
+
+
+class TestSplitListIntoSublists(object):
+        @pytest.mark.parametrize('large_list, size, expected', [
+                (['a']*10, 3, [['a']*3, ['a']*3, ['a']*3, ['a']]),
+                ([4]*4, 2, [[4]*2, [4]*2])
+        ])
+        def test_list_returns_sublists_of_correct_sizes(self, large_list, size, expected):
+                list_len = len(large_list)
+                num_lists = int(np.ceil(list_len/size))
+
+                sublists = util.split_list_into_sublists(large_list, size)
+
+                for list_num in range(num_lists):
+                        assert next(sublists) == expected[list_num]
