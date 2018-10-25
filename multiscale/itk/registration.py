@@ -271,7 +271,30 @@ def query_extract_region(fixed_image: sitk.Image, moving_image: sitk.Image, tran
                 
         else:
                 return fixed_image, moving_image, do_extract
+
+
+def query_for_changes(fixed_image: sitk.Image, moving_image: sitk.Image, initial_transform: sitk.Transform,
+                      registration_method: sitk.ImageRegistrationMethod, moving_path: Path=None):
+        """
+        Ask the user if they want to change initial conditions before registration
+        :param fixed_image: Image being registered to
+        :param moving_image: Image that is being transformed
+        :param initial_transform: The pre-registration transform setup
+        :param registration_method: The container for the image registration
+        :param moving_path: Path to the moving image to save the initial transform
+        :return:
+        """
+        query_rotation_change(fixed_image, moving_image, initial_transform)
+        query_translation_change(fixed_image, moving_image, initial_transform)
+        if moving_path is not None:
+                tran.write_initial_transform(moving_path, initial_transform)
         
+        fixed_final, moving_final, region_extracted = query_extract_region(fixed_image, moving_image,
+                                                                           initial_transform,
+                                                                           registration_method)
+
+        return fixed_final, moving_final, region_extracted
+
 
 def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image,
                                initial_transform: sitk.Transform=None, moving_path=None,
@@ -293,17 +316,12 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                 moving_image_2d = moving_image
         
         while True:
-                # todo: window/level helper to get pair specific values
                 registration_method = define_registration_method(registration_parameters)
+
+                fixed_final, moving_final, region_extracted = query_for_changes(fixed_image, moving_image_2d,
+                                                                                initial_transform, registration_method,
+                                                                                moving_path)
                 
-                query_rotation_change(fixed_image, moving_image_2d, initial_transform)
-                query_translation_change(fixed_image, moving_image_2d, initial_transform)
-                if moving_path is not None:
-                        tran.write_initial_transform(moving_path, initial_transform)
-                
-                fixed_final, moving_final, region_extracted = query_extract_region(fixed_image, moving_image_2d,
-                                                                                   initial_transform,
-                                                                                   registration_method)
                 reg_plot = RegistrationPlot(fixed_final, moving_final)
                 
                 (transform, metric, stop) = register(fixed_final, moving_final, reg_plot,
@@ -368,7 +386,3 @@ def bulk_supervised_register_images(fixed_dir: Path, moving_dir: Path,
                 
                 if write_transform:
                         tran.write_transform(registered_path, transform)
-
-
-
-
