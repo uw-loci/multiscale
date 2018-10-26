@@ -14,7 +14,7 @@ import SimpleITK as sitk
 
 def beamform_rf(raw_data):
         raise NotImplementedError('The function to beamform RF data has not been implemented yet')
-        return 0
+# cases: 128 raylines, multiangle compounding,
 
 
 def open_rf(path_rf: Path) -> np.ndarray:
@@ -62,10 +62,12 @@ def format_parameters(param_raw: np.ndarray) -> dict:
                 'transducer spacing': np.double(param_raw['transducer_spacing']),
                 'sampling wavelength': np.double(param_raw['wavelength_micron'])
         }
-        
+
+        wavelength_to_mm = parameters['transducer spacing'] / 0.1
+
         # Convert to units of mm
-        parameters['Lateral resolution'] = parameters['Lateral resolution'] / parameters['transducer spacing'] * 0.1
-        parameters['Axial resolution'] = parameters['Axial resolution'] / parameters['transducer spacing'] * 0.1
+        parameters['Lateral resolution'] = parameters['Lateral resolution'] / wavelength_to_mm
+        parameters['Axial resolution'] = parameters['Axial resolution'] / wavelength_to_mm
         
         return parameters
 
@@ -264,6 +266,8 @@ def assemble_data_without_positions(dir_mats: Path, data_to_return: str = 'bmode
                 array_img = iq_to_bmode(array_iq)
         elif data_to_return == 'envelope':
                 array_img = np.abs(array_iq)
+        else:
+                raise NotImplementedError('This type of data has not been implemented yet')
         
         return array_img, parameters
 
