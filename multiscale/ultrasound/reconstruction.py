@@ -12,6 +12,34 @@ import re
 import SimpleITK as sitk
 
 
+
+class UltrasoundImage(object):
+        def __init__(self, mat_dir: Path, pl_path: Path=None):
+                self.mat_dir = mat_dir
+                self.pl_path = pl_path
+                self.pos_list = []
+
+
+        def _read_position_list(self):
+                """Open a Micromanager acquired position file and return a list of X, Y positions"""
+                if self.pl_path is None:
+                        return []
+
+                acquisition_dict = util.read_json(self.pl_path)
+                pos_list = clean_position_text(acquisition_dict)
+
+                return pos_list
+
+        def _clean_position_text(self, acquisition_dict):
+                """Convert a Micromanager acquired position file into a list of X, Y positions"""
+                pos_list_raw = acquisition_dict['POSITIONS']
+                pos_list = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
+                            for row in pos_list_raw]
+
+                return pos_list
+
+
+
 def beamform_rf(raw_data):
         raise NotImplementedError('The function to beamform RF data has not been implemented yet')
 # cases: 128 raylines, multiangle compounding,
