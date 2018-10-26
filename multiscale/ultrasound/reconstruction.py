@@ -17,14 +17,14 @@ def beamform_rf(raw_data):
 # cases: 128 raylines, multiangle compounding,
 
 
-def open_rf(path_rf: Path) -> np.ndarray:
-        mat_data = sio.loadmat(str(path_rf))
+def open_rf(rf_path: Path) -> np.ndarray:
+        mat_data = sio.loadmat(str(rf_path))
         rf_data = beamform_rf(mat_data['RData'])
         
         return rf_data
 
 
-def open_iq(path_iq: Path) -> np.ndarray:
+def open_iq(iq_path: Path) -> np.ndarray:
         """Open a .mat that holds IQData and Parameters from the Verasonics system
     
         Input:
@@ -34,15 +34,15 @@ def open_iq(path_iq: Path) -> np.ndarray:
         iq_data: A numpy array of complex numbers, in (Z, X) indexing
         parameters: a dictionary
         """
-        mat_data = sio.loadmat(str(path_iq))
+        mat_data = sio.loadmat(str(iq_path))
         iq_data = mat_data['IQData']
         
         return iq_data
 
 
-def open_parameters(path_iq: Path) -> dict:
+def open_parameters(iq_path: Path) -> dict:
         """Get the parameters from an acquisition and return a cleaned up dictionary"""
-        mat_data = sio.loadmat(str(path_iq))
+        mat_data = sio.loadmat(str(iq_path))
         param_raw = mat_data['P']
         parameters = format_parameters(param_raw)
         return parameters
@@ -72,39 +72,39 @@ def format_parameters(param_raw: np.ndarray) -> dict:
         return parameters
 
 
-def iq_to_bmode(array_iq: np.ndarray) -> np.ndarray:
+def iq_to_bmode(iq_array: np.ndarray) -> np.ndarray:
         """Convert complex IQ data into bmode through squared transform"""
-        env = np.abs(array_iq)
+        env = np.abs(iq_array)
         bmode = np.log10(env + 1)
         
         return bmode
 
 
-def clean_position_text(dict_text: dict) -> list:
+def clean_position_text(pos_text: dict) -> list:
         """Convert a Micromanager acquired position file into a list of X, Y positions"""
-        list_pos_raw = dict_text['POSITIONS']
-        list_pos = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
-                    for row in list_pos_raw]
+        pos_list_raw = pos_text['POSITIONS']
+        pos_list = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
+                    for row in pos_list_raw]
         
-        return list_pos
+        return pos_list
 
 
-def read_position_list(path_pl: Path) -> list:
+def read_position_list(pl_path: Path) -> list:
         """Open a Micromanager acquired position file and return a list of X, Y positions"""
-        with open(str(path_pl), 'r') as file_pos:
+        with open(str(pl_path), 'r') as file_pos:
                 text_pos = file_pos.read()
                 dict_text = eval(text_pos)
-                list_pos = clean_position_text(dict_text)
+                pos_list = clean_position_text(dict_text)
         
-        return list_pos
+        return pos_list
 
 
-def count_xy_positions(list_pos: list) -> (np.ndarray, np.ndarray, np.ndarray):
+def count_xy_positions(pos_list: list) -> (np.ndarray, np.ndarray, np.ndarray):
         """Determine how many unique Lateral and elevational positions the position list holds,
         as well as the physical separation """
-        array_pos = np.array(list_pos)
-        unique_lateral = np.unique(array_pos[:, 0])
-        unique_elevational = np.unique(array_pos[:, 1])
+        pos_array = np.array(pos_list)
+        unique_lateral = np.unique(pos_array[:, 0])
+        unique_elevational = np.unique(pos_array[:, 1])
         
         num_lateral_elevational = np.array([len(unique_lateral), len(unique_elevational)])
         
@@ -121,15 +121,15 @@ def count_xy_positions(list_pos: list) -> (np.ndarray, np.ndarray, np.ndarray):
         return num_lateral_elevational, lateral_sep, elevational_sep
 
 
-def index_from_file_path(path_file: Path) -> int:
+def index_from_file_path(file_path: Path) -> int:
         """Get the image index from filename formatted It-index.mat"""
-        match = re.search(r'It-\d*', path_file.stem)
+        match = re.search(r'It-\d*', file_path.stem)
         index = int(match.group()[3:]) - 1
         return index
 
 
-def get_sorted_list_mats(dir_mats: Path, search_str: str = 'mat') -> list:
-        unsorted = util.list_filetype_in_dir(dir_mats, search_str)
+def get_sorted_list_mats(mats_dir: Path, search_str: str = 'mat') -> list:
+        unsorted = util.list_filetype_in_dir(mats_dir, search_str)
         list_mats_sorted = sorted(unsorted, key=index_from_file_path)
         return list_mats_sorted
 
@@ -142,32 +142,32 @@ def get_idx_img_z(idx_raw: int, num_xy: np.ndarray, num_imgs: int) -> [int, int]
         return int(idx_img), int(idx_z)
 
 
-def mat_list_to_iq_array(list_mats: list) -> (np.ndarray, dict):
+def mat_list_to_iq_array(mats_list: list) -> (np.ndarray, dict):
         """Make an IQ array from a list of mats"""
-        parameters = open_parameters(list_mats[0])
+        parameters = open_parameters(mats_list[0])
         
-        array_iq = np.array(
-                [open_iq(x) for x in list_mats]
+        iq_array = np.array(
+                [open_iq(x) for x in mats_list]
         )
         
         # todo: fix horizontal flipping in final image
         
-        return array_iq, parameters
+        return iq_array, parameters
 
 
-def mat_list_to_rf_array(list_mats: list) -> (np.ndarray, dict):
+def mat_list_to_rf_array(mats_list: list) -> (np.ndarray, dict):
         """Make an RF array from a list of mats"""
-        array_rf = np.array(
-                [open_rf(x) for x in list_mats]
+        rf_array = np.array(
+                [open_rf(x) for x in mats_list]
         )
-        parameters = open_parameters(list_mats[0])
+        parameters = open_parameters(mats_list[0])
         
-        return array_rf, parameters
+        return rf_array, parameters
 
 
-def assemble_4d_envelope(list_mats: list, num_lateral_elevational: np.ndarray) -> (np.ndarray, dict):
+def assemble_4d_envelope(mats_list: list, num_lateral_elevational: np.ndarray) -> (np.ndarray, dict):
         """Compile IQ Data US .mats into separate 3d images"""
-        array_3d_multi_img, parameters = mat_list_to_iq_array(list_mats)
+        array_3d_multi_img, parameters = mat_list_to_iq_array(mats_list)
         array_3d_env = np.abs(array_3d_multi_img)
         shape_image = np.shape(array_3d_env[0, :, :])
         
@@ -178,9 +178,9 @@ def assemble_4d_envelope(list_mats: list, num_lateral_elevational: np.ndarray) -
         return array_4d, parameters
 
 
-def assemble_4d_bmode(list_mats: list, num_lateral_elevational: np.ndarray) -> (np.ndarray, dict):
+def assemble_4d_bmode(mats_list: list, num_lateral_elevational: np.ndarray) -> (np.ndarray, dict):
         """Compile IQ Data US .mats into separate 3d images"""
-        array_3d_multi_img, parameters = mat_list_to_iq_array(list_mats)
+        array_3d_multi_img, parameters = mat_list_to_iq_array(mats_list)
         array_3d_bmode = iq_to_bmode(array_3d_multi_img)
         shape_image = np.shape(array_3d_bmode[0, :, :])
         
@@ -197,9 +197,9 @@ def calculate_percent_overlap(x_sep: float) -> int:
         return percent_sep
 
 
-def assemble_4d_data(dir_mats: Path, path_pl: Path, data_to_return: str = 'bmode') -> (np.ndarray, dict, int):
-        list_mats = get_sorted_list_mats(dir_mats)
-        list_pos = read_position_list(path_pl)
+def assemble_4d_data(mats_dir: Path, pl_path: Path, data_to_return: str = 'bmode') -> (np.ndarray, dict, int):
+        list_mats = get_sorted_list_mats(mats_dir)
+        list_pos = read_position_list(pl_path)
         num_lateral_elevational, lateral_separation, elevational_sep = count_xy_positions(list_pos)
         percent_overlap = calculate_percent_overlap(lateral_separation)
         
@@ -207,21 +207,23 @@ def assemble_4d_data(dir_mats: Path, path_pl: Path, data_to_return: str = 'bmode
                 array_4d, parameters = assemble_4d_bmode(list_mats, num_lateral_elevational)
         elif data_to_return == 'envelope':
                 array_4d, parameters = assemble_4d_envelope(list_mats, num_lateral_elevational)
-        
+        else:
+                raise NotImplementedError
+
         parameters['Elevational resolution'] = elevational_sep / 1000
         
         return array_4d, parameters, percent_overlap
 
 
-def write_image(array_img: np.ndarray, parameters: dict, path_output: Path):
+def write_image(img_array: np.ndarray, parameters: dict, output_path: Path):
         """
         Write a 3d US image with output spacing in mm
     
-        :param array_img: Numpy array corresponding to the image
+        :param img_array: Numpy array corresponding to the image
         :param parameters: Dictionary of parameters containing resolution keys
-        :param path_output: output path to save the file to
+        :param output_path: output path to save the file to
         """
-        image = sitk.GetImageFromArray(array_img)
+        image = sitk.GetImageFromArray(img_array)
         
         image_cast = sitk.Cast(image, sitk.sitkFloat32)
         
@@ -230,59 +232,59 @@ def write_image(array_img: np.ndarray, parameters: dict, path_output: Path):
         
         image_cast.SetSpacing(spacing)
         
-        sitk.WriteImage(image_cast, str(path_output))
+        sitk.WriteImage(image_cast, str(output_path))
 
 
-def stitch_elevational_image(dir_mats: Path, path_pl: Path, dir_output: Path, name_output: str,
+def stitch_elevational_image(mats_dir: Path, pl_path: Path, output_dir: Path, output_name: str,
                              data_to_return: str = 'bmode'):
         """Stitch and save images along the elevational direction.  Separate 3d images for each lateral position of stage
     
-        :param dir_mats: directory holding the .mat files to be stitched
-        :param path_pl: path to the position list file
-        :param dir_output: directory where the images will be written to
-        :param name_output: name of the output file
+        :param mats_dir: directory holding the .mat files to be stitched
+        :param pl_path: path to the position list file
+        :param output_dir: directory where the images will be written to
+        :param output_name: name of the output file
         :param data_to_return: type of us data to write, e.g. envelope data or bmode data.
         """
-        separate_images_4d, parameters, percent_overlap = assemble_4d_data(dir_mats, path_pl, data_to_return)
+        separate_images_4d, parameters, percent_overlap = assemble_4d_data(mats_dir, pl_path, data_to_return)
         
         for idx in range(np.shape(separate_images_4d)[0]):
-                path_output = Path(dir_output,
-                                   name_output + '_Overlap-' + str(percent_overlap) + '_' + str(idx) + '.tif')
+                path_output = Path(output_dir,
+                                   output_name + '_Overlap-' + str(percent_overlap) + '_' + str(idx) + '.tif')
                 write_image(separate_images_4d[idx], parameters, path_output)
 
 
-def assemble_data_without_positions(dir_mats: Path, data_to_return: str = 'bmode') -> (np.ndarray, dict):
+def assemble_data_without_positions(mats_dir: Path, data_to_return: str = 'bmode') -> (np.ndarray, dict):
         """
     
-        :param dir_mats: directory of iq files
+        :param mats_dir: directory of iq files
         :param data_to_return: bmode or envelope of iq data
         :return: 3d array that doesn't consider position of data/no regular stitching
         """
-        list_mats = get_sorted_list_mats(dir_mats)
+        mats_list = get_sorted_list_mats(mats_dir)
         
-        array_iq, parameters = mat_list_to_iq_array(list_mats)
+        iq_array, parameters = mat_list_to_iq_array(mats_list)
         
         if data_to_return == 'bmode':
-                array_img = iq_to_bmode(array_iq)
+                img_array = iq_to_bmode(iq_array)
         elif data_to_return == 'envelope':
-                array_img = np.abs(array_iq)
+                img_array = np.abs(iq_array)
         else:
                 raise NotImplementedError('This type of data has not been implemented yet')
         
-        return array_img, parameters
+        return img_array, parameters
 
 
-def stitch_image_without_positions(dir_mats: Path, dir_output: Path, name_output: str, data_to_return: str = 'bmode',
+def stitch_image_without_positions(mats_dir: Path, output_dir: Path, output_name: str, data_to_return: str = 'bmode',
                                    elevational_res=0.04):
         """
     
-        :param dir_mats: directory holding the iq data .mat files
-        :param dir_output: directory to write the final image to
-        :param name_output: what to name the image
+        :param mats_dir: directory holding the iq data .mat files
+        :param output_dir: directory to write the final image to
+        :param output_name: what to name the image
         :param data_to_return: type of us data to write, e.g. envelope data or bmode data.
         """
-        array_img, parameters = assemble_data_without_positions(dir_mats, data_to_return)
+        array_img, parameters = assemble_data_without_positions(mats_dir, data_to_return)
         parameters['Elevational resolution'] = elevational_res
         
-        path_output = Path(dir_output, name_output + '.tif')
+        path_output = Path(output_dir, output_name + '.tif')
         write_image(array_img, parameters, path_output)
