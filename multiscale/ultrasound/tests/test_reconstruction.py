@@ -106,7 +106,7 @@ class TestUltrasoundImage(object):
                 sorted = us_image._get_sorted_list_mats()
                 
                 assert sorted == expected
-                
+        
                 
 
 

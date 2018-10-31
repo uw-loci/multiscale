@@ -17,8 +17,39 @@ class UltrasoundImage(object):
         def __init__(self, mat_dir: Path, pl_path: Path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
-                self.pos_list = np.array([])
+                self.pos_list: np.ndarray=None
+                self.iq:  sitk.Image=None
+                
+        def get_bmode(self, compress_method='log'):
+                """Get the stitched b-mode image"""
+                if self.iq is None:
+                        self.assemble_iq()
 
+                if compress_method == 'log':
+                        bmode= sitk.Log10(sitk.Abs(self.iq) + 1)
+                elif compress_method == 'sqrt':
+                        bmode = sitk.Sqrt(sitk.Abs(self.iq))
+                else:
+                        raise ValueError('Compression method can be log or sqrt, not {}'.format(compress_method))
+                
+                return bmode
+                
+        def get_envelope(self):
+                """Get the stitched RF envelope image"""
+                if self.iq is None:
+                        self.assemble_iq()
+                
+                return sitk.Abs(self.iq)
+        
+        def get_iq(self):
+                if self.iq is None:
+                        self.assemble_iq()
+                        
+                return self.iq
+                
+        def assemble_iq(self):
+                return
+        
         def _read_position_list(self):
                 """Open a Micromanager acquired position file and return a list of X, Y positions"""
                 if self.pl_path is None:
