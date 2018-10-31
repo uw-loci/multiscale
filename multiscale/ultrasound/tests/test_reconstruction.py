@@ -46,13 +46,13 @@ def pos_file(pos_text):
         return _pos_file
 
 
-class TestUltrasoundImage(object):
+class TestUltrasoundImageAssembler(object):
         @pytest.fixture()
         def us_image(self, tmpdir):
                 mats_dir = tmpdir.mkdir('recon_mats')
                 pl_path = tmpdir.join('pos_list.pos')
 
-                image = recon.UltrasoundImage(mats_dir, pl_path)
+                image = recon.UltrasoundImageAssembler(mats_dir, pl_path)
 
                 return image
 
@@ -60,7 +60,7 @@ class TestUltrasoundImage(object):
                 mat_dir = Path('Test')
                 pl_path = Path('This')
 
-                image = recon.UltrasoundImage(mat_dir, pl_path)
+                image = recon.UltrasoundImageAssembler(mat_dir, pl_path)
 
                 assert mat_dir == image.mat_dir
                 assert pl_path == image.pl_path

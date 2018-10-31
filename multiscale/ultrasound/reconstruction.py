@@ -12,8 +12,7 @@ import re
 import SimpleITK as sitk
 
 
-
-class UltrasoundImage(object):
+class UltrasoundImageAssembler(object):
         def __init__(self, mat_dir: Path, pl_path: Path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
