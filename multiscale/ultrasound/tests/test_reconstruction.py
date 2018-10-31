@@ -17,7 +17,10 @@ from pathlib import Path
 
 @pytest.fixture()
 def pos_text():
-        def _pos_text(positions_xy, position_labels):
+        def _pos_text(positions_xy, position_labels=None):
+                if position_labels is None:
+                        position_labels = ['']*len(positions_xy)
+                        
                 sub_dict =[{'GRID_COL': 0, 'DEVICES':[
                         {'DEVICE': 'XYStage:XY:31', 'AXES': 2, 'Y': positions_xy[pos][1], 'X': positions_xy[pos][0], 'Z': 0}],
                         'PROPERTIES': {}, 'DEFAULT_Z_STAGE': '', 'LABEL': position_labels[pos],
@@ -67,6 +70,16 @@ class TestUltrasoundImage(object):
                 pos_list = us_image._read_position_list()
                 assert pos_list == pos_list_exp
 
-
+        def test_count_unique_positions(self, pos_text, us_image):
+                pos_list = [[0, 0], [1, 0], [2, 0], [0, 1]]
+                us_image.pos_list = pos_list
+                
+                unique_0 = us_image._count_unique_positions(0)
+                unique_1 = us_image._count_unique_positions(1)
+                assert unique_0 == 3
+                assert unique_1 == 2
+                
+                
+                
 
 

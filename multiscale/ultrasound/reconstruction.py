@@ -37,6 +37,13 @@ class UltrasoundImage(object):
                             for row in pos_list_raw]
 
                 return pos_list
+        
+        def _count_unique_positions(self, axis):
+                """Determine how many unique positions the position list holds along a particular axis"""
+                pos_array = np.array(self.pos_list)
+                unique = len(np.unique(pos_array[:, axis]))
+                return unique
+        
 
 
 
