@@ -9,8 +9,14 @@ ij = imagej.init(r'C:\Users\mpinkert\Desktop\Fiji.app')
 from jnius import autoclass, JavaException, cast
 
 
-macro = """
-run("Grid/Collection stitching", "type=[Grid: row-by-row] order=[Right & Down                ] grid_size_x=3 grid_size_y=1 tile_overlap=27 first_file_index_i=0 directory=F:\\Research\\LINK\\US\\2018-08-17\\ file_names=FirstImage3D_Overlap-27_{i}.tif output_textfile_name=TileConfiguration.txt fusion_method=[Linear Blending] regression_threshold=0.30 max/avg_displacement_threshold=2.50 absolute_displacement_threshold=3.50 computation_parameters=[Save memory (but be slower)] image_output=[Write to disk] output_directory=[F:\\Research\\LINK\\US\\2018-08-17\\grid output]");
+macro = r"""
+run("Grid/Collection stitching", "type=[Grid: row-by-row] order=[Right & Down                ]""" +\
+        r""" grid_size_x=3 grid_size_y=1 tile_overlap=27 first_file_index_i=0""" +\
+        r""" directory=F:\\Research\\LINK\\US\\2018-08-17\\ file_names=FirstImage3D_Overlap-27_{i}.tif""" +\
+        r""" output_textfile_name=TileConfiguration.txt fusion_method=[Linear Blending]""" +\
+        r""" regression_threshold=0.30 max/avg_displacement_threshold=2.50 absolute_displacement_threshold=3.50""" +\
+        r""" computation_parameters=[Save memory (but be slower)] image_output=[Write to disk] """ + \
+        r"""output_directory=[F:\\Research\\LINK\\US\\2018-08-17\\grid output]");
 """
 
 try:
@@ -20,3 +26,6 @@ except JavaException as e:
         print("e.innermessage -- {}".format(e.innermessage))
         for st in e.stacktrace:
                 print(st)
+;
+
+"""saveAs("Tiff", "...");"""
