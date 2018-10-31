@@ -10,15 +10,18 @@ import numpy as np
 import multiscale.utility_functions as util
 import re
 import SimpleITK as sitk
+import multiscale.itk.metadata as meta
 
 
 class UltrasoundImageAssembler(object):
+        
         def __init__(self, mat_dir: Path, pl_path: Path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.pos_list: np.ndarray=None
                 self.iq:  sitk.Image=None
-                
+                self.metadata_keys = ['Unit']
+
         def get_bmode(self, compress_method='log'):
                 """Get the stitched b-mode image"""
                 if self.iq is None:
@@ -31,6 +34,8 @@ class UltrasoundImageAssembler(object):
                 else:
                         raise ValueError('Compression method can be log or sqrt, not {}'.format(compress_method))
                 
+                meta.copy_relevant_metadata(bmode, self.iq, self.metadata_keys)
+                
                 return bmode
                 
         def get_envelope(self):
@@ -38,7 +43,10 @@ class UltrasoundImageAssembler(object):
                 if self.iq is None:
                         self.assemble_iq()
                 
-                return sitk.Abs(self.iq)
+                env = sitk.Abs(self.iq)
+                meta.copy_relevant_metadata(env, self.iq, self.metadata_keys)
+                
+                return env
         
         def get_iq(self):
                 if self.iq is None:
