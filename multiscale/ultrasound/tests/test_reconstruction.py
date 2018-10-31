@@ -63,15 +63,15 @@ class TestUltrasoundImage(object):
                 assert pl_path == image.pl_path
 
         def test_position_list_is_read_correctly(self, pos_file, us_image):
-                pos_list_exp = [[0, 0], [1, 1], [2, 2]]
+                pos_list_exp = np.array([[0, 0], [1, 1], [2, 2]])
                 pos_labels = ['Pos-0', 'Pos-1', 'Pos-2']
                 pos_file(us_image.pl_path, pos_list_exp, pos_labels)
 
                 pos_list = us_image._read_position_list()
                 assert pos_list == pos_list_exp
 
-        def test_count_unique_positions(self, pos_text, us_image):
-                pos_list = [[0, 0], [1, 0], [2, 0], [0, 1]]
+        def test_count_unique_positions(self, us_image):
+                pos_list = np.array([[0, 0], [1, 0], [2, 0], [0, 1]])
                 us_image.pos_list = pos_list
                 
                 unique_0 = us_image._count_unique_positions(0)
@@ -79,7 +79,22 @@ class TestUltrasoundImage(object):
                 assert unique_0 == 3
                 assert unique_1 == 2
                 
+        @pytest.mark.parametrize('pos_list, axis, expected', [
+                (np.array([[0, 0], [1.5, 0], [0, 1], [1.5, 1]]), 0, 1.5),
+                (np.array([[0, 0], [1.5, 0], [0, 1], [1.5, 1]]), 1, 1)
+        ])
+        def test_get_position_separation(self, us_image, pos_list, axis, expected):
+                us_image.pos_list = pos_list
+                sep = us_image._get_position_separation(axis)
+                assert sep == expected
+
+        def test_get_position_separation_raises_error_on_irregular_grid(self, us_image):
+                pos_list = np.array([[0, 0], [1.5, 0], [2, 0]])
+                us_image.pos_list = pos_list
                 
-                
+                with pytest.raises(ValueError):
+                        us_image._get_position_separation(0)
+                        pass
+
 
 

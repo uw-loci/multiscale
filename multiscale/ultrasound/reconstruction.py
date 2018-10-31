@@ -17,8 +17,7 @@ class UltrasoundImage(object):
         def __init__(self, mat_dir: Path, pl_path: Path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
-                self.pos_list = []
-
+                self.pos_list = np.array([])
 
         def _read_position_list(self):
                 """Open a Micromanager acquired position file and return a list of X, Y positions"""
@@ -33,17 +32,35 @@ class UltrasoundImage(object):
         def _clean_position_text(self, acquisition_dict):
                 """Convert a Micromanager acquired position file into a list of X, Y positions"""
                 pos_list_raw = acquisition_dict['POSITIONS']
-                pos_list = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
-                            for row in pos_list_raw]
+                pos_list = np.array([[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
+                            for row in pos_list_raw])
 
                 return pos_list
         
         def _count_unique_positions(self, axis):
                 """Determine how many unique positions the position list holds along a particular axis"""
-                pos_array = np.array(self.pos_list)
-                unique = len(np.unique(pos_array[:, axis]))
-                return unique
+                num_unique = len(np.unique(self.pos_list[:, axis]))
+                return num_unique
         
+        def _get_position_separation(self, axis):
+                """Check the distance between points along an axis"""
+                unique = np.unique(self.pos_list[:, axis])
+                
+                if len(unique > 1):
+
+                        separations = np.array([unique[i+1] - unique[i] for i in range(len(unique)-1)])
+                        unique_separatations = np.unique(separations)
+                        
+                        if len(unique_separatations) > 1:
+                                raise ValueError('There is more than one separation distance.  This grid is irregular')
+                        
+                        return unique_separatations[0]
+                        
+                else:
+                        separation = 1
+                
+                return separation
+                
 
 
 
