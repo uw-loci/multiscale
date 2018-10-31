@@ -8,11 +8,13 @@ from pathlib import Path
 
 #
 # @pytest.fixture(scope='module')
-# def mat_dir_and_position_list(self, tmpdir):
-#         mat_dir = tmpdir.mkdir('us_image_test')
-#         im_one = np.array([[0, 0], [1, 1]])
-#         im_two = np.array([[2, 2], [3, 3]])
-#         im_three = np.array([[4, 4], [5, 5]])
+# def populate_mat_dir(self, tmpdir):
+#         def _populate_mat_dir(list_img_arrays, suffix='')
+#                 mat_dir = tmpdir.mkdir('recon_mats')
+#
+#                 for idx in range(len(list_img_arrays)):
+#                         save_path = Path(mat_dir, 'TestImg_It-{0}{1}.mat'.format(idx, suffix))
+#                         sio.savemat()
 
 
 @pytest.fixture()
@@ -22,7 +24,8 @@ def pos_text():
                         position_labels = ['']*len(positions_xy)
                         
                 sub_dict =[{'GRID_COL': 0, 'DEVICES':[
-                        {'DEVICE': 'XYStage:XY:31', 'AXES': 2, 'Y': positions_xy[pos][1], 'X': positions_xy[pos][0], 'Z': 0}],
+                        {'DEVICE': 'XYStage:XY:31', 'AXES': 2, 'Y': float(positions_xy[pos][1]),
+                         'X': float(positions_xy[pos][0]), 'Z': 0}],
                         'PROPERTIES': {}, 'DEFAULT_Z_STAGE': '', 'LABEL': position_labels[pos],
                         'GRID_ROW': 0, 'DEFAULT_XY_STAGE': ''} for pos in range(len(position_labels))]
 
@@ -68,7 +71,7 @@ class TestUltrasoundImage(object):
                 pos_file(us_image.pl_path, pos_list_exp, pos_labels)
 
                 pos_list = us_image._read_position_list()
-                assert pos_list == pos_list_exp
+                assert (pos_list == pos_list_exp).all()
 
         def test_count_unique_positions(self, us_image):
                 pos_list = np.array([[0, 0], [1, 0], [2, 0], [0, 1]])
@@ -96,5 +99,14 @@ class TestUltrasoundImage(object):
                         us_image._get_position_separation(0)
                         pass
 
+        def test_get_sorted_list_mats(self, us_image, monkeypatch):
+                unsorted = [Path('It-0.mat'), Path('It-1.mat'), Path('It-10.mat'), Path('It-2.mat')]
+                monkeypatch.setattr('multiscale.utility_functions.list_filetype_in_dir', lambda x, y: unsorted)
+                expected = [Path('It-0.mat'), Path('It-1.mat'), Path('It-2.mat'), Path('It-10.mat')]
+                sorted = us_image._get_sorted_list_mats()
+                
+                assert sorted == expected
+                
+                
 
 

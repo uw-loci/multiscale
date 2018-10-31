@@ -26,6 +26,6 @@ except JavaException as e:
         print("e.innermessage -- {}".format(e.innermessage))
         for st in e.stacktrace:
                 print(st)
-;
+
 
 """saveAs("Tiff", "...");"""

@@ -60,7 +60,17 @@ class UltrasoundImage(object):
                         separation = 1
                 
                 return separation
-                
+        
+        def _get_sorted_list_mats(self, search_str='.mat'):
+                unsorted = util.list_filetype_in_dir(self.mat_dir, search_str)
+                list_mats_sorted = sorted(unsorted, key=self._get_iteration_from_path)
+                return list_mats_sorted
+        
+        def _get_iteration_from_path(self, file_path):
+                """Get the image index from filename formatted It-index.mat"""
+                match = re.search(r'It-\d*', file_path.stem)
+                index = int(match.group()[3:]) - 1
+                return index
 
 
 
