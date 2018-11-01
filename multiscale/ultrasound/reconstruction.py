@@ -21,6 +21,11 @@ class UltrasoundImageAssembler(object):
                 self.pos_list: np.ndarray=None
                 self.iq:  sitk.Image=None
                 self.metadata_keys = ['Unit']
+                self.acq_params: dict = None
+
+        def get_acquisition_parameters(self):
+                """Get the US acquisition parameters"""
+                return self.acq_params
 
         def get_bmode(self, compress_method='log'):
                 """Get the stitched b-mode image"""
@@ -55,6 +60,7 @@ class UltrasoundImageAssembler(object):
                 return self.iq
                 
         def assemble_iq(self):
+
                 return
         
         def _read_position_list(self):
@@ -110,7 +116,21 @@ class UltrasoundImageAssembler(object):
                 index = int(match.group()[3:]) - 1
                 return index
 
+        def _open_parameters(self, iq_path: Path) -> dict:
+                """
+                Get the parameters from an acquisition and return a cleaned up dictionary
+                """
+                params = util.load_mat(iq_path, variables='P')['P']
 
+                wl = params['sampling_wavelength']
+                self.acq_params['Lateral resolution'] = params['lateral_resolution'] * wl
+                self.acq_params['Axial resolution'] = params['axial_resolution'] * wl
+                self.acq_params['speed of sound'] = params['speed_of_sound']
+                self.acq_params['focus'] = params['txFocus'] * wl
+                self.acq_params['start depth'] = params['startDepth'] * wl
+                self.acq_params['end depth'] = params['endDepth'] * wl
+                self.acq_params['transducer spacing'] = ['transducer_spacing'] * wl
+                self.acq_params['sampling wavelength'] = params['wavelength_micron']
 
 def beamform_rf(raw_data):
         raise NotImplementedError('The function to beamform RF data has not been implemented yet')
