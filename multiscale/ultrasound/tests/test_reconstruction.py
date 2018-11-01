@@ -86,9 +86,9 @@ class TestUltrasoundImageAssembler(object):
                 (np.array([[0, 0], [1.5, 0], [0, 1], [1.5, 1]]), 0, 1.5),
                 (np.array([[0, 0], [1.5, 0], [0, 1], [1.5, 1]]), 1, 1)
         ])
-        def test_get_position_separation(self, us_image, pos_list, axis, expected):
+        def test_calculate_position_separation(self, us_image, pos_list, axis, expected):
                 us_image.pos_list = pos_list
-                sep = us_image._get_position_separation(axis)
+                sep = us_image._calculate_position_separation(axis)
                 assert sep == expected
 
         def test_get_position_separation_raises_error_on_irregular_grid(self, us_image):
@@ -96,14 +96,14 @@ class TestUltrasoundImageAssembler(object):
                 us_image.pos_list = pos_list
                 
                 with pytest.raises(ValueError):
-                        us_image._get_position_separation(0)
+                        us_image._calculate_position_separation(0)
                         pass
 
-        def test_get_sorted_list_mats(self, us_image, monkeypatch):
+        def test_read_sorted_list_mats(self, us_image, monkeypatch):
                 unsorted = [Path('It-0.mat'), Path('It-1.mat'), Path('It-10.mat'), Path('It-2.mat')]
                 monkeypatch.setattr('multiscale.utility_functions.list_filetype_in_dir', lambda x, y: unsorted)
                 expected = [Path('It-0.mat'), Path('It-1.mat'), Path('It-2.mat'), Path('It-10.mat')]
-                sorted = us_image._get_sorted_list_mats()
+                sorted = us_image._read_sorted_list_mats()
                 
                 assert sorted == expected
 

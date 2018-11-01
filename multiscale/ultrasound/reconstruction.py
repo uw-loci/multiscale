@@ -59,7 +59,7 @@ class UltrasoundImageAssembler(object):
                 num_unique = len(np.unique(self.pos_list[:, axis]))
                 return num_unique
         
-        def _get_position_separation(self, axis):
+        def _calculate_position_separation(self, axis):
                 """Check the distance between points along an axis"""
                 unique = np.unique(self.pos_list[:, axis])
                 
@@ -78,18 +78,18 @@ class UltrasoundImageAssembler(object):
                 
                 return separation
         
-        def _get_sorted_list_mats(self, search_str='.mat'):
+        def _read_sorted_list_mats(self, search_str='.mat'):
                 unsorted = util.list_filetype_in_dir(self.mat_dir, search_str)
-                list_mats_sorted = sorted(unsorted, key=self._get_iteration_from_path)
+                list_mats_sorted = sorted(unsorted, key=self._extract_iteration_from_path)
                 return list_mats_sorted
         
-        def _get_iteration_from_path(self, file_path):
+        def _extract_iteration_from_path(self, file_path):
                 """Get the image index from filename formatted It-index.mat"""
                 match = re.search(r'It-\d*', file_path.stem)
                 index = int(match.group()[3:]) - 1
                 return index
 
-        def _open_parameters(self, iq_path: Path):
+        def _read_parameters(self, iq_path: Path):
                 """
                 Get the parameters from an acquisition and return a cleaned up dictionary
                 """
