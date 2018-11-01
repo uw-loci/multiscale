@@ -11,6 +11,7 @@ import multiscale.utility_functions as util
 import re
 import SimpleITK as sitk
 import multiscale.itk.metadata as meta
+import h5py as hp
 
 
 class UltrasoundImageAssembler(object):
@@ -20,13 +21,14 @@ class UltrasoundImageAssembler(object):
         def __init__(self, mat_dir: Path, pl_path: Path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
-                self.pos_list = self._read_position_list()
-                self.list_mats = self._read_sorted_list_mats()
                 
-                self.acq_params: dict=None
-                self._read_parameters(self.list_mats[0])
+                self.pos_list: list = None
+                self.list_mats: list = None
+                self.acq_params: dict = None
 
-                self.image:  sitk.Image=None
+                self.h5py_path: Path = None
+                
+                self.image:  sitk.Image = None
                 self.metadata_keys = ['Unit']
 
         def get_acquisition_parameters(self):
@@ -37,14 +39,21 @@ class UltrasoundImageAssembler(object):
                 return self.image
 
         def _assemble_image(self):
+
+                self.pos_list = self._read_position_list()
+                self.list_mats = self._read_sorted_list_mats()
+                self._read_parameters(self.list_mats[0])
+                
                 num_lateral = self._count_unique_positions(0)
                 num_elevational = self._count_unique_positions(1)
                 
-                
-                
                 return
-                
-        def _read_variable(self, file_path, variable):
+        
+        def _mat_list_to_h5py_dataset(self):
+                return
+        
+        @staticmethod
+        def read_variable(self, file_path, variable):
                 return util.load_mat(file_path, variables=variable)[variable]
         
         # Positions
@@ -58,7 +67,8 @@ class UltrasoundImageAssembler(object):
 
                 return pos_list
 
-        def _clean_position_text(self, acquisition_dict):
+        @staticmethod
+        def clean_position_text(acquisition_dict):
                 """Convert a Micromanager acquired position file into a list of X, Y positions"""
                 pos_list_raw = acquisition_dict['POSITIONS']
                 pos_list = np.array([[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
@@ -100,21 +110,23 @@ class UltrasoundImageAssembler(object):
         # List of files
         def _read_sorted_list_mats(self, search_str='.mat'):
                 unsorted = util.list_filetype_in_dir(self.mat_dir, search_str)
-                list_mats_sorted = sorted(unsorted, key=self._extract_iteration_from_path)
+                list_mats_sorted = sorted(unsorted, key=self.extract_iteration_from_path)
                 return list_mats_sorted
         
-        def _extract_iteration_from_path(self, file_path):
+        @staticmethod
+        def extract_iteration_from_path(file_path):
                 """Get the image index from filename formatted It-index.mat"""
                 match = re.search(r'It-\d*', file_path.stem)
                 index = int(match.group()[3:]) - 1
                 return index
 
         # Parameters
+        
         def _read_parameters(self, iq_path: Path):
                 """
                 Get the parameters from an acquisition and return a cleaned up dictionary
                 """
-                params = self._read_variable(iq_path, 'P')
+                params = self.read_variable(iq_path, 'P')
 
                 wl = params['sampling_wavelength']
                 # convert units to mm

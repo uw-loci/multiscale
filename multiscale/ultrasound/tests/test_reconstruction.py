@@ -106,6 +106,18 @@ class TestUltrasoundImageAssembler(object):
                 sorted = us_image._read_sorted_list_mats()
                 
                 assert sorted == expected
+          
+        @pytest.mark.parametrize('file_path, expected', [
+                (Path('Test_Run-1_It-5.mat'), 4)
+        ])
+        def test_extract_iteration_from_path(self, us_image, file_path, expected):
+                index = us_image.extract_iteration_from_path(file_path)
+                assert index == expected
 
-
+        # unimplemented tests
+        def test_read_variable(self):
+                assert True
+        
+        def test_read_parameters(self, monkeypatch):
+                assert True
 
