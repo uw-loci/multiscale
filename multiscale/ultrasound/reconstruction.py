@@ -30,6 +30,7 @@ class UltrasoundImageAssembler(object):
                 return self.acq_params
 
         def get_image(self):
+                return self.image
 
         def _assemble_image(self):
 
