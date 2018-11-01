@@ -14,12 +14,14 @@ import multiscale.itk.metadata as meta
 
 
 class UltrasoundImageAssembler(object):
-        
+        """
+        todo: start generalizing this so it can work with multiple image types/kinds
+        """
         def __init__(self, mat_dir: Path, pl_path: Path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.pos_list: np.ndarray=None
-                self.iq:  sitk.Image=None
+                self.image:  sitk.Image=None
                 self.metadata_keys = ['Unit']
                 self.acq_params: dict = None
 
@@ -27,39 +29,9 @@ class UltrasoundImageAssembler(object):
                 """Get the US acquisition parameters"""
                 return self.acq_params
 
-        def get_bmode(self, compress_method='log'):
-                """Get the stitched b-mode image"""
-                if self.iq is None:
-                        self.assemble_iq()
+        def get_image(self):
 
-                if compress_method == 'log':
-                        bmode= sitk.Log10(sitk.Abs(self.iq) + 1)
-                elif compress_method == 'sqrt':
-                        bmode = sitk.Sqrt(sitk.Abs(self.iq))
-                else:
-                        raise ValueError('Compression method can be log or sqrt, not {}'.format(compress_method))
-                
-                meta.copy_relevant_metadata(bmode, self.iq, self.metadata_keys)
-                
-                return bmode
-                
-        def get_envelope(self):
-                """Get the stitched RF envelope image"""
-                if self.iq is None:
-                        self.assemble_iq()
-                
-                env = sitk.Abs(self.iq)
-                meta.copy_relevant_metadata(env, self.iq, self.metadata_keys)
-                
-                return env
-        
-        def get_iq(self):
-                if self.iq is None:
-                        self.assemble_iq()
-                        
-                return self.iq
-                
-        def assemble_iq(self):
+        def _assemble_image(self):
 
                 return
         
@@ -134,6 +106,41 @@ class UltrasoundImageAssembler(object):
                 # copy other parameters that are not in wavelength
                 self.acq_params['sampling wavelength'] = params['wavelength_micron']
                 self.acq_params['speed of sound'] = params['speed_of_sound']
+
+
+class UltrasoundImage(sitk.Image):
+
+        def get_bmode(self, compress_method='log'):
+                """Get the stitched b-mode image"""
+                if self.iq is None:
+                        self.assemble_iq()
+
+                if compress_method == 'log':
+                        bmode = sitk.Log10(sitk.Abs(self.iq) + 1)
+                elif compress_method == 'sqrt':
+                        bmode = sitk.Sqrt(sitk.Abs(self.iq))
+                else:
+                        raise ValueError('Compression method can be log or sqrt, not {}'.format(compress_method))
+
+                meta.copy_relevant_metadata(bmode, self.iq, self.metadata_keys)
+
+                return bmode
+
+        def get_envelope(self):
+                """Get the stitched RF envelope image"""
+                if self.iq is None:
+                        self.assemble_iq()
+
+                env = sitk.Abs(self.iq)
+                meta.copy_relevant_metadata(env, self.iq, self.metadata_keys)
+
+                return env
+
+        def get_iq(self):
+                if self.iq is None:
+                        self.assemble_iq()
+
+                return self.iq
 
 
 def beamform_rf(raw_data):
