@@ -20,10 +20,14 @@ class UltrasoundImageAssembler(object):
         def __init__(self, mat_dir: Path, pl_path: Path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
-                self.pos_list: np.ndarray=None
+                self.pos_list = self._read_position_list()
+                self.list_mats = self._read_sorted_list_mats()
+                
+                self.acq_params: dict=None
+                self._read_parameters(self.list_mats[0])
+
                 self.image:  sitk.Image=None
                 self.metadata_keys = ['Unit']
-                self.acq_params: dict = None
 
         def get_acquisition_parameters(self):
                 """Get the US acquisition parameters"""
@@ -33,9 +37,17 @@ class UltrasoundImageAssembler(object):
                 return self.image
 
         def _assemble_image(self):
-
+                num_lateral = self._count_unique_positions(0)
+                num_elevational = self._count_unique_positions(1)
+                
+                
+                
                 return
+                
+        def _read_variable(self, file_path, variable):
+                return util.load_mat(file_path, variables=variable)[variable]
         
+        # Positions
         def _read_position_list(self):
                 """Open a Micromanager acquired position file and return a list of X, Y positions"""
                 if self.pl_path is None:
@@ -77,7 +89,15 @@ class UltrasoundImageAssembler(object):
                         separation = 1
                 
                 return separation
+
+        def _calculate_percent_overlap(self, transducer_fov=12800) -> int:
+                """Calculate the percentage overlap between X images"""
+                sep_lateral = self._calculate_position_separation(0)
+                percent_sep = int(100 - 100 * (sep_lateral / transducer_fov))
+                
+                return percent_sep
         
+        # List of files
         def _read_sorted_list_mats(self, search_str='.mat'):
                 unsorted = util.list_filetype_in_dir(self.mat_dir, search_str)
                 list_mats_sorted = sorted(unsorted, key=self._extract_iteration_from_path)
@@ -89,11 +109,12 @@ class UltrasoundImageAssembler(object):
                 index = int(match.group()[3:]) - 1
                 return index
 
+        # Parameters
         def _read_parameters(self, iq_path: Path):
                 """
                 Get the parameters from an acquisition and return a cleaned up dictionary
                 """
-                params = util.load_mat(iq_path, variables='P')['P']
+                params = self._read_variable(iq_path, 'P')
 
                 wl = params['sampling_wavelength']
                 # convert units to mm
