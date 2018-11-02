@@ -53,7 +53,7 @@ class UltrasoundImageAssembler(object):
                 return
         
         @staticmethod
-        def read_variable(self, file_path, variable):
+        def read_variable(file_path, variable):
                 return util.load_mat(file_path, variables=variable)[variable]
         
         # Positions

@@ -114,10 +114,17 @@ class TestUltrasoundImageAssembler(object):
                 index = us_image.extract_iteration_from_path(file_path)
                 assert index == expected
 
-        # unimplemented tests
-        def test_read_variable(self):
-                assert True
-        
+        @pytest.mark.parametrize('raw, var, expected',[
+                ({'A': 4, 'B': 3}, 'A', 4),
+                ({'C': {'A': 4, 'B': 3}, 'D': 5}, 'C', {'A': 4, 'B': 3}),
+                pytest.param({'A': 4, 'B': 3, 'C': {'E': 1, 'F': 2}}, ['A', 'C'], {'A': 4, 'C':{'E': 1, 'F': 2}},
+                             marks=pytest.mark.xfail)
+        ])
+        def test_read_variable(self, monkeypatch, us_image, raw, var, expected):
+                monkeypatch.setattr('multiscale.utility_functions.load_mat', lambda x, variables: raw)
+                output = us_image.read_variable(Path('test'), var)
+                assert output == expected
+                
         def test_read_parameters(self, monkeypatch, us_image):
                 raw_params = {'lateral_resolution': 0.5, 'axial_resolution': 0.25, 'txFocus': 80, 'startDepth': 5,
                               'endDepth': 160, 'transducer_spacing': 1.014610389610390, 'wavelength_micron': 98.56,
