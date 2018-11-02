@@ -22,7 +22,6 @@ install:
   - conda install cython
   - conda install h5py
   - conda install -c conda-forge pyjnius
-  - pip install jnius
   - conda install -c hanslovsky imglyb
   - conda install pytest
   - conda install pandas

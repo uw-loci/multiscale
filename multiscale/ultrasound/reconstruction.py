@@ -11,7 +11,6 @@ import multiscale.utility_functions as util
 import re
 import SimpleITK as sitk
 import multiscale.itk.metadata as meta
-import h5py as hp
 
 
 class UltrasoundImageAssembler(object):
