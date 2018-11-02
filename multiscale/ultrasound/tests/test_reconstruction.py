@@ -178,8 +178,23 @@ class TestUltrasoundImageAssembler(object):
                 
                 assert (output == expected).all()
                 
+        def test_stitch_images_from_temporary_directory(self):
+                return
+        
+        def test_write_images_to_temporary_dir(self):
+                assert True
                 
-
+        def test_write_temp_image(self, us_image, tmpdir, monkeypatch):
+                temp_dir = tmpdir.mkdir('unstitched')
+                image_array = np.random.rand(5, 5, 5) + 1j*np.random.rand(5, 5, 5)
+                idx = 0
+                expected_path = Path(temp_dir, 'UltrasoundImage_{}.tif'.format(idx))
+                monkeypatch.setattr('multiscale.ultrasound.reconstruction.UltrasoundImageAssembler._get_spacing',
+                                    lambda x: [2, 2, 2])
+                                
+                us_image._write_temp_image(image_array, temp_dir, idx)
+                
+                assert expected_path.is_file()
 
 
 

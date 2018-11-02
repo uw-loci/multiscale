@@ -78,22 +78,29 @@ class UltrasoundImageAssembler(object):
                 
                 return array_of_3d_images
                 
-        # def _write_image_list_to_temp_files(self, array_of_images: np.ndarray):
-        #         core_name = self.mat_list[0].split('_Run')[0]
-        #         num_images = np.shape(array_of_images)[0]
-        #
-        #         if num_images == 1:
-        #
-        #         unstitched_dir = Path(self.output_dir, 'Unstitched')
-        #
-        #         os.makedirs(unstitched_dir, exist_ok=True)
-        #
-        #         for image in range(np.shape(array_of_images)[0]):
-        #              file_name = Path(self.output_dir, )
-                     
-        def _write_temp_image(self, image_array):
-                image = sitk.GetImageFromArray(image_array)
+        def _stitch_images_from_temporary_directory(self, array_of_images: np.ndarray):
+                """
+                Take a 4d array containing several 3D ultrasound images and stitch them externally through ImageJ
+                """
+                try:
+                        temp_dir = tempfile.mkdtemp()
+                        self._write_images_to_temporary_dir(temp_dir, array_of_images)
+                finally:
+                        os.rmdir(temp_dir)
+
+        def _write_images_to_temporary_dir(self, temp_dir, array_of_images):
+                """Write 3d images, held in a 4d array, into temporary files with a consistent naming scheme"""
+                num_images = np.shape(array_of_images)[0]
+                for idx in range(num_images):
+                        self._write_temp_image(array_of_images[idx], temp_dir, idx)
         
+        def _write_temp_image(self, image_array, temp_dir, idx):
+                """Write a 3D ultrasound image into a temporary file for use by ImageJ stitching"""
+                temp_path = Path(temp_dir, 'UltrasoundImage_{}.tif'.format(idx))
+                image = sitk.GetImageFromArray(image_array)
+                image.SetSpacing(self._get_spacing())
+                meta.write_image(image, temp_path)
+                
         # Images
         def _mat_list_to_variable_list(self, variable):
                 """Acquire a sorted list containing the specified variable in each mat file"""
