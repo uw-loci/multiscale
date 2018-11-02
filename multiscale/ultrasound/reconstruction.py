@@ -12,15 +12,19 @@ import re
 import SimpleITK as sitk
 import multiscale.itk.metadata as meta
 import h5py
+import os
+import tempfile
 
 
 class UltrasoundImageAssembler(object):
         """
         todo: start generalizing this so it can work with multiple image types/kinds
         """
-        def __init__(self, mat_dir: Path, pl_path: Path=None):
+        def __init__(self, mat_dir: Path, output_dir: Path, pl_path: Path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
+                self.output_dir = output_dir
+                os.makedirs(output_dir, exist_ok=True)
                 
                 self.pos_list = []
                 self.mat_list = []
@@ -40,12 +44,25 @@ class UltrasoundImageAssembler(object):
                 self.pos_list = self._read_position_list()
                 self.mat_list = self._read_sorted_list_mats()
                 self._read_parameters(self.mat_list[0])
-                
                 image_list = self._mat_list_to_variable_list(image_type)
                 separate_3d_images = self._image_list_to_laterally_separate_3d_images()
-                
-                
+
                 return
+
+        def _setup_image(self, shape_of_image_array):
+                return
+
+        def _set_metadata(self):
+                self.image.SetMetaData('Unit', 'microns')
+        
+        def _get_spacing(self):
+                # Get the spacing of the resulting image in microns
+                lateral_spacing = self.acq_params['lateral resolution']
+                axial_spacing = self.acq_params['axial resolution']
+                elevational_spacing = self._calculate_position_separation(1)
+                
+                spacing = [lateral_spacing, axial_spacing, elevational_spacing]
+                return spacing
 
         def _image_list_to_laterally_separate_3d_images(self, image_list):
                 """
@@ -61,6 +78,21 @@ class UltrasoundImageAssembler(object):
                 
                 return array_of_3d_images
                 
+        # def _write_image_list_to_temp_files(self, array_of_images: np.ndarray):
+        #         core_name = self.mat_list[0].split('_Run')[0]
+        #         num_images = np.shape(array_of_images)[0]
+        #
+        #         if num_images == 1:
+        #
+        #         unstitched_dir = Path(self.output_dir, 'Unstitched')
+        #
+        #         os.makedirs(unstitched_dir, exist_ok=True)
+        #
+        #         for image in range(np.shape(array_of_images)[0]):
+        #              file_name = Path(self.output_dir, )
+                     
+        def _write_temp_image(self, image_array):
+                image = sitk.GetImageFromArray(image_array)
         
         # Images
         def _mat_list_to_variable_list(self, variable):
@@ -98,14 +130,13 @@ class UltrasoundImageAssembler(object):
                 unique = np.unique(self.pos_list[:, axis])
                 
                 if len(unique > 1):
-
                         separations = np.array([unique[i+1] - unique[i] for i in range(len(unique)-1)])
-                        unique_separatations = np.unique(separations)
+                        unique_separations = np.unique(separations)
                         
-                        if len(unique_separatations) > 1:
+                        if len(unique_separations) > 1:
                                 raise ValueError('There is more than one separation distance.  This grid is irregular')
                         
-                        return unique_separatations[0]
+                        return np.abs(unique_separations[0])
                         
                 else:
                         separation = 1

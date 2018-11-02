@@ -51,19 +51,22 @@ class TestUltrasoundImageAssembler(object):
         def us_image(self, tmpdir):
                 mats_dir = tmpdir.mkdir('recon_mats')
                 pl_path = tmpdir.join('pos_list.pos')
+                output_dir = tmpdir.mkdir('recon')
 
-                image = recon.UltrasoundImageAssembler(mats_dir, pl_path)
+                image = recon.UltrasoundImageAssembler(mats_dir, output_dir, pl_path)
 
                 return image
 
         def test_input_paths_set_correctly(self):
                 mat_dir = Path('Test')
                 pl_path = Path('This')
+                output_dir = 'Out'
 
-                image = recon.UltrasoundImageAssembler(mat_dir, pl_path)
+                image = recon.UltrasoundImageAssembler(mat_dir, output_dir, pl_path)
 
                 assert mat_dir == image.mat_dir
                 assert pl_path == image.pl_path
+                assert output_dir == image.output_dir
 
         def test_position_list_is_read_correctly(self, pos_file, us_image):
                 pos_list_exp = np.array([[0, 0], [1, 1], [2, 2]])
@@ -81,6 +84,16 @@ class TestUltrasoundImageAssembler(object):
                 unique_1 = us_image._count_unique_positions(1)
                 assert unique_0 == 3
                 assert unique_1 == 2
+                
+        def test_get_spacing(self, us_image):
+                us_image.acq_params = {'axial resolution': 5, 'lateral resolution': 4}
+                us_image.pos_list = np.array([[0, 1], [0, 2]])
+                us_image._get_spacing()
+                
+                output = us_image._get_spacing()
+                expected = [4, 5, 1]
+                
+                assert output == expected
                 
         @pytest.mark.parametrize('pos_list, axis, expected', [
                 (np.array([[0, 0], [1.5, 0], [0, 1], [1.5, 1]]), 0, 1.5),
@@ -164,7 +177,6 @@ class TestUltrasoundImageAssembler(object):
                 output = us_image._image_list_to_laterally_separate_3d_images(image_list_2d)
                 
                 assert (output == expected).all()
-                
                 
                 
 
