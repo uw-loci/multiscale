@@ -118,6 +118,19 @@ class TestUltrasoundImageAssembler(object):
         def test_read_variable(self):
                 assert True
         
-        def test_read_parameters(self, monkeypatch):
-                assert True
+        def test_read_parameters(self, monkeypatch, us_image):
+                raw_params = {'lateral_resolution': 0.5, 'axial_resolution': 0.25, 'txFocus': 80, 'startDepth': 5,
+                              'endDepth': 160, 'transducer_spacing': 1.014610389610390, 'wavelength_micron': 98.56,
+                              'speed_of_sound': 1540}
+                
+                exp_params ={'lateral resolution': 49.28, 'axial resolution': 24.64, 'transmit focus': 7884.8,
+                             'start depth':  492.8, 'end depth': 15769.6, 'transducer spacing': 100.00000000000004,
+                             'sampling wavelength': 98.56, 'speed of sound': 1540}
+                
+                monkeypatch.setattr('multiscale.ultrasound.reconstruction.UltrasoundImageAssembler.read_variable',
+                                    lambda x, y, z: raw_params)
+                
+                us_image._read_parameters(Path('Test'))
+                
+                assert us_image.acq_params == exp_params
 

@@ -22,13 +22,13 @@ class UltrasoundImageAssembler(object):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 
-                self.pos_list: list = None
-                self.list_mats: list = None
-                self.acq_params: dict = None
+                self.pos_list = []
+                self.list_mats = []
+                self.acq_params = {}
 
-                self.h5py_path: Path = None
+                self.h5py_path = Path('')
                 
-                self.image:  sitk.Image = None
+                self.image = sitk.Image()
                 self.metadata_keys = ['Unit']
 
         def get_acquisition_parameters(self):
@@ -128,14 +128,14 @@ class UltrasoundImageAssembler(object):
                 """
                 params = self.read_variable(iq_path, 'P')
 
-                wl = params['sampling_wavelength']
+                wl = params['wavelength_micron']
                 # convert units to mm
-                self.acq_params['Lateral resolution'] = params['lateral_resolution'] * wl
-                self.acq_params['Axial resolution'] = params['axial_resolution'] * wl
+                self.acq_params['lateral resolution'] = params['lateral_resolution'] * wl
+                self.acq_params['axial resolution'] = params['axial_resolution'] * wl
                 self.acq_params['transmit focus'] = params['txFocus'] * wl
                 self.acq_params['start depth'] = params['startDepth'] * wl
                 self.acq_params['end depth'] = params['endDepth'] * wl
-                self.acq_params['transducer spacing'] = ['transducer_spacing'] * wl
+                self.acq_params['transducer spacing'] = params['transducer_spacing'] * wl
 
                 # copy other parameters that are not in wavelength
                 self.acq_params['sampling wavelength'] = params['wavelength_micron']
