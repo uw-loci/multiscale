@@ -23,11 +23,9 @@ class UltrasoundImageAssembler(object):
                 self.pl_path = pl_path
                 
                 self.pos_list = []
-                self.list_mats = []
+                self.mat_list = []
                 self.acq_params = {}
-
-                self.h5py_path = Path('')
-                
+               
                 self.image = sitk.Image()
                 self.metadata_keys = ['Unit']
 
@@ -39,22 +37,18 @@ class UltrasoundImageAssembler(object):
                 return self.image
 
         def _assemble_image(self):
-
                 self.pos_list = self._read_position_list()
-                self.list_mats = self._read_sorted_list_mats()
-                self._read_parameters(self.list_mats[0])
+                self.mat_list = self._read_sorted_list_mats()
+                self._read_parameters(self.mat_list[0])
                 
                 num_lateral = self._count_unique_positions(0)
                 num_elevational = self._count_unique_positions(1)
-                
                 return
-        
-        def _mat_list_to_h5py_dataset(self):
-                return
-        
-        @staticmethod
-        def read_variable(file_path, variable):
-                return util.load_mat(file_path, variables=variable)[variable]
+
+        # Images
+        def _mat_list_to_variable_list(self, variable):
+                variable_list = [self.read_variable(file_path, variable) for file_path in self.mat_list]
+                return variable_list
         
         # Positions
         def _read_position_list(self):
@@ -140,6 +134,10 @@ class UltrasoundImageAssembler(object):
                 # copy other parameters that are not in wavelength
                 self.acq_params['sampling wavelength'] = params['wavelength_micron']
                 self.acq_params['speed of sound'] = params['speed_of_sound']
+
+        @staticmethod
+        def read_variable(file_path, variable):
+                return util.load_mat(file_path, variables=variable)[variable]
 
 
 class UltrasoundImage(sitk.Image):

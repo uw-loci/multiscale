@@ -141,3 +141,21 @@ class TestUltrasoundImageAssembler(object):
                 
                 assert us_image.acq_params == exp_params
 
+        def test_mat_list_to_variable_list(self, monkeypatch, us_image):
+                expected = [np.random.rand(5, 5), np.random.rand(5, 5), np.random.rand(5, 5)]
+                generator = (expected[i] for i in range(3))
+                
+                monkeypatch.setattr('multiscale.ultrasound.reconstruction.UltrasoundImageAssembler.read_variable',
+                                        lambda x, y, z: next(generator))
+                
+                us_image.mat_list = [1, 2, 3]
+                output = us_image._mat_list_to_variable_list('Test')
+                
+                assert output == expected
+                
+
+
+
+
+
+
