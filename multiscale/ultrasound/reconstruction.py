@@ -36,17 +36,35 @@ class UltrasoundImageAssembler(object):
         def get_image(self):
                 return self.image
 
-        def _assemble_image(self):
+        def _assemble_image(self, image_type: str):
                 self.pos_list = self._read_position_list()
                 self.mat_list = self._read_sorted_list_mats()
                 self._read_parameters(self.mat_list[0])
                 
-                num_lateral = self._count_unique_positions(0)
-                num_elevational = self._count_unique_positions(1)
+                image_list = self._mat_list_to_variable_list(image_type)
+                separate_3d_images = self._image_list_to_laterally_separate_3d_images()
+                
+                
                 return
 
+        def _image_list_to_laterally_separate_3d_images(self, image_list):
+                """
+                Convert a list of 2d numpy arrays into 4d numpy array of laterally separate 3d images"""
+                image_array = np.array(image_list)
+                shape_2d = np.shape(image_list[0])
+                
+                num_lateral = self._count_unique_positions(0)
+                num_elevational = self._count_unique_positions(1)
+                
+                list_shape = [num_lateral, num_elevational, shape_2d[0], shape_2d[1]]
+                array_of_3d_images = np.reshape(image_array, list_shape)
+                
+                return array_of_3d_images
+                
+        
         # Images
         def _mat_list_to_variable_list(self, variable):
+                """Acquire a sorted list containing the specified variable in each mat file"""
                 variable_list = [self.read_variable(file_path, variable) for file_path in self.mat_list]
                 return variable_list
         
