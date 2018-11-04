@@ -79,7 +79,7 @@ def define_registration_method(parameters: dict) -> sitk.ImageRegistrationMethod
         
         # Setup for the multi-resolution framework.
         shrink_factors = [8, 4, 2, 1]
-        smoothing_sigmas = [2, 2, 1, 1]
+        smoothing_sigmas = [1, 1, 1, 0]
         if parameters['scale'] > 4:
                 scale = 4
                 print('Warning, scale was set higher than the maximum value of 4')
