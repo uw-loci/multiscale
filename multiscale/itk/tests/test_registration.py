@@ -16,6 +16,24 @@ def user_input_fixture(monkeypatch):
         return _user_inputs
 
 
+class TestSetupSmoothingSigmas(object):
+        @pytest.mark.parametrize('scale, expected', [
+                (1, [0]), (2, [1, 0]), (4, [4, 2, 1, 0])
+        ])
+        def test_output_from_various_scales(self, scale, expected):
+                output = reg._setup_smoothing_sigmas(scale)
+                assert output == expected
+
+
+class TestSetupShrinkFactors(object):
+        @pytest.mark.parametrize('scale, expected', [
+                (1, [1]), (4, [8, 4, 2, 1])
+        ])
+        def test_output_from_various_scales(self, scale, expected):
+                output = reg._setup_shrink_factors(scale)
+                assert output == expected
+                
+
 class TestSetRegistrationParametersDict(object):
         def test_default_parameters(self):
                 expected = {
@@ -24,24 +42,37 @@ class TestSetRegistrationParametersDict(object):
                         'learning_rate': float(3),
                         'min_step': float(0.01),
                         'gradient_tolerance': float(1E-6),
-                        'sampling_percentage': float(0.01)
+                        'sampling_percentage': float(0.01),
+                        'smoothing_sigmas': [0],
+                        'shrink_factors': [1]
                 }
                 parameters = reg.setup_registration_parameters()
                 assert expected == parameters
 
         def test_changed_parameters(self):
                 expected = {
-                        'scale': 5,
+                        'scale': 3,
                         'iterations': 50,
                         'learning_rate': 0.5,
                         'min_step': 0.02,
                         'gradient_tolerance': 1E-5,
-                        'sampling_percentage': 0.03
+                        'sampling_percentage': 0.03,
+                        'smoothing_sigmas': [2, 1, 0],
+                        'shrink_factors': [3, 5, 1]
                 }
-                parameters = reg.setup_registration_parameters(scale=5, iterations=50, learning_rate=0.5,
+                parameters = reg.setup_registration_parameters(scale=3, shrink_factors=[3, 5, 1],
+                                                               iterations=50, learning_rate=0.5,
                                                                min_step=0.02, gradient_tolerance=1E-5,
                                                                sampling_percentage=0.03)
                 assert expected == parameters
+
+        def test_smoothing_sigmas_of_wrong_len_raises_error(self):
+                with pytest.raises(ValueError):
+                        params = reg.setup_registration_parameters(smoothing_sigmas=[4, 2])
+                        
+        def test_shrink_factors_of_wrong_len_raises_error(self):
+                with pytest.raises(ValueError):
+                        params = reg.setup_registration_parameters(shrink_factors=[4, 2])
 
 
 class TestDefineRegistrationMethod(object):

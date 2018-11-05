@@ -23,12 +23,37 @@ import matplotlib.pyplot as plt
 from multiscale.itk.process import rgb_to_grayscale_img
 
 
-def setup_registration_parameters(scale: int=1, iterations: int=100, learning_rate: float=3,
+def _setup_smoothing_sigmas(scale: int=1):
+        """Setup the smoothing sigmas array for registration"""
+        smoothing_sigmas = [0]
+        if scale > 1:
+                for idx in range(1, scale, 1):
+                        smoothing_sigmas.insert(0, 2**(idx - 1))
+                print('No smoothing sigmas given, setting to {}'.format(smoothing_sigmas))
+        
+        return smoothing_sigmas
+
+
+def _setup_shrink_factors(scale: int=1):
+        """Setup the smoothing sigmas array for registration"""
+        shrink_factors = [1]
+        if scale > 1:
+                for idx in range(1, scale, 1):
+                        shrink_factors.insert(0, 2**idx)
+                print('No smoothing sigmas given, setting to {}'.format(shrink_factors))
+                
+        return shrink_factors
+
+
+def setup_registration_parameters(scale: int=1, smoothing_sigmas: list=None, shrink_factors: list=None,
+                                  iterations: int=100, learning_rate: float=3,
                                   min_step: float=0.01, gradient_tolerance: float=1E-6,
                                   sampling_percentage: float=0.01):
         """
         Define the registration parameters and convert it into a dictionary for easy passing through functions
-        :param scale: How many times the method downsamples the resolution by 2x
+        :param scale: How many times the method performs registration, downsampling based on the shrink factor
+        :param smoothing_sigmas: The gaussian smoothing operation for each scale.  Later registrations rightward on list
+        :param shrink_factors: At each registration run-through, how much the registration downsamples by.
         :param iterations: The number of times the method optimizes the metric before
         :param learning_rate: How far is each move in the gradient descent.
         :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
@@ -37,16 +62,27 @@ def setup_registration_parameters(scale: int=1, iterations: int=100, learning_ra
         :return:
         """
         
+        if smoothing_sigmas is None:
+                smoothing_sigmas = _setup_smoothing_sigmas(scale)
+        elif len(smoothing_sigmas) != scale:
+                raise ValueError('The smoothing sigmas list is not the same size as the scale')
+        
+        if shrink_factors is None:
+                shrink_factors = _setup_shrink_factors(scale)
+        elif len(shrink_factors) != scale:
+                raise ValueError('The shrink factors list is not the same size as the scale')
+                
         parameters = {
                 'scale': scale,
                 'iterations': iterations,
                 'learning_rate': learning_rate,
                 'min_step': min_step,
                 'gradient_tolerance': gradient_tolerance,
-                'sampling_percentage': sampling_percentage
+                'sampling_percentage': sampling_percentage,
+                'smoothing_sigmas': smoothing_sigmas,
+                'shrink_factors': shrink_factors
         }
         return parameters
-        
         
         
 def define_registration_method(parameters: dict) -> sitk.ImageRegistrationMethod:
@@ -77,15 +113,9 @@ def define_registration_method(parameters: dict) -> sitk.ImageRegistrationMethod
         
         registration_method.SetOptimizerScalesFromPhysicalShift()
         
-        # Setup for the multi-resolution framework.
-        shrink_factors = [8, 4, 2, 1]
-        smoothing_sigmas = [4, 2, 1, 0]
-        if parameters['scale'] > 4:
-                scale = 4
-                print('Warning, scale was set higher than the maximum value of 4')
-        
-        registration_method.SetShrinkFactorsPerLevel(shrink_factors[(4 - parameters['scale']):])
-        registration_method.SetSmoothingSigmasPerLevel(smoothing_sigmas[(4 - parameters['scale']):])
+        #Set up for multi-resolution framework
+        registration_method.SetShrinkFactorsPerLevel(parameters['shrink_factors'])
+        registration_method.SetSmoothingSigmasPerLevel(parameters['smoothing_sigmas'])
         registration_method.SmoothingSigmasAreSpecifiedInPhysicalUnitsOff()
         
         return registration_method
