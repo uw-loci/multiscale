@@ -29,10 +29,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."""
 import h5py
 import xml
 
-"""
-base path       
-
-
-setup is idx, name is f
-
-"""
+#
+# macro = """run("BigStitcher", "select=define define_dataset=[Automatic Loader (Bioformats based)] """ + \
+# """project_filename=dataset.xml path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt """ + \
+# """exclude=10 pattern_0=Tiles modify_voxel_size? voxel_size_x=25.7359 voxel_size_y=25.7359 """ +\
+# """voxel_size_z=50 voxel_size_unit=µm move_tiles_to_grid_(per_angle)?=[Move Tile to Grid (Macro-scriptable)] """+\
+# """grid_type=[Right & Down             ] tiles_x=3 tiles_y=1 tiles_z=1 """ +\
+# """overlap_x_(%)=34 overlap_y_(%)=10 overlap_z_(%)=10 keep_metadata_rotation """+\
+# """how_to_load_images=[Re-save as multiresolution HDF5] """ +\
+# """dataset_save_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt """ +\
+# """subsampling_factors=[{ {1,1,1}, {2,2,2} }] hdf5_chunk_sizes=[{ {16,16,16}, {16,16,16} }] """+\
+# """timepoints_per_partition=1 setups_per_partition=0 use_deflate_compression """+\
+# """export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
+# """
