@@ -77,14 +77,7 @@ class TestSetRegistrationParametersDict(object):
 
 class TestDefineRegistrationMethod(object):
         def test_function_returns_registration_method(self):
-                parameters_dict = {
-                        'scale': 2,
-                        'iterations': 100,
-                        'learning_rate': float(3),
-                        'min_step': float(0.01),
-                        'gradient_tolerance': float(1E-6),
-                        'sampling_percentage': float(0.01)
-                }
+                parameters_dict = reg.setup_registration_parameters()
                 registration_method = reg.define_registration_method(parameters_dict)
                 assert type(registration_method) == sitk.ImageRegistrationMethod
                 
