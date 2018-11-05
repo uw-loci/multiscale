@@ -44,11 +44,18 @@ from pathlib import Path
 # """export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
 # """
 
+
+
+
+def calculate_affine_transform(spacing):
+        return
+
+
 def write_dataset_xml(position_list_with_metadata, output_dir, output_name):
         return
 
 
-def append_to_dataset_xml():
+def append_new_setup_to_dataset_xml():
         return
 
 
