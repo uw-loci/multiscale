@@ -97,7 +97,7 @@ class UltrasoundImageAssembler(object):
         def _write_temp_image(self, image_array, temp_dir, idx):
                 """Write a 3D ultrasound image into a temporary file for use by ImageJ stitching"""
                 temp_path = Path(temp_dir, 'UltrasoundImage_{}.tif'.format(idx))
-                image = sitk.GetImageFromArray(image_array)
+                image = sitk.Cast(sitk.GetImageFromArray(image_array), sitk.sitkFloat32)
                 image.SetSpacing(self._get_spacing())
                 meta.write_image(image, temp_path)
                 
