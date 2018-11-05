@@ -24,8 +24,10 @@ import multiscale.itk.registration as reg
 javabridge.start_vm(class_path=bf.JARS, max_heap_size='8G')
 
 #Registration paramaters.  Adjust these to adjust how the registration performs
-registration_parameters = reg.setup_registration_parameters(scale=1, iterations=100, learning_rate=np.double(3), min_step=np.double(0.01),
-                                  gradient_tolerance=np.double(1E-6), sampling_percentage=0.01)
+registration_parameters = reg.setup_registration_parameters(
+        scale=1, smoothing_sigmas=[0], shrink_factors=[1],
+        iterations=100, learning_rate=np.double(3), min_step=np.double(0.01),
+        gradient_tolerance=np.double(1E-6), sampling_percentage=0.01)
 
 #Modify these paths to go to the appropriate directories/images
 czi_images_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\LR czi images')
