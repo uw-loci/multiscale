@@ -52,8 +52,8 @@ def setup_registration_parameters(scale: int=1, smoothing_sigmas: list=None, shr
         """
         Define the registration parameters and convert it into a dictionary for easy passing through functions
         :param scale: How many times the method performs registration, downsampling based on the shrink factor
-        :param smoothing_sigmas: The gaussian smoothing operation for each scale.  Later registrations rightward on list
-        :param shrink_factors: At each registration run-through, how much the registration downsamples by.
+        :param smoothing_sigmas: Gaussian smoothing operation at scales. Default [0], then factor of 2 e.g. [4, 2, 1, 0]
+        :param shrink_factors: Downsampling for each registration.  Default factors of 2, e.g. [8, 4, 2, 1]
         :param iterations: The number of times the method optimizes the metric before
         :param learning_rate: How far is each move in the gradient descent.
         :param min_step: The minimum learning rate, as the algorithm /2 every time metric moves in opposite directions
