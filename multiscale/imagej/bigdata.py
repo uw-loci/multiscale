@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."""
 
 import h5py
 import xml
+from pathlib import Path
 
 #
 # macro = """run("BigStitcher", "select=define define_dataset=[Automatic Loader (Bioformats based)] """ + \
@@ -42,3 +43,12 @@ import xml
 # """timepoints_per_partition=1 setups_per_partition=0 use_deflate_compression """+\
 # """export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
 # """
+
+def write_dataset_xml(position_list_with_metadata, output_dir, output_name):
+        return
+
+
+def append_to_dataset_xml():
+        return
+
+
