@@ -40,14 +40,15 @@ class UltrasoundImageAssembler(object):
         def get_image(self):
                 return self.image
 
-        def _assemble_image(self, image_type: str):
+        def _assemble_image(self, base_image_data='IQData'):
                 self.pos_list = self._read_position_list()
                 self.mat_list = self._read_sorted_list_mats()
                 self._read_parameters(self.mat_list[0])
-                image_list = self._mat_list_to_variable_list(image_type)
-                separate_3d_images = self._image_list_to_laterally_separate_3d_images()
-
-                return
+                
+                image_list = self._mat_list_to_variable_list(base_image_data)
+                separate_3d_images = self._image_list_to_laterally_separate_3d_images(image_list)
+                
+                self._stitch_images_from_temporary_directory(separate_3d_images)
 
         def _setup_image(self, shape_of_image_array):
                 return
@@ -66,7 +67,8 @@ class UltrasoundImageAssembler(object):
 
         def _image_list_to_laterally_separate_3d_images(self, image_list):
                 """
-                Convert a list of 2d numpy arrays into 4d numpy array of laterally separate 3d images"""
+                Convert a list of 2d numpy arrays into 4d numpy array of laterally separate 3d images
+                """
                 image_array = np.array(image_list)
                 shape_2d = np.shape(image_list[0])
                 
@@ -82,6 +84,13 @@ class UltrasoundImageAssembler(object):
                 """
                 Take a 4d array containing several 3D ultrasound images and stitch them externally through ImageJ
                 """
+                
+                # todo: come up with alternate method for handling complex data
+                # SITK can't handle complex data currently.
+                if np.iscomplex(array_of_images).any():
+                        print('Converting IQData to envelope data for stitching')
+                        array_of_images = np.abs(array_of_images)
+                
                 try:
                         temp_dir = tempfile.mkdtemp()
                         self._write_images_to_temporary_dir(temp_dir, array_of_images)
@@ -90,7 +99,7 @@ class UltrasoundImageAssembler(object):
 
         def _write_images_to_temporary_dir(self, temp_dir, array_of_images):
                 """Write 3d images, held in a 4d array, into temporary files with a consistent naming scheme"""
-                num_images = np.shape(array_of_images)[0]
+                num_images = len(array_of_images)
                 for idx in range(num_images):
                         self._write_temp_image(array_of_images[idx], temp_dir, idx)
         
