@@ -69,6 +69,52 @@ blend produce=[Each timepoint & channel] fused_image=[Save as new XML Project (T
 select=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt//tiff_fused.xml");
 """
 
+"""
+
+run("Define dataset ...", "define_dataset=[Automatic Loader (Bioformats based)] project_filename=dataset.xml
+path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
+exclude=10 pattern_0=Tiles modify_voxel_size? voxel_size_x=25.7359 voxel_size_y=25.7359 voxel_size_z=50
+voxel_size_unit=µm move_tiles_to_grid_(per_angle)?=[Move Tile to Grid (Macro-scriptable)]
+grid_type=[Right & Down             ] tiles_x=3 tiles_y=1 tiles_z=1
+overlap_x_(%)=34 overlap_y_(%)=10 overlap_z_(%)=10 keep_metadata_rotation
+how_to_load_images=[Re-save as multiresolution HDF5]
+dataset_save_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
+subsampling_factors=[{ {1,1,1}, {2,2,2}, {4,4,4} }]
+hdf5_chunk_sizes=[{ {16,16,16}, {16,16,16}, {16,16,16} }]
+timepoints_per_partition=1 setups_per_partition=0
+use_deflate_compression export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
+"""
+
+"""
+run("Define dataset ...",
+ "path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
+  pattern_0=Tiles modify_voxel_size? voxel_size_x=25.7359 voxel_size_y=25.7359 voxel_size_z=50 voxel_size_unit=µm
+   move_tiles_to_grid_(per_angle)?=[Move Tile to Grid (Macro-scriptable)]
+    grid_type=[Right & Down             ]
+    tiles_x=3 tiles_y=1 tiles_z=1 overlap_x_(%)=34 overlap_y_(%)=10 overlap_z_(%)=10
+    keep_metadata_rotation
+    how_to_load_images=[Re-save as multiresolution HDF5]
+    dataset_save_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
+    timepoints_per_partition=1 setups_per_partition=0
+ use_deflate_compression export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
+
+"""
+
+def assemble_macro_for_define_dataset(keywords):
+        
+        
+        
+        return
+
+
+
+class ImageStitcher(object):
+        def __init__(self, imagej):
+                """Class for using the BigStitcher plugin on a python interface"""
+                self.imagej = imagej
+        
+        def assemble_dataset(self, image_search_path, **kwargs):
+                return
 
 
 
