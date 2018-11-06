@@ -45,6 +45,32 @@ from pathlib import Path
 # """
 
 
+"""
+example pairwise shift
+
+
+run("Calculate pairwise shifts ...", "select=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset.xml
+process_angle=[All angles] process_channel=[All channels] process_illumination=[All illuminations]
+process_tile=[All tiles] process_timepoint=[All Timepoints] method=[Phase Correlation] downsample_in_x=2
+downsample_in_y=2 downsample_in_z=2");
+
+"""
+
+
+
+"""
+example image fusion
+
+run("Fuse dataset ...", "select=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt//dataset_resaved.xml
+process_angle=[All angles] process_channel=[All channels] process_illumination=[All illuminations]
+process_tile=[All tiles] process_timepoint=[All Timepoints] bounding_box=[Currently Selected Views]
+downsampling=1 pixel_type=[32-bit floating point] interpolation=[Linear Interpolation] image=[Precompute Image]
+blend produce=[Each timepoint & channel] fused_image=[Save as new XML Project (TIFF)]
+select=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt//tiff_fused.xml");
+"""
+
+
+
 
 
 def calculate_affine_transform(spacing):
