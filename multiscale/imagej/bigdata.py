@@ -136,7 +136,11 @@ def _assemble_define_dataset_macro_arguments_dict(**kwargs):
         
         return args
 
-def assemble_macro_from_arguments_dict(macro_call, arg_dict):
+def assemble_macro_from_arguments_dict(macro_call, arg_dict=None):
+        if arg_dict is None:
+                macro = "run(\"{}\");".format(macro_call)
+                return macro
+        
         macro = """run("{0}", \"""".format(macro_call)
         
         for key, value in arg_dict.items():

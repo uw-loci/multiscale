@@ -127,7 +127,7 @@ class TestUltrasoundImageAssembler(object):
                 index = us_image.extract_iteration_from_path(file_path)
                 assert index == expected
 
-        @pytest.mark.parametrize('raw, var, expected',[
+        @pytest.mark.parametrize('raw, var, expected', [
                 ({'A': 4, 'B': 3}, 'A', 4),
                 ({'C': {'A': 4, 'B': 3}, 'D': 5}, 'C', {'A': 4, 'B': 3}),
                 pytest.param({'A': 4, 'B': 3, 'C': {'E': 1, 'F': 2}}, ['A', 'C'], {'A': 4, 'C':{'E': 1, 'F': 2}},
