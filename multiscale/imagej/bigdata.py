@@ -100,12 +100,54 @@ run("Define dataset ...",
 
 """
 
-def assemble_macro_for_define_dataset(keywords):
+def _assemble_define_dataset_macro_arguments_dict(**kwargs):
+        args = {
+                'define_dataset': '[Automatic Loader (Bioformats based)]',
+                'project_filename': 'dataset.xml',
+                'path': '../StitchedImages',
+                'exclude': '10',
+                'pattern_0': 'Tiles',
+                'modify_voxel_size?': '',
+                'voxel_size_x': '1',
+                'voxel_size_y': '1',
+                'voxel_size_z': '1',
+                'voxel_size_unit': 'µm',
+                'move_tiles_to_grid_(per_angle)?': '[Move Tile to Grid (Macro-scriptable)]',
+                'grid_type': '[Right & Down             ]',
+                'tiles_x': '3',
+                'tiles_y': '1',
+                'tiles_z': '1',
+                'overlap_x_(%)': '10',
+                'overlap_y_(%)': '10',
+                'overlap_z_(%)': '10',
+                'keep_metadata_rotation': '',
+                'how_to_load_images': '[Re-save as multiresolution HDF5]',
+                'dataset_save_path': '.',
+                'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
+                'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
+                'timepoints_per_partition': '1',
+                'setups_per_partition': '0',
+                'use_deflate_compression': '',
+                'export_path': '../StitchedImages/dataset'
+        }
         
+        for key in kwargs:
+                args[key] = kwargs[key]
         
-        
-        return
+        return args
 
+def assemble_macro_from_arguments_dict(macro_call, arg_dict):
+        macro = """run("{0}", \"""".format(macro_call)
+        
+        for key, value in arg_dict.items():
+                if value == '':
+                        macro = macro + ' {0}'.format(key)
+                else:
+                        macro = macro + ' {0}={1}'.format(key, value)
+        
+        macro = macro + """\");"""
+        
+        return macro
 
 
 class ImageStitcher(object):
