@@ -40,7 +40,7 @@ def _setup_shrink_factors(scale: int=1):
         if scale > 1:
                 for idx in range(1, scale, 1):
                         shrink_factors.insert(0, 2**idx)
-                print('No smoothing sigmas given, setting to {}'.format(shrink_factors))
+                print('No shrink factors given, setting to {}'.format(shrink_factors))
                 
         return shrink_factors
 
