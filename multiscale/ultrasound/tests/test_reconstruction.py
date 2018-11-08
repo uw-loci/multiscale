@@ -56,7 +56,7 @@ class TestUltrasoundImageAssembler(object):
                 image = recon.UltrasoundImageAssembler(mats_dir, output_dir, pl_path)
 
                 return image
-
+        
         def test_input_paths_set_correctly(self):
                 mat_dir = Path('Test')
                 pl_path = Path('This')

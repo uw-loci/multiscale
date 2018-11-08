@@ -11,6 +11,7 @@ import multiscale.utility_functions as util
 import re
 import SimpleITK as sitk
 import multiscale.itk.metadata as meta
+import multiscale.imagej.bigdata as bd
 import h5py
 import os
 import tempfile
@@ -30,15 +31,9 @@ class UltrasoundImageAssembler(object):
                 self.mat_list = []
                 self.acq_params = {}
                
-                self.image = sitk.Image()
-                self.metadata_keys = ['Unit']
-
         def get_acquisition_parameters(self):
                 """Get the US acquisition parameters"""
                 return self.acq_params
-
-        def get_image(self):
-                return self.image
 
         def _assemble_image(self, base_image_data='IQData'):
                 self.pos_list = self._read_position_list()
@@ -50,12 +45,6 @@ class UltrasoundImageAssembler(object):
                 
                 self._stitch_images_from_temporary_directory(separate_3d_images)
 
-        def _setup_image(self, shape_of_image_array):
-                return
-
-        def _set_metadata(self):
-                self.image.SetMetaData('Unit', 'microns')
-        
         def _get_spacing(self):
                 # Get the spacing of the resulting image in microns
                 lateral_spacing = self.acq_params['lateral resolution']
@@ -109,7 +98,7 @@ class UltrasoundImageAssembler(object):
                 image = sitk.Cast(sitk.GetImageFromArray(image_array), sitk.sitkFloat32)
                 image.SetSpacing(self._get_spacing())
                 meta.write_image(image, temp_path)
-                
+        
         # Images
         def _mat_list_to_variable_list(self, variable):
                 """Acquire a sorted list containing the specified variable in each mat file"""
