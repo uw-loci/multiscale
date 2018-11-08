@@ -111,7 +111,7 @@ def _assemble_define_dataset_macro_arguments_dict(**kwargs):
                 'voxel_size_x': '1',
                 'voxel_size_y': '1',
                 'voxel_size_z': '1',
-                'voxel_size_unit': 'µm',
+                'voxel_size_unit': '\u03bcm',
                 'move_tiles_to_grid_(per_angle)?': '[Move Tile to Grid (Macro-scriptable)]',
                 'grid_type': '[Right & Down             ]',
                 'tiles_x': '3',
