@@ -167,12 +167,12 @@ class TestUltrasoundImageAssembler(object):
                 assert output == expected
                 
         def test_image_list_to_laterally_separate_3d_images(self, us_image):
-                input = np.random.rand(6, 5, 5)
+                image_list_array = np.random.rand(6, 5, 5)
                 
-                expected = np.reshape(input, [3, 2, 5, 5])
+                expected = np.reshape(image_list_array, [3, 2, 5, 5])
                 
                 us_image.pos_list = np.array([[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1]])
-                image_list_2d = [input[i] for i in range(6)]
+                image_list_2d = [image_list_array[i] for i in range(6)]
                 
                 output = us_image._image_list_to_laterally_separate_3d_images(image_list_2d)
                 
