@@ -1,20 +1,20 @@
 import pytest
 import numpy
 import multiscale.imagej.bigdata as bd
-import imagej
 import argparse
 import sys
+import imagej
 # from multiscale.imagej.tests.fixtures.imagej_fixture import ij
 
 
-class TestAssembleMacroFromArgumentsDict(object):
+class TestAssembleRunStatement(object):
         @pytest.mark.parametrize('macro_call, arg_dict, expected', [
                 ('Test', {'This': 'out', 'Ya': '!'}, """run("Test", " This=out Ya=!");"""),
                 ('Test', {'This': 'out', 'Ya!': ''}, """run("Test", " This=out Ya!");"""),
                 ('Test', None, "run(\"Test\");")
         ])
         def test_various_inputs(self, macro_call, arg_dict, expected):
-                output = bd.assemble_macro_from_arguments_dict(macro_call, arg_dict)
+                output = bd.assemble_run_statement(macro_call, arg_dict)
                 assert output == expected
 
 class TestWriteDatasetXML(object):
