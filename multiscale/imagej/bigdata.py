@@ -136,12 +136,18 @@ def _assemble_define_dataset_macro_arguments_dict(**kwargs):
         
         return args
 
-def assemble_macro_from_arguments_dict(macro_call, arg_dict=None):
+def assemble_run_statement(function_call: str, arg_dict=None):
+        """
+        Assemble an ImageJ1 macro string given a function to run, and optional arguments in a dict
+        :param function_call: The string call for the function to run
+        :param arg_dict: A dict of macro arguments in key/value pairs
+        :return: A string version of the macro run
+        """
         if arg_dict is None:
-                macro = "run(\"{}\");".format(macro_call)
+                macro = "run(\"{}\");".format(function_call)
                 return macro
         
-        macro = """run("{0}", \"""".format(macro_call)
+        macro = """run("{0}", \"""".format(function_call)
         
         for key, value in arg_dict.items():
                 if value == '':
