@@ -115,6 +115,7 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
                         image.SetMetaData(key, metadata[key])
                 
         if len(image.GetSpacing()) > dimensions:
+                # todo: nd to rgb
                 image = three_d_to_rgb(image)
                 
         return image
