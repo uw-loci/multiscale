@@ -26,10 +26,6 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."""
 
-import h5py
-import xml
-from pathlib import Path
-
 #
 # macro = """run("BigStitcher", "select=define define_dataset=[Automatic Loader (Bioformats based)] """ + \
 # """project_filename=dataset.xml path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt """ + \
@@ -158,17 +154,6 @@ def assemble_run_statement(function_call: str, arg_dict=None):
         macro = macro + """\");"""
         
         return macro
-
-
-class ImageStitcher(object):
-        def __init__(self, imagej):
-                """Class for using the BigStitcher plugin on a python interface"""
-                self.imagej = imagej
-        
-        def assemble_dataset(self, image_search_path, **kwargs):
-                return
-
-
 
 
 def calculate_affine_transform(spacing):
