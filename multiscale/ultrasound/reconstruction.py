@@ -45,6 +45,43 @@ class UltrasoundImageAssembler(object):
                 
                 self._stitch_images_from_temporary_directory(separate_3d_images)
 
+        def _assemble_stitching_arguments_(self, **kwargs):
+                spacing = self._get_spacing()
+
+                args = {
+                        'define_dataset': '[Automatic Loader (Bioformats based)]',
+                        'project_filename': 'dataset.xml',
+                        'path': '../StitchedImages',
+                        'exclude': '10',
+                        'pattern_0': 'Tiles',
+                        'voxel_size_x': '1',
+                        'voxel_size_y': '1',
+                        'voxel_size_z': '1',
+                        'voxel_size_unit': '\u03bcm',
+                        'move_tiles_to_grid_(per_angle)?': '[Move Tile to Grid (Macro-scriptable)]',
+                        'grid_type': '[Right & Down             ]',
+                        'tiles_x': 1,
+                        'tiles_y': 1,
+                        'tiles_z': 1,
+                        'overlap_x_(%)': '10',
+                        'overlap_y_(%)': '10',
+                        'overlap_z_(%)': '10',
+                        'keep_metadata_rotation': '',
+                        'how_to_load_images': '[Re-save as multiresolution HDF5]',
+                        'dataset_save_path': '.',
+                        'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
+                        'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
+                        'timepoints_per_partition': '1',
+                        'setups_per_partition': '0',
+                        'use_deflate_compression': '',
+                        'export_path': '../StitchedImages/dataset'
+                }
+
+                for key in kwargs:
+                        args[key] = kwargs[key]
+
+                return args
+
         def _get_spacing(self):
                 # Get the spacing of the resulting image in microns
                 lateral_spacing = self.acq_params['lateral resolution']

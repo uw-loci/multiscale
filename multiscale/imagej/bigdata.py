@@ -25,112 +25,43 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."""
-
-#
-# macro = """run("BigStitcher", "select=define define_dataset=[Automatic Loader (Bioformats based)] """ + \
-# """project_filename=dataset.xml path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt """ + \
-# """exclude=10 pattern_0=Tiles modify_voxel_size? voxel_size_x=25.7359 voxel_size_y=25.7359 """ +\
-# """voxel_size_z=50 voxel_size_unit=µm move_tiles_to_grid_(per_angle)?=[Move Tile to Grid (Macro-scriptable)] """+\
-# """grid_type=[Right & Down             ] tiles_x=3 tiles_y=1 tiles_z=1 """ +\
-# """overlap_x_(%)=34 overlap_y_(%)=10 overlap_z_(%)=10 keep_metadata_rotation """+\
-# """how_to_load_images=[Re-save as multiresolution HDF5] """ +\
-# """dataset_save_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt """ +\
-# """subsampling_factors=[{ {1,1,1}, {2,2,2} }] hdf5_chunk_sizes=[{ {16,16,16}, {16,16,16} }] """+\
-# """timepoints_per_partition=1 setups_per_partition=0 use_deflate_compression """+\
-# """export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
-# """
+import h5py
+from pathlib import Path
+import re
 
 
-"""
-example pairwise shift
+class BigViewerDatasetWriter(object):
+        def __init__(self, dataset_name=None, output_dir=None):
+                self.datset_name = dataset_name
+                self.output_dir = output_dir
 
+        def set_dataset_name(self, dataset_name):
+                self.datset_name = dataset_name
 
-run("Calculate pairwise shifts ...", "select=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset.xml
-process_angle=[All angles] process_channel=[All channels] process_illumination=[All illuminations]
-process_tile=[All tiles] process_timepoint=[All Timepoints] method=[Phase Correlation] downsample_in_x=2
-downsample_in_y=2 downsample_in_z=2");
+        def set_output_dir(self, output_dir):
+                self.output_dir = output_dir
 
-"""
+        def _create_new_dataset(self):
+                return
+
+        def _append_to_dataset(self):
+                return
 
 
 
-"""
-example image fusion
 
-run("Fuse dataset ...", "select=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt//dataset_resaved.xml
-process_angle=[All angles] process_channel=[All channels] process_illumination=[All illuminations]
-process_tile=[All tiles] process_timepoint=[All Timepoints] bounding_box=[Currently Selected Views]
-downsampling=1 pixel_type=[32-bit floating point] interpolation=[Linear Interpolation] image=[Precompute Image]
-blend produce=[Each timepoint & channel] fused_image=[Save as new XML Project (TIFF)]
-select=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt//tiff_fused.xml");
-"""
 
-"""
+def calculate_affine_transform(spacing):
+        return
 
-run("Define dataset ...", "define_dataset=[Automatic Loader (Bioformats based)] project_filename=dataset.xml
-path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
-exclude=10 pattern_0=Tiles modify_voxel_size? voxel_size_x=25.7359 voxel_size_y=25.7359 voxel_size_z=50
-voxel_size_unit=µm move_tiles_to_grid_(per_angle)?=[Move Tile to Grid (Macro-scriptable)]
-grid_type=[Right & Down             ] tiles_x=3 tiles_y=1 tiles_z=1
-overlap_x_(%)=34 overlap_y_(%)=10 overlap_z_(%)=10 keep_metadata_rotation
-how_to_load_images=[Re-save as multiresolution HDF5]
-dataset_save_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
-subsampling_factors=[{ {1,1,1}, {2,2,2}, {4,4,4} }]
-hdf5_chunk_sizes=[{ {16,16,16}, {16,16,16}, {16,16,16} }]
-timepoints_per_partition=1 setups_per_partition=0
-use_deflate_compression export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
-"""
+def write_dataset_xml(position_list_with_metadata, output_dir, output_name):
+        return
 
-"""
-run("Define dataset ...",
- "path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
-  pattern_0=Tiles modify_voxel_size? voxel_size_x=25.7359 voxel_size_y=25.7359 voxel_size_z=50 voxel_size_unit=µm
-   move_tiles_to_grid_(per_angle)?=[Move Tile to Grid (Macro-scriptable)]
-    grid_type=[Right & Down             ]
-    tiles_x=3 tiles_y=1 tiles_z=1 overlap_x_(%)=34 overlap_y_(%)=10 overlap_z_(%)=10
-    keep_metadata_rotation
-    how_to_load_images=[Re-save as multiresolution HDF5]
-    dataset_save_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
-    timepoints_per_partition=1 setups_per_partition=0
- use_deflate_compression export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
 
-"""
+def append_new_setup_to_dataset_xml():
+        return
 
-def _assemble_define_dataset_macro_arguments_dict(**kwargs):
-        args = {
-                'define_dataset': '[Automatic Loader (Bioformats based)]',
-                'project_filename': 'dataset.xml',
-                'path': '../StitchedImages',
-                'exclude': '10',
-                'pattern_0': 'Tiles',
-                'modify_voxel_size?': '',
-                'voxel_size_x': '1',
-                'voxel_size_y': '1',
-                'voxel_size_z': '1',
-                'voxel_size_unit': '\u03bcm',
-                'move_tiles_to_grid_(per_angle)?': '[Move Tile to Grid (Macro-scriptable)]',
-                'grid_type': '[Right & Down             ]',
-                'tiles_x': '3',
-                'tiles_y': '1',
-                'tiles_z': '1',
-                'overlap_x_(%)': '10',
-                'overlap_y_(%)': '10',
-                'overlap_z_(%)': '10',
-                'keep_metadata_rotation': '',
-                'how_to_load_images': '[Re-save as multiresolution HDF5]',
-                'dataset_save_path': '.',
-                'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
-                'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
-                'timepoints_per_partition': '1',
-                'setups_per_partition': '0',
-                'use_deflate_compression': '',
-                'export_path': '../StitchedImages/dataset'
-        }
-        
-        for key in kwargs:
-                args[key] = kwargs[key]
-        
-        return args
+# deprecated due to being able to call run with 4 arguments, the 4th a dict, but not yet deleting
 
 def assemble_run_statement(function_call: str, arg_dict=None):
         """
@@ -142,29 +73,15 @@ def assemble_run_statement(function_call: str, arg_dict=None):
         if arg_dict is None:
                 macro = "run(\"{}\");".format(function_call)
                 return macro
-        
+
         macro = """run("{0}", \"""".format(function_call)
-        
+
         for key, value in arg_dict.items():
                 if value == '':
                         macro = macro + ' {0}'.format(key)
                 else:
                         macro = macro + ' {0}={1}'.format(key, value)
-        
+
         macro = macro + """\");"""
-        
+
         return macro
-
-
-def calculate_affine_transform(spacing):
-        return
-
-
-def write_dataset_xml(position_list_with_metadata, output_dir, output_name):
-        return
-
-
-def append_new_setup_to_dataset_xml():
-        return
-
-

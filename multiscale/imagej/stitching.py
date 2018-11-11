@@ -69,3 +69,116 @@ class BigStitcher(object):
 
         def _stitch_dataset(self):
                 return
+
+
+# default arguments for reference
+
+        def _assemble_stitching_arguments_(self, **kwargs):
+                spacing = self._get_spacing()
+
+                args = {
+                        'define_dataset': '[Automatic Loader (Bioformats based)]',
+                        'project_filename': 'dataset.xml',
+                        'path': '../StitchedImages',
+                        'exclude': '10',
+                        'pattern_0': 'Tiles',
+                        'modify_voxel_size?': '',
+                        'voxel_size_x': '1',
+                        'voxel_size_y': '1',
+                        'voxel_size_z': '1',
+                        'voxel_size_unit': '\u03bcm',
+                        'move_tiles_to_grid_(per_angle)?': '[Move Tile to Grid (Macro-scriptable)]',
+                        'grid_type': '[Right & Down             ]',
+                        'tiles_x': 1,
+                        'tiles_y': 1,
+                        'tiles_z': 1,
+                        'overlap_x_(%)': '10',
+                        'overlap_y_(%)': '10',
+                        'overlap_z_(%)': '10',
+                        'keep_metadata_rotation': '',
+                        'how_to_load_images': '[Re-save as multiresolution HDF5]',
+                        'dataset_save_path': '.',
+                        'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
+                        'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
+                        'timepoints_per_partition': '1',
+                        'setups_per_partition': '0',
+                        'use_deflate_compression': '',
+                        'export_path': '../StitchedImages/dataset'
+                }
+
+                for key in kwargs:
+                        args[key] = kwargs[key]
+
+                return args
+
+
+#
+# macro = """run("BigStitcher", "select=define define_dataset=[Automatic Loader (Bioformats based)] """ + \
+# """project_filename=dataset.xml path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt """ + \
+# """exclude=10 pattern_0=Tiles modify_voxel_size? voxel_size_x=25.7359 voxel_size_y=25.7359 """ +\
+# """voxel_size_z=50 voxel_size_unit=µm move_tiles_to_grid_(per_angle)?=[Move Tile to Grid (Macro-scriptable)] """+\
+# """grid_type=[Right & Down             ] tiles_x=3 tiles_y=1 tiles_z=1 """ +\
+# """overlap_x_(%)=34 overlap_y_(%)=10 overlap_z_(%)=10 keep_metadata_rotation """+\
+# """how_to_load_images=[Re-save as multiresolution HDF5] """ +\
+# """dataset_save_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt """ +\
+# """subsampling_factors=[{ {1,1,1}, {2,2,2} }] hdf5_chunk_sizes=[{ {16,16,16}, {16,16,16} }] """+\
+# """timepoints_per_partition=1 setups_per_partition=0 use_deflate_compression """+\
+# """export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
+# """
+
+
+"""
+example pairwise shift
+
+
+run("Calculate pairwise shifts ...", "select=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset.xml
+process_angle=[All angles] process_channel=[All channels] process_illumination=[All illuminations]
+process_tile=[All tiles] process_timepoint=[All Timepoints] method=[Phase Correlation] downsample_in_x=2
+downsample_in_y=2 downsample_in_z=2");
+
+"""
+
+"""
+example image fusion
+
+run("Fuse dataset ...", "select=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt//dataset_resaved.xml
+process_angle=[All angles] process_channel=[All channels] process_illumination=[All illuminations]
+process_tile=[All tiles] process_timepoint=[All Timepoints] bounding_box=[Currently Selected Views]
+downsampling=1 pixel_type=[32-bit floating point] interpolation=[Linear Interpolation] image=[Precompute Image]
+blend produce=[Each timepoint & channel] fused_image=[Save as new XML Project (TIFF)]
+select=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt//tiff_fused.xml");
+"""
+
+"""
+
+run("Define dataset ...", "define_dataset=[Automatic Loader (Bioformats based)] project_filename=dataset.xml
+path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
+exclude=10 pattern_0=Tiles modify_voxel_size? voxel_size_x=25.7359 voxel_size_y=25.7359 voxel_size_z=50
+voxel_size_unit=µm move_tiles_to_grid_(per_angle)?=[Move Tile to Grid (Macro-scriptable)]
+grid_type=[Right & Down             ] tiles_x=3 tiles_y=1 tiles_z=1
+overlap_x_(%)=34 overlap_y_(%)=10 overlap_z_(%)=10 keep_metadata_rotation
+how_to_load_images=[Re-save as multiresolution HDF5]
+dataset_save_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
+subsampling_factors=[{ {1,1,1}, {2,2,2}, {4,4,4} }]
+hdf5_chunk_sizes=[{ {16,16,16}, {16,16,16}, {16,16,16} }]
+timepoints_per_partition=1 setups_per_partition=0
+use_deflate_compression export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
+"""
+
+"""
+run("Define dataset ...",
+ "path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
+  pattern_0=Tiles modify_voxel_size? voxel_size_x=25.7359 voxel_size_y=25.7359 voxel_size_z=50 voxel_size_unit=µm
+   move_tiles_to_grid_(per_angle)?=[Move Tile to Grid (Macro-scriptable)]
+    grid_type=[Right & Down             ]
+    tiles_x=3 tiles_y=1 tiles_z=1 overlap_x_(%)=34 overlap_y_(%)=10 overlap_z_(%)=10
+    keep_metadata_rotation
+    how_to_load_images=[Re-save as multiresolution HDF5]
+    dataset_save_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt
+    timepoints_per_partition=1 setups_per_partition=0
+ use_deflate_compression export_path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt/dataset");
+
+"""
+
+
+
