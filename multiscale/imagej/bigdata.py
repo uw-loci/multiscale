@@ -77,7 +77,7 @@ def assemble_run_statement(function_call: str, arg_dict=None):
         macro = """run("{0}", \"""".format(function_call)
 
         for key, value in arg_dict.items():
-                if value == '':
+                if value is None:
                         macro = macro + ' {0}'.format(key)
                 else:
                         macro = macro + ' {0}={1}'.format(key, value)

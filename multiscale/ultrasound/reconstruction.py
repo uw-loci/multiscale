@@ -45,7 +45,7 @@ class UltrasoundImageAssembler(object):
                 
                 self._stitch_images_from_temporary_directory(separate_3d_images)
 
-        def _assemble_stitching_arguments_(self, **kwargs):
+        def _assemble_stitching_arguments_(self, provided_args):
                 spacing = self._get_spacing()
 
                 args = {
@@ -54,36 +54,37 @@ class UltrasoundImageAssembler(object):
                         'path': '../StitchedImages',
                         'exclude': '10',
                         'pattern_0': 'Tiles',
-                        'voxel_size_x': '1',
-                        'voxel_size_y': '1',
-                        'voxel_size_z': '1',
+                        'modify_voxel_size?': None,
+                        'voxel_size_x': spacing[0],
+                        'voxel_size_y': spacing[1],
+                        'voxel_size_z': spacing[2],
                         'voxel_size_unit': '\u03bcm',
                         'move_tiles_to_grid_(per_angle)?': '[Move Tile to Grid (Macro-scriptable)]',
                         'grid_type': '[Right & Down             ]',
-                        'tiles_x': 1,
+                        'tiles_x': self._count_unique_positions(0),
                         'tiles_y': 1,
                         'tiles_z': 1,
-                        'overlap_x_(%)': '10',
+                        'overlap_x_(%)': self._calculate_percent_overlap(),
                         'overlap_y_(%)': '10',
                         'overlap_z_(%)': '10',
-                        'keep_metadata_rotation': '',
+                        'keep_metadata_rotation': None,
                         'how_to_load_images': '[Re-save as multiresolution HDF5]',
                         'dataset_save_path': '.',
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',
                         'setups_per_partition': '0',
-                        'use_deflate_compression': '',
+                        'use_deflate_compression': None,
                         'export_path': '../StitchedImages/dataset'
                 }
 
-                for key in kwargs:
-                        args[key] = kwargs[key]
+                for key in provided_args:
+                        args[key] = provided_args[key]
 
                 return args
 
         def _get_spacing(self):
-                # Get the spacing of the resulting image in microns
+                """Get the spacing of the resulting image in microns"""
                 lateral_spacing = self.acq_params['lateral resolution']
                 axial_spacing = self.acq_params['axial resolution']
                 elevational_spacing = self._calculate_position_separation(1)
