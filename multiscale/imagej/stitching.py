@@ -28,10 +28,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
 import imagej
-import numpy
+import numpy as np
 from pathlib import Path
 import tempfile
 import os
+import SimpleITK as sitk
 
 
 class BigStitcher(object):
@@ -42,39 +43,56 @@ class BigStitcher(object):
                 """Class for using the BigStitcher plugin on a python interface"""
                 self._ij = ij
 
-        def stitch_from_files(self, image_search_path, **kwargs):
+        def stitch_from_files(self, dataset_args: dict, fuse_args: dict):
+                # Stitch
+                self._define_dataset(dataset_args)
+                self._fuse_dataset(fuse_args)
 
-                # Q: Enable interactive stitching with GUI if not in headless mode?
-                # assemble files into dataset in save directory
-                # stitch dataset
-
-                return
-
-        def stitch_from_numpy(self, images_np, **kwargs):
+        def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict):
                 try:
                         temp_dir = tempfile.mkdir()
-                        self._save_images(images_np)
-                        self.stitch_from_files(temp_dir, kwargs)
+                        dataset_args['path'] = temp_dir
+
+                        self._save_numpy_images(temp_dir, images_np)
+                        self.stitch_from_files(dataset_args, fuse_args)
                 finally:
                         os.rmdir(temp_dir)
-
                 return
 
-        def _save_images(self, files):
+        def _save_numpy_images(self, save_dir, numpy_images: np.ndarray):
+                """
+                Save a numpy array into 32bit float tif files by iterating along the first axis.
+                :param save_dir: Directory to save the images in
+                :param numpy_images: Array of images to save
+                :return:
+                """
                 # todo: save images in imagej.py
+                for idx in range(len(numpy_images)):
+                        save_path = Path(save_dir, 'Image_{}.tif'.format(idx))
+                        img = sitk.GetImageFromArray(numpy_images[idx])
+                        cast = sitk.Cast(img, sitk.sitkFloat32)
+                        sitk.WriteImage(cast, str(save_path))
+
+        def _define_dataset(self, dataset_args):
+                """
+                Use the BigStitcher Define dataset macro to make an HDF5 dataset for the given files
+                :param dataset_args: Custom arguments for the fusion
+                :return:
+                """
+                macro = 'run(\"Define dataset ...\")'
+                dataset_args = self._populate_dataset_args(dataset_args)
+                self._ij.py.run_macro(macro, dataset_args)
+
+        def _fuse_dataset(self, fuse_args):
                 return
 
-        def _assemble_dataset(self, files_dir):
-                return
+        def _populate_dataset_args(self, dataset_args):
+                """
+                Populate a set of define dataset arguments with default values
 
-        def _stitch_dataset(self):
-                return
-
-
-# default arguments for reference
-
-        def _assemble_stitching_arguments_(self, **kwargs):
-                spacing = self._get_spacing()
+                :param dataset_args: User given values for some of the arguments
+                :return:
+                """
 
                 args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
@@ -106,11 +124,16 @@ class BigStitcher(object):
                         'export_path': '../StitchedImages/dataset'
                 }
 
-                for key in kwargs:
-                        args[key] = kwargs[key]
+                for key in dataset_args:
+                        args[key] = dataset_args[key]
 
                 return args
 
+        def _populate_stitching_args(self):
+                return
+
+        def _populate_fuse_args(self, fuse_args):
+                return
 
 #
 # macro = """run("BigStitcher", "select=define define_dataset=[Automatic Loader (Bioformats based)] """ + \
