@@ -35,7 +35,7 @@ class UltrasoundImageAssembler(object):
                 """Get the US acquisition parameters"""
                 return self.acq_params
 
-        def _assemble_image(self, base_image_data='IQData'):
+        def _assemble_image(self, stitching_args, base_image_data='IQData'):
                 self.pos_list = self._read_position_list()
                 self.mat_list = self._read_sorted_list_mats()
                 self._read_parameters(self.mat_list[0])
@@ -43,15 +43,14 @@ class UltrasoundImageAssembler(object):
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 separate_3d_images = self._image_list_to_laterally_separate_3d_images(image_list)
                 
-                self._stitch_images_from_temporary_directory(separate_3d_images)
+                self._assemble_stitching_arguments(stitching_args)
 
-        def _assemble_stitching_arguments_(self, provided_args):
+        def _assemble_stitching_arguments(self, provided_args):
                 spacing = self._get_spacing()
 
                 args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
                         'project_filename': 'dataset.xml',
-                        'path': '../StitchedImages',
                         'exclude': '10',
                         'pattern_0': 'Tiles',
                         'modify_voxel_size?': None,
@@ -75,7 +74,7 @@ class UltrasoundImageAssembler(object):
                         'timepoints_per_partition': '1',
                         'setups_per_partition': '0',
                         'use_deflate_compression': None,
-                        'export_path': '../StitchedImages/dataset'
+                        'export_path': str(Path(self.output_dir, 'dataset'))
                 }
 
                 for key in provided_args:
@@ -106,37 +105,7 @@ class UltrasoundImageAssembler(object):
                 array_of_3d_images = np.reshape(image_array, list_shape)
                 
                 return array_of_3d_images
-                
-        def _stitch_images_from_temporary_directory(self, array_of_images: np.ndarray):
-                """
-                Take a 4d array containing several 3D ultrasound images and stitch them externally through ImageJ
-                """
-                
-                # todo: come up with alternate method for handling complex data
-                # SITK can't handle complex data currently.
-                if np.iscomplex(array_of_images).any():
-                        print('Converting IQData to envelope data for stitching')
-                        array_of_images = np.abs(array_of_images)
-                
-                try:
-                        temp_dir = tempfile.mkdtemp()
-                        self._write_images_to_temporary_dir(temp_dir, array_of_images)
-                finally:
-                        os.rmdir(temp_dir)
 
-        def _write_images_to_temporary_dir(self, temp_dir, array_of_images):
-                """Write 3d images, held in a 4d array, into temporary files with a consistent naming scheme"""
-                num_images = len(array_of_images)
-                for idx in range(num_images):
-                        self._write_temp_image(array_of_images[idx], temp_dir, idx)
-        
-        def _write_temp_image(self, image_array, temp_dir, idx):
-                """Write a 3D ultrasound image into a temporary file for use by ImageJ stitching"""
-                temp_path = Path(temp_dir, 'UltrasoundImage_{}.tif'.format(idx))
-                image = sitk.Cast(sitk.GetImageFromArray(image_array), sitk.sitkFloat32)
-                image.SetSpacing(self._get_spacing())
-                meta.write_image(image, temp_path)
-        
         # Images
         def _mat_list_to_variable_list(self, variable):
                 """Acquire a sorted list containing the specified variable in each mat file"""
