@@ -15,6 +15,7 @@ import multiscale.imagej.bigdata as bd
 import h5py
 import os
 import tempfile
+import imagej
 
 
 class UltrasoundImageAssembler(object):
@@ -47,7 +48,8 @@ class UltrasoundImageAssembler(object):
 
         def _assemble_stitching_arguments(self, provided_args):
                 spacing = self._get_spacing()
-
+                output_dir_str = str(self.output_dir).replace('\\', '/')
+                
                 args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
                         'project_filename': 'dataset.xml',
@@ -68,13 +70,13 @@ class UltrasoundImageAssembler(object):
                         'overlap_z_(%)': '10',
                         'keep_metadata_rotation': None,
                         'how_to_load_images': '[Re-save as multiresolution HDF5]',
-                        'dataset_save_path': '.',
+                        'dataset_save_path': output_dir_str,
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',
                         'setups_per_partition': '0',
                         'use_deflate_compression': None,
-                        'export_path': str(Path(self.output_dir, 'dataset'))
+                        'export_path': output_dir_str + '/dataset'
                 }
 
                 for key in provided_args:
@@ -111,7 +113,6 @@ class UltrasoundImageAssembler(object):
                 """Acquire a sorted list containing the specified variable in each mat file"""
                 variable_list = [self.read_variable(file_path, variable) for file_path in self.mat_list]
                 return variable_list
-        
         # Positions
         def _read_position_list(self):
                 """Open a Micromanager acquired position file and return a list of X, Y positions"""

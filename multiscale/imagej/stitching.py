@@ -27,12 +27,12 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-import imagej
 import numpy as np
 from pathlib import Path
 import tempfile
 import os
 import SimpleITK as sitk
+import multiscale.imagej.bigdata as big
 
 
 class BigStitcher(object):
@@ -51,8 +51,8 @@ class BigStitcher(object):
         def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict):
                 with tempfile.TemporaryDirectory() as temp_dir:
                         try:
-                                dataset_args['path'] = temp_dir
-
+                                temp_dir_str = str(temp_dir).replace('\\', '/')
+                                dataset_args['path'] = str(temp_dir_str)
                                 self._save_numpy_images(temp_dir, images_np)
                                 self.stitch_from_files(dataset_args, fuse_args)
                         except:
@@ -66,6 +66,7 @@ class BigStitcher(object):
                 :return:
                 """
                 # todo: save images in imagej.py
+                print('Saving images into tif files')
                 for idx in range(len(numpy_images)):
                         save_path = Path(save_dir, 'Image_{}.tif'.format(idx))
                         img = sitk.GetImageFromArray(numpy_images[idx])
@@ -78,9 +79,15 @@ class BigStitcher(object):
                 :param dataset_args: Custom arguments for the fusion
                 :return:
                 """
-                macro = 'run(\"Define dataset ...\")'
-                dataset_args = self._ij.py.to_java(self._populate_dataset_args(dataset_args))
-                self._ij.py.run_macro(macro, dataset_args)
+                function_call = "Define dataset ..."
+                #macro = 'run(\"Define dataset ...\")'
+                print('Defining dataset from {}'.format(dataset_args['path']))
+
+                #dataset_args = self._ij.py.to_java(self._populate_dataset_args(dataset_args))
+                dataset_args = self._populate_dataset_args(dataset_args)
+                macro = big.assemble_run_statement(function_call, dataset_args)
+                
+                self._ij.py.run_macro(macro)
 
         def _fuse_dataset(self, fuse_args):
                 return
@@ -103,7 +110,7 @@ class BigStitcher(object):
                         'voxel_size_x': '1',
                         'voxel_size_y': '1',
                         'voxel_size_z': '1',
-                        'voxel_size_unit': '\u03bcm',
+                        'voxel_size_unit': 'mm',
                         'move_tiles_to_grid_(per_angle)?': '[Move Tile to Grid (Macro-scriptable)]',
                         'grid_type': '[Right & Down             ]',
                         'tiles_x': 1,
@@ -114,7 +121,7 @@ class BigStitcher(object):
                         'overlap_z_(%)': '10',
                         'keep_metadata_rotation': '',
                         'how_to_load_images': '[Re-save as multiresolution HDF5]',
-                        'dataset_save_path': '.',
+                        'dataset_save_path': '../StitchedImages/',
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',

@@ -1,23 +1,226 @@
 import multiscale.imagej.stitching as stitch
 import numpy as np
 from pathlib import Path
-#from multiscale.imagej.tests.fixtures.imagej_fixture import imagej
+import imagej
+import pytest
+from pathlib import PurePosixPath
+
+
+@pytest.fixture(scope='session')
+def ij(request):
+        ij_dir = r'C:\Users\mpinkert\Desktop\Fiji.app'
+        headless = False
+        ij_wrapper = imagej.init(ij_dir, headless=headless)
+        
+        # General-purpose utility methods.
+        
+        import jnius
+        
+        # -- Python to Java --
+        
+        from collections import Iterable, Mapping, Set
+        
+        # Adapted from code posted by vslotman on GitHub:
+        # https://github.com/kivy/pyjnius/issues/217#issue-145981070
+        
+        jDouble = jnius.autoclass('java.lang.Double')
+        jFloat = jnius.autoclass('java.lang.Float')
+        jInteger = jnius.autoclass('java.lang.Integer')
+        jLong = jnius.autoclass('java.lang.Long')
+        jString = jnius.autoclass('java.lang.String')
+        jBigDecimal = jnius.autoclass('java.math.BigDecimal')
+        jBigInteger = jnius.autoclass('java.math.BigInteger')
+        jArrayList = jnius.autoclass('java.util.ArrayList')
+        jLinkedHashMap = jnius.autoclass('java.util.LinkedHashMap')
+        jLinkedHashSet = jnius.autoclass('java.util.LinkedHashSet')
+        jBool = jnius.autoclass('java.lang.Boolean')
+        
+        class JavaNumber(object):
+                '''
+                Convert int/float to their corresponding Java-types based on size
+                '''
+                
+                def __call__(self, obj):
+                        if isinstance(obj, int):
+                                if obj <= jInteger.MAX_VALUE:
+                                        return jInteger(obj)
+                                elif obj <= jLong.MAX_VALUE:
+                                        return jLong(obj)
+                                else:
+                                        return jBigInteger(str(obj))
+                        elif isinstance(obj, float):
+                                if obj <= jFloat.MAX_VALUE:
+                                        return jFloat(obj)
+                                elif obj <= jDouble.MAX_VALUE:
+                                        return jDouble(obj)
+                                else:
+                                        return jBigDecimal(str(obj))
+        
+        class JavaString(object):
+                '''
+                Convert str to Java equivalent, with default encoding of UTF-8
+                '''
+                
+                def __call__(self, obj, encoding='utf-8'):
+                        return jString(obj.encode(encoding), encoding)
+        
+        def to_java(data):
+                '''
+                Recursively convert Python object to Java object
+                :param data:
+                '''
+                java_type_map = {
+                        int: JavaNumber(),
+                        str: JavaString(),
+                        float: JavaNumber(),
+                        bool: jBool
+                }
+                if type(data) in java_type_map:
+                        # We know of a way to convert type.
+                        return java_type_map[type(data)](data)
+                elif isinstance(data, jnius.MetaJavaClass):
+                        # It's already a Java object.
+                        return data
+                elif isinstance(data, Mapping):
+                        # Object is dict-like.
+                        jmap = jLinkedHashMap()
+                        for k, v in data.items():
+                                jk = to_java(k)
+                                jv = to_java(v)
+                                jmap.put(jk, jv)
+                        return jmap
+                elif isinstance(data, Set):
+                        # Object is set-like.
+                        jset = jLinkedHashSet()
+                        for item in data:
+                                jitem = to_java(item)
+                                jset.add(jitem)
+                        return jset
+                elif isinstance(data, Iterable):
+                        # Object is list-like.
+                        jlist = jArrayList()
+                        for item in data:
+                                jitem = to_java(item)
+                                jlist.add(jitem)
+                        return jlist
+                else:
+                        raise TypeError('Unsupported type: ' + str(type(data)))
+        
+        # -- Java to Python --
+        
+        jIterableClass = jnius.find_javaclass('java.lang.Iterable')
+        jCollectionClass = jnius.find_javaclass('java.util.Collection')
+        jIteratorClass = jnius.find_javaclass('java.util.Iterator')
+        jMapClass = jnius.find_javaclass('java.util.Map')
+        jSetClass = jnius.find_javaclass('java.util.Set')
+        
+        jIterable = jnius.autoclass(jIterableClass.getName())
+        jCollection = jnius.autoclass(jCollectionClass.getName())
+        jIterator = jnius.autoclass(jIteratorClass.getName())
+        jMap = jnius.autoclass(jMapClass.getName())
+        jSet = jnius.autoclass(jSetClass.getName())
+        
+        class JavaCollection:
+                def __init__(self, jobj):
+                        self.jobj = jobj
+                
+                def __getitem__(self, key):
+                        return to_java(self.jobj.get(key))
+        
+        class JavaIterable:
+                def __init__(self, jobj):
+                        self.jobj = jobj
+                
+                def __iter__(self):
+                        return self
+                
+                def __next__(self):
+                        if self.current > self.high:
+                                raise StopIteration
+                        else:
+                                self.current += 1
+                                return self.current - 1
+        
+        def to_python(data):
+                if (jMapClass.isInstance(data)):
+                        jmap = jnius.cast(jMap, data)
+                        pdict = {'foo': 'bar'}
+                        return pdict
+                elif (jSetClass.isInstance(data)):
+                        jset = jnius.cast(jSet, data)
+                        pset = set(['foo', 'bar'])
+                        return pset
+                elif (jCollectionClass.isInstance(data)):
+                        jcollection = jnius.cast(jCollection, data)
+                        return jcollection.toArray()  # FIXME: needs recursive conversion
+                elif (jIterableClass.isInstance(data)):
+                        jiterable = jnius.cast(jIterable, data)
+                elif (jIteratorClass.isInstance(data)):
+                        jiterator = jnius.cast(jIterator, data)
+                        
+                        pass  # TODO
+                # TODO other Java type checks
+        
+        # ImageJ-specific utility methods
+        
+        import imglyb, jnius, numpy
+        
+        jDataset = jnius.autoclass('net.imagej.Dataset')
+        jRandomAccessibleInterval = jnius.autoclass('net.imglib2.RandomAccessibleInterval')
+        
+        class ImageJPython:
+                def __init__(self, ij):
+                        self._ij = ij
+                
+                def ij1_to_numpy(self, imp):
+                        jDataset = jnius.autoclass('net.imagej.Dataset')
+                        dataset = self._ij.convert().convert(imp, jDataset)
+                        return self.rai_to_numpy(dataset)
+                
+                def rai_to_numpy(self, rai):
+                        result = numpy.zeros([rai.dimension(d) for d in range(rai.numDimensions() - 1, -1, -1)])
+                        self._ij.op().run("copy.rai", imglyb.to_imglib(result), rai)
+                        return result
+                
+                def run_macro(self, macro, args=None):
+                        return self._ij.script().run("macro.ijm", macro, True, args).get()
+                
+                def to_java(self, python_value):
+                        if type(python_value) == numpy.ndarray:
+                                return imglyb.to_imglib(python_value)
+                        return to_java(python_value)
+                
+                def from_java(self, java_value):
+                        if (self._ij.convert().supports(java_value, jDataset)):
+                                # HACK: Converter exists for ImagePlus -> Dataset, but not ImagePlus -> RAI.
+                                java_value = self._ij.convert().convert(java_value, jDataset)
+                        if (self._ij.convert().supports(java_value, jRandomAccessibleInterval)):
+                                rai = self._ij.convert().convert(java_value, jRandomAccessibleInterval)
+                                result = numpy.zeros([rai.dimension(d) for d in range(rai.numDimensions() - 1, -1, -1)])
+                                self._ij.op().run("copy.rai", imglyb.to_imglib(result), rai)
+                                return result
+                        return to_python(java_value)
+        
+        ij_wrapper.py = ImageJPython(ij_wrapper)
+        
+        return ij_wrapper
 
 
 class TestBigStitcher(object):
         def test_stitch_from_files(self):
-                assert True
+                return
 
         def test_stitch_from_numpy(self, tmpdir, ij):
                 outdir = tmpdir.mkdir('stitch')
-
-                array = np.random.rand(9, 16, 16)
+                outdir = str(outdir).replace('\\', '/')
+                
+                array = np.random.rand(9, 512, 512)
                 args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
                         'project_filename': 'dataset.xml',
                         'exclude': '10',
                         'pattern_0': 'Tiles',
-                        'modify_voxel_size?': '',
+                        'modify_voxel_size?': None,
                         'voxel_size_x': '0.5',
                         'voxel_size_y': '0.5',
                         'voxel_size_z': '0.5',
@@ -30,15 +233,15 @@ class TestBigStitcher(object):
                         'overlap_x_(%)': '10',
                         'overlap_y_(%)': '10',
                         'overlap_z_(%)': '10',
-                        'keep_metadata_rotation': '',
+                        'keep_metadata_rotation': None,
                         'how_to_load_images': '[Re-save as multiresolution HDF5]',
-                        'dataset_save_path': '.',
+                        'dataset_save_path': outdir,
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',
                         'setups_per_partition': '0',
-                        'use_deflate_compression': '',
-                        'export_path': str(outdir) + 'dataset'
+                        'use_deflate_compression': None,
+                        'export_path': outdir + '/dataset'
                 }
 
                 stitcher = stitch.BigStitcher(ij)
@@ -49,3 +252,13 @@ class TestBigStitcher(object):
                 assert dataset_path.is_file()
 
                 #todo : Add fuse args and fuse testing
+
+        def test_save_numpy_images(self, tmpdir):
+                array = np.random.rand(3, 2, 2)
+                outdir = tmpdir.mkdir('stitch')
+                stitcher = stitch.BigStitcher(True)
+                stitcher._save_numpy_images(outdir, array)
+                
+                for idx in range(len(array)):
+                        save_path = Path(outdir, 'Image_{}.tif'.format(idx))
+                        assert save_path.is_file()

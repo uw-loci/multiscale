@@ -56,17 +56,6 @@ class TestUltrasoundImageAssembler(object):
                 image = recon.UltrasoundImageAssembler(mats_dir, output_dir, pl_path)
 
                 return image
-        
-        def test_input_paths_set_correctly(self):
-                mat_dir = Path('Test')
-                pl_path = Path('This')
-                output_dir = 'Out'
-
-                image = recon.UltrasoundImageAssembler(mat_dir, output_dir, pl_path)
-
-                assert mat_dir == image.mat_dir
-                assert pl_path == image.pl_path
-                assert output_dir == image.output_dir
 
         def test_position_list_is_read_correctly(self, pos_file, us_image):
                 pos_list_exp = np.array([[0, 0], [1, 1], [2, 2]])
