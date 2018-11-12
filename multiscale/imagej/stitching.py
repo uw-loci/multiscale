@@ -49,15 +49,14 @@ class BigStitcher(object):
                 self._fuse_dataset(fuse_args)
 
         def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict):
-                try:
-                        temp_dir = tempfile.mkdir()
-                        dataset_args['path'] = temp_dir
+                with tempfile.TemporaryDirectory() as temp_dir:
+                        try:
+                                dataset_args['path'] = temp_dir
 
-                        self._save_numpy_images(temp_dir, images_np)
-                        self.stitch_from_files(dataset_args, fuse_args)
-                finally:
-                        os.rmdir(temp_dir)
-                return
+                                self._save_numpy_images(temp_dir, images_np)
+                                self.stitch_from_files(dataset_args, fuse_args)
+                        except:
+                                raise ImportError('ImageJ not configured correctly')
 
         def _save_numpy_images(self, save_dir, numpy_images: np.ndarray):
                 """
@@ -80,7 +79,7 @@ class BigStitcher(object):
                 :return:
                 """
                 macro = 'run(\"Define dataset ...\")'
-                dataset_args = self._populate_dataset_args(dataset_args)
+                dataset_args = self._ij.py.to_java(self._populate_dataset_args(dataset_args))
                 self._ij.py.run_macro(macro, dataset_args)
 
         def _fuse_dataset(self, fuse_args):
@@ -135,7 +134,6 @@ class BigStitcher(object):
         def _populate_fuse_args(self, fuse_args):
                 return
 
-#
 # macro = """run("BigStitcher", "select=define define_dataset=[Automatic Loader (Bioformats based)] """ + \
 # """project_filename=dataset.xml path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt """ + \
 # """exclude=10 pattern_0=Tiles modify_voxel_size? voxel_size_x=25.7359 voxel_size_y=25.7359 """ +\
