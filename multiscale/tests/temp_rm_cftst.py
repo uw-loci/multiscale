@@ -28,15 +28,19 @@ import imagej
 import pytest
 
 def pytest_addoption(parser):
-    parser.addoption(
-        "--ij", action="store", default="/Applications/Fiji.app", help="directory to IJ"
-    )
+        parser.addoption(
+                "--ij", action="store", default="/Applications/Fiji.app", help="directory to IJ"
+        )
+        parser.addoption(
+                "--headless", action="store", default='True', help="Start in headless mode"
+        )
 
 
 @pytest.fixture(scope='session')
 def ij(request):
         ij_dir = request.config.getoption('--ij')
-        ij_wrapper = imagej.init(ij_dir)
+        headless = bool(request.config.getoption('--headless'))
+        ij_wrapper = imagej.init(ij_dir, headless=headless)
 
         # General-purpose utility methods.
 
@@ -59,6 +63,7 @@ def ij(request):
         jArrayList = jnius.autoclass('java.util.ArrayList')
         jLinkedHashMap = jnius.autoclass('java.util.LinkedHashMap')
         jLinkedHashSet = jnius.autoclass('java.util.LinkedHashSet')
+        jBool = jnius.autoclass('java.lang.Boolean')
 
         class JavaNumber(object):
                 '''
@@ -81,6 +86,14 @@ def ij(request):
                                 else:
                                         return jBigDecimal(str(obj))
 
+        class JavaString(object):
+                '''
+                Convert str to Java equivalent, with default encoding of UTF-8
+                '''
+                
+                def __call__(self, obj, encoding='utf-8'):
+                        return jString(obj.encode(encoding), encoding)
+
         def to_java(data):
                 '''
                 Recursively convert Python object to Java object
@@ -88,8 +101,9 @@ def ij(request):
                 '''
                 java_type_map = {
                         int: JavaNumber(),
-                        str: jString,
-                        float: JavaNumber()
+                        str: Java(),
+                        float: JavaNumber(),
+                        bool: jBool
                 }
                 if type(data) in java_type_map:
                         # We know of a way to convert type.

@@ -52,7 +52,15 @@ def apply_transforms(dir_dict: dict, skip_existing_images=True):
                                    skip_existing_images=skip_existing_images)
         
         
-dir_dict = dird.create_dictionary()
-perform_registrations(dir_dict)
-apply_transforms(dir_dict)
+import multiscale.itk.registration as reg
+import multiscale.itk.transform as trans
+import multiscale.itk.process as proc
+import multiscale.polarimetry.dir_dictionary as dird
+from pathlib import Path
+moving_dir = Path(r'F:\Research\Polarimetry\Data 02 - Python prepped images\PS_Large')
+fixed_dir = Path(r'F:\Research\Polarimetry\Data 02 - Python prepped images\SHG_Large')
+output_dir = Path(r'F:\Research\Polarimetry\Data 03 - Mid-python analysis images\Registered images\PS_Large_Reg')
 
+pars = reg.setup_registration_parameters(scale=3)
+
+reg.bulk_supervised_register_images(fixed_dir, moving_dir, output_dir, 'PS_Reg', registration_parameters=pars)
