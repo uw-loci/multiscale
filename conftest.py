@@ -101,7 +101,7 @@ def ij(request):
                 '''
                 java_type_map = {
                         int: JavaNumber(),
-                        str: Java(),
+                        str: JavaString(),
                         float: JavaNumber(),
                         bool: jBool
                 }
