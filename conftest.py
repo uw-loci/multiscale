@@ -231,6 +231,6 @@ def ij(request):
                                 return result
                         return to_python(java_value)
 
-        ij_wrapper.py = ImageJPython(ij_wrapper)
+        ij_wrapper.util = ImageJPython(ij_wrapper)
 
         return ij_wrapper
