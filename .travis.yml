@@ -13,26 +13,4 @@ install:
   - conda update -q conda
   - conda info -a
 
-  # setup conda test environment
-  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION
-  - source activate test-environment
-
-  # dependencies
-  - conda install -c simpleitk SimpleITK
-  - conda install cython
-  - conda install h5py
-  - conda install -c conda-forge pyjnius
-  - conda install -c hanslovsky imglyb
-  - conda install pytest
-  - conda install pandas
-  - conda install scipy
-  - conda install matplotlib
-  - conda install pillow
-  - pip install imagej
-  - pip install pyssim
-  - pip install javabridge
-  - pip install python-bioformats
-
-  - pip install -r requirements.txt
-
-script: python -m pytest
+script: .travis/build.sh
