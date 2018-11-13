@@ -91,7 +91,6 @@ class TestUltrasoundImageAssembler(object):
 
                 return image
 
-
         def test_assemble_image(self, us_assembler):
                 us_assembler._assemble_image({})
                 output_file = Path(us_assembler.output_dir, 'dataset.xml')
@@ -160,7 +159,7 @@ class TestUltrasoundImageAssembler(object):
         @pytest.mark.parametrize('raw, var, expected', [
                 ({'A': 4, 'B': 3}, 'A', 4),
                 ({'C': {'A': 4, 'B': 3}, 'D': 5}, 'C', {'A': 4, 'B': 3}),
-                pytest.param({'A': 4, 'B': 3, 'C': {'E': 1, 'F': 2}}, ['A', 'C'], {'A': 4, 'C':{'E': 1, 'F': 2}},
+                pytest.param({'A': 4, 'B': 3, 'C': {'E': 1, 'F': 2}}, ['A', 'C'], {'A': 4, 'C': {'E': 1, 'F': 2}},
                              marks=pytest.mark.xfail)
         ])
         def test_read_variable(self, monkeypatch, us_assembler, raw, var, expected):

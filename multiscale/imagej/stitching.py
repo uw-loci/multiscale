@@ -30,7 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import numpy as np
 from pathlib import Path
 import tempfile
-import os
 import SimpleITK as sitk
 import multiscale.imagej.bigdata as big
 
@@ -80,14 +79,15 @@ class BigStitcher(object):
                 :return:
                 """
                 function_call = "Define dataset ..."
-                #macro = 'run(\"Define dataset ...\")'
-                print('Defining dataset from {}'.format(dataset_args['path']))
-
-                #dataset_args = self._ij.py.to_java(self._populate_dataset_args(dataset_args))
                 dataset_args = self._populate_dataset_args(dataset_args)
                 macro = big.assemble_run_statement(function_call, dataset_args)
                 
-                self._ij.py.run_macro(macro)
+                print('Defining dataset from {}'.format(dataset_args['path']))
+                
+                #macro = 'run(\"Define dataset ...\")'
+                #dataset_args = self._ij.py.to_java(self._populate_dataset_args(dataset_args))
+
+                self._ij.util.run_macro(macro)
 
         def _fuse_dataset(self, fuse_args):
                 return
@@ -103,10 +103,10 @@ class BigStitcher(object):
                 args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
                         'project_filename': 'dataset.xml',
-                        'path': '../StitchedImages',
+                        'path': None,
                         'exclude': '10',
                         'pattern_0': 'Tiles',
-                        'modify_voxel_size?': None,
+                        'modify_voxel_size?': 'true',
                         'voxel_size_x': '1',
                         'voxel_size_y': '1',
                         'voxel_size_z': '1',
@@ -119,15 +119,15 @@ class BigStitcher(object):
                         'overlap_x_(%)': '10',
                         'overlap_y_(%)': '10',
                         'overlap_z_(%)': '10',
-                        'keep_metadata_rotation': None,
+                        'keep_metadata_rotation': 'true',
                         'how_to_load_images': '[Re-save as multiresolution HDF5]',
-                        'dataset_save_path': '../StitchedImages/',
+                        'dataset_save_path': None,
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',
                         'setups_per_partition': '0',
-                        'use_deflate_compression': None,
-                        'export_path': '../StitchedImages/dataset'
+                        'use_deflate_compression': 'true',
+                        'export_path': None
                 }
 
                 for key in dataset_args:
