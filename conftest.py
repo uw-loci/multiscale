@@ -31,16 +31,16 @@ def pytest_addoption(parser):
         parser.addoption(
                 "--ij", action="store", default="/Applications/Fiji.app", help="directory to IJ"
         )
-        parser.addoption(
-                "--headless", action="store", default='True', help="Start in headless mode"
-        )
+        # parser.addoption(
+        #         "--headless", action="store", default='True', help="Start in headless mode"
+        # )
 
 
 @pytest.fixture(scope='session')
 def ij(request):
         ij_dir = request.config.getoption('--ij')
         headless = bool(request.config.getoption('--headless'))
-        ij_wrapper = imagej.init(ij_dir, headless=headless)
+        ij_wrapper = imagej.init(ij_dir)
 
         # General-purpose utility methods.
 

@@ -10,7 +10,7 @@ import imagej
 class TestAssembleRunStatement(object):
         @pytest.mark.parametrize('macro_call, arg_dict, expected', [
                 ('Test', {'This': 'out', 'Ya': '!'}, """run("Test", " This=out Ya=!");"""),
-                ('Test', {'This': 'out', 'Ya!': ''}, """run("Test", " This=out Ya!");"""),
+                ('Test', {'This': 'out', 'Ya!': None}, """run("Test", " This=out Ya!");"""),
                 ('Test', None, "run(\"Test\");")
         ])
         def test_various_inputs(self, macro_call, arg_dict, expected):
