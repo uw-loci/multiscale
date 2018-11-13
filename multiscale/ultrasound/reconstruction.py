@@ -11,7 +11,7 @@ import multiscale.utility_functions as util
 import re
 import SimpleITK as sitk
 import multiscale.itk.metadata as meta
-import multiscale.imagej.bigdata as bd
+import multiscale.imagej.stitching as st
 import h5py
 import os
 import tempfile
@@ -22,13 +22,15 @@ class UltrasoundImageAssembler(object):
         """
         todo: start generalizing this so it can work with multiple image types/kinds
         """
-        def __init__(self, mat_dir: Path, output_dir: Path, pl_path: Path=None):
+        def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
+                self._ij = ij
+
                 os.makedirs(output_dir, exist_ok=True)
                 
-                self.pos_list = []
+                self.pos_list = np.array([])
                 self.mat_list = []
                 self.acq_params = {}
                
@@ -37,14 +39,20 @@ class UltrasoundImageAssembler(object):
                 return self.acq_params
 
         def _assemble_image(self, stitching_args, base_image_data='IQData'):
-                self.pos_list = self._read_position_list()
+                self._read_position_list()
                 self.mat_list = self._read_sorted_list_mats()
                 self._read_parameters(self.mat_list[0])
                 
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 separate_3d_images = self._image_list_to_laterally_separate_3d_images(image_list)
-                
+
+                self._stitch_image(separate_3d_images, stitching_args)
+
+
+        def _stitch_image(self, image_array, stitching_args):
                 self._assemble_stitching_arguments(stitching_args)
+                stitcher = st.BigStitcher(self._ij)
+                stitcher.stitch_from_numpy(np.abs(image_array), stitching_args, {})
 
         def _assemble_stitching_arguments(self, provided_args):
                 spacing = self._get_spacing()
@@ -120,9 +128,7 @@ class UltrasoundImageAssembler(object):
                         return []
 
                 acquisition_dict = util.read_json(self.pl_path)
-                pos_list = clean_position_text(acquisition_dict)
-
-                return pos_list
+                self.pos_list = clean_position_text(acquisition_dict)
 
         @staticmethod
         def clean_position_text(acquisition_dict):
@@ -311,7 +317,7 @@ def clean_position_text(pos_text: dict) -> list:
         pos_list = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
                     for row in pos_list_raw]
         
-        return pos_list
+        return np.array(pos_list)
 
 
 def read_position_list(pl_path: Path) -> list:
