@@ -48,11 +48,11 @@ class UltrasoundImageAssembler(object):
 
                 self._stitch_image(separate_3d_images, stitching_args)
 
-
         def _stitch_image(self, image_array, stitching_args):
-                self._assemble_stitching_arguments(stitching_args)
+                args = self._assemble_stitching_arguments(stitching_args)
+                bmode = np.sqrt(np.abs(image_array))
                 stitcher = st.BigStitcher(self._ij)
-                stitcher.stitch_from_numpy(np.abs(image_array), stitching_args, {})
+                stitcher.stitch_from_numpy(bmode, args, {})
 
         def _assemble_stitching_arguments(self, provided_args):
                 spacing = self._get_spacing()
