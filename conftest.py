@@ -31,9 +31,9 @@ def pytest_addoption(parser):
         parser.addoption(
                 "--ij", action="store", default="/Applications/Fiji.app", help="directory to IJ"
         )
-        # parser.addoption(
-        #         "--headless", action="store", default='True', help="Start in headless mode"
-        # )
+        parser.addoption(
+                "--headless", action="store", default='True', help="Start in headless mode"
+        )
 
 
 @pytest.fixture(scope='session')
