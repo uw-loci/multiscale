@@ -106,7 +106,7 @@ class BigStitcher(object):
                         'path': '../StitchedImages',
                         'exclude': '10',
                         'pattern_0': 'Tiles',
-                        'modify_voxel_size?': '',
+                        'modify_voxel_size?': None,
                         'voxel_size_x': '1',
                         'voxel_size_y': '1',
                         'voxel_size_z': '1',
@@ -119,14 +119,14 @@ class BigStitcher(object):
                         'overlap_x_(%)': '10',
                         'overlap_y_(%)': '10',
                         'overlap_z_(%)': '10',
-                        'keep_metadata_rotation': '',
+                        'keep_metadata_rotation': None,
                         'how_to_load_images': '[Re-save as multiresolution HDF5]',
                         'dataset_save_path': '../StitchedImages/',
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',
                         'setups_per_partition': '0',
-                        'use_deflate_compression': '',
+                        'use_deflate_compression': None,
                         'export_path': '../StitchedImages/dataset'
                 }
 
