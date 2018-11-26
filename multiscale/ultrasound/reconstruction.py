@@ -154,7 +154,10 @@ class UltrasoundImageAssembler(object):
                         unique_separations = np.unique(separations)
                         
                         if len(unique_separations) > 1:
-                                raise ValueError('There is more than one separation distance.  This grid is irregular')
+                                if not util.list_values_approx_equal(unique_separations, 1E-3):
+                                        raise ValueError('There is more than one separation distance.' \
+                                                         + ' This grid is irregular\n' \
+                                                         + str(unique_separations))
                         
                         return np.abs(unique_separations[0])
                         
