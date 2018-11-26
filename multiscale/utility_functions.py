@@ -10,7 +10,7 @@ import shutil
 import json
 import scipy.io as sio
 import numpy as np
-
+import math
 
 def write_json(dictionary: dict, path_dict: Path):
         with open(str(path_dict), 'w') as file:
@@ -191,3 +191,17 @@ def load_mat(file_path, variables=None):
                 data = sio.loadmat(file_name, struct_as_record=False, squeeze_me=True, variable_names=variables)
         return _check_keys(data)
 
+
+def list_values_approx_equal(num_list, rel_tol):
+        """
+        Check if all values in a list are within a relative tolerance of each other
+        :param num_list: List of numbers
+        :param rel_tol: The relative numerical tolerance
+        :return: Truth value
+        """
+        for i in range(len(num_list)-1):
+                for j in range(i, len(num_list), 1):
+                        if not math.isclose(num_list[i], num_list[j], rel_tol=rel_tol):
+                                return False
+                        
+        return True

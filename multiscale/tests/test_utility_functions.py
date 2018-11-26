@@ -217,3 +217,12 @@ class TestSplitListIntoSublists(object):
 
                 for list_num in range(num_lists):
                         assert next(sublists) == expected[list_num]
+
+
+class TestListValuesApproxEqual(object):
+        @pytest.mark.parametrize('num_list, rel_tol, expected', [
+                ([1.0, 1.0001, 1.0002], 1E-2, True),
+                ([1, 1.0001, 1.0002], 1E-5, False)
+        ])
+        def test_values_approx_equal(self, num_list, rel_tol, expected):
+                assert util.list_values_approx_equal(num_list, rel_tol) == expected
