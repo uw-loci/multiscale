@@ -1,3 +1,5 @@
+# Pre ImageJ script to stitch an ultrasoud image without any position file.
+
 from pathlib import Path
 import multiscale.ultrasound.reconstruction as recon
 
