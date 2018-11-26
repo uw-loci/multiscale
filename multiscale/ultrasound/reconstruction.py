@@ -78,7 +78,7 @@ class UltrasoundImageAssembler(object):
                         'overlap_z_(%)': '10',
                         'keep_metadata_rotation': 'true',
                         'how_to_load_images': '[Re-save as multiresolution HDF5]',
-                        'dataset_save_path': output_dir_str,
+                        'dataset_save_path': '[' + output_dir_str + ']',
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',
