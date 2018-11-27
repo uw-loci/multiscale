@@ -28,11 +28,11 @@ import multiscale.ultrasound.reconstruction as recon
 import imagej
 from pathlib import Path
 
-ij = imagej.init('C:/users/mpinkert/desktop/Fiji.app/')
+ij = imagej.init('C:/users/mpinkert/Fiji.app/')
 
-mat_dir = Path(r'F:\Research\LINK\US\CirclePhantomInAgar\Run-2')
-output_dir = Path('F:/Research/LINK/US/')
-pl_path = Path(output_dir, 'US_PositionList 2018-13-11.pos')
+mat_dir = Path(r'F:\Research\LINK\Phantom Trials\2018-11-26\US_Grid_2\Run-2')
+output_dir = Path(r'F:\Research\LINK\Phantom Trials\2018-11-26\US_Grid_2')
+pl_path = Path(output_dir, r'Grid\US_Grid_Part_2.pos')
 
-assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path)
+assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path, output_dir)
 assembler._assemble_image({})

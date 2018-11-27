@@ -59,11 +59,11 @@ class BigStitcher(object):
                 """
                 if save_dir is None:
                         with tempfile.TemporaryDirectory() as temp_dir:
-                                self._stitch_from_numpy(images_np, dataset_args, fuse_args, temp_dir)
+                                self._dataset_from_numpy(images_np, dataset_args, fuse_args, temp_dir)
                 else:
-                        self._stitch_from_numpy(images_np, dataset_args, fuse_args, save_dir)
+                        self._dataset_from_numpy(images_np, dataset_args, fuse_args, save_dir)
 
-        def _stitch_from_numpy(self, images_np, dataset_args, fuse_args, save_dir):
+        def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, save_dir):
                 """Helper for stitch from numpy"""
                 temp_dir_str = str(save_dir).replace('\\', '/')
                 dataset_args['path'] = '[' + str(temp_dir_str) + ']'
