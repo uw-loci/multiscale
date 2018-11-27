@@ -223,3 +223,14 @@ run("Define dataset ...",
 
 
 
+"""
+run("Fuse dataset ...",
+"select=[F:/Research/LINK/Phantom Trials/2018-11-26/US_Grid_1//dataset.xml] process_angle=[All angles]
+process_channel=[All channels] process_illumination=[All illuminations] process_tile=[All tiles]
+process_timepoint=[All Timepoints] bounding_box=[Currently Selected Views] downsampling=1
+pixel_type=[32-bit floating point] interpolation=[Linear Interpolation]
+image=Virtual blend produce=[Each timepoint & channel]
+fused_image=[Save as (compressed) TIFF stacks]
+output_file_directory=[F:/Research/LINK/Phantom Trials/2018-11-26/]");
+
+"""
