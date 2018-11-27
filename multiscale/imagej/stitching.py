@@ -47,15 +47,28 @@ class BigStitcher(object):
                 self._define_dataset(dataset_args)
                 self._fuse_dataset(fuse_args)
 
-        def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict):
-                with tempfile.TemporaryDirectory() as temp_dir:
-                        try:
-                                temp_dir_str = str(temp_dir).replace('\\', '/')
-                                dataset_args['path'] = str(temp_dir_str)
-                                self._save_numpy_images(temp_dir, images_np)
-                                self.stitch_from_files(dataset_args, fuse_args)
-                        except:
-                                raise ImportError('ImageJ not configured correctly')
+        def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict,
+                              save_dir=None):
+                """
+                Stitch images from a 4d numpy array
+                :param images_np: The array of numpy images
+                :param dataset_args: Arguments for the stitching
+                :param fuse_args: Arguments for image fusion
+                :param save_dir: Where to save the intermediate .tif files
+                :return:
+                """
+                if save_dir is None:
+                        with tempfile.TemporaryDirectory() as temp_dir:
+                                self._stitch_from_numpy(images_np, dataset_args, fuse_args, temp_dir)
+                else:
+                        self._stitch_from_numpy(images_np, dataset_args, fuse_args, save_dir)
+
+        def _stitch_from_numpy(self, images_np, dataset_args, fuse_args, save_dir):
+                """Helper for stitch from numpy"""
+                temp_dir_str = str(save_dir).replace('\\', '/')
+                dataset_args['path'] = '[' + str(temp_dir_str) + ']'
+                self._save_numpy_images(save_dir, images_np)
+                self.stitch_from_files(dataset_args, fuse_args)
 
         def _save_numpy_images(self, save_dir, numpy_images: np.ndarray):
                 """

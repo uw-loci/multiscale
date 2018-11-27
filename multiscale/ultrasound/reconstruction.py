@@ -22,11 +22,13 @@ class UltrasoundImageAssembler(object):
         """
         todo: start generalizing this so it can work with multiple image types/kinds
         """
-        def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None):
+        def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
+                     intermediate_save_dir: Path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
                 self._ij = ij
+                self.intermediate_save_dir = intermediate_save_dir
 
                 os.makedirs(output_dir, exist_ok=True)
                 
@@ -52,7 +54,7 @@ class UltrasoundImageAssembler(object):
                 args = self._assemble_stitching_arguments(stitching_args)
                 bmode = np.sqrt(np.abs(image_array))
                 stitcher = st.BigStitcher(self._ij)
-                stitcher.stitch_from_numpy(bmode, args, {})
+                stitcher.stitch_from_numpy(bmode, args, {}, save_dir=self.intermediate_save_dir)
 
         def _assemble_stitching_arguments(self, provided_args):
                 spacing = self._get_spacing()
