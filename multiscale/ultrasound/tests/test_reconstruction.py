@@ -94,7 +94,9 @@ class TestUltrasoundImageAssembler(object):
         def test_assemble_image(self, us_assembler):
                 us_assembler._assemble_image({})
                 output_file = Path(us_assembler.output_dir, 'dataset.xml')
+                tif_file = Path(us_assembler.output_dir, 'fused_tp_0_ch_0.tif')
                 assert output_file.is_file()
+                assert tif_file.is_file()
 
         def test_position_list_is_read_correctly(self, pos_file, us_assembler):
                 pos_list_exp = np.array([[0, 0], [1, 1], [2, 2]])

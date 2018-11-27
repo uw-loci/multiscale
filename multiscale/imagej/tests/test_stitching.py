@@ -14,7 +14,7 @@ class TestBigStitcher(object):
                 outdir = str(outdir).replace('\\', '/')
                 
                 array = np.random.rand(9, 128, 128)
-                args = {
+                dataset_args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
                         'project_filename': 'dataset.xml',
                         'exclude': '10',
@@ -42,15 +42,38 @@ class TestBigStitcher(object):
                         'use_deflate_compression': 'true',
                         'export_path': outdir + '/dataset'
                 }
+                
+                
+                xml_path = Path(outdir, 'dataset.xml')
+                
+                fuse_args = {
+                        'select': xml_path,
+                        'process_angle': '[All angles]',
+                        'process_channel': '[All channels]',
+                        'process_illumination': '[All illuminations]',
+                        'process_tile': '[All tiles]',
+                        'process_timepoint': '[All Timepoints]',
+                        'bounding_box': '[Currently Selected Views]',
+                        'downsampling': '1',
+                        'pixel_type': '[16-bit unsigned integer]',
+                        'interpolation': '[Linear Interpolation]',
+                        'image': 'Virtual',
+                        'blend': None,
+                        'preserve_original': None,
+                        'produce': '[Each timepoint & channel]',
+                        'fused_image': '[Save as (compressed) TIFF stacks]',
+                        'output_file_directory': '[' + outdir + ']'
+                }
 
                 stitcher = stitch.BigStitcher(ij)
-                stitcher.stitch_from_numpy(array, args, {})
+                stitcher.stitch_from_numpy(array, dataset_args, {})
 
                 dataset_path = Path(outdir, 'dataset.h5')
-
+                tif_path = Path(outdir, 'fused_tp_0_ch_0.tif')
+                
                 assert dataset_path.is_file()
+                assert tif_path.is_file()
 
-                #todo : Add fuse args and fuse testing
 
         def test_save_numpy_images(self, tmpdir):
                 array = np.random.rand(3, 2, 2)

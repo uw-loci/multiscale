@@ -46,6 +46,7 @@ class BigStitcher(object):
                 # Stitch
                 self._define_dataset(dataset_args)
                 self._fuse_dataset(fuse_args)
+                # todo: rename fused file and/or open in imagej and save as custom tif (8 bit?)
 
         def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict,
                               save_dir=None):
@@ -103,6 +104,14 @@ class BigStitcher(object):
                 self._ij.util.run_macro(macro)
 
         def _fuse_dataset(self, fuse_args):
+                function_call = "Fuse dataset ..."
+                print('Fusing dataset from {}'.format(fuse_args['select']))
+                fuse_args = self._populate_fuse_args(fuse_args)
+                
+                macro = big.assemble_run_statement(function_call, fuse_args)
+                
+                self._ij.util.run_macro(macro)
+                
                 return
 
         def _populate_dataset_args(self, dataset_args):
@@ -152,7 +161,50 @@ class BigStitcher(object):
                 return
 
         def _populate_fuse_args(self, fuse_args):
-                return
+                """
+                Populate a set of fuse dataset arguments, filling in any missing values
+                
+                :param fuse_args: Dictionary containing non-default arguments
+                :return:
+                """
+                args = {
+                        'select': None,
+                        'process_angle': '[All angles]',
+                        'process_channel': '[All channels]',
+                        'process_illumination': '[All illuminations]',
+                        'process_tile': '[All tiles]',
+                        'process_timepoint': '[All Timepoints]',
+                        'bounding_box': '[Currently Selected Views]',
+                        'downsampling': '1',
+                        'pixel_type': '[32 - bit floating point]',
+                        'interpolation': '[Linear Interpolation]',
+                        'image': 'Virtual',
+                        'blend': None,
+                        'preserve_original': None,
+                        'produce': '[Each timepoint & channel]',
+                        'fused_image': '[Save as (compressed) TIFF stacks]',
+                        'output_file_directory': None
+                }
+                
+                for key in fuse_args:
+                        args[key] = fuse_args[key]
+                        
+                return args
+
+
+
+"""
+run("Fuse dataset ...",
+"select=[F:/Research/LINK/Phantom Trials/2018-11-26/US_Grid_1//dataset.xml] process_angle=[All angles]
+process_channel=[All channels] process_illumination=[All illuminations] process_tile=[All tiles]
+process_timepoint=[All Timepoints] bounding_box=[Currently Selected Views] downsampling=1
+pixel_type=[32-bit floating point] interpolation=[Linear Interpolation]
+image=Virtual blend produce=[Each timepoint & channel]
+fused_image=[Save as (compressed) TIFF stacks]
+output_file_directory=[F:/Research/LINK/Phantom Trials/2018-11-26/]");
+
+"""
+
 
 # macro = """run("BigStitcher", "select=define define_dataset=[Automatic Loader (Bioformats based)] """ + \
 # """project_filename=dataset.xml path=F:/Research/LINK/US/ProngPhantom-BrokenProng_11Volt """ + \
@@ -221,16 +273,3 @@ run("Define dataset ...",
 
 """
 
-
-
-"""
-run("Fuse dataset ...",
-"select=[F:/Research/LINK/Phantom Trials/2018-11-26/US_Grid_1//dataset.xml] process_angle=[All angles]
-process_channel=[All channels] process_illumination=[All illuminations] process_tile=[All tiles]
-process_timepoint=[All Timepoints] bounding_box=[Currently Selected Views] downsampling=1
-pixel_type=[32-bit floating point] interpolation=[Linear Interpolation]
-image=Virtual blend produce=[Each timepoint & channel]
-fused_image=[Save as (compressed) TIFF stacks]
-output_file_directory=[F:/Research/LINK/Phantom Trials/2018-11-26/]");
-
-"""

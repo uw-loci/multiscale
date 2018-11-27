@@ -40,7 +40,7 @@ class UltrasoundImageAssembler(object):
                 """Get the US acquisition parameters"""
                 return self.acq_params
 
-        def _assemble_image(self, stitching_args, base_image_data='IQData'):
+        def _assemble_image(self, base_image_data='IQData'):
                 self._read_position_list()
                 self.mat_list = self._read_sorted_list_mats()
                 self._read_parameters(self.mat_list[0])
@@ -48,15 +48,16 @@ class UltrasoundImageAssembler(object):
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 separate_3d_images = self._image_list_to_laterally_separate_3d_images(image_list)
 
-                self._stitch_image(separate_3d_images, stitching_args)
+                self._stitch_image(separate_3d_images)
 
-        def _stitch_image(self, image_array, stitching_args):
-                args = self._assemble_stitching_arguments(stitching_args)
+        def _stitch_image(self, image_array):
+                dataset_args = self._assemble_dataset_arguments()
+                fuse_args = self._assemble_fuse_args()
                 bmode = np.sqrt(np.abs(image_array))
                 stitcher = st.BigStitcher(self._ij)
-                stitcher.stitch_from_numpy(bmode, args, {}, save_dir=self.intermediate_save_dir)
+                stitcher.stitch_from_numpy(bmode, dataset_args, fuse_args, save_dir=self.intermediate_save_dir)
 
-        def _assemble_stitching_arguments(self, provided_args):
+        def _assemble_dataset_arguments(self):
                 spacing = self._get_spacing()
                 output_dir_str = str(self.output_dir).replace('\\', '/')
                 
@@ -88,10 +89,32 @@ class UltrasoundImageAssembler(object):
                         'use_deflate_compression': 'true',
                         'export_path': output_dir_str + '/dataset'
                 }
-
-                for key in provided_args:
-                        args[key] = provided_args[key]
-
+                
+                return args
+        
+        def _assemble_fuse_args(self):
+                output_dir_str = str(self.output_dir).replace('\\', '/')
+                xml_path = '[' + output_dir_str + '/dataset.xml' + ']'
+                
+                args = {
+                        'select': xml_path,
+                        'process_angle': '[All angles]',
+                        'process_channel': '[All channels]',
+                        'process_illumination': '[All illuminations]',
+                        'process_tile': '[All tiles]',
+                        'process_timepoint': '[All Timepoints]',
+                        'bounding_box': '[Currently Selected Views]',
+                        'downsampling': '1',
+                        'pixel_type': '[16-bit unsigned integer]',
+                        'interpolation': '[Linear Interpolation]',
+                        'image': 'Virtual',
+                        'blend': None,
+                        'preserve_original': None,
+                        'produce': '[Each timepoint & channel]',
+                        'fused_image': '[Save as (compressed) TIFF stacks]',
+                        'output_file_directory': '[' + output_dir_str + ']'
+                }
+        
                 return args
 
         def _get_spacing(self):
