@@ -43,9 +43,9 @@ class TestBigStitcher(object):
                         'export_path': outdir + '/dataset'
                 }
                 
-                
                 xml_path = Path(outdir, 'dataset.xml')
-                
+                xml_path = str(xml_path).replace('\\', '/')
+
                 fuse_args = {
                         'select': xml_path,
                         'process_angle': '[All angles]',
@@ -66,7 +66,7 @@ class TestBigStitcher(object):
                 }
 
                 stitcher = stitch.BigStitcher(ij)
-                stitcher.stitch_from_numpy(array, dataset_args, {})
+                stitcher.stitch_from_numpy(array, dataset_args, fuse_args)
 
                 dataset_path = Path(outdir, 'dataset.h5')
                 tif_path = Path(outdir, 'fused_tp_0_ch_0.tif')
