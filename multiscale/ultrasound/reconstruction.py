@@ -66,7 +66,7 @@ class UltrasoundImageAssembler(object):
                         'project_filename': 'dataset.xml',
                         'exclude': '10',
                         'pattern_0': 'Tiles',
-                        'modify_voxel_size?': 'true',
+                        'modify_voxel_size?': None,
                         'voxel_size_x': spacing[0],
                         'voxel_size_y': spacing[1],
                         'voxel_size_z': spacing[2],
@@ -79,15 +79,15 @@ class UltrasoundImageAssembler(object):
                         'overlap_x_(%)': self._calculate_percent_overlap(),
                         'overlap_y_(%)': '10',
                         'overlap_z_(%)': '10',
-                        'keep_metadata_rotation': 'true',
+                        'keep_metadata_rotation': None,
                         'how_to_load_images': '[Re-save as multiresolution HDF5]',
                         'dataset_save_path': '[' + output_dir_str + ']',
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',
                         'setups_per_partition': '0',
-                        'use_deflate_compression': 'true',
-                        'export_path': output_dir_str + '/dataset'
+                        'use_deflate_compression': None,
+                        'export_path': '[' + output_dir_str + '/dataset' + ']'
                 }
                 
                 return args
@@ -146,7 +146,6 @@ class UltrasoundImageAssembler(object):
                 """Acquire a sorted list containing the specified variable in each mat file"""
                 variable_list = [self.read_variable(file_path, variable) for file_path in self.mat_list]
                 return variable_list
-        
         # Positions
         def _read_position_list(self):
                 """Open a Micromanager acquired position file and return a list of X, Y positions"""
