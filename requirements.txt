@@ -8,3 +8,4 @@ pyssim
 pytest
 javabridge
 python-bioformats
+scyjava
