@@ -59,14 +59,13 @@ class UltrasoundImageAssembler(object):
 
         def _assemble_dataset_arguments(self):
                 spacing = self._get_spacing()
-                output_dir_str = str(self.output_dir).replace('\\', '/')
                 
                 args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
                         'project_filename': 'dataset.xml',
                         'exclude': '10',
                         'pattern_0': 'Tiles',
-                        'modify_voxel_size?': None,
+                        'modify_voxel_size?': True,
                         'voxel_size_x': spacing[0],
                         'voxel_size_y': spacing[1],
                         'voxel_size_z': spacing[2],
@@ -79,22 +78,21 @@ class UltrasoundImageAssembler(object):
                         'overlap_x_(%)': self._calculate_percent_overlap(),
                         'overlap_y_(%)': '10',
                         'overlap_z_(%)': '10',
-                        'keep_metadata_rotation': None,
+                        'keep_metadata_rotation': True,
                         'how_to_load_images': '[Re-save as multiresolution HDF5]',
-                        'dataset_save_path': '[' + output_dir_str + ']',
+                        'dataset_save_path': str(self.output_dir),
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',
                         'setups_per_partition': '0',
-                        'use_deflate_compression': None,
-                        'export_path': '[' + output_dir_str + '/dataset' + ']'
+                        'use_deflate_compression': True,
+                        'export_path': str(self.output_dir) + '/dataset'
                 }
                 
                 return args
         
         def _assemble_fuse_args(self):
-                output_dir_str = str(self.output_dir).replace('\\', '/')
-                xml_path = '[' + output_dir_str + '/dataset.xml' + ']'
+                xml_path = str(self.output_dir) + '/dataset.xml'
                 
                 args = {
                         'select': xml_path,
@@ -108,11 +106,11 @@ class UltrasoundImageAssembler(object):
                         'pixel_type': '[16-bit unsigned integer]',
                         'interpolation': '[Linear Interpolation]',
                         'image': 'Virtual',
-                        'blend': None,
-                        'preserve_original': None,
+                        'blend': True,
+                        'preserve_original': True,
                         'produce': '[Each timepoint & channel]',
                         'fused_image': '[Save as (compressed) TIFF stacks]',
-                        'output_file_directory': '[' + output_dir_str + ']'
+                        'output_file_directory': str(self.output_dir)
                 }
         
                 return args

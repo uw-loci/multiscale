@@ -67,8 +67,7 @@ class BigStitcher(object):
 
         def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, save_dir):
                 """Helper for stitch from numpy"""
-                temp_dir_str = str(save_dir).replace('\\', '/')
-                dataset_args['path'] = '[' + str(temp_dir_str) + ']'
+                dataset_args['path'] = big._format_value(save_dir)
                 self._save_numpy_images(save_dir, images_np)
                 self.stitch_from_files(dataset_args, fuse_args)
 
@@ -94,10 +93,8 @@ class BigStitcher(object):
                 :return:
                 """
                 function_call = "Define dataset ..."
-                #macro = 'run(\"Define dataset ...\")'
                 print('Defining dataset from {}'.format(dataset_args['path']))
-
-                #dataset_args = self._ij.py.to_java(self._populate_dataset_args(dataset_args))
+                
                 dataset_args = self._populate_dataset_args(dataset_args)
                 macro = big.assemble_run_statement(function_call, dataset_args)
                 
