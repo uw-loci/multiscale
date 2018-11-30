@@ -101,7 +101,7 @@ class BigStitcher(object):
                 dataset_args = self._populate_dataset_args(dataset_args)
                 macro = big.assemble_run_statement(function_call, dataset_args)
                 
-                self._ij.util.run_macro(macro)
+                self._ij.py.run_macro(macro)
 
         def _fuse_dataset(self, fuse_args):
                 function_call = "Fuse dataset ..."
@@ -110,7 +110,7 @@ class BigStitcher(object):
                 
                 macro = big.assemble_run_statement(function_call, fuse_args)
                 
-                self._ij.util.run_macro(macro)
+                self._ij.py.run_macro(macro)
                 
                 return
 
