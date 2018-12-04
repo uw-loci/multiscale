@@ -6,9 +6,6 @@ import pytest
 
 
 class TestBigStitcher(object):
-        def test_stitch_from_files(self):
-                return
-
         def test_stitch_from_numpy(self, tmpdir, ij):
                 outdir = tmpdir.mkdir('stitch')
                 outdir = str(outdir).replace('\\', '/')
@@ -19,7 +16,7 @@ class TestBigStitcher(object):
                         'project_filename': 'dataset.xml',
                         'exclude': '10',
                         'pattern_0': 'Tiles',
-                        'modify_voxel_size?': None,
+                        'modify_voxel_size?': True,
                         'voxel_size_x': '0.5',
                         'voxel_size_y': '0.5',
                         'voxel_size_z': '0.5',
@@ -32,14 +29,14 @@ class TestBigStitcher(object):
                         'overlap_x_(%)': '10',
                         'overlap_y_(%)': '10',
                         'overlap_z_(%)': '10',
-                        'keep_metadata_rotation': None,
+                        'keep_metadata_rotation': True,
                         'how_to_load_images': '[Re-save as multiresolution HDF5]',
                         'dataset_save_path': outdir,
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',
                         'setups_per_partition': '0',
-                        'use_deflate_compression': None,
+                        'use_deflate_compression': True,
                         'export_path': outdir + '/dataset'
                 }
                 
@@ -58,8 +55,8 @@ class TestBigStitcher(object):
                         'pixel_type': '[16-bit unsigned integer]',
                         'interpolation': '[Linear Interpolation]',
                         'image': 'Virtual',
-                        'blend': None,
-                        'preserve_original': None,
+                        'blend': True,
+                        'preserve_original': True,
                         'produce': '[Each timepoint & channel]',
                         'fused_image': '[Save as (compressed) TIFF stacks]',
                         'output_file_directory': '[' + outdir + ']'

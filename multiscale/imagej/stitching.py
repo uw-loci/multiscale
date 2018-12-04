@@ -30,9 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import numpy as np
 from pathlib import Path
 import tempfile
-import os
 import SimpleITK as sitk
-import multiscale.imagej.bigdata as big
 
 
 class BigStitcher(object):
@@ -67,7 +65,7 @@ class BigStitcher(object):
 
         def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, save_dir):
                 """Helper for stitch from numpy"""
-                dataset_args['path'] = big._format_value(save_dir)
+                dataset_args['path'] = save_dir
                 self._save_numpy_images(save_dir, images_np)
                 self.stitch_from_files(dataset_args, fuse_args)
 
@@ -92,25 +90,17 @@ class BigStitcher(object):
                 :param dataset_args: Custom arguments for the fusion
                 :return:
                 """
-                function_call = "Define dataset ..."
+                plugin = "Define dataset ..."
                 print('Defining dataset from {}'.format(dataset_args['path']))
-                
                 dataset_args = self._populate_dataset_args(dataset_args)
-                macro = big.assemble_run_statement(function_call, dataset_args)
-                
-                self._ij.py.run_macro(macro)
+                self._ij.py.run_plugin(plugin, args=dataset_args)
 
         def _fuse_dataset(self, fuse_args):
-                function_call = "Fuse dataset ..."
+                plugin = "Fuse dataset ..."
                 print('Fusing dataset from {}'.format(fuse_args['select']))
                 fuse_args = self._populate_fuse_args(fuse_args)
+                self._ij.py.run_plugin(plugin, args=fuse_args)
                 
-                macro = big.assemble_run_statement(function_call, fuse_args)
-                
-                self._ij.py.run_macro(macro)
-                
-                return
-
         def _populate_dataset_args(self, dataset_args):
                 """
                 Populate a set of define dataset arguments with default values
@@ -118,7 +108,6 @@ class BigStitcher(object):
                 :param dataset_args: User given values for some of the arguments
                 :return:
                 """
-
                 args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
                         'project_filename': 'dataset.xml',
