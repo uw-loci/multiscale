@@ -47,10 +47,6 @@ class BigViewerDatasetWriter(object):
         def _append_to_dataset(self):
                 return
 
-
-
-
-
 def calculate_affine_transform(spacing):
         return
 
@@ -61,46 +57,3 @@ def write_dataset_xml(position_list_with_metadata, output_dir, output_name):
 def append_new_setup_to_dataset_xml():
         return
 
-# deprecated due to being able to call run with 4 arguments, the 4th a dict, but not yet deleting
-
-def assemble_run_statement(function_call: str, arg_dict=None, ij1_style=True):
-        """
-        Assemble an ImageJ macro string given a plugin to run and optional arguments in a dict
-        :param function_call: The string call for the function to run
-        :param arg_dict: A dict of macro arguments in key/value pairs
-        :param ij1_style: Whether to use implicit booleans in IJ1 style or explicit booleans in IJ2 style
-        :return: A string version of the macro run
-        """
-        if arg_dict is None:
-                macro = "run(\"{}\");".format(function_call)
-                return macro
-        macro = """run("{0}", \"""".format(function_call)
-        for key, value in arg_dict.items():
-                argument = _format_argument(key, value, ij1_style)
-                if argument is not None:
-                        macro = macro + ' {}'.format(argument)
-        macro = macro + """\");"""
-        return macro
-
-def _format_argument(key, value, ij1_style):
-        if value is True:
-                argument = '{}'.format(key)
-                if not ij1_style:
-                        argument = argument + '=true'
-        elif value is False:
-                argument = None
-                if not ij1_style:
-                        argument = '{0}=false'.format(key)
-        elif value is None:
-                raise NotImplementedError('Conversion for None is not yet implemented')
-        else:
-                val_str = _format_value(value)
-                argument = '{0}={1}'.format(key, val_str)
-        return argument
-
-def _format_value(value):
-        temp_value = str(value).replace('\\', '/')
-        if temp_value.startswith('[') and temp_value.endswith(']'):
-                return temp_value
-        final_value = '[' + temp_value + ']'
-        return final_value
