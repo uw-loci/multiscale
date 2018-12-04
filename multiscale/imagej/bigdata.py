@@ -74,16 +74,12 @@ def assemble_run_statement(function_call: str, arg_dict=None, ij1_style=True):
         if arg_dict is None:
                 macro = "run(\"{}\");".format(function_call)
                 return macro
-
         macro = """run("{0}", \"""".format(function_call)
-
         for key, value in arg_dict.items():
                 argument = _format_argument(key, value, ij1_style)
                 if argument is not None:
                         macro = macro + ' {}'.format(argument)
-                        
         macro = macro + """\");"""
-
         return macro
 
 def _format_argument(key, value, ij1_style):
@@ -100,14 +96,11 @@ def _format_argument(key, value, ij1_style):
         else:
                 val_str = _format_value(value)
                 argument = '{0}={1}'.format(key, val_str)
-
         return argument
 
 def _format_value(value):
         temp_value = str(value).replace('\\', '/')
         if temp_value.startswith('[') and temp_value.endswith(']'):
                 return temp_value
-        
         final_value = '[' + temp_value + ']'
-        
         return final_value

@@ -51,11 +51,13 @@ def apply_transforms(dir_dict: dict, skip_existing_images=True):
                                    dir_dict['mlr_large_reg_orient'], 'MLR_Orient_Registered',
                                    skip_existing_images=skip_existing_images)
         
-        
-import multiscale.itk.registration as reg
-import multiscale.itk.transform as trans
-import multiscale.itk.process as proc
-import multiscale.polarimetry.dir_dictionary as dird
+# dir_dict = dird.create_dictionary()
+# apply_transforms(dir_dict)
+
+# import multiscale.itk.registration as reg
+# import multiscale.itk.transform as trans
+# import multiscale.itk.process as proc
+# import multiscale.polarimetry.dir_dictionary as dird
 from pathlib import Path
 moving_dir = Path(r'F:\Research\Polarimetry\Data 02 - Python prepped images\PS_Large')
 fixed_dir = Path(r'F:\Research\Polarimetry\Data 02 - Python prepped images\SHG_Large')

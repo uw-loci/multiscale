@@ -199,10 +199,8 @@ def bulk_process_orientation_alignment(
         if roi_size is not None:
                 output_suffix_with_tilenum = output_suffix_with_tilenum + '_' + str(roi_size[0])
         
-        if (tile_separation
-                    and tile_separation != tile_size):
-                output_suffix = (output_suffix + '_SimRes-'
-                                 + str(tile_separation) + 'x')
+        if tile_separation and tile_separation != tile_size:
+                output_suffix = (output_suffix + '_SimRes-' + str(tile_separation) + 'x')
         
         ret_image_path_list, orient_image_path_list = blk.find_shared_images(
                 ret_dir, orient_dir)

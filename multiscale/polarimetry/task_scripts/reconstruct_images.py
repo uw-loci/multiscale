@@ -18,17 +18,19 @@ import multiscale.polarimetry.dir_dictionary as dird
 
 def bulk_construct_images(df_single_modality_variable, modality, dir_modality,
                           dir_output, suffix_output):
+        
+        # todo: fix the issue of string/number going into multiple groups.  e.g. [1367, 5], ['1367', 5]
         for grp, df in df_single_modality_variable.groupby(['Mouse', 'Slide']):
                 
                 sample = str(grp[0]) + '-' + str(grp[1])
                 path_image = blk.create_new_image_path(sample, dir_output, suffix_output)
                 if path_image.exists():
                         continue
-                
-                print('\nCompiling results from {0}_{1} into image'.format(sample, modality))
-                
+                        
                 if df.isnull().all():
                         continue
+                        
+                print('\nCompiling results from {0}_{1} into image'.format(sample, modality))
                 
                 path_to_image = Path(dir_modality, find_matching_image(grp, dir_modality))
                 try:
@@ -66,14 +68,21 @@ def write_image(image_array, path_image):
 dir_dict = dird.create_dictionary()
 
 path_averages = Path(dir_dict['anal'], 'ROIs_averaged_from_base_image.csv')
-df_averages = pd.read_csv(path_averages, header=[0, 1], index_col=[0, 1, 2, 3],
-                          dtype={'Mouse': object, 'Slide': object})
-#
-bulk_construct_images(df_averages['Orientation', 'MLR-O'], 'MLR-O', dir_dict['mlr_large_reg'],
-                      dir_dict['images'], 'MLR-O_Averaged_Orientation')
-bulk_construct_images(df_averages['Orientation', 'MHR-O'], 'MHR-O', dir_dict['mhr_large_reg'],
-                      dir_dict['images'], 'MHR-O_Averaged_Orientation')
 
+ret_thresh = 0
+
+df_average = pd.read_csv(path_averages, header=[0, 1], index_col=[0, 1, 2, 3],
+                          dtype={'Mouse': object, 'Slide': object})
+
+df_ret = df_average.loc[:, 'Retardance'].copy()
+df_orient = df_average.loc[:, 'Orientation'].copy()
+df_orient = df_orient[df_ret > ret_thresh]
+
+bulk_construct_images(df_orient['MLR-O'], 'MLR-O', dir_dict['mlr_large_reg'],
+                      dir_dict['images'], 'MLR-O_Averaged_Orientation')
+# bulk_construct_images(df_orient['MHR-O'], 'MHR-O', dir_dict['mhr_large_reg'],
+#                       dir_dict['images'], 'MHR-O_Averaged_Orientation_Thresh1')
+#
 # path_rois = Path(dir_dict['anal'], 'Curve-Align_ROIs.csv')
 # df_rois = pd.read_csv(path_rois, header=[0, 1], index_col=[0, 1, 2, 3],
 #                       dtype={'Mouse': object, 'Slide': object})
