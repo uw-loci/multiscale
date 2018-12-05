@@ -224,7 +224,7 @@ def bulk_process_orientation_alignment(
 
 
 def convert_intensity_to_retardance(itk_image,
-                                    ret_ceiling=35, wavelength=546,
+                                    ret_ceiling=35, wavelength=549,
                                     nm_input=True, deg_output=True):
         """Convert retardance intensities that are scaled to the image input
         (e.g., 16 bit int) into to actual retardance values.
@@ -260,7 +260,7 @@ def convert_intensity_to_retardance(itk_image,
 
 
 def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix,
-                                 skip_existing_images=False):
+                                 skip_existing_images=True):
         path_list = util.list_filetype_in_dir(input_dir, '.tif')
         
         for i in range(len(path_list)):
@@ -269,10 +269,39 @@ def bulk_intensity_to_retardance(input_dir, output_dir, output_suffix,
                 if output_path.exists() and skip_existing_images:
                         continue
                 
+                print('Converting {} to degrees linear retardance'.format(path_list[i].name))
+                
                 int_image = meta.setup_image(path_list[i])
                 ret_image = convert_intensity_to_retardance(int_image)
 
                 meta.write_image(ret_image, output_path)
+
+
+def rotate_90_degrees(img: sitk.Image):
+        array = sitk.GetArrayFromImage(img)
+        above = array > 90
+        below = array <= 90
+        array[above] = array[above] - 90
+        array[below] = array[below] + 90
+        img = sitk.GetImageFromArray(array)
+        return img
+
+
+def bulk_orientation_to_proper_degrees(input_dir, output_dir, output_suffix,
+                                       skip_existing_images=True):
+        path_list = util.list_filetype_in_dir(input_dir, '.tif')
+        for i in range(len(path_list)):
+                output_path = blk.create_new_image_path(
+                        path_list[i], output_dir, output_suffix)
+                if output_path.exists() and skip_existing_images:
+                        continue
+                
+                print('Converting {} to degrees proper'.format(path_list[i].name))
+                orient_img = meta.setup_image(path_list[i])
+                deg_img = sitk.Divide(orient_img, 100)
+                img = rotate_90_degrees(deg_img)
+                
+                meta.write_image(img, output_path)
 
 
 def downsample_retardance_image(ret_image_path, orient_image_path,
