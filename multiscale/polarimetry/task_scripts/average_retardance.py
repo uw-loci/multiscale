@@ -20,6 +20,11 @@ import re
 from pathlib import Path
 
 
+def convert_ps_to_retardance(dir_dict):
+        pol.bulk_intensity_to_retardance(dir_dict['ps_reg'], dir_dict['ps_reg'], 'PS_Large_Registered')
+        pol.bulk_orientation_to_proper_degrees(dir_dict['ps_reg_orient'], dir_dict['ps_reg_orient'],
+                                               'PS_Large_Registered_Orient')
+
 def average_images(dir_dict):
         
         pol.bulk_process_orientation_alignment(
@@ -29,7 +34,9 @@ def average_images(dir_dict):
         pol.bulk_process_orientation_alignment(
                 dir_dict['mlr_large_reg'], dir_dict['mlr_large_reg_orient'], dir_dict['avg_ret'],
                 'MLR-O', [512, 512], roi_size=[64, 64])
-
+        
+        pol.bulk_process_orientation_alignment(dir_dict['ps_reg'], dir_dict['ps_reg_orient'], dir_dict['avg_ret'],
+                                               'PS', [512, 512], roi_size=[64, 64])
 
 def scrape_averaged_files_to_df(dir_avg):
         list_csvs = util.list_filetype_in_dir(dir_avg, 'csv')
@@ -47,6 +54,8 @@ def scrape_averaged_files_to_df(dir_avg):
 
 
 dir_dict = dird.create_dictionary()
+
+convert_ps_to_retardance(dir_dict)
 
 average_images(dir_dict)
 

@@ -154,7 +154,7 @@ def run_roi_averages_comparison(ret_thresh: float) -> (pd.DataFrame, pd.DataFram
 def threshold_by_fiber_num(df, fib_thresh):
         idx_threshold = df['Number of fibers'] > fib_thresh
         df_threshold = df[idx_threshold]
-        df_modalities = df_threshold[['SHG', 'MLR-O', 'MHR-O', 'Fiber segments']]
+        df_modalities = df_threshold[['SHG', 'MLR-O', 'MHR-O', 'PS-O', 'Fiber segments']]
         
         return df_modalities
 
@@ -162,7 +162,7 @@ def threshold_by_fiber_num(df, fib_thresh):
 def threshold_by_fiber_segments(df, seg_thresh):
         idx_threshold = df['Fiber segments'] > seg_thresh
         df_threshold = df[idx_threshold]
-        df_modalities = df_threshold[['SHG', 'MLR-O', 'MHR-O']]
+        df_modalities = df_threshold[['SHG', 'MLR-O', 'MHR-O', 'PS-O']]
         
         return df_modalities
 
@@ -190,6 +190,10 @@ def fib_comparison(ret_thresh: float, fib_thresh: int, seg_thresh: int):
         
         return corrs_orient, corrs_align
 
+
+corrs_orient, corrs_align = fib_comparison(2, 0, 0)
+print(corrs_orient)
+print(corrs_align)
 
 # path_avg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
 #                 'ROIs_averaged_from_base_image.csv')
