@@ -85,6 +85,12 @@ def convert_spacing_units(spacing: tuple, unit_workspace: str, unit_image: str):
         return new_spacing
 
 
+def _query_spacing(dims):
+        axes = ['Dimension {}'.format(dim) for dim in range(dims)]
+        spacing = util.query_float_list(axes)
+        return spacing
+
+
 def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: bool=True, dimensions: int=2):
         """
         Read in an itk image and ensure that its spacing is in the right units/has been set in the first place
@@ -103,9 +109,9 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
                                                    .format(current_spacing))
                 
                 if change_spacing:
-                        spacing = util.query_float('Please enter the image spacing in {0} >> '.format(unit_workspace))
-                        spacing_new = [spacing] * len(image.GetSpacing())
-                        image.SetSpacing(spacing_new)
+                        print('Please enter the image spacing in {0} >> '.format(unit_workspace))
+                        spacing = _query_spacing(dimensions)
+                        image.SetSpacing(spacing)
                         
                         if write_changes:
                                 write_image(image, path_image)
