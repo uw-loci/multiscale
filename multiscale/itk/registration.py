@@ -23,6 +23,15 @@ import matplotlib.pyplot as plt
 from multiscale.itk.process import rgb_to_grayscale_img
 
 
+class RegistrationHelper(object):
+        def __init__(self, fixed_image: sitk.Image, moving_image: sitk.Image,
+                     output_dir=None, registration_params=None):
+                self._fixed_image = fixed_image
+                self._moving_image = moving_image
+                self._initial_transform = output_dir
+                self._registration_params = registration_params
+
+
 def _setup_smoothing_sigmas(scale: int=1):
         """Setup the smoothing sigmas array for registration"""
         smoothing_sigmas = [0]

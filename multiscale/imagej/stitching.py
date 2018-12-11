@@ -178,6 +178,23 @@ class BigStitcher(object):
                 return args
 
 
+class GridStitcher(object):
+        def __init__(self, ij):
+                """Class for using the Grid/Collection Stitching plugin on a python interface"""
+                self._ij = ij
+
+                
+        def _load_position_list(self):
+                return
+        
+        def _format_position_list(self):
+                return
+        
+        def _write_tile_configuration(self):
+                return
+        
+        def stitch_grid(self):
+                return
 
 """
 example pairwise shift
