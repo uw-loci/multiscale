@@ -21,7 +21,8 @@ pip install imagej
 pip install pyssim
 pip install javabridge
 pip install python-bioformats
-
+pip install scyjava
+pip install pyimagej
 pip install -r requirements.txt
 
 # -- install supporting tools --

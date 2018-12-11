@@ -9,3 +9,4 @@ pytest
 javabridge
 python-bioformats
 scyjava
+pyimagej
