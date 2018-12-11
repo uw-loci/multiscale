@@ -9,9 +9,6 @@ conda env create -q -f environment.yml
 source activate multiscale
 conda install -q -y python=$TRAVIS_PYTHON_VERSION
 
-# -- ensure supporting tools are available --
-check curl git unzip
-
 cd
 
 # -- download Fiji.app --
