@@ -3,32 +3,12 @@
 sudo apt-get update
 
 # -- create a test enviroment --
-conda create -q -n multiscale python=$TRAVIS_PYTHON_VERSION
+conda env create -q -f environment.yml
 source activate multiscale
+conda install -q -y python=$TRAVIS_PYTHON_VERSION
 
-# -- install dependencies --
-conda install -c simpleitk SimpleITK
-conda install cython
-conda install h5py
-conda install -c conda-forge pyjnius
-conda install -c hanslovsky imglyb
-conda install pytest
-conda install pandas
-conda install scipy
-conda install matplotlib
-conda install pillow
-pip install imagej
-pip install pyssim
-pip install javabridge
-pip install python-bioformats
-pip install scyjava
-pip install pyimagej
-pip install -r requirements.txt
-
-# -- install supporting tools --
-sudo apt -y install curl
-sudo apt -y install git
-sudo apt -y install unzip
+# -- ensure supporting tools are available --
+check curl git unzip
 
 cd
 
@@ -59,13 +39,13 @@ Fiji.app/$launcher --update update-force-pristine
 Fiji.app/$launcher --update edit-update-site BigStitcher https://sites.imagej.net/BigStitcher/
 Fiji.app/$launcher --update update
 
-# -- run the Python code --
-cd $TRAVIS_BUILD_DIR
-
 # -- set ij dirctory --
 ij_dir=$HOME/Fiji.app
 echo "ij_dir = $ij_dir"
 python setup.py install
+
+# -- run the Python code --
+cd $TRAVIS_BUILD_DIR
 
 # -- run test with debug flag --
 python -m pytest --ij="$ij_dir"

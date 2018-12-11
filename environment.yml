@@ -1,18 +1,16 @@
 name: multiscale
 channels:
   - conda-forge
-  - hanslovsky
   - simpleitk
 
 dependencies:
   - python=3.6
+  - pyimagej
+  - cython
+  - h5py
   - jupyter
-  - numpy
-  - matplotlib
   - pandas
   - scipy
   - pytest
-  - pillow
   - ipywidgets
-  - imglib2-imglyb
   - SimpleITK >=1.1.0
