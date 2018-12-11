@@ -85,7 +85,8 @@ def convert_spacing_units(spacing: tuple, unit_workspace: str, unit_image: str):
         return new_spacing
 
 
-def _query_spacing(dims):
+def _query_spacing(unit_workspace, dims):
+        print('Please enter the image spacing in {0} >> '.format(unit_workspace))
         axes = ['Dimension {}'.format(dim) for dim in range(dims)]
         spacing = util.query_float_list(axes)
         return spacing
@@ -96,6 +97,8 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
         Read in an itk image and ensure that its spacing is in the right units/has been set in the first place
         :param path_image: path to the image file
         :param unit_workspace: unit that the workspace is working in
+        :param write_changes: Whether to save new metadata
+        :dimensions: Number of spatial dimensions for the image type
         :return:
         """
         image = sitk.ReadImage(str(path_image))
@@ -109,10 +112,8 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
                                                    .format(current_spacing))
                 
                 if change_spacing:
-                        print('Please enter the image spacing in {0} >> '.format(unit_workspace))
-                        spacing = _query_spacing(dimensions)
+                        spacing = _query_spacing(unit_workspace, dimensions)
                         image.SetSpacing(spacing)
-                        
                         if write_changes:
                                 write_image(image, path_image)
                 
