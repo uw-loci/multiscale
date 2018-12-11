@@ -1,4 +1,6 @@
-!/bin/bash
+#!/bin/bash
+
+set -e
 
 sudo apt-get update
 
@@ -39,13 +41,13 @@ Fiji.app/$launcher --update update-force-pristine
 Fiji.app/$launcher --update edit-update-site BigStitcher https://sites.imagej.net/BigStitcher/
 Fiji.app/$launcher --update update
 
+# -- run the Python code --
+cd $TRAVIS_BUILD_DIR
+
 # -- set ij dirctory --
 ij_dir=$HOME/Fiji.app
 echo "ij_dir = $ij_dir"
 python setup.py install
-
-# -- run the Python code --
-cd $TRAVIS_BUILD_DIR
 
 # -- run test with debug flag --
 python -m pytest --ij="$ij_dir"
