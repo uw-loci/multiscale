@@ -53,7 +53,7 @@ class UltrasoundImageAssembler(object):
         def _stitch_image(self, image_array):
                 dataset_args = self._assemble_dataset_arguments()
                 fuse_args = self._assemble_fuse_args()
-                bmode = np.sqrt(np.abs(image_array))
+                bmode = 20*np.log10(np.abs(image_array)+1)
                 stitcher = st.BigStitcher(self._ij)
                 stitcher.stitch_from_numpy(bmode, dataset_args, fuse_args, save_dir=self.intermediate_save_dir)
 
@@ -103,7 +103,7 @@ class UltrasoundImageAssembler(object):
                         'process_timepoint': '[All Timepoints]',
                         'bounding_box': '[Currently Selected Views]',
                         'downsampling': '1',
-                        'pixel_type': '[16-bit unsigned integer]',
+                        'pixel_type': '[32 - bit floating point]',
                         'interpolation': '[Linear Interpolation]',
                         'image': 'Virtual',
                         'blend': True,
