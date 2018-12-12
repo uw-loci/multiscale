@@ -33,12 +33,12 @@ esac
 echo
 echo "--> Updating Fiji"
 Fiji.app/$launcher --update edit-update-site BigStitcher https://sites.imagej.net/BigStitcher/
-Fiji.app/$launcher --update update
 echo "--> Finished updating Fiji"
 
 # -- set ij dirctory --
 ij_dir=$HOME/Fiji.app
 echo "ij_dir = $ij_dir"
+echo
 
 # -- run the Python code --
 cd $TRAVIS_BUILD_DIR
