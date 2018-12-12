@@ -16,7 +16,8 @@ if [ ! -d Fiji.app ]
 then
   echo
   echo "--> Downloading Fiji"
-  curl -fsO http://downloads.imagej.net/fiji/latest/fiji-nojre.zip
+  curl -fsO https://downloads.imagej.net/fiji/latest/fiji-nojre.zip -C - --retry 10
+  ls -l fiji-nojre.zip
 
   echo "--> Unpacking Fiji"
   rm -rf Fiji.app
