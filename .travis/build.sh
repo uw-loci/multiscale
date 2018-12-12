@@ -35,9 +35,9 @@ esac
 
 echo
 echo "--> Updating Fiji"
-Fiji.app/$launcher --update update-force-pristine
 Fiji.app/$launcher --update edit-update-site BigStitcher https://sites.imagej.net/BigStitcher/
 Fiji.app/$launcher --update update
+echo "--> Finished updating Fiji"
 
 # -- run the Python code --
 cd $TRAVIS_BUILD_DIR
