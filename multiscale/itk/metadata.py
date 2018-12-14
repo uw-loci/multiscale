@@ -4,8 +4,6 @@ Created on Wed Mar 21 09:40:25 2018
 
 @author: mpinkert
 """
-from PIL import Image
-
 import multiscale.bulk_img_processing as blk
 import multiscale.utility_functions as util
 from pathlib import Path
