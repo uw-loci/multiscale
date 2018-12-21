@@ -276,7 +276,11 @@ def beamform_rf(raw_data):
 
 def open_rf(rf_path: Path) -> np.ndarray:
         mat_data = sio.loadmat(str(rf_path))
-        rf_data = beamform_rf(mat_data['RData'])
+        params = mat_data['P']
+        if params ['na'] > 1:
+                rf_data = beamform_rf(mat_data['RData'])
+        else:
+                rf_data = mat_data['RData']
         
         return rf_data
 
