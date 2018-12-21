@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import SimpleITK as sitk
-import multiscale.itk.process as proc
-import multiscale.itk.transform as trans
+import ipywidgets as widgets
 import numpy as np
 import matplotlib.ticker as plticker
+
+import multiscale.itk.transform as trans
 import multiscale.itk.metadata as meta
 from multiscale import plotting as myplot
 
@@ -143,3 +144,8 @@ def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image):
                 fixed_windowed, moving_windowed)
         
         return combined_array
+
+
+class OverlayWidget(object):
+        def __init__(self):
+                return

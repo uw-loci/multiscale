@@ -24,12 +24,25 @@ from multiscale.itk.process import rgb_to_grayscale_img
 
 
 class RegistrationHelper(object):
+        """
+        A registration interface that works with Jupyter notebooks
+        """
         def __init__(self, fixed_image: sitk.Image, moving_image: sitk.Image,
                      output_dir=None, registration_params=None):
                 self._fixed_image = fixed_image
                 self._moving_image = moving_image
-                self._initial_transform = output_dir
+                self._output_dir = output_dir
                 self._registration_params = registration_params
+                self._registered_image = None
+
+        def setup_registration(self):
+                return
+        
+        def perform_registration(self):
+                return
+        
+        
+        
 
 
 def _setup_smoothing_sigmas(scale: int=1):
