@@ -474,6 +474,12 @@ class RegistrationPointDataAcquisition(object):
                                      self.moving_point_indexes]
                 return fixed_point_list, moving_point_list
         
+        def get_points_flat(self):
+                fixed_points, moving_points = self.get_points()
+                fixed_points_flat = [c for p in fixed_points for c in p]
+                moving_points_flat = [c for p in moving_points for c in p]
+                return fixed_points_flat, moving_points_flat
+        
         def __call__(self, event):
                 """
                 Callback invoked when the user clicks inside the figure.
