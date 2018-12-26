@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def auto_window_level(arr: np.array, bins=200, upper_limit_fraction=0.1, lower_limit_fraction=0.0002):
+def auto_window_level(arr: np.array, bins=200, upper_limit_fraction=0.1, lower_limit_fraction=0.0002,
+                      return_image=True):
         """Automatically window/level based on the image histogram"""
         hist, bin_edges = np.histogram(arr, bins=bins)
         bin_size = bin_edges[1] - bin_edges[0]
@@ -45,10 +46,13 @@ def auto_window_level(arr: np.array, bins=200, upper_limit_fraction=0.1, lower_l
                         hist_upper_limit = bin_edges[i] + bin_size
                         break
         
-        arr_window = arr*(arr > hist_lower_limit)*(arr < hist_upper_limit)
-        arr_window = (arr_window - np.amin(arr_window))/(np.amax(arr_window) + np.amin(arr_window))
-        
-        return arr_window
+        if return_image:
+                arr_window = arr*(arr > hist_lower_limit)*(arr < hist_upper_limit)
+                arr_window = (arr_window - np.amin(arr_window))/(np.amax(arr_window) + np.amin(arr_window))
+                
+                return arr_window
+        else:
+                return hist_lower_limit, hist_upper_limit
         
 
 def overlay_arrays_red_green(array_one, array_two, intensity_threshold=0.1):
