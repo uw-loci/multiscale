@@ -110,7 +110,7 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
                 plt.show()
 
 
-def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image):
+def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image, slice=None, window_level=True):
         """Create a numpy array that is a combination of two images
         
         Inputs:
@@ -123,12 +123,9 @@ def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image):
         """
         
         fixed_array = sitk.GetArrayFromImage(fixed_image)
-        fixed_windowed = myplot.auto_window_level(fixed_array)
         
         if fixed_image.GetSize() == moving_image.GetSize():
                 moving_array = sitk.GetArrayFromImage(moving_image)
-                moving_windowed = myplot.auto_window_level(moving_array)
-        
         else: #Pre-registration
                 initial_transform = sitk.Similarity2DTransform()
                 moving_resampled = sitk.Resample(moving_image, fixed_image,
@@ -136,13 +133,15 @@ def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image):
                                                  0.0, moving_image.GetPixelID())
                 
                 moving_array = sitk.GetArrayFromImage(moving_resampled)
-                moving_windowed = myplot.auto_window_level(moving_array)
 
+        if window_level is True:
+                fixed_array = myplot.auto_window_level(fixed_array)
+                moving_array = myplot.auto_window_level(moving_array)
         
-        # todo: Some form of window/level to get the intensities roughly matched
-        
-        combined_array = myplot.overlay_arrays_red_green(
-                fixed_windowed, moving_windowed)
+        if slice is None:
+                combined_array = myplot.overlay_arrays_red_green(fixed_array, moving_array)
+        else:
+                combined_array = myplot.overlay_arrays_red_green(fixed_array[slice], moving_array[slice])
         
         return combined_array
 
