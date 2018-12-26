@@ -47,13 +47,24 @@ def auto_window_level(arr: np.array, bins=200, upper_limit_fraction=0.1, lower_l
                         break
         
         if return_image:
-                arr_window = arr*(arr > hist_lower_limit)*(arr < hist_upper_limit)
-                arr_window = (arr_window - np.amin(arr_window))/(np.amax(arr_window) + np.amin(arr_window))
-                
-                return arr_window
+                return window_level(arr, hist_lower_limit, hist_upper_limit)
         else:
                 return hist_lower_limit, hist_upper_limit
         
+        
+def window_level(arr, hist_lower_limit, hist_upper_limit):
+        """
+        Window/level an image based on lower and upper limits
+        :param arr: numpy array for the image
+        :param hist_lower_limit: Lower limit of histogram
+        :param hist_upper_limit: upper limit of histogram
+        :return:
+        """
+        arr_window = arr * (arr > hist_lower_limit) * (arr < hist_upper_limit)
+        arr_window = (arr_window - np.amin(arr_window)) / (np.amax(arr_window) + np.amin(arr_window))
+        
+        return arr_window
+
 
 def overlay_arrays_red_green(array_one, array_two, intensity_threshold=0.1):
         """Plot two same-size images in 3 channels, with blue->same position"""
