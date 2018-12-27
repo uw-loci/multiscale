@@ -107,7 +107,7 @@ def setup_registration_parameters(scale: int=1, smoothing_sigmas: list=None, shr
         return parameters
         
         
-def define_registration_method(parameters: dict) -> sitk.ImageRegistrationMethod:
+def define_registration_method(parameters: dict=None) -> sitk.ImageRegistrationMethod:
         """
         Define the base metric, interpolator, and optimizer of a registration or series of registrations
     
@@ -143,7 +143,7 @@ def define_registration_method(parameters: dict) -> sitk.ImageRegistrationMethod
         return registration_method
 
 
-def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: RegistrationPlot,
+def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: RegistrationPlot=None,
              registration_method: sitk.ImageRegistrationMethod=None,
              initial_transform: sitk.Transform=None,
              fixed_mask: sitk.Image=None, moving_mask: sitk.Image=None):
@@ -182,16 +182,18 @@ def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: Regist
         
         registration_method.SetInitialTransform(initial_transform)
         
-        registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, reg_plot.update_idx_resolution_switch)
-        registration_method.AddCommand(sitk.sitkIterationEvent,
-                                       lambda: reg_plot.update_plot(registration_method.GetMetricValue(), initial_transform))
-        registration_method.AddCommand(sitk.sitkEndEvent, lambda: reg_plot.plot_final_overlay(initial_transform))
+        if reg_plot is not None:
+                registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, reg_plot.update_idx_resolution_switch)
+                registration_method.AddCommand(sitk.sitkIterationEvent,
+                                               lambda: reg_plot.update_plot(
+                                                       registration_method.GetMetricValue(), initial_transform))
+                registration_method.AddCommand(sitk.sitkEndEvent, lambda: reg_plot.plot_final_overlay(initial_transform))
         
         final_transform = registration_method.Execute(fixed_image, moving_image)
         final_metric = registration_method.GetMetricValue()
         stop_condition = registration_method.GetOptimizerStopConditionDescription()
         
-        return (final_transform, final_metric, stop_condition)
+        return final_transform, final_metric, stop_condition
 
 
 def query_good_registration(transform: sitk.Transform, metric, stop):
