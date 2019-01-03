@@ -40,9 +40,6 @@ class RegistrationHelper(object):
         
         def perform_registration(self):
                 return
-        
-        
-        
 
 
 def _setup_smoothing_sigmas(scale: int=1):
@@ -369,7 +366,8 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                 fixed_final, moving_final, region_extracted = query_for_changes(fixed_image, moving_image,
                                                                                 initial_transform, registration_method,
                                                                                 moving_path)
-                reg_plot = RegistrationPlot(fixed_final, moving_final)
+                
+                reg_plot = RegistrationPlot(fixed_final, moving_final, transform=initial_transform)
                 
                 (transform, metric, stop) = register(fixed_final, moving_final, reg_plot,
                                                      registration_method=registration_method,
