@@ -205,3 +205,11 @@ def list_values_approx_equal(num_list, rel_tol):
                                 return False
                         
         return True
+
+
+def run_from_python():
+        try:
+                __IPYTHON__
+                return True
+        except NameError:
+                return False
