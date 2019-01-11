@@ -7,6 +7,7 @@ from IPython.display import display, clear_output
 
 import multiscale.itk.transform as trans
 import multiscale.itk.metadata as meta
+import multiscale.utility_functions as util
 from multiscale import plotting as myplot
 
 
@@ -18,14 +19,7 @@ class RegistrationPlot:
                 self.idx_resolution_switch = []
                 self.fig, (self.ax_img, self.ax_cost) = plt.subplots(1, 2, figsize=(16, 8))
                 
-                self.ax_img.axis('off')
-                self.ax_cost.set_xlabel('Iteration Number', fontsize=12)
-                self.ax_cost.set_title('Metric Value', fontsize=12)
-                self.ax_cost.set_xlim(0, 1)
-                self.ax_cost.set_ylim(-0.1, 0)
-                
-                loc = plticker.MaxNLocator(integer=True)  # this locator puts ticks at regular intervals
-                self.ax_cost.xaxis.set_major_locator(loc)
+                self._setup_axes()
 
                 self.metric_plot, = self.ax_cost.plot(self.metric_values, 'r')
                 self.multires_plot, = self.ax_cost.plot(self.idx_resolution_switch,
@@ -36,8 +30,23 @@ class RegistrationPlot:
                 
                 fixed_shape = np.shape(sitk.GetArrayFromImage(fixed_image))
                 self.img = self.ax_img.imshow(np.zeros(fixed_shape))
-                plot_overlay(self.fixed_image, self.moving_image, transform, continuous_update=True, img=self.img)
+                plot_overlay(self.fixed_image, self.moving_image, transform, continuous_update=True, img=self.img,
+                             slice=self.slice)
 
+        def _setup_axes(self):
+                """
+                Setup the axes for the cost and image plots
+                :return:
+                """
+                self.ax_img.axis('off')
+                self.ax_cost.set_xlabel('Iteration Number', fontsize=12)
+                self.ax_cost.set_title('Metric Value', fontsize=12)
+                self.ax_cost.set_xlim(0, 1)
+                self.ax_cost.set_ylim(-0.1, 0)
+        
+                loc = plticker.MaxNLocator(integer=True)  # this locator puts ticks at regular intervals
+                self.ax_cost.xaxis.set_major_locator(loc)
+        
         def update_plot(self, new_metric_value, transform):
                 """Event: Update and metric_plot new registration values"""
                 
@@ -61,7 +70,6 @@ class RegistrationPlot:
                 plot_overlay(self.fixed_image, self.moving_image, transform,
                              downsample=False, img=self.img)
 
-        
         def save_figure(self):
                 file_path = 'F:\\Research\\Polarimetry\\Animation\\Registration' + str(len(self.metric_values)) + '.png'
                 plt.savefig(file_path)
