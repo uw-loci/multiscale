@@ -240,7 +240,6 @@ class UltrasoundImageAssembler(object):
                 return util.load_mat(file_path, variables=variable)[variable]
 
 
-
 def beamform_rf(raw_data):
         raise NotImplementedError('The function to beamform RF data has not been implemented yet')
 # cases: 128 raylines, multiangle compounding,
