@@ -240,40 +240,6 @@ class UltrasoundImageAssembler(object):
                 return util.load_mat(file_path, variables=variable)[variable]
 
 
-class UltrasoundImage(sitk.Image):
-
-        def get_bmode(self, compress_method='log'):
-                """Get the stitched b-mode image"""
-                if self.iq is None:
-                        self.assemble_iq()
-
-                if compress_method == 'log':
-                        bmode = sitk.Log10(sitk.Abs(self.iq) + 1)
-                elif compress_method == 'sqrt':
-                        bmode = sitk.Sqrt(sitk.Abs(self.iq))
-                else:
-                        raise ValueError('Compression method can be log or sqrt, not {}'.format(compress_method))
-
-                meta.copy_relevant_metadata(bmode, self.iq, self.metadata_keys)
-
-                return bmode
-
-        def get_envelope(self):
-                """Get the stitched RF envelope image"""
-                if self.iq is None:
-                        self.assemble_iq()
-
-                env = sitk.Abs(self.iq)
-                meta.copy_relevant_metadata(env, self.iq, self.metadata_keys)
-
-                return env
-
-        def get_iq(self):
-                if self.iq is None:
-                        self.assemble_iq()
-
-                return self.iq
-
 
 def beamform_rf(raw_data):
         raise NotImplementedError('The function to beamform RF data has not been implemented yet')
