@@ -53,9 +53,15 @@ class UltrasoundImageAssembler(object):
         def _stitch_image(self, image_array):
                 dataset_args = self._assemble_dataset_arguments()
                 fuse_args = self._assemble_fuse_args()
-                bmode = 20*np.log10(np.abs(image_array)+1)
+                bmode = self._iq_to_output(image_array)
                 stitcher = st.BigStitcher(self._ij)
                 stitcher.stitch_from_numpy(bmode, dataset_args, fuse_args, save_dir=self.intermediate_save_dir)
+
+        def _iq_to_output(self, image_array):
+                return self._iq_to_db(image_array)
+
+        def _iq_to_db(self, image_array):
+                return 20 * np.log10(np.abs(image_array) + 1)
 
         def _assemble_dataset_arguments(self):
                 spacing = self._get_spacing()
