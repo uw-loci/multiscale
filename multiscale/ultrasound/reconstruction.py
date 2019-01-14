@@ -230,10 +230,20 @@ class UltrasoundImageAssembler(object):
                 self.acq_params['start depth'] = params['startDepth'] * wl
                 self.acq_params['end depth'] = params['endDepth'] * wl
                 self.acq_params['transducer spacing'] = params['transducer_spacing'] * wl
+                self.acq_params['speed of sound'] = params['speed_of_sound'] * 10E3
 
-                # copy other parameters that are not in wavelength
+                # copy other parameters that are not in wavelengths
                 self.acq_params['sampling wavelength'] = params['wavelength_micron']
-                self.acq_params['speed of sound'] = params['speed_of_sound']
+                self.acq_params['transmits'] = params['numRays']
+                
+                try: # Necessary to have a try to allow processing older images
+                        self.acq_params['sampling frequency'] = params['sampling_frequency']
+                        self.acq_params['lines'] = params['lines']
+                        self.acq_params['axial samples'] = params['axial_samples']
+                        self.acq_params['time samples'] = params['time_samples']
+                        self.acq_params['elements'] = params['elements']
+                finally:
+                        return
 
         @staticmethod
         def read_variable(file_path, variable):
