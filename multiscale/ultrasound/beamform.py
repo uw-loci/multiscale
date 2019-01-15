@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import numpy as np
 import scipy.sparse as sp
 
+import multiscale.utility_functions as util
 
 class Beamformer(object):
         def __init__(self, rf_array, params):
@@ -48,22 +49,36 @@ class Beamformer(object):
                 I.e., rows are element 0, columns element 1
                 :return:
                 """
-                self.delays = sp.csr_matrix([self.params['axial samples']*self.params['lines'],
-                                        self.params['time samples']*self.params['elements']])
+                num_positions = self.params['axial samples']*self.params['lines']
+                num_samples = self.params['time samples']*self.params['elements']
+                time_indices = []
+                position_indices = []
+                for position in range(num_positions):
+                        position_delays = self._position_delay(position)
+                        time_indices.extend(position_delays)
+                        
+                        position_temp = [position]*len(position_delays)
+                        position_indices.extend(position_temp)
+                        
+                time_indices = np.array(time_indices)
+                position_indices = np.array(position_indices)
+                weights = np.ones([len(time_indices)])
                 
+                self.delays = sp.csr_matrix((weights, (position_indices, time_indices)),
+                                            shape=[num_positions, num_samples])
+                                
         def _position_delay(self, position_idx):
                 """
                 Calculate the row
                 :param position_idx:
                 :return:
                 """
-                delay = np.zeros(self.params['time samples']*self.params['elements'])
+                position_delays = list()
                 for element in range(self.params['elements']):
-                        element_contribution = self._element_delay(position_idx, element)
-                        for time_index, weight in element_contribution.iteritems():
-                                delay[time_index] = weight
-                                
-                return delay
+                        element_delays = self._element_delay(position_idx, element)
+                        position_delays.extend(element_delays)
+                        
+                return np.array(position_delays)
                 
         def _element_delay(self, position_idx, element_idx) -> dict:
                 """
@@ -72,11 +87,12 @@ class Beamformer(object):
                 :param element_idx: Index of the element in question
                 :return:
                 """
-                contributions = {}
+                element_delays = []
                 for transmit in range(self.params['elements']):
-                        acq_contribution = self._time_delay(position_idx, element_idx, transmit)
-                        for time_index, weight in acq_contribution:
-                                contributions[time_index] = weight
+                        time_delay = self._time_delay(position_idx, element_idx, transmit)
+                        element_delays.append(time_delay)
+                                
+                return element_delays
                 
         def _time_delay(self, position_idx, element_idx, transmit):
                 axial_distance = position_idx % self.params['axial samples']
@@ -84,16 +100,11 @@ class Beamformer(object):
                 lat_distance = element_idx*self.params['transducer spacing'] - line*self.params['lateral resolution']
                 distance = np.sqrt(axial_distance**2 + lat_distance**2)
                 
-                time_in_samples = (distance - self.params['start depth']) \
-                                  * self.params['sampling frequency'] / self.params['speed of sound']
+                time_delay = round((distance - self.params['start depth'])
+                                   * self.params['sampling frequency'] / self.params['speed of sound']
+                                   + transmit*self.params['transmit samples'])
                 
-                if float(time_in_samples).is_integer():
-                        return {time_in_samples: 1}
-                else:
-                        weight_1 = time_in_samples % 1
-                        weight_2 = 1 - weight_1
-                        return {np.floor(time_in_samples): weight_1,
-                                np.ceil(time_in_samples): weight_2}
+                return time_delay
                 
         def _format_rf(self):
                 """
