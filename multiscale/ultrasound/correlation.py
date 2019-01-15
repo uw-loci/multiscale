@@ -109,11 +109,14 @@ def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int, thr
     corr_curve = []
     
     for shift in range(int(shape_window[dim_of_corr]/2 + 1)):
+        if shift > 20:
+            break
+            
         corr_along_lines = np.apply_along_axis(calculate_1d_autocorrelation, dim_of_corr, window, shift)
         average_corr = np.mean(corr_along_lines)
-        if average_corr < threshold:
-            corr_curve.append(average_corr)
-            break
+        # if average_corr < threshold:
+        #     corr_curve.append(average_corr)
+        #     break
         
         corr_curve.append(average_corr)
     
@@ -148,7 +151,7 @@ def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_
 
 
 def load_iq(dir_iq: Path) -> (np.ndarray, dict):
-    list_iq = recon.get_sorted_list_mats(dir_iq, search_str='mat')
+    list_iq = recon.get_sorted_list_mats(dir_iq, search_str='IQ.mat')
     array_iq, params = recon.mat_list_to_iq_array(list_iq)
     
     return array_iq, params
