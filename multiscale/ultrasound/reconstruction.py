@@ -216,11 +216,11 @@ class UltrasoundImageAssembler(object):
 
         # Parameters
         
-        def _read_parameters(self, iq_path: Path):
+        def _read_parameters(self, mat_path: Path):
                 """
                 Get the parameters from an acquisition and return a cleaned up dictionary
                 """
-                params = self.read_variable(iq_path, 'P')
+                params = self.read_variable(mat_path, 'P')
 
                 wl = params['wavelength_micron']
                 # convert units to mm
@@ -240,6 +240,7 @@ class UltrasoundImageAssembler(object):
                         self.acq_params['sampling frequency'] = params['sampling_frequency']
                         self.acq_params['lines'] = params['lines']
                         self.acq_params['axial samples'] = params['axial_samples']
+                        self.acq_params['transmit samples'] = params['transmit_samples']
                         self.acq_params['time samples'] = params['time_samples']
                         self.acq_params['elements'] = params['elements']
                 finally:
