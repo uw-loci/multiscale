@@ -117,7 +117,7 @@ class TestUltrasoundImageAssembler(object):
                 assert unique_1 == 2
                 
         def test_get_spacing(self, us_assembler):
-                us_assembler.acq_params = {'axial resolution': 5, 'lateral resolution': 4}
+                us_assembler.params = {'axial resolution': 5, 'lateral resolution': 4}
                 us_assembler.pos_list = np.array([[0, 1], [0, 2]])
                 us_assembler._get_spacing()
                 
@@ -183,7 +183,7 @@ class TestUltrasoundImageAssembler(object):
                 
                 us_assembler._read_parameters(Path('Test'))
                 
-                assert us_assembler.acq_params == exp_params
+                assert us_assembler.params == exp_params
 
         def test_mat_list_to_variable_list(self, monkeypatch, us_assembler):
                 expected = [np.random.rand(5, 5), np.random.rand(5, 5), np.random.rand(5, 5)]
