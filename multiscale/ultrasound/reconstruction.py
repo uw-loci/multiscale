@@ -30,20 +30,20 @@ class UltrasoundImageAssembler(object):
                 self._ij = ij
                 self.intermediate_save_dir = intermediate_save_dir
 
-                os.makedirs(output_dir, exist_ok=True)
+                os.makedirs(str(output_dir), exist_ok=True)
                 
                 self.pos_list = np.array([])
                 self.mat_list = []
-                self.acq_params = {}
+                self.params = {}
                
         def get_acquisition_parameters(self):
                 """Get the US acquisition parameters"""
-                return self.acq_params
+                return self.params
 
         def _assemble_image(self, base_image_data='IQData'):
                 self._read_position_list()
                 self.mat_list = self._read_sorted_list_mats()
-                self._read_parameters(self.mat_list[0])
+                read_parameters(self.mat_list[0])
                 
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 separate_3d_images = self._image_list_to_laterally_separate_3d_images(image_list)
@@ -58,11 +58,8 @@ class UltrasoundImageAssembler(object):
                 stitcher.stitch_from_numpy(bmode, dataset_args, fuse_args, save_dir=self.intermediate_save_dir)
 
         def _iq_to_output(self, image_array):
-                return self._iq_to_db(image_array)
-
-        def _iq_to_db(self, image_array):
-                return 20 * np.log10(np.abs(image_array) + 1)
-
+                return iq_to_db(image_array)
+        
         def _assemble_dataset_arguments(self):
                 spacing = self._get_spacing()
                 
@@ -123,8 +120,8 @@ class UltrasoundImageAssembler(object):
 
         def _get_spacing(self):
                 """Get the spacing of the resulting image in microns"""
-                lateral_spacing = self.acq_params['lateral resolution']
-                axial_spacing = self.acq_params['axial resolution']
+                lateral_spacing = self.params['lateral resolution']
+                axial_spacing = self.params['axial resolution']
                 elevational_spacing = self._calculate_position_separation(1)
                 
                 spacing = [lateral_spacing, axial_spacing, elevational_spacing]
@@ -148,8 +145,9 @@ class UltrasoundImageAssembler(object):
         # Images
         def _mat_list_to_variable_list(self, variable):
                 """Acquire a sorted list containing the specified variable in each mat file"""
-                variable_list = [self.read_variable(file_path, variable) for file_path in self.mat_list]
+                variable_list = [read_variable(file_path, variable) for file_path in self.mat_list]
                 return variable_list
+        
         # Positions
         def _read_position_list(self):
                 """Open a Micromanager acquired position file and return a list of X, Y positions"""
@@ -158,15 +156,6 @@ class UltrasoundImageAssembler(object):
 
                 acquisition_dict = util.read_json(self.pl_path)
                 self.pos_list = clean_position_text(acquisition_dict)
-
-        @staticmethod
-        def clean_position_text(acquisition_dict):
-                """Convert a Micromanager acquired position file into a list of X, Y positions"""
-                pos_list_raw = acquisition_dict['POSITIONS']
-                pos_list = np.array([[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
-                            for row in pos_list_raw])
-
-                return pos_list
         
         def _count_unique_positions(self, axis):
                 """Determine how many unique positions the position list holds along a particular axis"""
@@ -204,69 +193,73 @@ class UltrasoundImageAssembler(object):
         # List of files
         def _read_sorted_list_mats(self, search_str='.mat'):
                 unsorted = util.list_filetype_in_dir(self.mat_dir, search_str)
-                list_mats_sorted = sorted(unsorted, key=self.extract_iteration_from_path)
+                list_mats_sorted = sorted(unsorted, key=extract_iteration_from_path)
                 return list_mats_sorted
-        
-        @staticmethod
-        def extract_iteration_from_path(file_path):
-                """Get the image index from filename formatted It-index.mat"""
-                match = re.search(r'It-\d*', file_path.stem)
-                index = int(match.group()[3:]) - 1
-                return index
 
         # Parameters
         
-        def _read_parameters(self, mat_path: Path):
-                """
-                Get the parameters from an acquisition and return a cleaned up dictionary
-                """
-                params = self.read_variable(mat_path, 'P')
-
-                wl = params['wavelength_micron']
-                # convert units to mm
-                self.acq_params['lateral resolution'] = params['lateral_resolution'] * wl
-                self.acq_params['axial resolution'] = params['axial_resolution'] * wl
-                self.acq_params['transmit focus'] = params['txFocus'] * wl
-                self.acq_params['start depth'] = params['startDepth'] * wl
-                self.acq_params['end depth'] = params['endDepth'] * wl
-                self.acq_params['transducer spacing'] = params['transducer_spacing'] * wl
-                self.acq_params['speed of sound'] = params['speed_of_sound'] * 10E3
-
-                # copy other parameters that are not in wavelengths
-                self.acq_params['sampling wavelength'] = params['wavelength_micron']
-                self.acq_params['transmits'] = params['numRays']
-                
-                try: # Necessary to have a try to allow processing older images
-                        self.acq_params['sampling frequency'] = params['sampling_frequency']
-                        self.acq_params['lines'] = params['lines']
-                        self.acq_params['axial samples'] = params['axial_samples']
-                        self.acq_params['transmit samples'] = params['transmit_samples']
-                        self.acq_params['time samples'] = params['time_samples']
-                        self.acq_params['elements'] = params['elements']
-                finally:
-                        return
-
-        @staticmethod
-        def read_variable(file_path, variable):
-                return util.load_mat(file_path, variables=variable)[variable]
-
-
-def beamform_rf(raw_data):
-        raise NotImplementedError('The function to beamform RF data has not been implemented yet')
-# cases: 128 raylines, multiangle compounding,
-
-
-def open_rf(rf_path: Path) -> np.ndarray:
-        mat_data = sio.loadmat(str(rf_path))
-        params = mat_data['P']
-        if params ['na'] > 1:
-                rf_data = beamform_rf(mat_data['RData'])
-        else:
-                rf_data = mat_data['RData']
         
-        return rf_data
+def read_parameters(mat_path: Path) -> dict:
+        """
+        Get the parameters from an acquisition and return a cleaned up dictionary
+        """
+        params_raw = read_variable(mat_path, 'P')
+        params = {}
+        
+        wl = params_raw['wavelength_micron']
+        # convert units to micron
+        params['lateral resolution'] = params_raw['lateral_resolution'] * wl
+        params['axial resolution'] = params_raw['axial_resolution'] * wl
+        params['transmit focus'] = params_raw['txFocus'] * wl
+        params['start depth'] = params_raw['startDepth'] * wl
+        params['end depth'] = params_raw['endDepth'] * wl
+        params['transducer spacing'] = params_raw['transducer_spacing'] * wl
+        params['speed of sound'] = params_raw['speed_of_sound'] * 10E6
+
+        # copy other parameters that are not in wavelengths
+        params['sampling wavelength'] = params_raw['wavelength_micron']
+        params['transmits'] = params_raw['numRays']
+        
+        try: # Necessary to have a try to allow processing older images
+                params['sampling frequency'] = params_raw['sampling_frequency'] * 10E6
+                params['lines'] = params_raw['lines']
+                params['axial samples'] = params_raw['axial_samples']
+                params['transmit samples'] = params_raw['transmit_samples']
+                params['time samples'] = params_raw['time_samples']
+                params['elements'] = params_raw['elements']
+        finally:
+                return params
 
 
+def read_variable(file_path, variable):
+        return util.load_mat(file_path, variables=variable)[variable]
+
+
+def clean_position_text(pos_text: dict) -> np.ndarray:
+        """Convert a Micromanager acquired position file into a list of X, Y positions"""
+        pos_list_raw = pos_text['POSITIONS']
+        pos_list = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
+                    for row in pos_list_raw]
+        
+        return np.array(pos_list)
+
+
+def extract_iteration_from_path(file_path):
+        """Get the image index from filename formatted It-index.mat"""
+        match = re.search(r'It-\d*', file_path.stem)
+        index = int(match.group()[3:]) - 1
+        return index
+
+
+def iq_to_db(image_array):
+        return 20 * np.log10(np.abs(image_array) + 1)
+
+
+"""
+Deprecated methods
+
+To be gradually removed from use
+"""
 def open_iq(iq_path: Path) -> np.ndarray:
         """Open a .mat that holds IQData and Parameters from the Verasonics system
     
@@ -321,15 +314,6 @@ def iq_to_bmode(iq_array: np.ndarray) -> np.ndarray:
         bmode = np.log10(env + 1)
         
         return bmode
-
-
-def clean_position_text(pos_text: dict) -> list:
-        """Convert a Micromanager acquired position file into a list of X, Y positions"""
-        pos_list_raw = pos_text['POSITIONS']
-        pos_list = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
-                    for row in pos_list_raw]
-        
-        return np.array(pos_list)
 
 
 def read_position_list(pl_path: Path) -> list:
