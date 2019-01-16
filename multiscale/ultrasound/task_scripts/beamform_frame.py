@@ -27,13 +27,29 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 from pathlib import Path
-import numpy as np
-
+import matplotlib.pyplot as plt
 import multiscale.ultrasound.reconstruction as recon
 import multiscale.ultrasound.beamform as beam
 
-rf_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-15\Air RF with new variables\Run-1',
-               'Air RF with new variables_Run-1_It-1_RF.mat')
+rf_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-15\Glass dish water\Run-3',
+               'Smaller glass 2.mat')
+output_dir = Path(r'F:\Research\LINK\Phantom Trials\2019-01-15')
+delays_path = Path(output_dir, 'Delay matrix 2.npz')
+
+params = recon.read_parameters(rf_path)
+rf_array = recon.read_variable(rf_path, 'RData')
+
+delay_calculator = beam.DelayCalculator(params, delays_path)
+delays = delay_calculator.get_delays()
+
+beamformer = beam.Beamformer(rf_array, params, delays)
+bmode = beamformer.get_bmode()
+
+plt.imshow(bmode, cmap='Greys')
+plt.show()
+print('Hello world')
+
+
 
 
 
