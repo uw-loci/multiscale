@@ -23,7 +23,7 @@ class UltrasoundImageAssembler(object):
         todo: start generalizing this so it can work with multiple image types/kinds
         """
         def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
-                     intermediate_save_dir: Path=None):
+                     intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None, ):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
@@ -31,6 +31,9 @@ class UltrasoundImageAssembler(object):
                 self.intermediate_save_dir = intermediate_save_dir
 
                 os.makedirs(str(output_dir), exist_ok=True)
+                
+                self.fuse_args = fuse_args
+                self.dataset_args = dataset_args
                 
                 self.pos_list = np.array([])
                 self.mat_list = []
@@ -43,7 +46,7 @@ class UltrasoundImageAssembler(object):
         def _assemble_image(self, base_image_data='IQData'):
                 self._read_position_list()
                 self.mat_list = self._read_sorted_list_mats()
-                read_parameters(self.mat_list[0])
+                self.params = read_parameters(self.mat_list[0])
                 
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 separate_3d_images = self._image_list_to_laterally_separate_3d_images(image_list)
@@ -91,7 +94,10 @@ class UltrasoundImageAssembler(object):
                         'use_deflate_compression': True,
                         'export_path': str(self.output_dir) + '/dataset'
                 }
-                
+                if self.dataset_args is not None:
+                        for key, value in self.dataset_args.items():
+                                args[key] = value
+                                
                 return args
         
         def _assemble_fuse_args(self):
@@ -115,6 +121,9 @@ class UltrasoundImageAssembler(object):
                         'fused_image': '[Save as (compressed) TIFF stacks]',
                         'output_file_directory': str(self.output_dir)
                 }
+                if self.fuse_args is not None:
+                        for key, value in self.fuse_args.items():
+                                args[key] = value
         
                 return args
 
@@ -227,6 +236,7 @@ def read_parameters(mat_path: Path) -> dict:
                 params['transmit samples'] = params_raw['transmit_samples']
                 params['time samples'] = params_raw['time_samples']
                 params['elements'] = params_raw['elements']
+                params['element sensitivity'] = params_raw['element_sensitivity']
         finally:
                 return params
 
