@@ -12,9 +12,19 @@ from multiscale import plotting as myplot
 
 
 class RegistrationPlot:
-        def __init__(self, fixed_image, moving_image, transform=sitk.AffineTransform(2)):
+        def __init__(self, fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform, axis=None,
+                     slice=None):
                 self.fixed_image = fixed_image
                 self.moving_image = moving_image
+                self.axis = axis
+                self.slice = slice
+                
+                if len(self.fixed_image.GetSize()) > 2:
+                        if util.run_from_python():
+                                self._create_ui()
+                        else:
+                                self._setup_slice_display()
+                
                 self.metric_values = []
                 self.idx_resolution_switch = []
                 self.fig, (self.ax_img, self.ax_cost) = plt.subplots(1, 2, figsize=(16, 8))
@@ -78,9 +88,32 @@ class RegistrationPlot:
                 new_idx = len(self.metric_values)
                 self.idx_resolution_switch.append(new_idx)
 
+        def _setup_slice_display(self):
+                if self.axis is None:
+                        self.axis = len(self.fixed_image.GetSize()) - 1
+                        
+                if self.slice is None:
+                        axis_size = self.fixed_image.GetSize()[self.axis]
+                        self.slice = int((axis_size - 1) / 2)
+        
+        def _create_ui(self):
+                size = self.fixed_image.GetSize()[self.axis]
+                slider = widgets.IntSlider(description='image slice:',
+                                           min=0,
+                                           max= size - 1,
+                                           step=1,
+                                           value=int((size - 1) / 2),
+                                           width='20em')
+                slider.observe(self._on_slice_slider_value_change, names='value')
+                self.slider_list = [slider] * len(self.npa_list)
+                ui = widgets.Box(padding=7, children=[slider])
+                
+        def _on_slice_slider_value_change(self, change):
+                self.update_display()
+
 
 def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: sitk.Transform,
-                 downsample=True, downsample_target=5, continuous_update=False, img: plt.imshow=None):
+                 downsample=True, downsample_target=5, continuous_update=False, img: plt.imshow=None, slice=None):
                 
         rotated_image = sitk.Resample(moving_image, fixed_image, transform,
                                       sitk.sitkLinear, 0.0, moving_image.GetPixelIDValue())
@@ -91,11 +124,10 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
                 rotated_shrunk = trans.resize_image(rotated_image, fixed_image.GetSpacing()[0], downsample_target)
                 spacing = fixed_shrunk.GetSpacing()
                 
-                overlay_array = overlay_images(fixed_shrunk, rotated_shrunk)
+                overlay_array = overlay_images(fixed_shrunk, rotated_shrunk, slice=slice)
         else:
                 spacing = fixed_image.GetSpacing()
-                overlay_array = overlay_images(fixed_image, rotated_image)
-        
+                overlay_array = overlay_images(fixed_image, rotated_image, slice=slice)
         
         shape = np.shape(overlay_array)
         extent = [0, shape[1]*spacing[1], shape[0]*spacing[0], 0]
@@ -116,6 +148,7 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
                 plt.pause(0.01)
         else:
                 plt.show()
+
 
 
 def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image, slice=None, window_level=True):
