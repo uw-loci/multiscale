@@ -109,7 +109,7 @@ def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int, thr
     corr_curve = []
     
     for shift in range(int(shape_window[dim_of_corr]/2 + 1)):
-        if shift > 20:
+        if shift > 10:
             break
             
         corr_along_lines = np.apply_along_axis(calculate_1d_autocorrelation, dim_of_corr, window, shift)
@@ -234,7 +234,7 @@ def plot_single_curves(dict_curves: dict, params_acq: dict, dir_output: Path=Non
             plt.savefig(str(name_output))
 
 
-def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: str='', elevation_res: np.double=0.02):
+def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: str='', elevation_res: np.double=0.05):
     iq_array, params_acquisition = load_iq(dir_iq)
     env_array = iq_to_envelope(iq_array)
     

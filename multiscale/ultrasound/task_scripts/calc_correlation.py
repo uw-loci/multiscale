@@ -2,13 +2,9 @@ import multiscale.ultrasound.correlation as corr
 from pathlib import Path
 import multiscale.utility_functions as util
 
-list_dirs = [
-        Path(r'F:\Research\LINK\Phantom Trials\2018-12-19\Lavarello 1gperL TGC_1 V_5-1\Run-2'),
-        Path(r'F:\Research\LINK\Phantom Trials\2018-12-19\Lavarello 1gperL TGC_200 V_11\Run-1'),
-        Path(r'F:\Research\LINK\Phantom Trials\2018-12-19\Rovyer PSF grid 2\Run-4'),
-        Path(r'F:\Research\LINK\Phantom Trials\2018-12-19\Rovyer PSF grid 2 at TGC-1 V_5-1\Run-1')]
+list_dirs = [Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-02-12\Rovyer PSF _ 50 ystep _ TGC-100 _ V7-4\Run-2')]
 
-dir_output = Path(r'F:\Research\LINK\Phantom Trials\2018-12-19')
+dir_output = Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-02-12')
 
 for dir_mats in list_dirs:
         output_suffix = str(dir_mats.relative_to(dir_output).parent) + '_' + str(dir_mats.stem)
