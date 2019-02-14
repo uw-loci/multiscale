@@ -35,22 +35,17 @@ class UltrasoundImageAssembler(object):
                 self.fuse_args = fuse_args
                 self.dataset_args = dataset_args
                 
-                self.pos_list = np.array([])
-                self.mat_list = []
-                self.params = {}
+                self.pos_list = self._read_position_list()
+                self.mat_list = self._read_sorted_list_mats()
+                self.params = read_parameters(self.mat_list[0])
                
         def get_acquisition_parameters(self):
                 """Get the US acquisition parameters"""
                 return self.params
 
         def _assemble_image(self, base_image_data='IQData'):
-                self._read_position_list()
-                self.mat_list = self._read_sorted_list_mats()
-                self.params = read_parameters(self.mat_list[0])
-                
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 separate_3d_images = self._image_list_to_laterally_separate_3d_images(image_list)
-
                 self._stitch_image(separate_3d_images)
 
         def _stitch_image(self, image_array):
@@ -164,7 +159,7 @@ class UltrasoundImageAssembler(object):
                         return []
 
                 acquisition_dict = util.read_json(self.pl_path)
-                self.pos_list = clean_position_text(acquisition_dict)
+                return clean_position_text(acquisition_dict)
         
         def _count_unique_positions(self, axis):
                 """Determine how many unique positions the position list holds along a particular axis"""
@@ -223,14 +218,14 @@ def read_parameters(mat_path: Path) -> dict:
         params['start depth'] = params_raw['startDepth'] * wl
         params['end depth'] = params_raw['endDepth'] * wl
         params['transducer spacing'] = params_raw['transducer_spacing'] * wl
-        params['speed of sound'] = params_raw['speed_of_sound'] * 10E6
+        params['speed of sound'] = params_raw['speed_of_sound']*1E6
 
         # copy other parameters that are not in wavelengths
         params['sampling wavelength'] = params_raw['wavelength_micron']
-        params['transmits'] = params_raw['numRays']
         
         try: # Necessary to have a try to allow processing older images
-                params['sampling frequency'] = params_raw['sampling_frequency'] * 10E6
+                params['transmits'] = params_raw['numRays']
+                params['sampling frequency'] = params_raw['sampling_frequency'] * 1E6
                 params['lines'] = params_raw['lines']
                 params['axial samples'] = params_raw['axial_samples']
                 params['transmit samples'] = params_raw['transmit_samples']

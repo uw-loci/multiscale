@@ -71,7 +71,8 @@ def us_files(tmpdir, pos_file):
              'startDepth': 5,
              'endDepth': 128,
              'transducer_spacing': 0.1,
-             'speed_of_sound': 1540
+             'speed_of_sound': 1540,
+             'numRays': 128
              }
 
         for idx in range(len(images)):
@@ -103,9 +104,8 @@ class TestUltrasoundImageAssembler(object):
                 pos_labels = ['Pos-0', 'Pos-1', 'Pos-2']
                 pos_file(us_assembler.pl_path, pos_list_exp, pos_labels)
 
-                us_assembler._read_position_list()
-                print(type(us_assembler.pos_list))
-                assert (us_assembler.pos_list == pos_list_exp).all()
+                pos_list = us_assembler._read_position_list()
+                assert (pos_list == pos_list_exp).all()
 
         def test_count_unique_positions(self, us_assembler):
                 pos_list = np.array([[0, 0], [1, 0], [2, 0], [0, 1]])
@@ -154,8 +154,8 @@ class TestUltrasoundImageAssembler(object):
         @pytest.mark.parametrize('file_path, expected', [
                 (Path('Test_Run-1_It-5.mat'), 4)
         ])
-        def test_extract_iteration_from_path(self, us_assembler, file_path, expected):
-                index = us_assembler.extract_iteration_from_path(file_path)
+        def test_extract_iteration_from_path(self, file_path, expected):
+                index = recon.extract_iteration_from_path(file_path)
                 assert index == expected
 
         @pytest.mark.parametrize('raw, var, expected', [
@@ -164,9 +164,9 @@ class TestUltrasoundImageAssembler(object):
                 pytest.param({'A': 4, 'B': 3, 'C': {'E': 1, 'F': 2}}, ['A', 'C'], {'A': 4, 'C':{'E': 1, 'F': 2}},
                              marks=pytest.mark.xfail)
         ])
-        def test_read_variable(self, monkeypatch, us_assembler, raw, var, expected):
+        def test_read_variable(self, monkeypatch, raw, var, expected):
                 monkeypatch.setattr('multiscale.utility_functions.load_mat', lambda x, variables: raw)
-                output = us_assembler.read_variable(Path('test'), var)
+                output = recon.read_variable(Path('test'), var)
                 assert output == expected
                 
         def test_read_parameters(self, monkeypatch, us_assembler):
@@ -176,21 +176,21 @@ class TestUltrasoundImageAssembler(object):
                 
                 exp_params ={'lateral resolution': 49.28, 'axial resolution': 24.64, 'transmit focus': 7884.8,
                              'start depth':  492.8, 'end depth': 15769.6, 'transducer spacing': 100.00000000000004,
-                             'sampling wavelength': 98.56, 'speed of sound': 1540}
+                             'sampling wavelength': 98.56, 'speed of sound': 1540E6}
                 
-                monkeypatch.setattr('multiscale.ultrasound.reconstruction.UltrasoundImageAssembler.read_variable',
-                                    lambda x, y, z: raw_params)
+                monkeypatch.setattr('multiscale.ultrasound.reconstruction.read_variable',
+                                    lambda x, y: raw_params)
                 
-                us_assembler._read_parameters(Path('Test'))
+                params = recon.read_parameters(Path('Test'))
                 
-                assert us_assembler.params == exp_params
+                assert params == exp_params
 
         def test_mat_list_to_variable_list(self, monkeypatch, us_assembler):
                 expected = [np.random.rand(5, 5), np.random.rand(5, 5), np.random.rand(5, 5)]
                 generator = (expected[i] for i in range(3))
                 
-                monkeypatch.setattr('multiscale.ultrasound.reconstruction.UltrasoundImageAssembler.read_variable',
-                                        lambda x, y, z: next(generator))
+                monkeypatch.setattr('multiscale.ultrasound.reconstruction.read_variable',
+                                        lambda x, y: next(generator))
                 
                 us_assembler.mat_list = [1, 2, 3]
                 output = us_assembler._mat_list_to_variable_list('Test')
