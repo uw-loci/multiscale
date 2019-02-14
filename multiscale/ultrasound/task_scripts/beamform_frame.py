@@ -31,9 +31,9 @@ import matplotlib.pyplot as plt
 import multiscale.ultrasound.reconstruction as recon
 import multiscale.ultrasound.beamform as beam
 
-rf_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-15\Glass dish water\Run-3',
+rf_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-17\Glass dish water\Run-3',
                'Smaller glass 2.mat')
-output_dir = Path(r'F:\Research\LINK\Phantom Trials\2019-01-15')
+output_dir = Path(r'F:\Research\LINK\Phantom Trials\2019-01-17')
 delays_path = Path(output_dir, 'Delay matrix 2.npz')
 
 params = recon.read_parameters(rf_path)

@@ -34,6 +34,7 @@ from tqdm import tqdm
 import multiscale.utility_functions as util
 import multiscale.ultrasound.reconstruction as recon
 
+
 class Beamformer(object):
         def __init__(self, rf_array: np.ndarray, params: dict, delays):
                 self.rf_array = rf_array
@@ -138,7 +139,7 @@ class DelayCalculator(object):
                 :return:
                 """
                 element_delays = []
-                for transmit in range(self.params['elements']):
+                for transmit in range(self.params['transmit samples']):
                         time_delay = self._time_delay(position_idx, element_idx, transmit)
                         element_delays.append(time_delay)
                                 
@@ -157,11 +158,15 @@ class DelayCalculator(object):
                 dist_pte = np.sqrt(axial_distance**2 + lat_point_to_element**2)
                 distance = dist_ptt + dist_pte
                 
+                angle = np.arctan(lat_point_to_element/axial_distance)
+                
                 time_delay = round((distance - self.params['start depth'])
                                    * self.params['sampling frequency'] / self.params['speed of sound']
                                    + transmit*self.params['transmit samples'])
                 
                 return time_delay
+        
+        # todo: contributions weighted from all samples in resolution area?  Sliding frame?
         
         def _write_delays(self):
                 """
