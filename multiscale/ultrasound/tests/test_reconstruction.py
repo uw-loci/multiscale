@@ -104,8 +104,9 @@ class TestUltrasoundImageAssembler(object):
                 pos_labels = ['Pos-0', 'Pos-1', 'Pos-2']
                 pos_file(us_assembler.pl_path, pos_list_exp, pos_labels)
 
-                pos_list = us_assembler._read_position_list()
+                pos_list, pos_labels2 = us_assembler._read_position_list()
                 assert (pos_list == pos_list_exp).all()
+                assert pos_labels2 == pos_labels
 
         def test_count_unique_positions(self, us_assembler):
                 pos_list = np.array([[0, 0], [1, 0], [2, 0], [0, 1]])
