@@ -64,6 +64,6 @@ df_avg = scrape_averaged_files_to_df(dir_avg)
 
 
 path_avg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
-                'ROIs_averaged_from_base_image.csv')
+                'ROIs_averaged_from_base_image_old.csv')
 
 df_avg.to_csv(path_avg)

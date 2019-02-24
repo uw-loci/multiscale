@@ -23,14 +23,14 @@ def get_tile_roi_cyto_df(tile_path, roi_path, cyto_path):
         return tile_df, roi_df, cyto_df
 
 
-def correlate_pairs(df):
+def correlate_pairs(df, recast=False):
         mlr_shg = df[['MLR', 'SHG']]
         mlr_mhr = df[['MLR', 'MHR']]
         mhr_shg = df[['MHR', 'SHG']]
         
-        mlr_shg_corrs = an.find_correlations_two_modalities(mlr_shg)
-        mlr_mhr_corrs = an.find_correlations_two_modalities(mlr_mhr)
-        mhr_shg_corrs = an.find_correlations_two_modalities(mhr_shg)
+        mlr_shg_corrs = an.find_correlations_two_modalities(mlr_shg, recast=recast)
+        mlr_mhr_corrs = an.find_correlations_two_modalities(mlr_mhr, recast=recast)
+        mhr_shg_corrs = an.find_correlations_two_modalities(mhr_shg, recast=recast)
         
         correlations = pd.DataFrame({'MLR to SHG': mlr_shg_corrs,
                                      'MHR to SHG': mhr_shg_corrs,
@@ -73,9 +73,9 @@ def find_nas(single_variable_df):
 
 
 def run_tile_roi_cyto():
-        tile_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_Tiles.csv')
-        roi_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
-        cyto_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Cytospectre_Tiles.csv')
+        tile_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics\Old files', 'Curve-Align_Tiles.csv')
+        roi_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics\Old files', 'Curve-Align_ROIs_18.csv')
+        cyto_path = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics\Old files', 'Cytospectre_Tiles.csv')
         
         df_tile, df_roi, df_cyto = get_tile_roi_cyto_df(tile_path, roi_path, cyto_path)
         
@@ -123,7 +123,7 @@ def calculate_pairwise_correlations(df_variable: pd.DataFrame) -> pd.DataFrame:
         series_list = []
         modality_iterator = itt.combinations(modalities, 2)
         for pair in modality_iterator:
-                corr_pair = an.find_correlations_two_modalities(df_variable.loc[:, pair])
+                corr_pair = pd.Series(an.find_circular_correlations(df_variable.loc[:, pair]))
                 header = '-'.join(pair)
                 corr_pair.rename(header, inplace=True)
                 
@@ -137,7 +137,7 @@ def calculate_pairwise_correlations(df_variable: pd.DataFrame) -> pd.DataFrame:
 def run_roi_averages_comparison(ret_thresh: float) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
         path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
         path_average = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
-                            'ROIs_averaged_from_base_image.csv')
+                            'ROIs_averaged_from_base_image_old.csv')
         
         df_orient, df_align, df_ret = get_average_dfs(path_shg, path_average, ret_thresh)
         
@@ -190,10 +190,10 @@ def fib_comparison(ret_thresh: float, fib_thresh: int, seg_thresh: int):
         
         return corrs_orient, corrs_align
 
-
-corrs_orient, corrs_align = fib_comparison(2, 0, 0)
-print(corrs_orient)
-print(corrs_align)
+#
+# corrs_orient, corrs_align = fib_comparison(2, 0, 0)
+# print(corrs_orient)
+# print(corrs_align)
 
 # path_avg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
 #                 'ROIs_averaged_from_base_image.csv')
