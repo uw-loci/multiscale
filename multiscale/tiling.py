@@ -251,6 +251,9 @@ def roi_values_to_sitk_image_array(pd_series, img_dims, col_label, rois_per_tile
         img = np.zeros(img_dims)
         
         for i in pd_series.index:
+                if i[3] == 'Full-tile':
+                        continue
+                
                 tile_locs = re.findall(r'(\d+)', i[2])
                 tile_x = int(tile_locs[0])
                 tile_y = int(tile_locs[1])
@@ -263,9 +266,13 @@ def roi_values_to_sitk_image_array(pd_series, img_dims, col_label, rois_per_tile
                 y = tile_y * rois_per_tile + roi_y
                 
                 value = pd_series.get_value(i, col_label)
-                
+
                 # The xy values are switched when converting back to a sitk image, and were flipped in the roi names earlier
-                if value > threshold:
-                        img[y, x] = value
+                try:
+                        if value > threshold:
+                                img[y, x] = value
+                except:
+                        if value[0] > threshold:
+                                img[y, x] = value[0]
         
         return img
