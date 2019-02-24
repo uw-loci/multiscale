@@ -10,12 +10,9 @@ import numpy as np
 import multiscale.utility_functions as util
 import re
 import SimpleITK as sitk
-import multiscale.itk.metadata as meta
 import multiscale.imagej.stitching as st
-import h5py
 import os
-import tempfile
-import imagej
+import tiffile as tif
 
 
 class UltrasoundImageAssembler(object):
@@ -35,14 +32,28 @@ class UltrasoundImageAssembler(object):
                 self.fuse_args = fuse_args
                 self.dataset_args = dataset_args
                 
-                self.pos_list = self._read_position_list()
+                self.pos_list, self.pos_labels = self._read_position_list()
                 self.mat_list = self._read_sorted_list_mats()
                 self.params = read_parameters(self.mat_list[0])
-               
+                
         def get_acquisition_parameters(self):
                 """Get the US acquisition parameters"""
                 return self.params
-
+        
+        def _convert_to_2d_tiffs(self):
+                image_list = self._mat_list_to_variable_list('IQData')
+                for idx in range(len(self.pos_labels)):
+                        file_name = 'US_' + self.pos_labels[idx] + '.tif'
+                        bmode = self._iq_to_output(image_list[idx])
+                        self._save_us_image(file_name, bmode)
+                        
+        def _save_us_image(self, file_name, bmode):
+                path = str(Path(self.output_dir), file_name)
+                spacing = self._get_spacing()
+                tif.imwrite(path, bmode, imagej=True,
+                            resolution=(1./self.params['Lateral resolution'], 1./self.params['Axial resolution']),
+                            metadata={'spacing': spacing[2], 'unit': 'um'})
+        
         def _assemble_image(self, base_image_data='IQData'):
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 separate_3d_images = self._image_list_to_laterally_separate_3d_images(image_list)
@@ -240,13 +251,14 @@ def read_variable(file_path, variable):
         return util.load_mat(file_path, variables=variable)[variable]
 
 
-def clean_position_text(pos_text: dict) -> np.ndarray:
+def clean_position_text(pos_text: dict) -> (np.ndarray, list):
         """Convert a Micromanager acquired position file into a list of X, Y positions"""
         pos_list_raw = pos_text['POSITIONS']
         pos_list = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
                     for row in pos_list_raw]
+        pos_labels = [row['LABEL'] for row in pos_list_raw]
         
-        return np.array(pos_list)
+        return np.array(pos_list), pos_labels
 
 
 def extract_iteration_from_path(file_path):
