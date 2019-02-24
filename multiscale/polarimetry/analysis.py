@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 import numpy as np
 from scipy import stats
+import pycircstat as circ
 
 
 def recast_max_diff(row):
@@ -47,9 +48,21 @@ def regress(two_column_df: pd.DataFrame) -> np.ndarray:
         return results
 
 
+def find_circular_correlations(two_mod_df: pd.DataFrame):
+        grouped = two_mod_df.groupby(['Mouse', 'Slide'])
+        correlations = {}
+        for name, group in grouped:
+                radians = group.values*2*np.pi/180
+                if np.shape(radians)[0] < 100:
+                        continue
+                corr = circ.corrcc(radians[:, 0], radians[:, 1])
+                correlations[name] = corr
+        return correlations
+
+
 def find_correlations_two_modalities(two_mod_df: pd.DataFrame, recast: bool = False) -> pd.Series:
         if recast:
-                recast = two_mod_df.apply(recast_max_diff_90deg, axis=1)
+                recast = two_mod_df.apply(recast_max_diff_90deg, axis=1, result_type='broadcast')
                 group = recast.groupby(['Mouse', 'Slide'])
         else:
                 group = two_mod_df.groupby(['Mouse', 'Slide'])
