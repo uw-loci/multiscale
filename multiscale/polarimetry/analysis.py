@@ -11,7 +11,7 @@ def regress(two_column_df: pd.DataFrame) -> np.ndarray:
         x = two_column_df[original_columns[1]]
         y = two_column_df[original_columns[0]]
         
-        results = stats.linregress(x, y)
+        results = np.array(stats.linregress(x, y))
         
         return results
 
