@@ -53,6 +53,10 @@ def z_standard_error(n):
         :param n: Number of samples
         :return: Standard error of Z
         """
+        if n < 4:
+                print('Warning: n less than 4 for a calculation.  Returning a SE of 2.')
+                return 2
+                
         return np.sqrt(1/(n-3))
 
 
@@ -62,7 +66,10 @@ def pooled_z_se(n_values):
         :param n_values: Number of samples in each Z value
         :return: Pooled standard error of Z value
         """
-        se2_individual = np.square(z_standard_error(n_values))
+        se2_individual = []
+        for n in n_values:
+                se2_individual.append(np.square(z_standard_error(n)))
+                
         se2 = np.sum(se2_individual)
         se = np.sqrt(se2)
         return se
@@ -108,5 +115,24 @@ def correlation_t_test(corr1, n1, corr2, n2, two_tailed=True):
         z = (z1-z2)/se_pooled
         p = p_value(z, two_tailed)
         return p
+
+
+def z_t_test(z1, se1, z2, se2, two_tailed=True):
+        """
+        Perform a t test between two Z values
+        :param z1: First Z value
+        :param se1: Standard error of z1
+        :param z2: Second Z value
+        :param se2: standard error of z2
+        :param two_tailed: True if two tailed t test, False if one tailed
+        :return: p value
+        """
+        se2_individual = np.square([se1, se2])
+        se2 = np.sum(se2_individual)
+        se = np.sqrt(se2)
         
+        z = (z1-z2)/se
+        
+        p = p_value(z, two_tailed)
+        return p
 
