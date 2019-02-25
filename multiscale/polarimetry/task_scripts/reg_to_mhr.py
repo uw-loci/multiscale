@@ -1,7 +1,5 @@
-from pathlib import Path
 import multiscale.itk.registration as reg
-import multiscale.polarimetry.dir_dictionary as dird
-import multiscale.itk.transform as trans
+import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 
 # path_large_reg = Path(r'F:\Research\Polarimetry\Data 03 - Mid-python analysis images\Step 03 - Registered images\RegToMHR\SHG_Large_Reg')
 # path_small_reg = Path(r'F:\Research\Polarimetry\Data 03 - Mid-python analysis images\Step 03 - Registered images\RegToMHR\SHG_Small_Reg')

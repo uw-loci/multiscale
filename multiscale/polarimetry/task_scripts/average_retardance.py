@@ -11,7 +11,7 @@ Created on Wed Jul 18 16:18:01 2018
 # Measure average retardance/orientation in the registered image
 # Compare to analyzed data
 
-import multiscale.polarimetry.dir_dictionary as dird
+import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 import multiscale.utility_functions as util
 import multiscale.polarimetry.retardance as pol
 import pandas as pd
@@ -29,11 +29,11 @@ def average_images(dir_dict):
         
         pol.bulk_process_orientation_alignment(
                 dir_dict['mhr_large_reg'], dir_dict['mhr_large_reg_orient'], dir_dict['avg_ret'],
-                'MHR-O', [512, 512], roi_size=[64, 64])
+                'MHR', [512, 512], roi_size=[64, 64])
         
         pol.bulk_process_orientation_alignment(
                 dir_dict['mlr_large_reg'], dir_dict['mlr_large_reg_orient'], dir_dict['avg_ret'],
-                'MLR-O', [512, 512], roi_size=[64, 64])
+                'MLR', [512, 512], roi_size=[64, 64])
         
         pol.bulk_process_orientation_alignment(dir_dict['ps_reg'], dir_dict['ps_reg_orient'], dir_dict['avg_ret'],
                                                'PS', [512, 512], roi_size=[64, 64])
@@ -64,6 +64,6 @@ df_avg = scrape_averaged_files_to_df(dir_avg)
 
 
 path_avg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
-                'ROIs_averaged_from_base_image_old.csv')
+                'ROIs_averaged_from_base_image_old2.csv')
 
 df_avg.to_csv(path_avg)

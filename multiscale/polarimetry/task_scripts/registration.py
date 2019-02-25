@@ -6,8 +6,7 @@ Created on Tue Mar  6 15:52:18 2018
 """
 import multiscale.itk.registration as reg
 import multiscale.itk.transform as trans
-import multiscale.itk.process as proc
-import multiscale.polarimetry.dir_dictionary as dird
+import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 
 
 def perform_registrations(dir_dict: dict, registration_parameters=None, skip_existing_images=True):

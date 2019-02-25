@@ -30,7 +30,7 @@ def create_dictionary(
         #mask_dir = mid_analysis_dir + '\\Masked images'
         
         #resize_dir = mid_analysis_dir + '\\Step 02 - Resizing images'
-        reg_dir = mid_analysis_dir + '\\Registered images'
+        reg_dir = mid_analysis_dir + '\\Registered images\\Old registrations'
         tile_dir = mid_analysis_dir + '\\Tiled images'
         
         #    eight_bit_dir = mid_analysis_dir + '\\Step 05 - Eight-bit images'

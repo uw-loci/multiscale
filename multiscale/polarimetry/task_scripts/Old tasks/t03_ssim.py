@@ -6,7 +6,7 @@ Created on Wed Mar 28 12:58:50 2018
 """
 
 import multiscale.toolkits.cw_ssim as ssim
-import multiscale.polarimetry.dir_dictionary as dird
+import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 import datetime
 
 dir_dict = dird.create_dictionary()

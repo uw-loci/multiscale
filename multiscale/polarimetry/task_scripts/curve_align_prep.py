@@ -1,5 +1,5 @@
 import multiscale.toolkits.curve_align as ca
-import multiscale.polarimetry.dir_dictionary as dird
+import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 
 dir_dict = dird.create_dictionary()
 
