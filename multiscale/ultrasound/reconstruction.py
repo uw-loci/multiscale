@@ -90,7 +90,7 @@ class UltrasoundImageAssembler(object):
                         'overlap_y_(%)': '10',
                         'overlap_z_(%)': '10',
                         'keep_metadata_rotation': True,
-                        'how_to_load_images': '[Re-save as multiresolution HDF5]',
+                        'how_to_load_images': '[Load raw data]',
                         'dataset_save_path': str(self.output_dir),
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
