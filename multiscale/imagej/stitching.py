@@ -30,7 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import numpy as np
 from pathlib import Path
 import tempfile
-import SimpleITK as sitk
+import tiffile as tif
 
 
 class BigStitcher(object):
@@ -66,23 +66,28 @@ class BigStitcher(object):
         def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, save_dir):
                 """Helper for stitch from numpy"""
                 dataset_args['path'] = save_dir
-                self._save_numpy_images(save_dir, images_np)
+                self._save_numpy_images(save_dir, images_np, dataset_args)
                 self.stitch_from_files(dataset_args, fuse_args)
 
-        def _save_numpy_images(self, save_dir, numpy_images: np.ndarray):
+        def _save_numpy_images(self, save_dir, numpy_images: np.ndarray, dataset_args):
                 """
                 Save a numpy array into 32bit float tif files by iterating along the first axis.
                 :param save_dir: Directory to save the images in
                 :param numpy_images: Array of images to save
                 :return:
                 """
-                # todo: save images in imagej.py
                 print('Saving images into tif files')
                 for idx in range(len(numpy_images)):
                         save_path = Path(save_dir, 'Image_{}.tif'.format(idx))
-                        img = sitk.GetImageFromArray(numpy_images[idx])
-                        cast = sitk.Cast(img, sitk.sitkFloat32)
-                        sitk.WriteImage(cast, str(save_path))
+                        
+                        # Change shape to TZCYXS order
+                        ijstyle = numpy_images[idx]
+                        shape = ijstyle.shape
+                        ijstyle.shape = 1, shape[0], 1, shape[1], shape[2], 1
+                        
+                        tif.imwrite(save_path, ijstyle, imagej=True,
+                                    resolution=(1. / dataset_args['voxel_size_x'], 1. / dataset_args['voxel_size_y']),
+                                    metadata={'spacing': dataset_args['voxel_size_z'], 'unit': 'um'})
 
         def _define_dataset(self, dataset_args):
                 """

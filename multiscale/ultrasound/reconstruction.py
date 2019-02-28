@@ -71,7 +71,6 @@ class UltrasoundImageAssembler(object):
         
         def _assemble_dataset_arguments(self):
                 spacing = self._get_spacing()
-                
                 args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
                         'project_filename': 'dataset.xml',
@@ -269,7 +268,8 @@ def extract_iteration_from_path(file_path):
 
 
 def iq_to_db(image_array):
-        return 20 * np.log10(np.abs(image_array) + 1)
+        db = 20 * np.log10(np.abs(image_array) + 1)
+        return db.astype('f')
 
 
 """
