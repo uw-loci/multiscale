@@ -147,6 +147,7 @@ def read_metadata(image_path: Path):
         
 
 def write_image(image: sitk.Image, image_path: Path):
+        # todo: Write using tiffile so that resolution saves properly?
         sitk.WriteImage(image, str(image_path))
         write_metadata(image_path, image)
 
