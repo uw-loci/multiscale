@@ -30,11 +30,11 @@ from pathlib import Path
 
 ij = imagej.init('C:/users/mpinkert/Fiji.app/')
 
-mat_dir = Path(r'F:\Research\LINK\Mouse data\2019-02-22\Mouse 1596 - TGC Flat\Run-2')
-output_dir = Path(r'F:\Research\LINK\Mouse data\2019-02-22\Mouse 1596 - TGC Flat\9-8 v')
+mat_dir = Path(r'F:\Research\LINK\Mouse data\2019-02-25\Mouse 1596 - TGC high in mouse and image taken after SHG\Run-1')
+output_dir = Path(r'F:\Research\LINK\Mouse data\2019-02-25\Mouse 1596 - TGC high in mouse and image taken after SHG')
 pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-08\US_PositionLis_2019-01-08.pos')
 # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-08\US_PositionLis_2019-01-08.pos')
 
 assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path, intermediate_save_dir=output_dir,
-                                           fuse_args={'downsampling': 2})
+                                           fuse_args={'downsampling': 4})
 assembler._assemble_image()
