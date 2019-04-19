@@ -136,10 +136,10 @@ def calculate_curves_per_window(window: np.ndarray) -> dict:
     curve_axial: 1d correlation curve along axial axis z
     curve_lateral: 1d correlation curve along lateral axis x
     """
-    curve_elevation = calculate_1d_autocorrelation_curve(window, 0)
     curve_axial = calculate_1d_autocorrelation_curve(window, 1)
     curve_lateral = calculate_1d_autocorrelation_curve(window, 2)
-    
+    curve_elevation = calculate_1d_autocorrelation_curve(window, 0)
+
     curves = {'Elevational': curve_elevation, 'Axial': curve_axial, 'Lateral': curve_lateral}
     
     return curves

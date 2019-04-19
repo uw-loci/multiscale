@@ -30,11 +30,12 @@ from pathlib import Path
 
 ij = imagej.init('C:/users/mpinkert/Fiji.app/')
 
-mat_dir = Path(r'F:\Research\LINK\Mouse data\2019-02-25\Mouse 1596 - TGC high in mouse and image taken after SHG\Run-1')
-output_dir = Path(r'F:\Research\LINK\Mouse data\2019-02-25\Mouse 1596 - TGC high in mouse and image taken after SHG')
-pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-08\US_PositionLis_2019-01-08.pos')
+mat_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-04-29\Agarose layer fiducial phantom\Run-2')
+output_dir = Path(r'F:\Research\LINK\Phantom Trials\2019-04-29\AL-FP_NoInter')
+# pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-04-05\US_PositionList_25yspacing.pos')
 # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-08\US_PositionLis_2019-01-08.pos')
+pl_path = Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-04-29\AL-FP_2019-04-29.pos')
 
 assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path, intermediate_save_dir=output_dir,
-                                           fuse_args={'downsampling': 4})
-assembler._assemble_image()
+                                           fuse_args={'downsampling': 1}, search_str='IQ.mat')
+assembler._assemble_image(base_image_data='IQData')

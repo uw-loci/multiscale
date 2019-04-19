@@ -20,7 +20,8 @@ class UltrasoundImageAssembler(object):
         todo: start generalizing this so it can work with multiple image types/kinds
         """
         def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
-                     intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None, ):
+                     intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
+                     search_str: str='.mat'):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
@@ -32,6 +33,7 @@ class UltrasoundImageAssembler(object):
                 self.fuse_args = fuse_args
                 self.dataset_args = dataset_args
                 
+                self.search_str = search_str
                 self.pos_list, self.pos_labels = self._read_position_list()
                 self.mat_list = self._read_sorted_list_mats()
                 self.params = read_parameters(self.mat_list[0])
@@ -109,6 +111,7 @@ class UltrasoundImageAssembler(object):
                 xml_path = str(self.output_dir) + '/dataset.xml'
                 
                 args = {
+                        'browse': xml_path,
                         'select': xml_path,
                         'process_angle': '[All angles]',
                         'process_channel': '[All channels]',
@@ -117,11 +120,11 @@ class UltrasoundImageAssembler(object):
                         'process_timepoint': '[All Timepoints]',
                         'bounding_box': '[Currently Selected Views]',
                         'downsampling': '1',
-                        'pixel_type': '[32 - bit floating point]',
+                        'pixel_type': '[32-bit floating point]',
                         'interpolation': '[Linear Interpolation]',
                         'image': 'Virtual',
                         'blend': True,
-                        'preserve_original': True,
+                        # 'preserve_original': True,
                         'produce': '[Each timepoint & channel]',
                         'fused_image': '[Save as (compressed) TIFF stacks]',
                         'output_file_directory': str(self.output_dir)
@@ -199,14 +202,17 @@ class UltrasoundImageAssembler(object):
 
         def _calculate_percent_overlap(self, transducer_fov=12800) -> int:
                 """Calculate the percentage overlap between X images"""
-                sep_lateral = self._calculate_position_separation(0)
-                percent_sep = int(100 - 100 * (sep_lateral / transducer_fov))
+                try:
+                        transducer_fov = self.params['line samples']*self.params['lateral resolution']
+                finally:
+                        sep_lateral = self._calculate_position_separation(0)
+                        percent_sep = int(100 - 100 * (sep_lateral / transducer_fov))
                 
                 return percent_sep
         
         # List of files
-        def _read_sorted_list_mats(self, search_str='.mat'):
-                unsorted = util.list_filetype_in_dir(self.mat_dir, search_str)
+        def _read_sorted_list_mats(self):
+                unsorted = util.list_filetype_in_dir(self.mat_dir, self.search_str)
                 list_mats_sorted = sorted(unsorted, key=extract_iteration_from_path)
                 return list_mats_sorted
 
@@ -234,14 +240,15 @@ def read_parameters(mat_path: Path) -> dict:
         params['sampling wavelength'] = params_raw['wavelength_micron']
         
         try: # Necessary to have a try to allow processing older images
-                params['transmits'] = params_raw['numRays']
+                params['raylines'] = params_raw['num_lines']
                 params['sampling frequency'] = params_raw['sampling_frequency'] * 1E6
-                params['lines'] = params_raw['lines']
                 params['axial samples'] = params_raw['axial_samples']
                 params['transmit samples'] = params_raw['transmit_samples']
                 params['time samples'] = params_raw['time_samples']
                 params['elements'] = params_raw['elements']
                 params['element sensitivity'] = params_raw['element_sensitivity']
+                params['line samples'] = params_raw['line_samples']
+
         finally:
                 return params
 
