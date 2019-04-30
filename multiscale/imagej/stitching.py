@@ -32,6 +32,8 @@ from pathlib import Path
 import tempfile
 import tiffile as tif
 
+import multiscale.utility_functions as util
+
 
 class BigStitcher(object):
         """
@@ -79,7 +81,10 @@ class BigStitcher(object):
                 print('Saving images into tif files')
                 for idx in range(len(numpy_images)):
                         save_path = Path(save_dir, 'Image_{}.tif'.format(idx))
-                        
+                        if save_path.exists():
+                                print('{} already exists, skipping save image.'.format(save_path.name))
+                                continue
+                                
                         # Change shape to TZCYXS order
                         ijstyle = numpy_images[idx]
                         shape = ijstyle.shape
@@ -96,13 +101,22 @@ class BigStitcher(object):
                 :return:
                 """
                 plugin = "Define dataset ..."
-                print('Defining dataset from {}'.format(dataset_args['path']))
-                dataset_args = self._populate_dataset_args(dataset_args)
-                self._ij.py.run_plugin(plugin, args=dataset_args)
+                dataset_path = Path(dataset_args['dataset_save_path'], dataset_args['project_filename'])
+                if dataset_path.is_file():
+                        print('{} already exists, skipping save dataset.'.format(dataset_path))
+                else:
+                        print('Defining dataset from {}'.format(dataset_args['path']))
+                        dataset_args = self._populate_dataset_args(dataset_args)
+                        self._ij.py.run_plugin(plugin, args=dataset_args)
 
         def _fuse_dataset(self, fuse_args):
                 plugin = "Fuse dataset ..."
-                print('Fusing dataset from {}'.format(fuse_args['select']))
+                output_path = Path(fuse_args['output_file_directory'], 'fused_tp_0_ch_0.tif')
+                if output_path.is_file():
+                        if ~util.query_yes_no('{} already exists.  Overwrite previous result?'.format(output_path)):
+                                return
+                        
+                print('Fusing dataset from {}'.format(Path(fuse_args['select'])))
                 fuse_args = self._populate_fuse_args(fuse_args)
                 self._ij.py.run_plugin(plugin, args=fuse_args)
                 
@@ -167,11 +181,11 @@ class BigStitcher(object):
                         'process_timepoint': '[All Timepoints]',
                         'bounding_box': '[Currently Selected Views]',
                         'downsampling': '1',
-                        'pixel_type': '[32 - bit floating point]',
+                        'pixel_type': '[32-bit floating point]',
                         'interpolation': '[Linear Interpolation]',
                         'image': 'Virtual',
                         'blend': None,
-                        'preserve_original': None,
+                        'preserve_original': False,
                         'produce': '[Each timepoint & channel]',
                         'fused_image': '[Save as (compressed) TIFF stacks]',
                         'output_file_directory': None

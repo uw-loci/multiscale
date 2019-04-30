@@ -111,7 +111,6 @@ class UltrasoundImageAssembler(object):
                 xml_path = str(self.output_dir) + '/dataset.xml'
                 
                 args = {
-                        'browse': xml_path,
                         'select': xml_path,
                         'process_angle': '[All angles]',
                         'process_channel': '[All channels]',
