@@ -21,12 +21,13 @@ class UltrasoundImageAssembler(object):
         """
         def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
                      intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
-                     search_str: str='.mat'):
+                     search_str: str='.mat', output_name='fused_tp_0_ch_0.tif'):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
                 self._ij = ij
                 self.intermediate_save_dir = intermediate_save_dir
+                self.output_name = output_name
 
                 os.makedirs(str(output_dir), exist_ok=True)
                 
@@ -66,7 +67,9 @@ class UltrasoundImageAssembler(object):
                 fuse_args = self._assemble_fuse_args()
                 bmode = self._iq_to_output(image_array)
                 stitcher = st.BigStitcher(self._ij)
-                stitcher.stitch_from_numpy(bmode, dataset_args, fuse_args, save_dir=self.intermediate_save_dir)
+                stitcher.stitch_from_numpy(bmode, dataset_args, fuse_args,
+                                           intermediate_save_dir=self.intermediate_save_dir,
+                                           output_name=self.output_name)
 
         def _iq_to_output(self, image_array):
                 return iq_to_db(image_array)
