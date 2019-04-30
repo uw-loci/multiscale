@@ -14,6 +14,7 @@ import javabridge
 import bioformats as bf
 from pathlib import Path
 import numpy as np
+import time
 
 from multiscale.polarimetry.preprocessing import calculate_polarization_state_transforms
 from multiscale.polarimetry.preprocessing import bulk_apply_polarization_transforms
@@ -30,19 +31,25 @@ registration_parameters = reg.setup_registration_parameters(
         gradient_tolerance=np.double(1E-6), sampling_percentage=0.01)
 
 #Modify these paths to go to the appropriate directories/images
-czi_images_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\LR czi images')
-img_to_register_path = Path(czi_images_dir, '1367 slide 5.czi')
+czi_images_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\LR czi images\SingleImageTest')
+img_to_register_path = Path(czi_images_dir, '1367 slide 5 #02.tif')
 img_output_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\LR Registered')
-transform_output_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\LR Transforms')
+transform_output_dir = Path(r'F:\Research\Polarimetry\Data 01 - Raw and imageJ proccessed images\Mueller raw\LR Transforms\FromSingleImage')
 transform_prefix = 'MLR_Position'
 
 #Change this to whatever resolution the images are
 img_resolution = 2.016
 
 #Run the commands
+start = time.time()
 calculate_polarization_state_transforms(img_to_register_path, img_resolution, transform_output_dir, transform_prefix,
-                                        registration_parameters)
-bulk_apply_polarization_transforms(czi_images_dir, img_output_dir, transform_output_dir, transform_prefix, img_resolution)
+                                        registration_parameters, supervised=False)
+end = time.time()
+exec = end-start
 
+start2 = time.time()
+bulk_apply_polarization_transforms(czi_images_dir, img_output_dir, transform_output_dir, transform_prefix, img_resolution)
+end2 = time.time()
+exec2 = end2-start2
 
 javabridge.kill_vm()
