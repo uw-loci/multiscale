@@ -51,10 +51,15 @@ class UltrasoundImageAssembler(object):
                         self._save_us_image(file_name, bmode)
                         
         def _save_us_image(self, file_name, bmode):
-                path = str(Path(self.output_dir), file_name)
+                path = str(Path(self.output_dir, file_name))
+                print('Saving {}'.format(path))
                 spacing = self._get_spacing()
-                tif.imwrite(path, bmode, imagej=True,
-                            resolution=(1./self.params['Lateral resolution'], 1./self.params['Axial resolution']),
+                ijstyle = bmode
+                shape = ijstyle.shape
+                ijstyle.shape = 1, shape[0], 1, shape[1], shape[2], 1
+                
+                tif.imwrite(path, ijstyle, imagej=True,
+                            resolution=(1./self.params['lateral resolution'], 1./self.params['axial resolution']),
                             metadata={'spacing': spacing[2], 'unit': 'um'})
         
         def _assemble_image(self, base_image_data='IQData'):
@@ -66,6 +71,10 @@ class UltrasoundImageAssembler(object):
                 dataset_args = self._assemble_dataset_arguments()
                 fuse_args = self._assemble_fuse_args()
                 bmode = self._iq_to_output(image_array)
+                if dataset_args['overlap_x_(%)'] is None:
+                        self._save_us_image(self.output_name, bmode[0])
+                        return
+                        
                 stitcher = st.BigStitcher(self._ij)
                 stitcher.stitch_from_numpy(bmode, dataset_args, fuse_args,
                                            intermediate_save_dir=self.intermediate_save_dir,
@@ -96,13 +105,13 @@ class UltrasoundImageAssembler(object):
                         'overlap_z_(%)': '10',
                         'keep_metadata_rotation': True,
                         'how_to_load_images': '[Load raw data]',
-                        'dataset_save_path': str(self.output_dir),
+                        'dataset_save_path': str(self.intermediate_save_dir),
                         'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
                         'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
                         'timepoints_per_partition': '1',
                         'setups_per_partition': '0',
                         'use_deflate_compression': True,
-                        'export_path': str(self.output_dir) + '/dataset'
+                        'export_path': str(self.intermediate_save_dir) + '/dataset'
                 }
                 if self.dataset_args is not None:
                         for key, value in self.dataset_args.items():
@@ -111,7 +120,7 @@ class UltrasoundImageAssembler(object):
                 return args
         
         def _assemble_fuse_args(self):
-                xml_path = str(self.output_dir) + '/dataset.xml'
+                xml_path = str(self.intermediate_save_dir) + '/dataset.xml'
                 
                 args = {
                         'select': xml_path,
@@ -185,7 +194,7 @@ class UltrasoundImageAssembler(object):
                 """Check the distance between points along an axis"""
                 unique = np.unique(self.pos_list[:, axis])
                 
-                if len(unique > 1):
+                if len(unique) > 1:
                         separations = np.array([unique[i+1] - unique[i] for i in range(len(unique)-1)])
                         unique_separations = np.unique(separations)
                         
@@ -198,7 +207,7 @@ class UltrasoundImageAssembler(object):
                         return np.abs(unique_separations[0])
                         
                 else:
-                        separation = 1
+                        separation = None
                 
                 return separation
 
@@ -207,8 +216,11 @@ class UltrasoundImageAssembler(object):
                 try:
                         transducer_fov = self.params['line samples']*self.params['lateral resolution']
                 finally:
-                        sep_lateral = self._calculate_position_separation(0)
-                        percent_sep = int(100 - 100 * (sep_lateral / transducer_fov))
+                        try:
+                                sep_lateral = self._calculate_position_separation(0)
+                                percent_sep = int(100 - 100 * (sep_lateral / transducer_fov))
+                        except:
+                                percent_sep = None
                 
                 return percent_sep
         
