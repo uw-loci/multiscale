@@ -93,7 +93,7 @@ class TestUltrasoundImageAssembler(object):
                 return image
 
         def test_assemble_image(self, us_assembler):
-                us_assembler._assemble_image()
+                us_assembler.assemble_image()
                 output_file = Path(us_assembler.output_dir, 'dataset.xml')
                 tif_file = Path(us_assembler.output_dir, 'fused_tp_0_ch_0.tif')
                 assert output_file.is_file()
