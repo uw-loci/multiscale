@@ -29,6 +29,8 @@ class UltrasoundImageAssembler(object):
                 self.intermediate_save_dir = intermediate_save_dir
                 self.output_name = output_name
 
+                if intermediate_save_dir:
+                        os.makedirs(str(intermediate_save_dir), exist_ok=True)
                 os.makedirs(str(output_dir), exist_ok=True)
                 
                 self.fuse_args = fuse_args
@@ -36,6 +38,15 @@ class UltrasoundImageAssembler(object):
                 
                 self.search_str = search_str
                 self.pos_list, self.pos_labels = self._read_position_list()
+                
+                self.xml_exists = False
+                
+                xml_path = Path(intermediate_save_dir, 'dataset.xml')
+                if xml_path.is_file():
+                        if util.query_yes_no('XML file already exists.  Skip reading .mat files?'):
+                                self.xml_exists = True
+                                return
+                
                 self.mat_list = self._read_sorted_list_mats()
                 self.params = read_parameters(self.mat_list[0])
                 
@@ -62,7 +73,17 @@ class UltrasoundImageAssembler(object):
                             resolution=(1./self.params['lateral resolution'], 1./self.params['axial resolution']),
                             metadata={'spacing': spacing[2], 'unit': 'um'})
         
-        def _assemble_image(self, base_image_data='IQData'):
+        def assemble_image(self, base_image_data='IQData'):
+                """
+                Stitch the .mat based ultrasound image and save the results
+                :param base_image_data: The variable being stitched in the .mat files
+                :return:
+                """
+                if self.xml_exists:
+                        stitcher = st.BigStitcher(self._ij)
+                        stitcher._fuse_dataset(self.fuse_args)
+                        return
+                
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 separate_3d_images = self._image_list_to_laterally_separate_3d_images(image_list)
                 self._stitch_image(separate_3d_images)
