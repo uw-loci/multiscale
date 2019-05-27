@@ -139,3 +139,18 @@ def rgb_to_grayscale_img(image: sitk.Image, white_light_filter_value=0.9):
         grayscale_image.SetOrigin(image.GetOrigin())
         
         return grayscale_image
+
+
+def window_image(image, dynamic_range):
+        """
+        Convert a SimpleITK image to an 8-bit integer, windowed from max-dynamic range to maximum
+        :param image: SimpleITK image
+        :param dynamic_range: What values are windowed over
+        :return:
+        """
+        minmax_filter = sitk.MinimumMaximumImageFilter()
+        minmax_filter.Execute(image)
+        maximum = minmax_filter.GetMaximum()
+        image_windowed = sitk.IntensityWindowing(image, maximum-dynamic_range, maximum)
+        return image_windowed
+
