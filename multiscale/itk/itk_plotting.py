@@ -168,11 +168,14 @@ def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image, slice=None
         """
         
         fixed_array = sitk.GetArrayFromImage(fixed_image)
+        dims = np.ndim(fixed_array)
+        if slice:
+                dims = dims-1
         
         if fixed_image.GetSize() == moving_image.GetSize():
                 moving_array = sitk.GetArrayFromImage(moving_image)
         else: #Pre-registration
-                initial_transform = sitk.Similarity2DTransform()
+                initial_transform = sitk.AffineTransform(dims)
                 moving_resampled = sitk.Resample(moving_image, fixed_image,
                                                  initial_transform, sitk.sitkLinear,
                                                  0.0, moving_image.GetPixelID())
@@ -184,9 +187,9 @@ def overlay_images(fixed_image: sitk.Image, moving_image: sitk.Image, slice=None
                 moving_array = myplot.auto_window_level(moving_array)
         
         if slice is None:
-                combined_array = myplot.overlay_arrays_red_green(fixed_array, moving_array)
+                combined_array = myplot.overlay_arrays(fixed_array, moving_array)
         else:
-                combined_array = myplot.overlay_arrays_red_green(fixed_array[slice], moving_array[slice])
+                combined_array = myplot.overlay_arrays(fixed_array[slice], moving_array[slice])
         
         return combined_array
 

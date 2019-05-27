@@ -66,24 +66,20 @@ def window_level(arr, hist_lower_limit, hist_upper_limit):
         return arr_window
 
 
-def overlay_arrays_red_green(array_one, array_two, intensity_threshold=0.1):
-        """Plot two same-size images in 3 channels, with blue->same position"""
+def overlay_arrays(array_one, array_two, intensity_threshold=0.1):
+        """Plot two same-size images, with magenta/green coloring"""
         
-        # diff = array_one - array_two
-        # abs_diff = np.abs(diff)
         dims = np.shape(array_one)
+        new_dims = np.zeros(len(dims)+1).astype(np.int)
+        new_dims[0:len(dims)] = dims
+        new_dims[len(dims)] = 3
         
-        # white = abs_diff < difference_threshold
-        # black = np.logical_and(array_one < difference_threshold, array_two < difference_threshold)
-        #red = array_one > intensity_threshold
-        #green = array_two > intensity_threshold
+        rgb_overlay = np.zeros(shape=new_dims, dtype=float)
         
-        rgb_overlay = np.zeros(shape=(dims[0], dims[1], 3), dtype=float)
+        rgb_overlay[..., 0] = array_one
+        rgb_overlay[..., 2] = array_one
         
-        # rgb_overlay[white, :] = 1
-        # rgb_overlay[black, :] = 0
-        rgb_overlay[:, :, 0] =  array_one#np.ma.masked_array(array_one[red])
-        rgb_overlay[:, :, 1] = array_two #np.ma.masked_array(array_two[green])
+        rgb_overlay[..., 1] = array_two
         
         return rgb_overlay
 
