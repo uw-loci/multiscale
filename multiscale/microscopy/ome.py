@@ -62,7 +62,7 @@ def get_spacing(file_path, order=None):
                            get_spacing_tif(file_path, order[1]),
                            get_spacing_tif(file_path, order[2])]
                 
-        return spacing
+        return np.array(spacing)
         
 
 def get_spacing_tif(file_path, axis):

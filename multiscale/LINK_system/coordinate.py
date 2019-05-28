@@ -58,16 +58,20 @@ def open_us(us_path, pl_path, dynamic_range, gauge_value):
         return us_image
 
 
-def open_microscopy(microscopy_path, microscopy_origin_path):
+def open_microscopy(microscopy_path, microscopy_origin_path, downsample_factor=1):
         """
         Open the MPM image and set the direction to -1 in Z to mirror microscope convention
         :param microscopy_path: Path to the MPM image
         :param microscopy_origin_path: Path to the first saved tile of the MPM image, to extract the coordinates
+        :param downsample_factor: The downsample factor in XY for the microscopy image.  Default to 1
         :return: SimpleITK MPM image with appropriate origin, direction, and spacing
         """
         positions = ome.get_positions(microscopy_origin_path)
         origin = np.min(positions, 0)
+        
         spacing = ome.get_spacing(microscopy_origin_path)
+        spacing[0] = spacing[0]*downsample_factor
+        spacing[1] = spacing[1]*downsample_factor
         
         microscopy_image = sitk.ReadImage(str(microscopy_path))
         microscopy_image.SetSpacing(spacing)
