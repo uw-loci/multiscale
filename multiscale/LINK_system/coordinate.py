@@ -31,19 +31,26 @@ import numpy as np
 
 import multiscale.itk.process as proc
 import multiscale.microscopy.ome as ome
+import multiscale.ultrasound.reconstruction as recon
 
 
-def open_us(us_path, dynamic_range, spacing, origin):
+def open_us(us_path, pl_path, dynamic_range, gauge_value):
         """
         Open the US image, window it to a dynamic range, and rotate it to microscope coordinate axes
         :param us_path: Path to the US image
+        :param pl_path: Path to the position list for the US image
         :param dynamic_range: Window width in dB, measured from the maximum signal
-        :param spacing: Pixel spacing of the US image in X,Y,Z
-        :param origin: Origin of the US image using microscope stage + indicator gauge value
+        :param gauge_value: Indicator gauge value for the US image
         :return: SimpleITK US image with appropriate origin, direction, and spacing
         """
         raw_image = sitk.ReadImage(str(us_path))
         windowed_image = proc.window_image(raw_image, dynamic_range)
+        
+        spacing = ome.get_spacing(us_path, order=['X', 'Z', 'Y'])
+        
+        origin_xy = recon.get_xy_origin(pl_path)
+        origin = [origin_xy[0], origin_xy[1], gauge_value]
+        
         us_image = rotate_axes_to_microscope(windowed_image)
         us_image.SetSpacing(spacing)
         us_image.SetOrigin(origin)
@@ -51,21 +58,23 @@ def open_us(us_path, dynamic_range, spacing, origin):
         return us_image
 
 
-def open_mpm(mpm_path, mpm_origin_path, mpm_spacing):
+def open_microscopy(microscopy_path, microscopy_origin_path):
         """
         Open the MPM image and set the direction to -1 in Z to mirror microscope convention
-        :param mpm_path: Path to the MPM image
-        :param mpm_origin_path: Path to the first saved tile of the MPM image, to extract the coordinates
-        :param mpm_spacing: Spacing of the MPM image.
+        :param microscopy_path: Path to the MPM image
+        :param microscopy_origin_path: Path to the first saved tile of the MPM image, to extract the coordinates
         :return: SimpleITK MPM image with appropriate origin, direction, and spacing
         """
-        positions = ome.positions_from_ometif(mpm_origin_path)
+        positions = ome.get_positions(microscopy_origin_path)
         origin = np.min(positions, 0)
-        mpm_image = sitk.ReadImage(str(mpm_path))
-        mpm_image.SetSpacing(mpm_spacing)
-        mpm_image.SetOrigin(origin)
-        mpm_image.SetDirection([1, 0, 0, 0, 1, 0, 0, 0, -1])
-        return mpm_image
+        spacing = ome.get_spacing(microscopy_origin_path)
+        
+        microscopy_image = sitk.ReadImage(str(microscopy_path))
+        microscopy_image.SetSpacing(spacing)
+        microscopy_image.SetOrigin(origin)
+        microscopy_image.SetDirection([1, 0, 0, 0, 1, 0, 0, 0, -1])
+        
+        return microscopy_image
 
 
 def rotate_axes_to_microscope(image):

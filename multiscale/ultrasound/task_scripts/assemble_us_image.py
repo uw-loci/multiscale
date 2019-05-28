@@ -30,15 +30,22 @@ from pathlib import Path
 
 ij = imagej.init('C:/users/mpinkert/Fiji.app/')
 
-mat_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-04-29\Agarose layer fiducial phantom\Run-2')
-output_dir = Path(r'F:\Research\LINK\Phantom Trials\2019-04-29')
-intermediate_save_dir = Path(r'F:\Research\LINK\Phantom Trials\2019-04-29\AL-FP_NoInter')
-output_name = 'AL-FP No Inter.tif'
-# pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-04-05\US_PositionList_25yspacing.pos')
-# pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-08\US_PositionLis_2019-01-08.pos')
-pl_path = Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-04-29\AL-FP_2019-04-29.pos')
+date = '2019-05-14'
+study_dir = 'Mouse images'
+base_dir_list = ['Mouse 003', 'Mouse 205', 'Mouse 209', 'Mouse 211', 'Mouse 215', 'Mouse 1204']
+#pl_path = Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-05-04', '2019-05-04_US - 3X 100YSep.pos')
+pl_path_base = Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-05-14')
 
-assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path,
-                                           intermediate_save_dir=intermediate_save_dir,
-                                           fuse_args={'downsampling': 2}, search_str='IQ.mat', output_name=output_name)
-assembler._assemble_image(base_image_data='IQData')
+for base_dir in base_dir_list:
+        pl_path = Path(pl_path_base, base_dir + '.pos')
+        mat_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date, base_dir, 'Run-1')
+        output_dir = Path(r'F:\Research\LINK', study_dir, date,  base_dir)
+        intermediate_save_dir = Path(r'F:\Research\LINK', study_dir, date, base_dir)
+        output_name = base_dir + '.tif'
+        # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-04-05\US_PositionList_25yspacing.pos')
+        # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-08\US_PositionLis_2019-01-08.pos')
+        
+        assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path,
+                                                   intermediate_save_dir=intermediate_save_dir,
+                                                   fuse_args={'downsampling': 1}, search_str='IQ.mat', output_name=output_name)
+        assembler.assemble_image(base_image_data='IQData')
