@@ -10,3 +10,4 @@ javabridge
 python-bioformats
 scyjava
 pyimagej
+tiffile
