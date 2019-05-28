@@ -10,16 +10,16 @@ class TestBigStitcher(object):
                 outdir = tmpdir.mkdir('stitch')
                 outdir = str(outdir).replace('\\', '/')
                 
-                array = np.random.rand(9, 128, 128)
+                array = np.random.rand(9, 128, 128).astype(np.float32)
                 dataset_args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
                         'project_filename': 'dataset.xml',
                         'exclude': '10',
                         'pattern_0': 'Tiles',
                         'modify_voxel_size?': True,
-                        'voxel_size_x': '0.5',
-                        'voxel_size_y': '0.5',
-                        'voxel_size_z': '0.5',
+                        'voxel_size_x': 0.5,
+                        'voxel_size_y': 0.5,
+                        'voxel_size_z': 0.5,
                         'voxel_size_unit': '\u03bcm',
                         'move_tiles_to_grid_(per_angle)?': '[Move Tile to Grid (Macro-scriptable)]',
                         'grid_type': '[Right & Down             ]',
@@ -73,10 +73,11 @@ class TestBigStitcher(object):
 
 
         def test_save_numpy_images(self, tmpdir):
-                array = np.random.rand(3, 2, 2)
+                array = np.random.rand(3, 2, 2).astype(np.float32)
                 outdir = tmpdir.mkdir('stitch')
                 stitcher = stitch.BigStitcher(True)
-                stitcher._save_numpy_images(outdir, array)
+                dataset_args = {'voxel_size_x': 0.5, 'voxel_size_y': 0.5, 'voxel_size_z': 0.5}
+                stitcher._save_numpy_images(outdir, array, dataset_args)
                 
                 for idx in range(len(array)):
                         save_path = Path(outdir, 'Image_{}.tif'.format(idx))

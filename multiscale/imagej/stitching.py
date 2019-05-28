@@ -60,7 +60,8 @@ class BigStitcher(object):
                 :param intermediate_save_dir: Where to save the intermediate .tif files
                 :return:
                 """
-                output_path = Path(fuse_args['output_file_directory'], output_name)
+                output_path = Path(fuse_args['output_file_directory'].replace('[', '').replace(']', ''),
+                                   output_name)
                 if output_path.is_file():
                         if not util.query_yes_no(
                                     '{} already exists.  Overwrite previous result? >> '.format(output_path)):
@@ -106,7 +107,13 @@ class BigStitcher(object):
                         # Change shape to TZCYXS order
                         ijstyle = numpy_images[idx]
                         shape = ijstyle.shape
-                        ijstyle.shape = 1, shape[0], 1, shape[1], shape[2], 1
+                        if len(shape) == 3:
+                                ijstyle.shape = 1, shape[0], 1, shape[1], shape[2], 1
+                        elif len(shape) == 2:
+                                ijstyle.shape = 1, 1, 1, shape[0], shape[1], 1
+                        else:
+                                raise NotImplementedError('Saving has not been implemented for this image type.'
+                                                          '  2D and 3 D images only')
                         
                         tif.imwrite(save_path, ijstyle, imagej=True,
                                     resolution=(1. / dataset_args['voxel_size_x'], 1. / dataset_args['voxel_size_y']),
