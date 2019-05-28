@@ -16,4 +16,6 @@ dependencies:
   - pytest
   - ipywidgets
   - SimpleITK >=1.1.0
-  - tiffile
+  - pip
+  - pip:
+    - tiffile
