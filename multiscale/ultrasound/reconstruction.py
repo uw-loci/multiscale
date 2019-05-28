@@ -31,6 +31,9 @@ class UltrasoundImageAssembler(object):
 
                 if intermediate_save_dir:
                         os.makedirs(str(intermediate_save_dir), exist_ok=True)
+                else:
+                        self.intermediate_save_dir = self.output_dir
+                        
                 os.makedirs(str(output_dir), exist_ok=True)
                 
                 self.fuse_args = fuse_args
@@ -41,11 +44,12 @@ class UltrasoundImageAssembler(object):
                 
                 self.xml_exists = False
                 
-                xml_path = Path(intermediate_save_dir, 'dataset.xml')
-                if xml_path.is_file():
-                        if util.query_yes_no('XML file already exists.  Skip reading .mat files?'):
-                                self.xml_exists = True
-                                return
+                if intermediate_save_dir is not None:
+                        xml_path = Path(intermediate_save_dir, 'dataset.xml')
+                        if xml_path.is_file():
+                                if util.query_yes_no('XML file already exists.  Skip reading .mat files?'):
+                                        self.xml_exists = True
+                                        return
                 
                 self.mat_list = self._read_sorted_list_mats()
                 self.params = read_parameters(self.mat_list[0])
@@ -85,7 +89,8 @@ class UltrasoundImageAssembler(object):
                         return
                 
                 image_list = self._mat_list_to_variable_list(base_image_data)
-                separate_3d_images = self._image_list_to_laterally_separate_3d_images(image_list)
+                separate_3d_images = self.\
+                        _image_list_to_laterally_separate_3d_images(image_list)
                 self._stitch_image(separate_3d_images)
 
         def _stitch_image(self, image_array):
@@ -236,6 +241,8 @@ class UltrasoundImageAssembler(object):
                 """Calculate the percentage overlap between X images"""
                 try:
                         transducer_fov = self.params['line samples']*self.params['lateral resolution']
+                except KeyError:
+                        print('Could not calculate transducer FOV.  Parameter missing.  Using default of 12.8 mm')
                 finally:
                         try:
                                 sep_lateral = self._calculate_position_separation(0)

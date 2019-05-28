@@ -87,10 +87,8 @@ class TestUltrasoundImageAssembler(object):
         def us_assembler(self, tmpdir, ij, us_files):
                 mats_dir, pl_path = us_files
                 output_dir = tmpdir.mkdir('recon')
-
-                image = recon.UltrasoundImageAssembler(mats_dir, output_dir, ij, pl_path)
-
-                return image
+                assembler = recon.UltrasoundImageAssembler(mats_dir, output_dir, ij, pl_path)
+                return assembler
 
         def test_assemble_image(self, us_assembler):
                 us_assembler.assemble_image()
