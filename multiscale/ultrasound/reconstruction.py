@@ -414,6 +414,14 @@ def count_xy_positions(pos_list: list) -> (np.ndarray, np.ndarray, np.ndarray):
         return num_lateral_elevational, lateral_sep, elevational_sep
 
 
+def get_xy_origin(pl_path):
+    """Read an ultrasound position list and get the XY origin"""
+    raw_pos_list = util.read_json(pl_path)
+    pos_list = clean_position_text(raw_pos_list)[0]
+    xy_origin = np.min(pos_list, 0)
+    return xy_origin
+
+
 def index_from_file_path(file_path: Path) -> int:
         """Get the image index from filename formatted It-index.mat"""
         match = re.search(r'It-\d*', file_path.stem)

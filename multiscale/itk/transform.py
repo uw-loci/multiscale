@@ -53,6 +53,19 @@ def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, transform
         
         return registered_image
         
+        
+def apply_transform_params(fixed_image: sitk.Image, moving_image: sitk.Image, transform_params, transform_type):
+        """
+        Apply a transform based on a list of parameters associated to that transform
+        :param fixed_image: Image whose origin/FOV/Spacing the transform will map to
+        :param moving_image: Image the transform is being applied to
+        :param transform_params: List of transform parameters
+        :param transform_type: A blank transform.
+        :return:
+        """
+        transform_type.SetParameters(transform_params)
+        return sitk.Resample(moving_image, fixed_image, transform_type, sitk.sitkLinear, 0.0, fixed_image.GetPixelID())
+        
 
 def write_transform_pandas(registered_path, origin, transform, metric, stop, rotation):
         """Write affine transform parameters to a csv file"""
