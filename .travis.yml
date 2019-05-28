@@ -1,7 +1,7 @@
-if: branch = master
 language: python
 python:
   - "3.6"
+  - "pypy3.5"
 
 install:
   #setup conda
@@ -13,5 +13,7 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
+  - pip install -r requirements.txt
+  - pip install .
 
 script: .travis/build.sh
