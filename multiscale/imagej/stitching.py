@@ -60,6 +60,7 @@ class BigStitcher(object):
                 :param intermediate_save_dir: Where to save the intermediate .tif files
                 :return:
                 """
+                # todo: Have it save the set/save spacing correctly as well
                 output_path = Path(fuse_args['output_file_directory'].replace('[', '').replace(']', ''),
                                    output_name)
                 if output_path.is_file():

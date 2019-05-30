@@ -43,6 +43,7 @@ def open_us(us_path, pl_path, dynamic_range, gauge_value):
         :param gauge_value: Indicator gauge value for the US image
         :return: SimpleITK US image with appropriate origin, direction, and spacing
         """
+        # todo: Read in param.start depth to properly set the origin
         raw_image = sitk.ReadImage(str(us_path))
         windowed_image = proc.window_image(raw_image, dynamic_range)
         
@@ -50,7 +51,6 @@ def open_us(us_path, pl_path, dynamic_range, gauge_value):
         
         origin_xy = recon.get_xy_origin(pl_path)
         origin = [origin_xy[0], origin_xy[1], gauge_value]
-        
         us_image = rotate_axes_to_microscope(windowed_image)
         us_image.SetSpacing(spacing)
         us_image.SetOrigin(origin)
@@ -138,12 +138,30 @@ def get_ellipsoid_radius(stats, true_labels):
         return rad
 
 
-def calculate_centroid(image):
+def calculate_centroid(us_image):
         """
         Get the leveled Z height (i.e., brought down to microscope plane at 0) location of each fiducial
-        :param image: Connected component image
+        :param us_image: US image to calculate the fiducials from
         :return: list of Z heights
         """
-        stats = get_fiducial_stats(image)
+        connected_image = connected_components(us_image)
+        stats = get_fiducial_stats(connected_image)
         labels = filter_labels(stats)
         return get_leveled_centroid(stats, labels)
+
+
+def connected_components(us_image):
+    """Process the US image using Otsu thresholding and binary opening/closing to get the connected components"""
+    thresh_filter = sitk.OtsuThresholdImageFilter()
+    thresh_filter.SetInsideValue(0)
+    thresh_filter.SetOutsideValue(1)
+    thresh_img = thresh_filter.Execute(us_image)
+    thresh_value = thresh_filter.GetThreshold()
+
+    print("Threshold used: {}".format(thresh_value))
+
+    cleaned_thresh_img = sitk.BinaryOpeningByReconstruction(thresh_img, [4, 4, 2])
+    cleaned_thresh_img = sitk.BinaryClosingByReconstruction(cleaned_thresh_img, [4, 4, 2])
+
+    connected_img = sitk.ConnectedComponent(cleaned_thresh_img)
+    return connected_img

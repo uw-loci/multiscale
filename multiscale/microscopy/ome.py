@@ -62,7 +62,7 @@ def get_spacing(file_path, order=None):
                            get_spacing_tif(file_path, order[1]),
                            get_spacing_tif(file_path, order[2])]
                 
-        return np.array(spacing)
+        return spacing
         
 
 def get_spacing_tif(file_path, axis):
@@ -78,7 +78,7 @@ def get_spacing_tif(file_path, axis):
                 except:
                         # todo: Find a way to extract spacing from BigStitcher stitched images
                         spacing = 1
-                        warnings.warn('Could not read the spacing.  Spacing has been set to 1, 1, 1.  Fix manually')
+                        warnings.warn('Could not read the spacing.  Spacing has been set to 1, 1, 1.  Fix manually', )
                         
                 return spacing
 

@@ -177,7 +177,7 @@ def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: Regist
         if moving_mask:
                 registration_method.SetMetricMovingMask(moving_mask)
         
-        registration_method.SetInitialTransform(initial_transform)
+        registration_method.SetInitialTransform(initial_transform, inPlace=False)
         
         if reg_plot is not None:
                 registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, reg_plot.update_idx_resolution_switch)
