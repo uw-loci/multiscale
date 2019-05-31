@@ -34,12 +34,13 @@ import multiscale.microscopy.ome as ome
 import multiscale.ultrasound.reconstruction as recon
 
 
-def open_us(us_path, pl_path, params_path, dynamic_range, gauge_value):
+def open_us(us_path, pl_path, params_path, spacing, dynamic_range, gauge_value):
         """
         Open the US image, window it to a dynamic range, and rotate it to microscope coordinate axes
         :param us_path: Path to the US image
         :param pl_path: Path to the position list for the US image
         :param params_path: Path to a .mat file with the P parameter struct
+        :param spacing: Spacing of the US image
         :param dynamic_range: Window width in dB, measured from the maximum signal
         :param gauge_value: Indicator gauge value for the US image
         :return: SimpleITK US image with appropriate origin, direction, and spacing
@@ -48,9 +49,7 @@ def open_us(us_path, pl_path, params_path, dynamic_range, gauge_value):
         raw_image = sitk.ReadImage(str(us_path))
         windowed_image = proc.window_image(raw_image, dynamic_range)
         
-        spacing = ome.get_spacing(us_path, order=['X', 'Z', 'Y'])
-        
-        params = recon.read_variable(params_path, 'P')
+        params = recon.read_parameters(params_path)
         origin_xy = recon.get_xy_origin(pl_path)
         origin_z = recon.get_z_origin(params, gauge_value)
         origin = [origin_xy[0], origin_xy[1], origin_z]
@@ -132,7 +131,8 @@ def get_leveled_centroid(stats, true_labels):
         idx = 0
         for center in centroid:
                 level_center.append(center[2] + np.floor((idx+3)/3)*1000)
-        idx = idx+1
+                idx = idx+1
+                
         return np.array(level_center)
 
 

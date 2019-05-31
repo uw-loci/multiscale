@@ -184,8 +184,9 @@ class UltrasoundImageAssembler(object):
                         elevational_spacing = self._calculate_position_separation(1)
                 except TypeError:
                         elevational_spacing = np.max([lateral_spacing, axial_spacing])
-                        warnings. warn('No elevational spacing found.  '
-                                       'Setting to max of lateral and axial: {}'.format(elevational_spacing))
+                        warning = 'No elevational spacing found. Setting to max of lateral and axial: {}'.format(
+                                elevational_spacing)
+                        warnings.warn(warning)
                 
                 spacing = [lateral_spacing, axial_spacing, elevational_spacing]
                 return spacing

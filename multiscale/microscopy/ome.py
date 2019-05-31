@@ -58,15 +58,15 @@ def get_spacing(file_path, order=None):
                            pixel_info['PhysicalSize' + order[1]],
                            pixel_info['PhysicalSize' + order[2]]]
         except:
-                spacing = [get_spacing_tif(file_path, order[0]),
-                           get_spacing_tif(file_path, order[1]),
-                           get_spacing_tif(file_path, order[2])]
-                
+                spacing = [1, 1, 1]
+                warnings.warn('Could not read the spacing.  Spacing has been set to 1, 1, 1.  Fix manually', )
+
         return spacing
         
 
 def get_spacing_tif(file_path, axis):
         with tif.TiffFile(str(file_path)) as tifr:
+                tifr.pages[0].tags
                 try:
                         if axis == 'X' or axis == 'Y':
                                 spacing = tifr.pages[0].tags[axis + 'Resolution'].value[1]
