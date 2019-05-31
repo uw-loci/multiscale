@@ -23,6 +23,25 @@ import matplotlib.pyplot as plt
 from multiscale.itk.process import rgb_to_grayscale_img
 
 
+class RegistrationHelper(object):
+        """
+        A registration interface that works with Jupyter notebooks
+        """
+        def __init__(self, fixed_image: sitk.Image, moving_image: sitk.Image,
+                     output_dir=None, registration_params=None):
+                self._fixed_image = fixed_image
+                self._moving_image = moving_image
+                self._output_dir = output_dir
+                self._registration_params = registration_params
+                self._registered_image = None
+
+        def setup_registration(self):
+                return
+        
+        def perform_registration(self):
+                return
+
+
 def _setup_smoothing_sigmas(scale: int=1):
         """Setup the smoothing sigmas array for registration"""
         smoothing_sigmas = [0]
@@ -40,7 +59,7 @@ def _setup_shrink_factors(scale: int=1):
         if scale > 1:
                 for idx in range(1, scale, 1):
                         shrink_factors.insert(0, 2**idx)
-                print('No smoothing sigmas given, setting to {}'.format(shrink_factors))
+                print('No shrink factors given, setting to {}'.format(shrink_factors))
                 
         return shrink_factors
 
@@ -85,7 +104,7 @@ def setup_registration_parameters(scale: int=1, smoothing_sigmas: list=None, shr
         return parameters
         
         
-def define_registration_method(parameters: dict) -> sitk.ImageRegistrationMethod:
+def define_registration_method(parameters: dict=None) -> sitk.ImageRegistrationMethod:
         """
         Define the base metric, interpolator, and optimizer of a registration or series of registrations
     
@@ -121,7 +140,7 @@ def define_registration_method(parameters: dict) -> sitk.ImageRegistrationMethod
         return registration_method
 
 
-def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: RegistrationPlot,
+def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: RegistrationPlot=None,
              registration_method: sitk.ImageRegistrationMethod=None,
              initial_transform: sitk.Transform=None,
              fixed_mask: sitk.Image=None, moving_mask: sitk.Image=None):
@@ -158,18 +177,20 @@ def register(fixed_image: sitk.Image, moving_image: sitk.Image, reg_plot: Regist
         if moving_mask:
                 registration_method.SetMetricMovingMask(moving_mask)
         
-        registration_method.SetInitialTransform(initial_transform)
+        registration_method.SetInitialTransform(initial_transform, inPlace=False)
         
-        registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, reg_plot.update_idx_resolution_switch)
-        registration_method.AddCommand(sitk.sitkIterationEvent,
-                                       lambda: reg_plot.update_plot(registration_method.GetMetricValue(), initial_transform))
-        registration_method.AddCommand(sitk.sitkEndEvent, lambda: reg_plot.plot_final_overlay(initial_transform))
+        if reg_plot is not None:
+                registration_method.AddCommand(sitk.sitkMultiResolutionIterationEvent, reg_plot.update_idx_resolution_switch)
+                registration_method.AddCommand(sitk.sitkIterationEvent,
+                                               lambda: reg_plot.update_plot(
+                                                       registration_method.GetMetricValue(), initial_transform))
+                registration_method.AddCommand(sitk.sitkEndEvent, lambda: reg_plot.plot_final_overlay(initial_transform))
         
         final_transform = registration_method.Execute(fixed_image, moving_image)
         final_metric = registration_method.GetMetricValue()
         stop_condition = registration_method.GetOptimizerStopConditionDescription()
         
-        return (final_transform, final_metric, stop_condition)
+        return final_transform, final_metric, stop_condition
 
 
 def query_good_registration(transform: sitk.Transform, metric, stop):
@@ -345,7 +366,8 @@ def supervised_register_images(fixed_image: sitk.Image, moving_image: sitk.Image
                 fixed_final, moving_final, region_extracted = query_for_changes(fixed_image, moving_image,
                                                                                 initial_transform, registration_method,
                                                                                 moving_path)
-                reg_plot = RegistrationPlot(fixed_final, moving_final)
+                
+                reg_plot = RegistrationPlot(fixed_final, moving_final, transform=initial_transform)
                 
                 (transform, metric, stop) = register(fixed_final, moving_final, reg_plot,
                                                      registration_method=registration_method,

@@ -66,7 +66,8 @@ def idx_dictionary():
 
 
 def calculate_polarization_state_transforms(path_img: Path, resolution, transform_dir: Path, transform_prefix: str,
-                                            skip_finished_transforms=True, registration_parameters: dict=None):
+                                            skip_finished_transforms=True, registration_parameters: dict=None,
+                                            supervised=True):
         """
         Register based on output polarization state, and save the resulting transform
         :param path_img: path to the image file being used to calculate the transforms
@@ -74,6 +75,7 @@ def calculate_polarization_state_transforms(path_img: Path, resolution, transfor
         :param transform_dir: Directory that holds the transform files
         :param registration_parameters: dictionary of registration key/value arguments
         :param skip_finished_transforms: whether to skip finding transforms if they already exist or not
+        :param supervised: Whether the registration is supervised, or proceeds automatically with no user input
         :return:
         """
         idx_dict = idx_dictionary()
@@ -84,7 +86,7 @@ def calculate_polarization_state_transforms(path_img: Path, resolution, transfor
         for idx in range(1, 24):
                 
                 transform_path = Path(transform_dir, transform_prefix + '_' + str(idx + 1) + '.tfm')
-                initial_transform = tran.read_initial_transform(transform_path, sitk.AffineTransform)
+                initial_transform = tran.read_initial_transform(transform_path, sitk.Euler2DTransform)
                 
                 if skip_finished_transforms:
                         if transform_path.is_file():
@@ -93,12 +95,15 @@ def calculate_polarization_state_transforms(path_img: Path, resolution, transfor
                 print('Registering {0} to 0'.format(idx))
                 
                 moving_img = czi_timepoint_to_sitk_image(path_img, idx, resolution)
-                
-                registered_img, transform, metric, stop = reg.supervised_register_images(
-                        fixed_img, moving_img,
-                        initial_transform=initial_transform, moving_path=transform_path,
-                        registration_parameters=registration_parameters)
-                
+                if supervised:
+                        registered_img, transform, metric, stop = reg.supervised_register_images(
+                                fixed_img, moving_img,
+                                initial_transform=initial_transform, moving_path=transform_path,
+                                registration_parameters=registration_parameters)
+                else:
+                        transform, metric, stop = reg.register(fixed_img, moving_img,
+                                                               initial_transform=initial_transform)
+                        
                 tran.write_transform(transform_path, transform)
 
 
@@ -118,8 +123,8 @@ def apply_polarization_transforms(path_image, output_dir, transform_dir, transfo
 
         for num in range(24):
                 output_path = Path(output_dir, path_image.stem + '_' + str(num + 1) + '.tif')
-                if skip_existing_images and output_path.is_file():
-                        continue
+                # if skip_existing_images and output_path.is_file():
+                #         continue
 
                 moving_image = czi_timepoint_to_sitk_image(path_image, num, resolution)
                 transform_path = Path(transform_dir, transform_prefix + '_' + str(num + 1) + '.tfm')
@@ -142,7 +147,7 @@ def bulk_apply_polarization_transforms(dir_input, dir_output, transform_dir, tra
         :param skip_existing_images: Whether to skip applying the transform if files already exist
         :return:
         """
-        file_list = util.list_filetype_in_dir(dir_input, 'czi')
+        file_list = util.list_filetype_in_dir(dir_input, 'tif')
         for file in file_list:
                 dir_output_file = Path(dir_output, file.stem)
                 os.makedirs(dir_output_file, exist_ok=True)

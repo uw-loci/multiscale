@@ -1,5 +1,5 @@
 import multiscale.toolkits.curve_align as ca
-import multiscale.polarimetry.dir_dictionary as dird
+import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 import multiscale.utility_functions as util
 import multiscale.toolkits.cytospectre as cyto
 
@@ -15,8 +15,8 @@ dir_dict = dird.create_dictionary()
 
 def compile_results(dir_dict):
         ca.scrape_results(dir_dict['curve'], 'SHG', 'SHG_' + date)
-        ca.scrape_results(dir_dict['curve'], 'MLR', 'MLR_' + date)
-        ca.scrape_results(dir_dict['curve'], 'MHR', 'MHR_' + date)
+        # ca.scrape_results(dir_dict['curve'], 'MLR', 'MLR_' + date)
+        # ca.scrape_results(dir_dict['curve'], 'MHR', 'MHR_' + date)
 
 
 #    ca.scrape_results(dir_dict['curve'], 'PS', 'PS_' + date)
@@ -60,19 +60,25 @@ def clean_cytospectre_results(dir_dict):
 
 # Sample workflow.  Take care, compile_results takes a long time and if run twice on the same date
 # Will duplicate results.
-
-#compile_results(dir_dict)
-df_tile = clean_curve_align_tiles(dir_dict)
+#
+# path_input = Path(r'F:\CA Output')
+# ca.bulk_extract_tar(path_input, dir_dict['curve'])
+# compile_results(dir_dict)
+# df_tile = clean_curve_align_tiles(dir_dict)
 df_roi = clean_curve_align_rois(dir_dict)
-df_cyto = clean_cytospectre_results(dir_dict)
+# df_cyto = clean_cytospectre_results(dir_dict)
 
-path_tile = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
-                 'Curve-Align_Tiles.csv')
+
+df_roi.columns = pd.MultiIndex(levels=[['Alignment', 'Orientation'], ['SHG-Curvelets', 'SHG']], labels=[[0, 1, 0, 1], [0, 0, 1, 1]],
+                               names=[None, 'Modality'], )
+#
+# path_tile = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
+#                  'Curve-Align_Tiles.csv')
 path_roi = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
-                'Curve-Align_ROIs.csv')
-path_cyto = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
-                 'Cytospectre_Tiles.csv')
-
-df_tile.to_csv(path_tile)
+                 'Curve-Align_ROIs_new.csv')
+# path_cyto = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
+#                  'Cytospectre_Tiles.csv')
+#
+# df_tile.to_csv(path_tile)
 df_roi.to_csv(path_roi)
-df_cyto.to_csv(path_cyto)
+# df_cyto.to_csv(path_cyto)

@@ -2,13 +2,9 @@ import multiscale.ultrasound.correlation as corr
 from pathlib import Path
 import multiscale.utility_functions as util
 
-list_dirs = [
-        Path(r'C:\Users\mpinkert\Box\Research\LINK\Ultrasound\Ultrasound Data\2018-09-03\Rovyer_Close_14-5V\Run-6'),
-        Path(r'C:\Users\mpinkert\Box\Research\LINK\Ultrasound\Ultrasound Data\2018-09-03\Rovyer_Close_14-5V\Run-5'),
-        Path(r'C:\Users\mpinkert\Box\Research\LINK\Ultrasound\Ultrasound Data\2018-09-03\Lavarello_Close_14-5V\Run-3'),
-        Path(r'C:\Users\mpinkert\Box\Research\LINK\Ultrasound\Ultrasound Data\2018-09-03\Lavarello_Close_14-5V\Run-4')]
+list_dirs = [Path(r'F:\Research\LINK\Phantom Trials\2018-12-19\Lavarello 1gperL TGC_1 V_5-1\Run-2')]
 
-dir_output = Path(r'C:\Users\mpinkert\Box\Research\LINK\Ultrasound\Ultrasound Data\2018-09-03')
+dir_output = Path(r'F:\Research\LINK\Phantom Trials\2018-12-19\Lavarello 1gperL TGC_1 V_5-1')
 
 for dir_mats in list_dirs:
         output_suffix = str(dir_mats.relative_to(dir_output).parent) + '_' + str(dir_mats.stem)
@@ -18,4 +14,4 @@ for dir_mats in list_dirs:
         dir_new = Path(dir_mats, 'RF')
         util.move_files_to_new_folder(rf_list, dir_new)
         
-        corr.calc_plot_corr_curves(dir_mats, dir_output, output_suffix)
+        corr.calc_plot_corr_curves(dir_mats, dir_output, output_suffix, elevation_res=0.02)

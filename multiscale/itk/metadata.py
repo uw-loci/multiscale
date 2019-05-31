@@ -4,8 +4,6 @@ Created on Wed Mar 21 09:40:25 2018
 
 @author: mpinkert
 """
-from PIL import Image
-
 import multiscale.bulk_img_processing as blk
 import multiscale.utility_functions as util
 from pathlib import Path
@@ -85,11 +83,20 @@ def convert_spacing_units(spacing: tuple, unit_workspace: str, unit_image: str):
         return new_spacing
 
 
+def _query_spacing(unit_workspace, dims):
+        print('Please enter the image spacing in {0} >> '.format(unit_workspace))
+        axes = ['Dimension {}'.format(dim) for dim in range(dims)]
+        spacing = util.query_float_list(axes)
+        return spacing
+
+
 def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: bool=True, dimensions: int=2):
         """
         Read in an itk image and ensure that its spacing is in the right units/has been set in the first place
         :param path_image: path to the image file
         :param unit_workspace: unit that the workspace is working in
+        :param write_changes: Whether to save new metadata
+        :dimensions: Number of spatial dimensions for the image type
         :return:
         """
         image = sitk.ReadImage(str(path_image))
@@ -103,10 +110,8 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
                                                    .format(current_spacing))
                 
                 if change_spacing:
-                        spacing = util.query_float('Please enter the image spacing in {0} >> '.format(unit_workspace))
-                        spacing_new = [spacing] * len(image.GetSpacing())
-                        image.SetSpacing(spacing_new)
-                        
+                        spacing = _query_spacing(unit_workspace, dimensions)
+                        image.SetSpacing(spacing)
                         if write_changes:
                                 write_image(image, path_image)
                 
@@ -115,6 +120,7 @@ def setup_image(path_image: Path, unit_workspace: str='microns', write_changes: 
                         image.SetMetaData(key, metadata[key])
                 
         if len(image.GetSpacing()) > dimensions:
+                # todo: nd to rgb
                 image = three_d_to_rgb(image)
                 
         return image
@@ -141,6 +147,7 @@ def read_metadata(image_path: Path):
         
 
 def write_image(image: sitk.Image, image_path: Path):
+        # todo: Write using tiffile so that resolution saves properly?
         sitk.WriteImage(image, str(image_path))
         write_metadata(image_path, image)
 

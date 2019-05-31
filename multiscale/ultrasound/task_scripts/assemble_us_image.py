@@ -1,6 +1,4 @@
 """
-This module handles writing/converting image data into the big data viewer HDF5 and XML formats.
-
 Copyright (c) 2018, Michael Pinkert
 All rights reserved.
 
@@ -24,36 +22,30 @@ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."""
-import h5py
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+import multiscale.ultrasound.reconstruction as recon
+import imagej
 from pathlib import Path
-import re
 
+ij = imagej.init('C:/users/mpinkert/Fiji.app/')
 
-class BigViewerDatasetWriter(object):
-        def __init__(self, dataset_name=None, output_dir=None):
-                self.datset_name = dataset_name
-                self.output_dir = output_dir
+date = '2019-05-14'
+study_dir = 'Mouse images'
+base_dir_list = ['Mouse 003', 'Mouse 205', 'Mouse 209', 'Mouse 211', 'Mouse 215', 'Mouse 1204']
+#pl_path = Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-05-04', '2019-05-04_US - 3X 100YSep.pos')
+pl_path_base = Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-05-14')
 
-        def set_dataset_name(self, dataset_name):
-                self.datset_name = dataset_name
-
-        def set_output_dir(self, output_dir):
-                self.output_dir = output_dir
-
-        def _create_new_dataset(self):
-                return
-
-        def _append_to_dataset(self):
-                return
-
-def calculate_affine_transform(spacing):
-        return
-
-def write_dataset_xml(position_list_with_metadata, output_dir, output_name):
-        return
-
-
-def append_new_setup_to_dataset_xml():
-        return
-
+for base_dir in base_dir_list:
+        pl_path = Path(pl_path_base, base_dir + '.pos')
+        mat_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date, base_dir, 'Run-1')
+        output_dir = Path(r'F:\Research\LINK', study_dir, date,  base_dir)
+        intermediate_save_dir = Path(r'F:\Research\LINK', study_dir, date, base_dir)
+        output_name = base_dir + '.tif'
+        # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-04-05\US_PositionList_25yspacing.pos')
+        # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-08\US_PositionLis_2019-01-08.pos')
+        
+        assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path,
+                                                   intermediate_save_dir=intermediate_save_dir,
+                                                   fuse_args={'downsampling': 1}, search_str='IQ.mat', output_name=output_name)
+        assembler.assemble_image(base_image_data='IQData')

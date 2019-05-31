@@ -1,5 +1,5 @@
 """
-This module handles writing/converting image data into the big data viewer HDF5 and XML formats.
+Script to beamform a single frame of RF data for testing and quick visuals
 
 Copyright (c) 2018, Michael Pinkert
 All rights reserved.
@@ -24,36 +24,32 @@ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."""
-import h5py
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
 from pathlib import Path
-import re
+import matplotlib.pyplot as plt
+import multiscale.ultrasound.reconstruction as recon
+import multiscale.ultrasound.beamform as beam
+
+rf_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-17\Glass dish water\Run-3',
+               'Smaller glass 2.mat')
+output_dir = Path(r'F:\Research\LINK\Phantom Trials\2019-01-17')
+delays_path = Path(output_dir, 'Delay matrix 2.npz')
+
+params = recon.read_parameters(rf_path)
+rf_array = recon.read_variable(rf_path, 'RData')
+
+delay_calculator = beam.DelayCalculator(params, delays_path)
+delays = delay_calculator.get_delays()
+
+beamformer = beam.Beamformer(rf_array, params, delays)
+bmode = beamformer.get_bmode()
+
+plt.imshow(bmode, cmap='Greys')
+plt.show()
+print('Hello world')
 
 
-class BigViewerDatasetWriter(object):
-        def __init__(self, dataset_name=None, output_dir=None):
-                self.datset_name = dataset_name
-                self.output_dir = output_dir
-
-        def set_dataset_name(self, dataset_name):
-                self.datset_name = dataset_name
-
-        def set_output_dir(self, output_dir):
-                self.output_dir = output_dir
-
-        def _create_new_dataset(self):
-                return
-
-        def _append_to_dataset(self):
-                return
-
-def calculate_affine_transform(spacing):
-        return
-
-def write_dataset_xml(position_list_with_metadata, output_dir, output_name):
-        return
 
 
-def append_new_setup_to_dataset_xml():
-        return
 

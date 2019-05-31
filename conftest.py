@@ -1,6 +1,4 @@
 """
-This module handles writing/converting image data into the big data viewer HDF5 and XML formats.
-
 Copyright (c) 2018, Michael Pinkert
 All rights reserved.
 
@@ -24,36 +22,25 @@ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."""
-import h5py
-from pathlib import Path
-import re
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+"""
+import imagej
+import pytest
+
+def pytest_addoption(parser):
+        parser.addoption(
+                "--ij", action="store", default="/Applications/Fiji.app", help="directory to IJ"
+        )
+        parser.addoption(
+                "--headless", action="store", default='True', help="Start in headless mode"
+        )
 
 
-class BigViewerDatasetWriter(object):
-        def __init__(self, dataset_name=None, output_dir=None):
-                self.datset_name = dataset_name
-                self.output_dir = output_dir
+@pytest.fixture(scope='session')
+def ij(request):
+        ij_dir = request.config.getoption('--ij')
+        headless = bool(request.config.getoption('--headless'))
+        
+        ij_wrapper = imagej.init(ij_dir)
 
-        def set_dataset_name(self, dataset_name):
-                self.datset_name = dataset_name
-
-        def set_output_dir(self, output_dir):
-                self.output_dir = output_dir
-
-        def _create_new_dataset(self):
-                return
-
-        def _append_to_dataset(self):
-                return
-
-def calculate_affine_transform(spacing):
-        return
-
-def write_dataset_xml(position_list_with_metadata, output_dir, output_name):
-        return
-
-
-def append_new_setup_to_dataset_xml():
-        return
-
+        return ij_wrapper

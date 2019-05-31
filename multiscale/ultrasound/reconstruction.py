@@ -10,63 +10,191 @@ import numpy as np
 import multiscale.utility_functions as util
 import re
 import SimpleITK as sitk
-import multiscale.itk.metadata as meta
-import h5py
+import multiscale.imagej.stitching as st
 import os
-import tempfile
-
+import tiffile as tif
+import warnings
 
 class UltrasoundImageAssembler(object):
         """
         todo: start generalizing this so it can work with multiple image types/kinds
         """
-        def __init__(self, mat_dir: Path, output_dir: Path, pl_path: Path=None):
+        def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
+                     intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
+                     search_str: str='.mat', output_name='fused_tp_0_ch_0.tif'):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
-                os.makedirs(output_dir, exist_ok=True)
-                
-                self.pos_list = []
-                self.mat_list = []
-                self.acq_params = {}
-               
-                self.image = sitk.Image()
-                self.metadata_keys = ['Unit']
+                self._ij = ij
+                self.intermediate_save_dir = intermediate_save_dir
+                self.output_name = output_name
 
+                if intermediate_save_dir:
+                        os.makedirs(str(intermediate_save_dir), exist_ok=True)
+                else:
+                        self.intermediate_save_dir = self.output_dir
+                        
+                os.makedirs(str(output_dir), exist_ok=True)
+                
+                self.fuse_args = fuse_args
+                self.dataset_args = dataset_args
+                
+                self.search_str = search_str
+                self.pos_list, self.pos_labels = self._read_position_list()
+                
+                self.xml_exists = False
+                
+                if intermediate_save_dir is not None:
+                        xml_path = Path(intermediate_save_dir, 'dataset.xml')
+                        if xml_path.is_file():
+                                if util.query_yes_no('XML file already exists.  Skip reading .mat files?'):
+                                        self.xml_exists = True
+                                        return
+                
+                self.mat_list = self._read_sorted_list_mats()
+                self.params = read_parameters(self.mat_list[0])
+                
         def get_acquisition_parameters(self):
                 """Get the US acquisition parameters"""
-                return self.acq_params
-
-        def get_image(self):
-                return self.image
-
-        def _assemble_image(self, image_type: str):
-                self.pos_list = self._read_position_list()
-                self.mat_list = self._read_sorted_list_mats()
-                self._read_parameters(self.mat_list[0])
-                image_list = self._mat_list_to_variable_list(image_type)
-                separate_3d_images = self._image_list_to_laterally_separate_3d_images()
-
-                return
-
-        def _setup_image(self, shape_of_image_array):
-                return
-
-        def _set_metadata(self):
-                self.image.SetMetaData('Unit', 'microns')
+                return self.params
         
+        def _convert_to_2d_tiffs(self):
+                image_list = self._mat_list_to_variable_list('IQData')
+                for idx in range(len(self.pos_labels)):
+                        file_name = 'US_' + self.pos_labels[idx] + '.tif'
+                        bmode = self._iq_to_output(image_list[idx])
+                        self._save_us_image(file_name, bmode)
+                        
+        def _save_us_image(self, file_name, bmode):
+                path = str(Path(self.output_dir, file_name))
+                print('Saving {}'.format(path))
+                spacing = self._get_spacing()
+                ijstyle = bmode
+                shape = ijstyle.shape
+                ijstyle.shape = 1, shape[0], 1, shape[1], shape[2], 1
+                
+                tif.imwrite(path, ijstyle, imagej=True,
+                            resolution=(1./self.params['lateral resolution'], 1./self.params['axial resolution']),
+                            metadata={'spacing': spacing[2], 'unit': 'um'})
+        
+        def assemble_image(self, base_image_data='IQData'):
+                """
+                Stitch the .mat based ultrasound image and save the results
+                :param base_image_data: The variable being stitched in the .mat files
+                :return:
+                """
+                if self.xml_exists:
+                        stitcher = st.BigStitcher(self._ij)
+                        stitcher._fuse_dataset(self.fuse_args)
+                        return
+                print(len(self.pos_list))
+                image_list = self._mat_list_to_variable_list(base_image_data)
+                if len(self.pos_list) == 0:
+                        image_array = np.array(image_list)
+                        self._save_us_image(self.output_name, self._iq_to_output(image_array))
+                else:
+                        separate_3d_images = self.\
+                                _image_list_to_laterally_separate_3d_images(image_list)
+                        self._stitch_image(separate_3d_images)
+                        
+        def _stitch_image(self, image_array):
+                dataset_args = self._assemble_dataset_arguments()
+                fuse_args = self._assemble_fuse_args()
+                bmode = self._iq_to_output(image_array)
+                if dataset_args['overlap_x_(%)'] is None:
+                        self._save_us_image(self.output_name, bmode[0])
+                        return
+                        
+                stitcher = st.BigStitcher(self._ij)
+                stitcher.stitch_from_numpy(bmode, dataset_args, fuse_args,
+                                           intermediate_save_dir=self.intermediate_save_dir,
+                                           output_name=self.output_name)
+
+        def _iq_to_output(self, image_array):
+                return iq_to_db(image_array)
+        
+        def _assemble_dataset_arguments(self):
+                spacing = self._get_spacing()
+                args = {
+                        'define_dataset': '[Automatic Loader (Bioformats based)]',
+                        'project_filename': 'dataset.xml',
+                        'exclude': '10',
+                        'pattern_0': 'Tiles',
+                        'modify_voxel_size?': True,
+                        'voxel_size_x': spacing[0],
+                        'voxel_size_y': spacing[1],
+                        'voxel_size_z': spacing[2],
+                        'voxel_size_unit': '\u03bcm',
+                        'move_tiles_to_grid_(per_angle)?': '[Move Tile to Grid (Macro-scriptable)]',
+                        'grid_type': '[Right & Down             ]',
+                        'tiles_x': self._count_unique_positions(0),
+                        'tiles_y': 1,
+                        'tiles_z': 1,
+                        'overlap_x_(%)': self._calculate_percent_overlap(),
+                        'overlap_y_(%)': '10',
+                        'overlap_z_(%)': '10',
+                        'keep_metadata_rotation': True,
+                        'how_to_load_images': '[Load raw data]',
+                        'dataset_save_path': str(self.intermediate_save_dir),
+                        'subsampling_factors': '[{ {1,1,1}, {2,2,2}, {4,4,4} }]',
+                        'hdf5_chunk_sizes': '[{ {16,16,16}, {16,16,16}, {16,16,16} }]',
+                        'timepoints_per_partition': '1',
+                        'setups_per_partition': '0',
+                        'use_deflate_compression': True,
+                        'export_path': str(self.intermediate_save_dir) + '/dataset'
+                }
+                if self.dataset_args is not None:
+                        for key, value in self.dataset_args.items():
+                                args[key] = value
+                                
+                return args
+        
+        def _assemble_fuse_args(self):
+                xml_path = str(self.intermediate_save_dir) + '/dataset.xml'
+                
+                args = {
+                        'select': xml_path,
+                        'process_angle': '[All angles]',
+                        'process_channel': '[All channels]',
+                        'process_illumination': '[All illuminations]',
+                        'process_tile': '[All tiles]',
+                        'process_timepoint': '[All Timepoints]',
+                        'bounding_box': '[Currently Selected Views]',
+                        'downsampling': '1',
+                        'pixel_type': '[32-bit floating point]',
+                        'interpolation': '[Linear Interpolation]',
+                        'image': 'Virtual',
+                        'blend': True,
+                        # 'preserve_original': True,
+                        'produce': '[Each timepoint & channel]',
+                        'fused_image': '[Save as (compressed) TIFF stacks]',
+                        'output_file_directory': str(self.output_dir)
+                }
+                if self.fuse_args is not None:
+                        for key, value in self.fuse_args.items():
+                                args[key] = value
+        
+                return args
+
         def _get_spacing(self):
-                # Get the spacing of the resulting image in microns
-                lateral_spacing = self.acq_params['lateral resolution']
-                axial_spacing = self.acq_params['axial resolution']
-                elevational_spacing = self._calculate_position_separation(1)
+                """Get the spacing of the resulting image in microns"""
+                lateral_spacing = self.params['lateral resolution']
+                axial_spacing = self.params['axial resolution']
+                try:
+                        elevational_spacing = self._calculate_position_separation(1)
+                except TypeError:
+                        elevational_spacing = np.max([lateral_spacing, axial_spacing])
+                        warning = 'No elevational spacing found. Setting to max of lateral and axial: {}'.format(
+                                elevational_spacing)
+                        warnings.warn(warning)
                 
                 spacing = [lateral_spacing, axial_spacing, elevational_spacing]
                 return spacing
 
         def _image_list_to_laterally_separate_3d_images(self, image_list):
                 """
-                Convert a list of 2d numpy arrays into 4d numpy array of laterally separate 3d images"""
+                Convert a list of 2d numpy arrays into 4d numpy array of laterally separate 3d images
+                """
                 image_array = np.array(image_list)
                 shape_2d = np.shape(image_list[0])
                 
@@ -77,55 +205,21 @@ class UltrasoundImageAssembler(object):
                 array_of_3d_images = np.reshape(image_array, list_shape)
                 
                 return array_of_3d_images
-                
-        def _stitch_images_from_temporary_directory(self, array_of_images: np.ndarray):
-                """
-                Take a 4d array containing several 3D ultrasound images and stitch them externally through ImageJ
-                """
-                try:
-                        temp_dir = tempfile.mkdtemp()
-                        self._write_images_to_temporary_dir(temp_dir, array_of_images)
-                finally:
-                        os.rmdir(temp_dir)
 
-        def _write_images_to_temporary_dir(self, temp_dir, array_of_images):
-                """Write 3d images, held in a 4d array, into temporary files with a consistent naming scheme"""
-                num_images = np.shape(array_of_images)[0]
-                for idx in range(num_images):
-                        self._write_temp_image(array_of_images[idx], temp_dir, idx)
-        
-        def _write_temp_image(self, image_array, temp_dir, idx):
-                """Write a 3D ultrasound image into a temporary file for use by ImageJ stitching"""
-                temp_path = Path(temp_dir, 'UltrasoundImage_{}.tif'.format(idx))
-                image = sitk.Cast(sitk.GetImageFromArray(image_array), sitk.sitkFloat32)
-                image.SetSpacing(self._get_spacing())
-                meta.write_image(image, temp_path)
-                
         # Images
         def _mat_list_to_variable_list(self, variable):
                 """Acquire a sorted list containing the specified variable in each mat file"""
-                variable_list = [self.read_variable(file_path, variable) for file_path in self.mat_list]
+                variable_list = [read_variable(file_path, variable) for file_path in self.mat_list]
                 return variable_list
         
         # Positions
         def _read_position_list(self):
                 """Open a Micromanager acquired position file and return a list of X, Y positions"""
                 if self.pl_path is None:
-                        return []
+                        return [], []
 
                 acquisition_dict = util.read_json(self.pl_path)
-                pos_list = clean_position_text(acquisition_dict)
-
-                return pos_list
-
-        @staticmethod
-        def clean_position_text(acquisition_dict):
-                """Convert a Micromanager acquired position file into a list of X, Y positions"""
-                pos_list_raw = acquisition_dict['POSITIONS']
-                pos_list = np.array([[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
-                            for row in pos_list_raw])
-
-                return pos_list
+                return clean_position_text(acquisition_dict)
         
         def _count_unique_positions(self, axis):
                 """Determine how many unique positions the position list holds along a particular axis"""
@@ -136,113 +230,148 @@ class UltrasoundImageAssembler(object):
                 """Check the distance between points along an axis"""
                 unique = np.unique(self.pos_list[:, axis])
                 
-                if len(unique > 1):
+                if len(unique) > 1:
                         separations = np.array([unique[i+1] - unique[i] for i in range(len(unique)-1)])
                         unique_separations = np.unique(separations)
                         
                         if len(unique_separations) > 1:
-                                raise ValueError('There is more than one separation distance.  This grid is irregular')
+                                if not util.list_values_approx_equal(unique_separations, 1E-3):
+                                        raise ValueError('There is more than one separation distance.' \
+                                                         + ' This grid is irregular\n' \
+                                                         + str(unique_separations))
                         
                         return np.abs(unique_separations[0])
                         
                 else:
-                        separation = 1
+                        separation = None
                 
                 return separation
 
         def _calculate_percent_overlap(self, transducer_fov=12800) -> int:
                 """Calculate the percentage overlap between X images"""
-                sep_lateral = self._calculate_position_separation(0)
-                percent_sep = int(100 - 100 * (sep_lateral / transducer_fov))
+                try:
+                        transducer_fov = self.params['line samples']*self.params['lateral resolution']
+                except KeyError:
+                        print('Could not calculate transducer FOV.  Parameter missing.  Using default of 12.8 mm')
+                finally:
+                        try:
+                                sep_lateral = self._calculate_position_separation(0)
+                                percent_sep = int(100 - 100 * (sep_lateral / transducer_fov))
+                        except:
+                                percent_sep = None
                 
                 return percent_sep
         
         # List of files
-        def _read_sorted_list_mats(self, search_str='.mat'):
-                unsorted = util.list_filetype_in_dir(self.mat_dir, search_str)
-                list_mats_sorted = sorted(unsorted, key=self.extract_iteration_from_path)
+        def _read_sorted_list_mats(self):
+                unsorted = util.list_filetype_in_dir(self.mat_dir, self.search_str)
+                list_mats_sorted = sorted(unsorted, key=extract_iteration_from_path)
                 return list_mats_sorted
-        
-        @staticmethod
-        def extract_iteration_from_path(file_path):
-                """Get the image index from filename formatted It-index.mat"""
-                match = re.search(r'It-\d*', file_path.stem)
-                index = int(match.group()[3:]) - 1
-                return index
 
         # Parameters
         
-        def _read_parameters(self, iq_path: Path):
-                """
-                Get the parameters from an acquisition and return a cleaned up dictionary
-                """
-                params = self.read_variable(iq_path, 'P')
-
-                wl = params['wavelength_micron']
-                # convert units to mm
-                self.acq_params['lateral resolution'] = params['lateral_resolution'] * wl
-                self.acq_params['axial resolution'] = params['axial_resolution'] * wl
-                self.acq_params['transmit focus'] = params['txFocus'] * wl
-                self.acq_params['start depth'] = params['startDepth'] * wl
-                self.acq_params['end depth'] = params['endDepth'] * wl
-                self.acq_params['transducer spacing'] = params['transducer_spacing'] * wl
-
-                # copy other parameters that are not in wavelength
-                self.acq_params['sampling wavelength'] = params['wavelength_micron']
-                self.acq_params['speed of sound'] = params['speed_of_sound']
-
-        @staticmethod
-        def read_variable(file_path, variable):
-                return util.load_mat(file_path, variables=variable)[variable]
-
-
-class UltrasoundImage(sitk.Image):
-
-        def get_bmode(self, compress_method='log'):
-                """Get the stitched b-mode image"""
-                if self.iq is None:
-                        self.assemble_iq()
-
-                if compress_method == 'log':
-                        bmode = sitk.Log10(sitk.Abs(self.iq) + 1)
-                elif compress_method == 'sqrt':
-                        bmode = sitk.Sqrt(sitk.Abs(self.iq))
-                else:
-                        raise ValueError('Compression method can be log or sqrt, not {}'.format(compress_method))
-
-                meta.copy_relevant_metadata(bmode, self.iq, self.metadata_keys)
-
-                return bmode
-
-        def get_envelope(self):
-                """Get the stitched RF envelope image"""
-                if self.iq is None:
-                        self.assemble_iq()
-
-                env = sitk.Abs(self.iq)
-                meta.copy_relevant_metadata(env, self.iq, self.metadata_keys)
-
-                return env
-
-        def get_iq(self):
-                if self.iq is None:
-                        self.assemble_iq()
-
-                return self.iq
-
-
-def beamform_rf(raw_data):
-        raise NotImplementedError('The function to beamform RF data has not been implemented yet')
-# cases: 128 raylines, multiangle compounding,
-
-
-def open_rf(rf_path: Path) -> np.ndarray:
-        mat_data = sio.loadmat(str(rf_path))
-        rf_data = beamform_rf(mat_data['RData'])
         
-        return rf_data
+def read_parameters(mat_path: Path) -> dict:
+        """
+        Get the parameters from an acquisition and return a cleaned up dictionary
+        """
+        params_raw = read_variable(mat_path, 'P')
+        params = {}
+        
+        wl = params_raw['wavelength_micron']
+        # convert units to micron
+        params['lateral resolution'] = params_raw['lateral_resolution'] * wl
+        params['axial resolution'] = params_raw['axial_resolution'] * wl
+        params['transmit focus'] = params_raw['txFocus'] * wl
+        params['start depth'] = params_raw['startDepth'] * wl
+        params['end depth'] = params_raw['endDepth'] * wl
+        params['transducer spacing'] = params_raw['transducer_spacing'] * wl
+        params['speed of sound'] = params_raw['speed_of_sound']*1E6
+
+        # copy other parameters that are not in wavelengths
+        params['sampling wavelength'] = params_raw['wavelength_micron']
+        
+        try: # Necessary to have a try to allow processing older images
+                params['raylines'] = params_raw['num_lines']
+                params['sampling frequency'] = params_raw['sampling_frequency'] * 1E6
+                params['axial samples'] = params_raw['axial_samples']
+                params['transmit samples'] = params_raw['transmit_samples']
+                params['time samples'] = params_raw['time_samples']
+                params['elements'] = params_raw['elements']
+                params['element sensitivity'] = params_raw['element_sensitivity']
+                params['line samples'] = params_raw['line_samples']
+
+        finally:
+                return params
 
 
+def read_variable(file_path, variable):
+        return util.load_mat(file_path, variables=variable)[variable]
+
+
+def clean_position_text(pos_text: dict) -> (np.ndarray, list):
+        """Convert a Micromanager acquired position file into a list of X, Y positions"""
+        pos_list_raw = pos_text['POSITIONS']
+        pos_list = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
+                    for row in pos_list_raw]
+        pos_labels = [row['LABEL'] for row in pos_list_raw]
+        
+        return np.array(pos_list), pos_labels
+
+
+def extract_iteration_from_path(file_path):
+        """Get the image index from filename formatted It-index.mat"""
+        match = re.search(r'It-\d*', file_path.stem)
+        index = int(match.group()[3:]) - 1
+        return index
+
+
+def iq_to_db(image_array):
+        db = 20 * np.log10(np.abs(image_array) + 1)
+        return db.astype('f')
+
+
+def get_origin(pl_path, params_path, gauge_value):
+        """
+        Get the coordinate system origin for the US image
+        :param pl_path: Path to the position list for the acquisition
+        :param params_path: Path to a .mat file containing the P parameter struct
+        :param gauge_value: Value of the indicator gauge
+        :return: Origin in X, Y, Z
+        """
+        params = read_parameters(params_path)
+        origin_xy = get_xy_origin(pl_path)
+        origin_z = get_z_origin(params, gauge_value)
+        origin = [origin_xy[0], origin_xy[1], origin_z]
+        return origin
+
+
+def get_xy_origin(pl_path):
+        """Read an ultrasound position list and get the XY origin"""
+        raw_pos_list = util.read_json(pl_path)
+        pos_list = clean_position_text(raw_pos_list)[0]
+        xy_origin = np.min(pos_list, 0)
+        return xy_origin
+
+
+def get_z_origin(params, gauge_value):
+        """
+        Get the Z coordinate origin of the US system
+        :param params: Parameters of the acquisition
+        :param gauge_value: Indicator gauge value
+        :return: Z coordinate
+        """
+        image_origin = params['start depth'] + params['axial samples']*params['axial resolution']
+        z_origin = image_origin + gauge_value
+        return z_origin
+
+
+
+"""
+Deprecated methods
+
+To be gradually removed from use
+"""
 def open_iq(iq_path: Path) -> np.ndarray:
         """Open a .mat that holds IQData and Parameters from the Verasonics system
     
@@ -299,15 +428,6 @@ def iq_to_bmode(iq_array: np.ndarray) -> np.ndarray:
         return bmode
 
 
-def clean_position_text(pos_text: dict) -> list:
-        """Convert a Micromanager acquired position file into a list of X, Y positions"""
-        pos_list_raw = pos_text['POSITIONS']
-        pos_list = [[row['DEVICES'][0]['X'], row['DEVICES'][0]['Y']]
-                    for row in pos_list_raw]
-        
-        return pos_list
-
-
 def read_position_list(pl_path: Path) -> list:
         """Open a Micromanager acquired position file and return a list of X, Y positions"""
         with open(str(pl_path), 'r') as file_pos:
@@ -338,6 +458,7 @@ def count_xy_positions(pos_list: list) -> (np.ndarray, np.ndarray, np.ndarray):
                 elevational_sep = 1
         
         return num_lateral_elevational, lateral_sep, elevational_sep
+
 
 
 def index_from_file_path(file_path: Path) -> int:

@@ -18,7 +18,7 @@ import multiscale.ultrasound.reconstruction as recon
 def define_correlation_window(params_acquisition: dict):
     """Define the window over which the correlation is calculated inside the frame"""
     
-    params_window = dict({'Elevational size mm':1,
+    params_window = dict({'Elevational size mm': 1,
                           'Lateral size mm': 1,
                           'Axial size mm': 1,
                           'Start of depth range mm': 6,
@@ -33,6 +33,29 @@ def determine_window_sweep():
     return
 
 
+def detrend_and_add_back_mean(array_im: np.ndarray, dim_detrend:int) -> np.ndarray:
+    """Detrend along a dimension
+
+    axis 0 = elevation
+    axis 1 = axial
+    axis 2 = lateral
+    """
+    shape_array = np.shape(array_im)
+    array_detrend = sig.detrend(array_im, axis=dim_detrend)
+    array_mean = np.mean(array_detrend, axis=dim_detrend)
+
+    if dim_detrend is 2:  # lateral
+        array_output = array_detrend + array_mean[:, :, None]
+    elif dim_detrend is 1:  # axial
+        array_output = array_detrend + np.reshape(array_mean, [shape_array[0], 1, shape_array[2]])
+    elif dim_detrend is 0:  # elevation
+        array_output = array_detrend + array_mean
+    else:
+        raise ValueError('Please enter a valid dimension (0, 1, or 2)')
+
+    return array_output
+
+
 def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int) -> np.ndarray:
     """Detrend along a dimension
 
@@ -45,7 +68,7 @@ def detrend_along_dimension(array_im: np.ndarray, dim_detrend: int) -> np.ndarra
     return array_detrend
 
 
-def detrend_along_dimension_and_subtract_mean(array_im: np.ndarray, dim_detrend: int, dim_to_average: int) -> np.ndarray:
+def detrend_and_subtract_mean(array_im: np.ndarray, dim_detrend: int) -> np.ndarray:
     """Detrend along a dimension, and subtract a mean of the detrend along another dimension
 
     axis 0 = elevation
@@ -54,14 +77,14 @@ def detrend_along_dimension_and_subtract_mean(array_im: np.ndarray, dim_detrend:
     """
     
     array_detrend = sig.detrend(array_im, axis=dim_detrend)
-    array_mean = np.mean(array_detrend, dim_to_average)
+    array_mean = np.mean(array_detrend, dim_detrend)
     shape_array = np.shape(array_detrend)
     
-    if dim_to_average is 2: # lateral
+    if dim_detrend is 2: # lateral
         array_detrend_avg = array_detrend - array_mean[:, :, None]
-    elif dim_to_average is 1: # axial
+    elif dim_detrend is 1: # axial
         array_detrend_avg = array_detrend - np.reshape(array_mean, [shape_array[0], 1, shape_array[2]])
-    elif dim_to_average is 0: # elevation
+    elif dim_detrend is 0: # elevation
         array_detrend_avg = array_detrend - array_mean
     else:
         raise ValueError('Please enter a valid dimension (0, 1, or 2)')
@@ -86,11 +109,14 @@ def calculate_1d_autocorrelation_curve(window: np.ndarray, dim_of_corr: int, thr
     corr_curve = []
     
     for shift in range(int(shape_window[dim_of_corr]/2 + 1)):
+        if shift > 10:
+            break
+            
         corr_along_lines = np.apply_along_axis(calculate_1d_autocorrelation, dim_of_corr, window, shift)
         average_corr = np.mean(corr_along_lines)
-        if average_corr < threshold:
-            corr_curve.append(average_corr)
-            break
+        # if average_corr < threshold:
+        #     corr_curve.append(average_corr)
+        #     break
         
         corr_curve.append(average_corr)
     
@@ -110,10 +136,10 @@ def calculate_curves_per_window(window: np.ndarray) -> dict:
     curve_axial: 1d correlation curve along axial axis z
     curve_lateral: 1d correlation curve along lateral axis x
     """
-    curve_elevation = calculate_1d_autocorrelation_curve(window, 0)
     curve_axial = calculate_1d_autocorrelation_curve(window, 1)
     curve_lateral = calculate_1d_autocorrelation_curve(window, 2)
-    
+    curve_elevation = calculate_1d_autocorrelation_curve(window, 0)
+
     curves = {'Elevational': curve_elevation, 'Axial': curve_axial, 'Lateral': curve_lateral}
     
     return curves
@@ -125,10 +151,16 @@ def calculate_correlation_curves_at_all_depths(window_shape: np.ndarray, depths_
 
 
 def load_iq(dir_iq: Path) -> (np.ndarray, dict):
-    list_iq = recon.get_sorted_list_mats(dir_iq, search_str='mat')
+    list_iq = recon.get_sorted_list_mats(dir_iq, search_str='IQ.mat')
     array_iq, params = recon.mat_list_to_iq_array(list_iq)
     
     return array_iq, params
+
+
+def load_rf(dir_rf:Path) -> (np.ndarray, dict):
+    list_rf = recon.get_sorted_list_mats(dir_rf, search_str='RF.mat')
+    array_rf, params = recon.mat_list_to_rf_array(list_rf)
+    return array_rf, params
 
 
 def iq_to_envelope(iq_array: np.ndarray) -> np.ndarray:
@@ -185,11 +217,7 @@ def plot_corr_curve(curve_1d: np.ndarray, axis: str, spacing: np.double):
     ax.axvline(half_max_loc)
     
     ax.set_xticks(ticks)
-    
-    mng = plt.get_current_fig_manager()
-    geom = mng.window.geometry().getRect()
-    mng.window.setGeometry(-1800, 100, geom[2], geom[3])
-    
+
     fig.canvas.draw()
     fig.canvas.flush_events()
     plt.pause(0.02)
@@ -206,9 +234,32 @@ def plot_single_curves(dict_curves: dict, params_acq: dict, dir_output: Path=Non
             plt.savefig(str(name_output))
 
 
-def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: str='', elevation_res: np.double=0.02):
+def calc_plot_corr_curves(dir_iq: Path, dir_output: Path=None, suffix_output: str='', elevation_res: np.double=0.05):
     iq_array, params_acquisition = load_iq(dir_iq)
     env_array = iq_to_envelope(iq_array)
+    
+    # todo automate this calculation
+    params_acquisition['Elevational resolution'] = elevation_res
+    
+    params_window = define_correlation_window(params_acquisition)
+    curves = calc_corr_curves(env_array, params_window, params_acquisition)
+    
+    plot_single_curves(curves, params_acquisition, dir_output, suffix_output)
+    
+    return
+
+
+def rf_to_envelope(rf_array):
+    """Take the hilbert transform along the axial direction"""
+    env = np.abs(sig.hilbert(rf_array, axis=1))
+    return env
+
+
+def process_rf_to_correlation(dir_rf: Path, dir_output: Path = None, suffix_output: str = '',
+                              elevation_res: np.double = 0.01848):
+    rf_array, params_acquisition = load_rf(dir_rf)
+    rf_detrended = detrend_along_dimension(rf_array, 1)
+    env_array = rf_to_envelope(rf_detrended)
     
     # todo automate this calculation
     params_acquisition['Elevational resolution'] = elevation_res

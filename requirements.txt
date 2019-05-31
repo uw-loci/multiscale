@@ -8,3 +8,6 @@ pyssim
 pytest
 javabridge
 python-bioformats
+scyjava
+pyimagej
+tiffile

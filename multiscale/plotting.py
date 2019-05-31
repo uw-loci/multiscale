@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def auto_window_level(arr: np.array, bins=200, upper_limit_fraction=0.1, lower_limit_fraction=0.0002):
+def auto_window_level(arr: np.array, bins=200, upper_limit_fraction=0.1, lower_limit_fraction=0.0002,
+                      return_image=True):
         """Automatically window/level based on the image histogram"""
         hist, bin_edges = np.histogram(arr, bins=bins)
         bin_size = bin_edges[1] - bin_edges[0]
@@ -45,30 +46,40 @@ def auto_window_level(arr: np.array, bins=200, upper_limit_fraction=0.1, lower_l
                         hist_upper_limit = bin_edges[i] + bin_size
                         break
         
-        arr_window = arr*(arr > hist_lower_limit)*(arr < hist_upper_limit)
-        arr_window = (arr_window - np.amin(arr_window))/(np.amax(arr_window) + np.amin(arr_window))
+        if return_image:
+                return window_level(arr, hist_lower_limit, hist_upper_limit)
+        else:
+                return hist_lower_limit, hist_upper_limit
+        
+        
+def window_level(arr, hist_lower_limit, hist_upper_limit):
+        """
+        Window/level an image based on lower and upper limits
+        :param arr: numpy array for the image
+        :param hist_lower_limit: Lower limit of histogram
+        :param hist_upper_limit: upper limit of histogram
+        :return:
+        """
+        arr_window = arr * (arr > hist_lower_limit) * (arr < hist_upper_limit)
+        arr_window = (arr_window - np.amin(arr_window)) / (np.amax(arr_window) + np.amin(arr_window))
         
         return arr_window
-        
 
-def overlay_arrays_red_green(array_one, array_two, intensity_threshold=0.1):
-        """Plot two same-size images in 3 channels, with blue->same position"""
+
+def overlay_arrays(array_one, array_two, intensity_threshold=0.1):
+        """Plot two same-size images, with magenta/green coloring"""
         
-        # diff = array_one - array_two
-        # abs_diff = np.abs(diff)
         dims = np.shape(array_one)
+        new_dims = np.zeros(len(dims)+1).astype(np.int)
+        new_dims[0:len(dims)] = dims
+        new_dims[len(dims)] = 3
         
-        # white = abs_diff < difference_threshold
-        # black = np.logical_and(array_one < difference_threshold, array_two < difference_threshold)
-        #red = array_one > intensity_threshold
-        #green = array_two > intensity_threshold
+        rgb_overlay = np.zeros(shape=new_dims, dtype=float)
         
-        rgb_overlay = np.zeros(shape=(dims[0], dims[1], 3), dtype=float)
+        rgb_overlay[..., 0] = array_one
+        rgb_overlay[..., 2] = array_one
         
-        # rgb_overlay[white, :] = 1
-        # rgb_overlay[black, :] = 0
-        rgb_overlay[:, :, 0] =  array_one#np.ma.masked_array(array_one[red])
-        rgb_overlay[:, :, 1] = array_two #np.ma.masked_array(array_two[green])
+        rgb_overlay[..., 1] = array_two
         
         return rgb_overlay
 

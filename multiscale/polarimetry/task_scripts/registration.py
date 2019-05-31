@@ -6,8 +6,7 @@ Created on Tue Mar  6 15:52:18 2018
 """
 import multiscale.itk.registration as reg
 import multiscale.itk.transform as trans
-import multiscale.itk.process as proc
-import multiscale.polarimetry.dir_dictionary as dird
+import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 
 
 def perform_registrations(dir_dict: dict, registration_parameters=None, skip_existing_images=True):
@@ -37,6 +36,11 @@ def perform_registrations(dir_dict: dict, registration_parameters=None, skip_exi
                                             skip_existing_images=skip_existing_images,
                                             registration_parameters=registration_parameters)
         
+        reg.bulk_supervised_register_images(dir_dict['shg_large'],
+                                            dir_dict['ps'],
+                                            dir_dict['ps_reg_raw'], 'PS_Registered',
+                                            skip_existing_images=skip_existing_images,
+                                            registration_parameters=registration_parameters)
         
 def apply_transforms(dir_dict: dict, skip_existing_images=True):
         trans.bulk_apply_transform(dir_dict['shg_large'],
@@ -51,8 +55,30 @@ def apply_transforms(dir_dict: dict, skip_existing_images=True):
                                    dir_dict['mlr_large_reg_orient'], 'MLR_Orient_Registered',
                                    skip_existing_images=skip_existing_images)
         
+        trans.bulk_apply_transform(dir_dict['shg_large'],
+                                   dir_dict['ps_orient'],
+                                   dir_dict['ps_reg'],
+                                   dir_dict['ps_reg_orient_raw'], 'PS_Orient_Registered',
+                                   skip_existing_images=skip_existing_images)
         
 dir_dict = dird.create_dictionary()
 perform_registrations(dir_dict)
 apply_transforms(dir_dict)
 
+
+# import multiscale.itk.registration as reg
+# import multiscale.itk.transform as trans
+# import multiscale.itk.process as proc
+# import multiscale.polarimetry.dir_dictionary as dird
+# from pathlib import Path
+# moving_dir = Path(r'F:\Research\Polarimetry\Data 02 - Python prepped images\PS_Large')
+# orient_dir = Path(r'F:\Research\Polarimetry\Data 02 - Python prepped images\PS_Large_Orient')
+#
+# fixed_dir = Path(r'F:\Research\Polarimetry\Data 02 - Python prepped images\SHG_Large')
+# output_dir = Path(r'F:\Research\Polarimetry\Data 03 - Mid-python analysis images\Registered images\PS_Large_Reg\Raw')
+# orient_output_dir = Path(r'F:\Research\Polarimetry\Data 03 - Mid-python analysis images\Registered images\PS_Large_Reg_Orient\Raw')
+#
+# pars = reg.setup_registration_parameters(scale=3)
+#
+# reg.bulk_supervised_register_images(fixed_dir, moving_dir, output_dir, 'PS_Reg', registration_parameters=pars)
+# trans.bulk_apply_transform(fixed_dir, orient_dir, output_dir, orient_output_dir, "PS_Large_Registered_Orient")

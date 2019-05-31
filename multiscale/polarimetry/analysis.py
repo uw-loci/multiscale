@@ -1,40 +1,13 @@
+import itertools as itt
+
 import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
 import numpy as np
 from scipy import stats
+import pycircstat as circ
 
-
-def recast_max_diff(row):
-        """Limit differences in orientation to < 90 degrees, from 180 range
-        
-        Input: A pandas row containing two columns.
-        Output: Difference between the columns, maximum of 90 degrees
-        """
-        value_one, value_two = row.values
-        diff = value_one - value_two
-        if diff > 90:
-                diff = 180 - diff
-        elif diff < -90:
-                diff = -180 - diff
-        
-        return diff
-
-
-def recast_max_diff_90deg(row):
-        value_one, value_two = row.values
-        diff = value_one - value_two
-        if diff > 90:
-                new_value_one = 180 - value_one
-                new_value_two = value_two
-        elif diff < -90:
-                new_value_two = 180 - value_two
-                new_value_one = value_one
-        else:
-                new_value_one = value_one
-                new_value_two = value_two
-        
-        return new_value_one, new_value_two
+import multiscale.statistics as mstat
 
 
 def regress(two_column_df: pd.DataFrame) -> np.ndarray:
@@ -42,19 +15,67 @@ def regress(two_column_df: pd.DataFrame) -> np.ndarray:
         x = two_column_df[original_columns[1]]
         y = two_column_df[original_columns[0]]
         
-        results = stats.linregress(x, y)
+        results = np.array(stats.linregress(x, y))
         
         return results
 
 
-def find_correlations_two_modalities(two_mod_df: pd.DataFrame, recast: bool = False) -> pd.Series:
-        if recast:
-                recast = two_mod_df.apply(recast_max_diff_90deg, axis=1)
-                group = recast.groupby(['Mouse', 'Slide'])
-        else:
-                group = two_mod_df.groupby(['Mouse', 'Slide'])
-        
-        correlations = group.corr().iloc[0::2, 1]
-        correlations.index = correlations.index.droplevel(level=2)
+def find_circular_correlations(two_mod_df: pd.DataFrame):
+        df_nonan = two_mod_df.dropna()
+        grouped = df_nonan.groupby(['Mouse', 'Slide'])
+        correlations = {}
+        mouse = []
+        slide = []
+        for name, group in grouped:
+                radians = group.values*2*np.pi/180
+                n = np.shape(radians)[0]
+                if n < 100:
+                        continue
+                corr = circ.corrcc(radians[:, 0], radians[:, 1])
+                correlations[name] = [corr, n]
+                mouse.append(name[0])
+                slide.append(name[1])
+                
+        index = pd.MultiIndex.from_arrays([mouse, slide], names=['Mouse', 'Slide'])
+        correlations = pd.DataFrame.from_dict(correlations, orient='index', columns=['Correlation', 'n'])
+        correlations.set_index(index, inplace=True)
         
         return correlations
+
+
+def calculate_pairwise_correlations(df_variable: pd.DataFrame) -> dict:
+        """For each pair of modalities, calculate correlations, and put them together into a column"""
+        
+        modalities = list(df_variable.columns.values)
+        
+        df_dict = {}
+        modality_iterator = itt.combinations(modalities, 2)
+        for pair in modality_iterator:
+                corr_pair = find_circular_correlations(df_variable.loc[:, pair])
+                header = '-'.join(pair)
+                
+                df_dict[header] = corr_pair
+                
+        return df_dict
+
+
+def pairwise_Z_p(df_Z: pd.DataFrame):
+        """
+        Calculate the p-value for different combinations of Z values
+        :param df_Z: Dataframe organized in a row as Group: Z, SE
+        :return: pairwise Z series
+        """
+        names = list(df_Z.index)
+        p_dict = {}
+        name_iterator = itt.combinations(names, 2)
+
+        for pair in name_iterator:
+                z1, se1 = df_Z.loc[pair[0]]
+                z2, se2 = df_Z.loc[pair[1]]
+                index = '-'.join(pair)
+                
+                p = mstat.z_t_test(z1, se1, z2, se2)
+                p_dict[index] = p
+                
+        return p_dict
+

@@ -30,7 +30,7 @@ def create_dictionary(
         #mask_dir = mid_analysis_dir + '\\Masked images'
         
         #resize_dir = mid_analysis_dir + '\\Step 02 - Resizing images'
-        reg_dir = mid_analysis_dir + '\\Registered images'
+        reg_dir = mid_analysis_dir + '\\Registered images\\Old registrations'
         tile_dir = mid_analysis_dir + '\\Tiled images'
         
         #    eight_bit_dir = mid_analysis_dir + '\\Step 05 - Eight-bit images'
@@ -67,6 +67,13 @@ def create_dictionary(
                 'mhr_large_reg_orient': os.path.join(base_dir, reg_dir, 'MHR_Large_Reg_Orient'),
                 "he_large_reg": os.path.join(base_dir, reg_dir, 'HE_Large_Reg'),
                 
+                "ps": os.path.join(base_dir, prep_dir, 'PS_Large'),
+                "ps_orient": os.path.join(base_dir, prep_dir, 'PS_Large_Orient'),
+                "ps_reg": os.path.join(base_dir, reg_dir, 'PS_Large_Reg'),
+                "ps_reg_raw": os.path.join(base_dir, reg_dir, 'PS_Large_Reg', 'Raw'),
+                "ps_reg_orient": os.path.join(base_dir, reg_dir, 'PS_Large_Reg_Orient'),
+                "ps_reg_orient_raw": os.path.join(base_dir, reg_dir, 'PS_Large_Reg_Orient', 'Raw'),
+        
                 #"mlr_large_mask": os.path.join(base_dir, mask_dir, 'MLR_Large_Mask'),
                 #"mhr_large_mask": os.path.join(base_dir, mask_dir, 'MHR_Large_Mask'),
                 #"mlr_large_mask_orient": os.path.join(base_dir, mask_dir, 'MLR_Large_Mask_Orient'),

@@ -6,7 +6,7 @@ Created on Fri Jul 13 13:00:47 2018
 """
 
 import multiscale.toolkits.cw_ssim as cw_ssim
-import multiscale.polarimetry.dir_dictionary as dird
+import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 from pathlib import Path
 
 dir_dict = dird.create_dictionary()

@@ -6,10 +6,9 @@ Created on Fri Apr  6 15:43:03 2018
 """
 
 import multiscale.toolkits.cytospectre as cyto
-import multiscale.polarimetry.dir_dictionary as dird
+import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 import unittest
-import pandas as pd
-import os
+
 test_dict = dird.create_test_dictionary()
 
 
