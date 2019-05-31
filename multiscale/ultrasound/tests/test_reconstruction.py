@@ -98,6 +98,7 @@ class TestUltrasoundImageAssembler(object):
                 assembler = recon.UltrasoundImageAssembler(mats_dir, output_dir, ij, pl_path)
                 return assembler
 
+        @pytest.mark.xfail(reason="Multiview-reconstruction has a bug with headless fusion")
         def test_assemble_image(self, us_assembler):
                 us_assembler.assemble_image()
                 output_file = Path(us_assembler.output_dir, 'dataset.xml')

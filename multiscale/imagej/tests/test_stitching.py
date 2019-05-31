@@ -6,6 +6,7 @@ import pytest
 
 
 class TestBigStitcher(object):
+        @pytest.mark.xfail(reason="Multiview-reconstruction has a bug with headless fusion")
         def test_stitch_from_numpy(self, tmpdir, ij):
                 outdir = tmpdir.mkdir('stitch')
                 outdir = str(outdir).replace('\\', '/')
