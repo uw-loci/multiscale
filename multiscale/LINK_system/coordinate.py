@@ -34,11 +34,12 @@ import multiscale.microscopy.ome as ome
 import multiscale.ultrasound.reconstruction as recon
 
 
-def open_us(us_path, pl_path, dynamic_range, gauge_value):
+def open_us(us_path, pl_path, params_path, dynamic_range, gauge_value):
         """
         Open the US image, window it to a dynamic range, and rotate it to microscope coordinate axes
         :param us_path: Path to the US image
         :param pl_path: Path to the position list for the US image
+        :param params_path: Path to a .mat file with the P parameter struct
         :param dynamic_range: Window width in dB, measured from the maximum signal
         :param gauge_value: Indicator gauge value for the US image
         :return: SimpleITK US image with appropriate origin, direction, and spacing
@@ -49,8 +50,11 @@ def open_us(us_path, pl_path, dynamic_range, gauge_value):
         
         spacing = ome.get_spacing(us_path, order=['X', 'Z', 'Y'])
         
+        params = recon.read_variable(params_path, 'P')
         origin_xy = recon.get_xy_origin(pl_path)
-        origin = [origin_xy[0], origin_xy[1], gauge_value]
+        origin_z = recon.get_z_origin(params, gauge_value)
+        origin = [origin_xy[0], origin_xy[1], origin_z]
+        
         us_image = rotate_axes_to_microscope(windowed_image)
         us_image.SetSpacing(spacing)
         us_image.SetOrigin(origin)

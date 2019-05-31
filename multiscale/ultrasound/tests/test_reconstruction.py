@@ -72,7 +72,15 @@ def us_files(tmpdir, pos_file):
              'endDepth': 128,
              'transducer_spacing': 0.1,
              'speed_of_sound': 1540,
-             'numRays': 128
+             'numRays': 128,
+             'num_lines': 128,
+             'sampling_frequency': 62.5,
+             'axial_samples': 50,
+             'transmit_samples': 100,
+             'time_samples': 200,
+             'elements': 128,
+             'element_sensitivity': 100,
+             'line_samples': 50
              }
 
         for idx in range(len(images)):
@@ -95,6 +103,14 @@ class TestUltrasoundImageAssembler(object):
                 output_file = Path(us_assembler.output_dir, 'dataset.xml')
                 tif_file = Path(us_assembler.output_dir, 'fused_tp_0_ch_0.tif')
                 assert output_file.is_file()
+                assert tif_file.is_file()
+
+        def test_assemble_image_without_position_list(self, us_assembler):
+                temp_pl = us_assembler.pos_list
+                us_assembler.pos_list = []
+                us_assembler.assemble_image()
+                tif_file = Path(us_assembler.output_dir, us_assembler.output_name)
+                us_assembler.pos_list = temp_pl
                 assert tif_file.is_file()
 
         def test_position_list_is_read_correctly(self, pos_file, us_assembler):
@@ -207,3 +223,22 @@ class TestUltrasoundImageAssembler(object):
                 output = us_assembler._image_list_to_laterally_separate_3d_images(image_list_2d)
                 
                 assert (output == expected).all()
+
+
+class TestGetOrigin(object):
+        def test_get_origin(self, us_files):
+                mats_dir, pl_path = us_files
+                params_path = recon.get_sorted_list_mats(mats_dir)[0]
+                gauge_value = 8
+                expected = [0, 0, 63]
+                output = recon.get_origin(pl_path, params_path, gauge_value)
+                assert (output == expected)
+                
+                
+        def test_z_origin_math(self):
+                params = {'start depth': 10, 'axial samples': 5, 'axial resolution': 2.5}
+                gauge_value = -15
+                output = recon.get_z_origin(params, gauge_value)
+                expected = 10+5*2.5-15
+                assert (output == expected)
+                

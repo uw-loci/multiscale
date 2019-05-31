@@ -13,7 +13,7 @@ import SimpleITK as sitk
 import multiscale.imagej.stitching as st
 import os
 import tiffile as tif
-
+import warnings
 
 class UltrasoundImageAssembler(object):
         """
@@ -87,12 +87,16 @@ class UltrasoundImageAssembler(object):
                         stitcher = st.BigStitcher(self._ij)
                         stitcher._fuse_dataset(self.fuse_args)
                         return
-                
+                print(len(self.pos_list))
                 image_list = self._mat_list_to_variable_list(base_image_data)
-                separate_3d_images = self.\
-                        _image_list_to_laterally_separate_3d_images(image_list)
-                self._stitch_image(separate_3d_images)
-
+                if len(self.pos_list) == 0:
+                        image_array = np.array(image_list)
+                        self._save_us_image(self.output_name, self._iq_to_output(image_array))
+                else:
+                        separate_3d_images = self.\
+                                _image_list_to_laterally_separate_3d_images(image_list)
+                        self._stitch_image(separate_3d_images)
+                        
         def _stitch_image(self, image_array):
                 dataset_args = self._assemble_dataset_arguments()
                 fuse_args = self._assemble_fuse_args()
@@ -176,7 +180,12 @@ class UltrasoundImageAssembler(object):
                 """Get the spacing of the resulting image in microns"""
                 lateral_spacing = self.params['lateral resolution']
                 axial_spacing = self.params['axial resolution']
-                elevational_spacing = self._calculate_position_separation(1)
+                try:
+                        elevational_spacing = self._calculate_position_separation(1)
+                except TypeError:
+                        elevational_spacing = np.max([lateral_spacing, axial_spacing])
+                        warnings. warn('No elevational spacing found.  '
+                                       'Setting to max of lateral and axial: {}'.format(elevational_spacing))
                 
                 spacing = [lateral_spacing, axial_spacing, elevational_spacing]
                 return spacing
@@ -206,7 +215,7 @@ class UltrasoundImageAssembler(object):
         def _read_position_list(self):
                 """Open a Micromanager acquired position file and return a list of X, Y positions"""
                 if self.pl_path is None:
-                        return []
+                        return [], []
 
                 acquisition_dict = util.read_json(self.pl_path)
                 return clean_position_text(acquisition_dict)
@@ -321,6 +330,42 @@ def iq_to_db(image_array):
         return db.astype('f')
 
 
+def get_origin(pl_path, params_path, gauge_value):
+        """
+        Get the coordinate system origin for the US image
+        :param pl_path: Path to the position list for the acquisition
+        :param params_path: Path to a .mat file containing the P parameter struct
+        :param gauge_value: Value of the indicator gauge
+        :return: Origin in X, Y, Z
+        """
+        params = read_parameters(params_path)
+        origin_xy = get_xy_origin(pl_path)
+        origin_z = get_z_origin(params, gauge_value)
+        origin = [origin_xy[0], origin_xy[1], origin_z]
+        return origin
+
+
+def get_xy_origin(pl_path):
+        """Read an ultrasound position list and get the XY origin"""
+        raw_pos_list = util.read_json(pl_path)
+        pos_list = clean_position_text(raw_pos_list)[0]
+        xy_origin = np.min(pos_list, 0)
+        return xy_origin
+
+
+def get_z_origin(params, gauge_value):
+        """
+        Get the Z coordinate origin of the US system
+        :param params: Parameters of the acquisition
+        :param gauge_value: Indicator gauge value
+        :return: Z coordinate
+        """
+        image_origin = params['start depth'] + params['axial samples']*params['axial resolution']
+        z_origin = image_origin + gauge_value
+        return z_origin
+
+
+
 """
 Deprecated methods
 
@@ -413,13 +458,6 @@ def count_xy_positions(pos_list: list) -> (np.ndarray, np.ndarray, np.ndarray):
         
         return num_lateral_elevational, lateral_sep, elevational_sep
 
-
-def get_xy_origin(pl_path):
-    """Read an ultrasound position list and get the XY origin"""
-    raw_pos_list = util.read_json(pl_path)
-    pos_list = clean_position_text(raw_pos_list)[0]
-    xy_origin = np.min(pos_list, 0)
-    return xy_origin
 
 
 def index_from_file_path(file_path: Path) -> int:
