@@ -36,24 +36,15 @@ class UltrasoundImageAssembler(object):
                         
                 os.makedirs(str(output_dir), exist_ok=True)
                 
-                self.fuse_args = fuse_args
-                self.dataset_args = dataset_args
-                
                 self.search_str = search_str
                 self.pos_list, self.pos_labels = self._read_position_list()
                 
-                self.xml_exists = False
-                
-                if intermediate_save_dir is not None:
-                        xml_path = Path(intermediate_save_dir, 'dataset.xml')
-                        if xml_path.is_file():
-                                if util.query_yes_no('XML file already exists.  Skip reading .mat files?'):
-                                        self.xml_exists = True
-                                        return
-                
                 self.mat_list = self._read_sorted_list_mats()
                 self.params = read_parameters(self.mat_list[0])
-                
+
+                self.fuse_args = self._assemble_fuse_args(fuse_args)
+                self.dataset_args = self._assemble_dataset_arguments(dataset_args)
+
         def get_acquisition_parameters(self):
                 """Get the US acquisition parameters"""
                 return self.params
@@ -83,11 +74,16 @@ class UltrasoundImageAssembler(object):
                 :param base_image_data: The variable being stitched in the .mat files
                 :return:
                 """
-                if self.xml_exists:
-                        stitcher = st.BigStitcher(self._ij)
-                        stitcher._fuse_dataset(self.fuse_args)
+                
+                if self._check_for_output():
                         return
-                print(len(self.pos_list))
+                
+                if self._check_for_xml():
+                        stitcher = st.BigStitcher(self._ij)
+                        # todo: fix so that this checks for existing files properly
+                        stitcher._fuse_dataset(self.fuse_args, self.output_name)
+                        return
+                
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 if len(self.pos_list) == 0:
                         image_array = np.array(image_list)
@@ -96,24 +92,44 @@ class UltrasoundImageAssembler(object):
                         separate_3d_images = self.\
                                 _image_list_to_laterally_separate_3d_images(image_list)
                         self._stitch_image(separate_3d_images)
+        
+        def _check_for_output(self):
+                output_path = Path(self.fuse_args['output_file_directory'].replace('[', '').replace(']', ''),
+                                   self.output_name)
+                if output_path.is_file():
+                        return util.query_yes_no('{} already exists.  Skip image fusion? >> '.format(output_path))
+                else:
+                        return False
                         
+                        
+        def _check_for_xml(self):
+                """
+                Check for the dataset.xml file and ask if the user wants to skip reading/resaving the .mat files.
+                
+                :return: boolean whether to skip dataset definition or not.
+                """
+                if self.intermediate_save_dir is not None:
+                        xml_path = Path(self.intermediate_save_dir, 'dataset.xml')
+                        if xml_path.is_file():
+                                return util.query_yes_no('XML file already exists.  Skip reading .mat files? >> ')
+                else:
+                        return False
+        
         def _stitch_image(self, image_array):
-                dataset_args = self._assemble_dataset_arguments()
-                fuse_args = self._assemble_fuse_args()
                 bmode = self._iq_to_output(image_array)
-                if dataset_args['overlap_x_(%)'] is None:
+                if self.dataset_args['overlap_x_(%)'] is None:
                         self._save_us_image(self.output_name, bmode[0])
                         return
                         
                 stitcher = st.BigStitcher(self._ij)
-                stitcher.stitch_from_numpy(bmode, dataset_args, fuse_args,
+                stitcher.stitch_from_numpy(bmode, self.dataset_args, self.fuse_args,
                                            intermediate_save_dir=self.intermediate_save_dir,
                                            output_name=self.output_name)
 
         def _iq_to_output(self, image_array):
                 return iq_to_db(image_array)
         
-        def _assemble_dataset_arguments(self):
+        def _assemble_dataset_arguments(self, input_args):
                 spacing = self._get_spacing()
                 args = {
                         'define_dataset': '[Automatic Loader (Bioformats based)]',
@@ -143,13 +159,13 @@ class UltrasoundImageAssembler(object):
                         'use_deflate_compression': True,
                         'export_path': str(self.intermediate_save_dir) + '/dataset'
                 }
-                if self.dataset_args is not None:
-                        for key, value in self.dataset_args.items():
+                if input_args is not None:
+                        for key, value in input_args.items():
                                 args[key] = value
                                 
                 return args
         
-        def _assemble_fuse_args(self):
+        def _assemble_fuse_args(self, input_args):
                 xml_path = str(self.intermediate_save_dir) + '/dataset.xml'
                 
                 args = {
@@ -170,8 +186,8 @@ class UltrasoundImageAssembler(object):
                         'fused_image': '[Save as (compressed) TIFF stacks]',
                         'output_file_directory': str(self.output_dir)
                 }
-                if self.fuse_args is not None:
-                        for key, value in self.fuse_args.items():
+                if input_args is not None:
+                        for key, value in input_args.items():
                                 args[key] = value
         
                 return args
@@ -292,7 +308,7 @@ def read_parameters(mat_path: Path) -> dict:
         params['sampling wavelength'] = params_raw['wavelength_micron']
         
         try: # Necessary to have a try to allow processing older images
-                params['raylines'] = params_raw['num_lines']
+                params['raylines'] = params_raw['numRays']
                 params['sampling frequency'] = params_raw['sampling_frequency'] * 1E6
                 params['axial samples'] = params_raw['axial_samples']
                 params['transmit samples'] = params_raw['transmit_samples']

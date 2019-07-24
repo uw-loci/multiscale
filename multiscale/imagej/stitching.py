@@ -44,11 +44,10 @@ class BigStitcher(object):
                 """Class for using the BigStitcher plugin on a python interface"""
                 self._ij = ij
 
-        def stitch_from_files(self, dataset_args: dict, fuse_args: dict):
+        def stitch_from_files(self, dataset_args: dict, fuse_args: dict, output_name: str):
                 # Stitch
                 self._define_dataset(dataset_args)
-                self._fuse_dataset(fuse_args)
-                # todo: rename fused file and/or open in imagej and save as custom tif (8 bit?)
+                self._fuse_dataset(fuse_args, output_name)
 
         def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict,
                               intermediate_save_dir=None, output_name='fused_tp_0_ch_0.tif'):
@@ -61,19 +60,14 @@ class BigStitcher(object):
                 :return:
                 """
                 # todo: Have it save the set/save spacing correctly as well
-                output_path = Path(fuse_args['output_file_directory'].replace('[', '').replace(']', ''),
-                                   output_name)
-                if output_path.is_file():
-                        if not util.query_yes_no(
-                                    '{} already exists.  Overwrite previous result? >> '.format(output_path)):
-                                return
 
                 if intermediate_save_dir is None:
                         with tempfile.TemporaryDirectory() as temp_dir:
-                                self._dataset_from_numpy(images_np, dataset_args, fuse_args, temp_dir)
+                                self._dataset_from_numpy(images_np, dataset_args, fuse_args, temp_dir, output_name)
                 else:
-                        self._dataset_from_numpy(images_np, dataset_args, fuse_args, intermediate_save_dir)
+                        self._dataset_from_numpy(images_np, dataset_args, fuse_args, intermediate_save_dir, output_name)
                         
+        def _rename_output(self, fuse_args, output_name='fused_tp_0_ch_0.tif'):
                 if output_name != 'fused_tp_0_ch_0.tif':
                         original_path = Path(fuse_args['output_file_directory'], 'fused_tp_0_ch_0.tif')
                         output_path = Path(fuse_args['output_file_directory'], output_name)
@@ -83,13 +77,12 @@ class BigStitcher(object):
                         except WindowsError:
                                 os.remove(output_path)
                                 os.rename(original_path, output_path)
-                        
-
-        def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, intermediate_save_dir):
+        
+        def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, intermediate_save_dir, output_name):
                 """Helper for stitch from numpy"""
                 dataset_args['path'] = intermediate_save_dir
                 self._save_numpy_images(intermediate_save_dir, images_np, dataset_args)
-                self.stitch_from_files(dataset_args, fuse_args)
+                self.stitch_from_files(dataset_args, fuse_args, output_name)
 
         def _save_numpy_images(self, save_dir, numpy_images: np.ndarray, dataset_args):
                 """
@@ -135,11 +128,12 @@ class BigStitcher(object):
                         dataset_args = self._populate_dataset_args(dataset_args)
                         self._ij.py.run_plugin(plugin, args=dataset_args)
 
-        def _fuse_dataset(self, fuse_args):
+        def _fuse_dataset(self, fuse_args, output_name='fused_tp_0_ch_0.tif'):
                 plugin = "Fuse dataset ..."
                 print('Fusing dataset from {}'.format(Path(fuse_args['select'])))
                 fuse_args = self._populate_fuse_args(fuse_args)
                 self._ij.py.run_plugin(plugin, args=fuse_args)
+                self._rename_output(fuse_args, output_name)
                 
         def _populate_dataset_args(self, dataset_args):
                 """
