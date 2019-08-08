@@ -211,8 +211,9 @@ class UltrasoundImageAssembler(object):
                 """
                 Convert a list of 2d numpy arrays into 4d numpy array of laterally separate 3d images
                 """
-                image_array = np.array(image_list)
-                shape_2d = np.shape(image_list[0])
+                # todo: check for multiple angles and select middle angle if exists?
+                image_array = self._get_2d_array(np.array(image_list))
+                shape_2d = np.shape(image_array[0])
                 
                 num_lateral = self._count_unique_positions(0)
                 num_elevational = self._count_unique_positions(1)
@@ -222,6 +223,26 @@ class UltrasoundImageAssembler(object):
                 
                 return array_of_3d_images
 
+        def _get_2d_array(self, image_list):
+                """
+                Return a list of 2D IQ data arrays, defaulting to the middle angle and first frame
+                
+                :param image_list: list of each IQData array from the .mat files
+                :return: image_array: A 3D numpy array corresponding to a list of 2D IQ images
+                """
+                shape = np.shape(image_list[0])
+                dims = np.size(image_list)
+                if dims == 3:
+                        image_array = np.array(image_list[:, :, :, np.int(np.floor(shape[2] / 2))])
+                elif dims == 5:
+                        image_array = np.array(image_list[:, :, :, np.int(np.floor(shape[2] / 2)), 1, 1])
+                elif dims == 2:
+                        image_array = np.array(image_list)
+                else:
+                        raise(NotImplementedError, 'Image conversion not implemented for this {} IQ dimensions'.format{dims})
+                
+                return image_array
+        
         # Images
         def _mat_list_to_variable_list(self, variable):
                 """Acquire a sorted list containing the specified variable in each mat file"""

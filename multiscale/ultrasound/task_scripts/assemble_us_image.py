@@ -30,22 +30,26 @@ from pathlib import Path
 
 ij = imagej.init('C:/users/mpinkert/Fiji.app/')
 
-date = '2019-05-14'
+date = '2019-08-08 - Mouse 197'
 study_dir = 'Mouse images'
-base_dir_list = ['Mouse 003', 'Mouse 205', 'Mouse 209', 'Mouse 211', 'Mouse 215', 'Mouse 1204']
+base_dir_list = ['Mouse 197']
 #pl_path = Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-05-04', '2019-05-04_US - 3X 100YSep.pos')
-pl_path_base = Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-05-14')
+pl_path_base = Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-08-08 - Mouse 197')
+runs = ['1', '2']
 
 for base_dir in base_dir_list:
-        pl_path = Path(pl_path_base, base_dir + '.pos')
-        mat_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date, base_dir, 'Run-1')
-        output_dir = Path(r'F:\Research\LINK', study_dir, date,  base_dir)
-        intermediate_save_dir = Path(r'F:\Research\LINK', study_dir, date, base_dir)
-        output_name = base_dir + '.tif'
-        # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-04-05\US_PositionList_25yspacing.pos')
-        # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-08\US_PositionLis_2019-01-08.pos')
+        for run in runs:
+                pl_path = Path(pl_path_base, 'US_PositionList ' + base_dir + '.pos')
+                #pl_path = Path(pl_path_base, 'Mouse 212 longitudinal.pos')
+                mat_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date, base_dir, 'Run-{}'.format(run))
+                output_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date,  base_dir)
+                intermediate_save_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date, base_dir,
+                                             'Run-{} Intermediate'.format(run))
+                output_name = base_dir + '_Run-{}.tif'.format(run)
+                # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-04-05\US_PositionList_25yspacing.pos')
+                # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-08\US_PositionLis_2019-01-08.pos')
         
-        assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path,
-                                                   intermediate_save_dir=intermediate_save_dir,
-                                                   fuse_args={'downsampling': 1}, search_str='IQ.mat', output_name=output_name)
-        assembler.assemble_image(base_image_data='IQData')
+                assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path,
+                                                           intermediate_save_dir=intermediate_save_dir,
+                                                           fuse_args={'downsampling': 1}, search_str='IQ.mat', output_name=output_name)
+                assembler.assemble_image(base_image_data='IQData')
