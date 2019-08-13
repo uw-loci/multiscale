@@ -106,6 +106,20 @@ def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
                           roi_size=np.array([64, 64]),
                           intensity_threshold=1, number_threshold=10,
                           skip_existing_images=True):
+        """
+        Separate a large stitched image into curve align tiles and ROIs, thresohlding out blank tiles
+
+        :param image_path: pathlib Path to the iamge file
+        :param output_dir: pathlib Path to the output diretory
+        :param output_suffix: str name convention to name the output tiles
+        :param tile_size: 2d numpy array of tile size.  E.g., [512, 512]
+        :param tile_separation: 2d numpy array of distance between tiles.
+        :param roi_size: Size of the CurveAlign ROI to process
+        :param intensity_threshold: The pixel value above which pixels are conisdered signal
+        :param number_threshold: Percentage of pixels above the threshold needed to write out the tile
+        :param skip_existing_images: Whether or not to overwrite existing outputs
+        :return:
+        """
         image = sitk.ReadImage(str(image_path))
         image_array = sitk.GetArrayFromImage(image)
         max_value = np.max(image_array)
