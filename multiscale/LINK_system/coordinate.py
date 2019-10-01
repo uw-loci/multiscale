@@ -142,16 +142,46 @@ def get_ellipsoid_radius(stats, true_labels):
         return rad
 
 
-def calculate_centroid(us_image):
+def calculate_centroid(us_image, radius=False, output_label_img=False):
         """
         Get the leveled Z height (i.e., brought down to microscope plane at 0) location of each fiducial
         :param us_image: US image to calculate the fiducials from
+        :param radius: Boolean whether or not to add the ellipsoid radius to the leveled centroid
         :return: list of Z heights
         """
         connected_image = connected_components(us_image)
         stats = get_fiducial_stats(connected_image)
         labels = filter_labels(stats)
-        return get_leveled_centroid(stats, labels)
+        centroid = get_leveled_centroid(stats, labels)
+        if radius:
+                centroid = centroid - get_ellipsoid_radius(stats, labels)
+                
+        if output_label_img:
+                output_label_img = apply_filtered_labels(connected_image, stats.GetLabels(), labels)
+                return centroid, output_label_img
+                
+                
+        return centroid
+
+
+def apply_filtered_labels(connected_image, orig_labels, sorted_labels):
+        """
+        Exctract a subset list of labels from a connected component image.
+        :param connected_image: Sitk connected component image
+        :param orig_labels: List of original labels from Stats.GetLabels()
+        :param sorted_labels: Subset list of labels to use
+        :return: A connected component image with only the sorted labels
+        """
+        label_dict = {}
+        cur_label = 1
+        for label in orig_labels:
+                if label in sorted_labels:
+                        label_dict[label] = cur_label
+                        cur_label = cur_label + 1
+                else:
+                        label_dict[label] = 0
+        filtered_image = sitk.ChangeLabel(connected_image, label_dict)
+        return filtered_image
 
 
 def connected_components(us_image):
