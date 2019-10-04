@@ -30,16 +30,17 @@ from pathlib import Path
 
 ij = imagej.init('C:/users/mpinkert/Fiji.app/')
 
-date = '2019-08-08 - Mouse 197'
+date = '2019-09-28 - Mouse 1596'
 study_dir = 'Mouse images'
-base_dir_list = ['Mouse 197']
+base_dir_list = ['L38 Fiducial Z12936']
 #pl_path = Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-05-04', '2019-05-04_US - 3X 100YSep.pos')
-pl_path_base = Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-08-08 - Mouse 197')
-runs = ['1', '2']
+pl_path_base = Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-09-28 - Mouse 1596')
+runs = ['1']
 
 for base_dir in base_dir_list:
         for run in runs:
-                pl_path = Path(pl_path_base, 'US_PositionList ' + base_dir + '.pos')
+                # pl_path = pl_path_base
+                pl_path = Path(pl_path_base, base_dir + '.pos')
                 #pl_path = Path(pl_path_base, 'Mouse 212 longitudinal.pos')
                 mat_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date, base_dir, 'Run-{}'.format(run))
                 output_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date,  base_dir)
@@ -51,5 +52,5 @@ for base_dir in base_dir_list:
         
                 assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path,
                                                            intermediate_save_dir=intermediate_save_dir,
-                                                           fuse_args={'downsampling': 1}, search_str='IQ.mat', output_name=output_name)
-                assembler.assemble_image(base_image_data='IQData')
+                                                           fuse_args={'downsampling': 2}, search_str='IQ.mat', output_name=output_name)
+                assembler.assemble_bmode_image(base_image_data='IQData')

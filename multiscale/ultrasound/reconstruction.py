@@ -22,6 +22,19 @@ class UltrasoundImageAssembler(object):
         def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
                      intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
                      search_str: str='.mat', output_name='fused_tp_0_ch_0.tif', params_path=None):
+                """
+                Class for assembling a 3D Ultrasound image taken with the LINK imaging system
+                :param mat_dir: Directory holding the raw .mat files from Verasonics
+                :param output_dir: Directory to output the results to
+                :param ij: A pyimagej instance with the BigStitcher plugin installed
+                :param pl_path: A path to the stage position list associated with the US acq
+                :param intermediate_save_dir: An optional directory to save single X position 3D stacks and the dataset.xml
+                :param dataset_args: Optional changes to the dataset definition args
+                :param fuse_args: Optional changes to the fuse arguments from default
+                :param search_str: The end-of-file string to search for in the mat_dir, e.g. 'IQData.mat'
+                :param output_name: What to name the final stitched image
+                :param params_path: Path to a Verasonics settings file
+                """
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
@@ -53,6 +66,7 @@ class UltrasoundImageAssembler(object):
                 return self.params
         
         def _convert_to_2d_tiffs(self):
+                """Convert US slices to individual 2D tifs"""
                 image_list = self._mat_list_to_variable_list('IQData')
                 for idx in range(len(self.pos_labels)):
                         file_name = 'US_' + self.pos_labels[idx] + '.tif'
@@ -60,6 +74,12 @@ class UltrasoundImageAssembler(object):
                         self._save_us_image(file_name, bmode)
                         
         def _save_us_image(self, file_name, bmode):
+                """
+                Save a 3D US image as a tif
+                :param file_name: Name of the output file
+                :param bmode: The 3D image to save
+                :return:
+                """
                 path = str(Path(self.output_dir, file_name))
                 print('Saving {}'.format(path))
                 spacing = self._get_spacing()
@@ -71,9 +91,9 @@ class UltrasoundImageAssembler(object):
                             resolution=(1./self.params['lateral resolution'], 1./self.params['axial resolution']),
                             metadata={'spacing': spacing[2], 'unit': 'um'})
         
-        def assemble_image(self, base_image_data='IQData'):
+        def assemble_bmode_image(self, base_image_data='IQData'):
                 """
-                Stitch the .mat based ultrasound image and save the results
+                Stitch the .mat based ultrasound image into a bmode and save the results
                 :param base_image_data: The variable being stitched in the .mat files
                 :return:
                 """
@@ -88,13 +108,13 @@ class UltrasoundImageAssembler(object):
                         return
                 
                 image_list = self._mat_list_to_variable_list(base_image_data)
-                if len(self.pos_list) == 0:
+                if len(self.pos_list) == 0 or self._count_unique_positions(0) == 1:
                         image_array = np.array(image_list)
-                        self._save_us_image(self.output_name, self._iq_to_output(image_array))
+                        self._save_us_image(self.output_name, iq_to_bmode(image_array))
                 else:
                         separate_3d_images = self.\
                                 _image_list_to_laterally_separate_3d_images(image_list)
-                        bmode = self._iq_to_output(separate_3d_images)
+                        bmode = self.iq_to_bmode(separate_3d_images)
                         self._stitch_image(bmode)
 
         def assemble_qus_image(self, base_image_data='param_map'):
@@ -116,12 +136,12 @@ class UltrasoundImageAssembler(object):
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 if len(self.pos_list) == 0 or self._count_unique_positions(0) == 1:
                         image_array = np.array(image_list).astype(np.float32)
-                        self._save_us_image(self.output_name, self._iq_to_output(image_array))
+                        self._save_us_image(self.output_name, image_array)
                 else:
                         separate_3d_images = self. \
                                 _image_list_to_laterally_separate_3d_images(image_list)
                         self._stitch_image(separate_3d_images)
-        
+                        
         def _check_for_output(self):
                 output_path = Path(self.fuse_args['output_file_directory'].replace('[', '').replace(']', ''),
                                    self.output_name)
@@ -145,6 +165,12 @@ class UltrasoundImageAssembler(object):
                         return False
         
         def _stitch_image(self, bmode):
+                """
+                Stitch the image using the BigStticher plugin
+                :param bmode: the 4D array (3 dimensions + lateral tiles) bmode of the US
+                :return:
+                """
+                
                 if self.dataset_args['overlap_x_(%)'] is None:
                         self._save_us_image(self.output_name, bmode[0])
                         return
@@ -153,9 +179,6 @@ class UltrasoundImageAssembler(object):
                 stitcher.stitch_from_numpy(bmode, self.dataset_args, self.fuse_args,
                                            intermediate_save_dir=self.intermediate_save_dir,
                                            output_name=self.output_name)
-
-        def _iq_to_output(self, image_array):
-                return iq_to_db(image_array)
         
         def _assemble_dataset_arguments(self, input_args):
                 spacing = self._get_spacing()
