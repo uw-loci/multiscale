@@ -47,8 +47,11 @@ def open_us(us_path, pl_path, params_path, spacing, dynamic_range, gauge_value):
         """
         # todo: Read in param.start depth to properly set the origin
         raw_image = sitk.ReadImage(str(us_path))
-        windowed_image = proc.window_image(raw_image, dynamic_range)
-        
+        if dynamic_range is not None:
+                windowed_image = proc.window_image(raw_image, dynamic_range)
+        else:
+                windowed_image = raw_image
+                
         params = recon.read_parameters(params_path)
         origin_xy = recon.get_xy_origin(pl_path)
         origin_z = recon.get_z_origin(params, gauge_value)
@@ -91,8 +94,9 @@ def rotate_axes_to_microscope(image):
         :return: Rotated image
         """
         arr = sitk.GetArrayFromImage(image)
+        arr[np.isnan(arr)] = 0
         arr_rot = np.swapaxes(arr, 0, 1)
-        arr_rot = np.flip(arr_rot, 0).astype(np.uint8)
+        arr_rot = np.flip(arr_rot, 0).astype(arr.dtype)
         return sitk.GetImageFromArray(arr_rot)
 
 
@@ -132,7 +136,7 @@ def get_leveled_centroid(stats, true_labels):
         for center in centroid:
                 level_center.append(center[2] + np.floor((idx+3)/3)*1000)
                 idx = idx+1
-                
+        
         return np.array(level_center)
 
 
@@ -155,12 +159,12 @@ def calculate_centroid(us_image, radius=False, output_label_img=False):
         centroid = get_leveled_centroid(stats, labels)
         if radius:
                 centroid = centroid - get_ellipsoid_radius(stats, labels)
-                
+        
         if output_label_img:
                 output_label_img = apply_filtered_labels(connected_image, stats.GetLabels(), labels)
                 return centroid, output_label_img
-                
-                
+        
+        
         return centroid
 
 
@@ -185,17 +189,17 @@ def apply_filtered_labels(connected_image, orig_labels, sorted_labels):
 
 
 def connected_components(us_image):
-    """Process the US image using Otsu thresholding and binary opening/closing to get the connected components"""
-    thresh_filter = sitk.OtsuThresholdImageFilter()
-    thresh_filter.SetInsideValue(0)
-    thresh_filter.SetOutsideValue(1)
-    thresh_img = thresh_filter.Execute(us_image)
-    thresh_value = thresh_filter.GetThreshold()
-
-    print("Threshold used: {}".format(thresh_value))
-
-    cleaned_thresh_img = sitk.BinaryOpeningByReconstruction(thresh_img, [4, 4, 2])
-    cleaned_thresh_img = sitk.BinaryClosingByReconstruction(cleaned_thresh_img, [4, 4, 2])
-
-    connected_img = sitk.ConnectedComponent(cleaned_thresh_img)
-    return connected_img
+        """Process the US image using Otsu thresholding and binary opening/closing to get the connected components"""
+        thresh_filter = sitk.OtsuThresholdImageFilter()
+        thresh_filter.SetInsideValue(0)
+        thresh_filter.SetOutsideValue(1)
+        thresh_img = thresh_filter.Execute(us_image)
+        thresh_value = thresh_filter.GetThreshold()
+        
+        print("Threshold used: {}".format(thresh_value))
+        
+        cleaned_thresh_img = sitk.BinaryOpeningByReconstruction(thresh_img, [4, 4, 2])
+        cleaned_thresh_img = sitk.BinaryClosingByReconstruction(cleaned_thresh_img, [4, 4, 2])
+        
+        connected_img = sitk.ConnectedComponent(cleaned_thresh_img)
+        return connected_img

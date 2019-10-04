@@ -21,7 +21,7 @@ class UltrasoundImageAssembler(object):
         """
         def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
                      intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
-                     search_str: str='.mat', output_name='fused_tp_0_ch_0.tif'):
+                     search_str: str='.mat', output_name='fused_tp_0_ch_0.tif', params_path=None):
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
@@ -40,7 +40,10 @@ class UltrasoundImageAssembler(object):
                 self.pos_list, self.pos_labels = self._read_position_list()
                 
                 self.mat_list = self._read_sorted_list_mats()
-                self.params = read_parameters(self.mat_list[0])
+                if params_path == None:
+                        self.params = read_parameters(self.mat_list[0])
+                else:
+                        self.params = read_parameters(params_path)
 
                 self.fuse_args = self._assemble_fuse_args(fuse_args)
                 self.dataset_args = self._assemble_dataset_arguments(dataset_args)
@@ -91,6 +94,32 @@ class UltrasoundImageAssembler(object):
                 else:
                         separate_3d_images = self.\
                                 _image_list_to_laterally_separate_3d_images(image_list)
+                        bmode = self._iq_to_output(separate_3d_images)
+                        self._stitch_image(bmode)
+
+        def assemble_qus_image(self, base_image_data='param_map'):
+                """
+                Stitch the .mat based ultrasound image and save the results
+                :param base_image_data: The variable being stitched in the .mat files
+                :return:
+                """
+        
+                if self._check_for_output():
+                        return
+        
+                if self._check_for_xml():
+                        stitcher = st.BigStitcher(self._ij)
+                        # todo: fix so that this checks for existing files properly
+                        stitcher._fuse_dataset(self.fuse_args, self.output_name)
+                        return
+        
+                image_list = self._mat_list_to_variable_list(base_image_data)
+                if len(self.pos_list) == 0 or self._count_unique_positions(0) == 1:
+                        image_array = np.array(image_list).astype(np.float32)
+                        self._save_us_image(self.output_name, self._iq_to_output(image_array))
+                else:
+                        separate_3d_images = self. \
+                                _image_list_to_laterally_separate_3d_images(image_list)
                         self._stitch_image(separate_3d_images)
         
         def _check_for_output(self):
@@ -115,8 +144,7 @@ class UltrasoundImageAssembler(object):
                 else:
                         return False
         
-        def _stitch_image(self, image_array):
-                bmode = self._iq_to_output(image_array)
+        def _stitch_image(self, bmode):
                 if self.dataset_args['overlap_x_(%)'] is None:
                         self._save_us_image(self.output_name, bmode[0])
                         return
@@ -181,7 +209,7 @@ class UltrasoundImageAssembler(object):
                         'interpolation': '[Linear Interpolation]',
                         'image': 'Virtual',
                         'blend': True,
-                        # 'preserve_original': True,
+                        'preserve_original': True,
                         'produce': '[Each timepoint & channel]',
                         'fused_image': '[Save as (compressed) TIFF stacks]',
                         'output_file_directory': str(self.output_dir)
@@ -231,7 +259,7 @@ class UltrasoundImageAssembler(object):
                 :return: image_array: A 3D numpy array corresponding to a list of 2D IQ images
                 """
                 shape = np.shape(image_list[0])
-                dims = np.size(image_list)
+                dims = np.size(shape)
                 if dims == 3:
                         image_array = np.array(image_list[:, :, :, np.int(np.floor(shape[2] / 2))])
                 elif dims == 5:
@@ -239,10 +267,9 @@ class UltrasoundImageAssembler(object):
                 elif dims == 2:
                         image_array = np.array(image_list)
                 else:
-                        raise(NotImplementedError, 'Image conversion not implemented for this {} IQ dimensions'.format{dims})
+                        raise(NotImplementedError, 'Image conversion not implemented for this {} IQ dimensions'.format(dims))
                 
                 return image_array
-        
         # Images
         def _mat_list_to_variable_list(self, variable):
                 """Acquire a sorted list containing the specified variable in each mat file"""
