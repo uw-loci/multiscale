@@ -53,7 +53,7 @@ def open_us(us_path, pl_path, params_path, spacing, dynamic_range, gauge_value):
                 windowed_image = raw_image
                 
         params = recon.read_parameters(params_path)
-        origin_xy = recon.get_xy_origin(pl_path)
+        origin_xy = recon.get_xy_origin(pl_path, params)
         origin_z = recon.get_z_origin(params, gauge_value)
         origin = [origin_xy[0], origin_xy[1], origin_z]
         

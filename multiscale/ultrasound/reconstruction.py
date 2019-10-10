@@ -21,7 +21,7 @@ class UltrasoundImageAssembler(object):
         """
         def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
                      intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
-                     search_str: str='.mat', output_name='fused_tp_0_ch_0.tif', params_path=None):
+                     search_str: str='IQ.mat', output_name='fused_tp_0_ch_0.tif', params_path=None):
                 """
                 Class for assembling a 3D Ultrasound image taken with the LINK imaging system
                 :param mat_dir: Directory holding the raw .mat files from Verasonics
@@ -83,13 +83,15 @@ class UltrasoundImageAssembler(object):
                 path = str(Path(self.output_dir, file_name))
                 print('Saving {}'.format(path))
                 spacing = self._get_spacing()
-                ijstyle = bmode
+                ijstyle = bmode.astype(np.float32)
                 shape = ijstyle.shape
                 ijstyle.shape = 1, shape[0], 1, shape[1], shape[2], 1
                 
                 tif.imwrite(path, ijstyle, imagej=True,
                             resolution=(1./self.params['lateral resolution'], 1./self.params['axial resolution']),
                             metadata={'spacing': spacing[2], 'unit': 'um'})
+                
+                print('Finished saving {}'.format(path))
         
         def assemble_bmode_image(self, base_image_data='IQData'):
                 """
@@ -110,11 +112,12 @@ class UltrasoundImageAssembler(object):
                 image_list = self._mat_list_to_variable_list(base_image_data)
                 if len(self.pos_list) == 0 or self._count_unique_positions(0) == 1:
                         image_array = np.array(image_list)
-                        self._save_us_image(self.output_name, iq_to_bmode(image_array))
+                        bmode = iq_to_bmode(image_array)
+                        self._save_us_image(self.output_name, bmode)
                 else:
                         separate_3d_images = self.\
                                 _image_list_to_laterally_separate_3d_images(image_list)
-                        bmode = self.iq_to_bmode(separate_3d_images)
+                        bmode = iq_to_bmode(separate_3d_images)
                         self._stitch_image(bmode)
 
         def assemble_qus_image(self, base_image_data='param_map'):
@@ -433,11 +436,13 @@ def get_origin(pl_path, params_path, gauge_value):
         return origin
 
 
-def get_xy_origin(pl_path):
+def get_xy_origin(pl_path, params):
         """Read an ultrasound position list and get the XY origin"""
         raw_pos_list = util.read_json(pl_path)
         pos_list = clean_position_text(raw_pos_list)[0]
         xy_origin = np.min(pos_list, 0)
+        xy_origin[0] = xy_origin[0] - 0.5*params['raylines']*params['transducer spacing']
+        
         return xy_origin
 
 
@@ -510,7 +515,7 @@ def format_parameters(param_raw: np.ndarray) -> dict:
 def iq_to_bmode(iq_array: np.ndarray) -> np.ndarray:
         """Convert complex IQ data into bmode through squared transform"""
         env = np.abs(iq_array)
-        bmode = np.log10(env + 1)
+        bmode = 20*np.log10(env + 1)
         
         return bmode
 
