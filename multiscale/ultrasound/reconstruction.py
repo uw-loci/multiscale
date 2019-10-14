@@ -417,7 +417,7 @@ def extract_iteration_from_path(file_path):
 
 
 def iq_to_db(image_array):
-        db = 20 * np.log10(np.abs(image_array) + 1)
+        db = 20 * np.log10(np.abs(image_array) + np.min(np.abs(image_array))*0.001)
         return db.astype('f')
 
 
@@ -436,12 +436,13 @@ def get_origin(pl_path, params_path, gauge_value):
         return origin
 
 
-def get_xy_origin(pl_path, params):
-        """Read an ultrasound position list and get the XY origin"""
+def get_xy_origin(pl_path, params=None):
+        """Read an micromanager position list and get the XY origin"""
         raw_pos_list = util.read_json(pl_path)
         pos_list = clean_position_text(raw_pos_list)[0]
         xy_origin = np.min(pos_list, 0)
-        xy_origin[0] = xy_origin[0] - 0.5*params['raylines']*params['transducer spacing']
+        if params is not None:
+                xy_origin[0] = xy_origin[0] - 0.5*params['raylines']*params['transducer spacing']
         
         return xy_origin
 
