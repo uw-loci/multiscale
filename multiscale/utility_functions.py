@@ -11,6 +11,7 @@ import json
 import scipy.io as sio
 import numpy as np
 import math
+import h5py
 
 def write_json(dictionary: dict, path_dict: Path):
         with open(str(path_dict), 'w') as file:
@@ -185,11 +186,40 @@ def load_mat(file_path, variables=None):
                                 elem_list.append(sub_elem)
                 return elem_list
 
-        if variables is None:
-                data = sio.loadmat(file_name, struct_as_record=False, squeeze_me=True)
-        else:
-                data = sio.loadmat(file_name, struct_as_record=False, squeeze_me=True, variable_names=variables)
-        return _check_keys(data)
+        def read_hdf_matlab(filename):
+                def conv(path=''):
+                        p = path or '/'
+                        paths[p] = ret = {}
+                        for k, v in f[p].items():
+                                if type(v).__name__ == 'Group':
+                                        ret[k] = conv(f'{path}/{k}')  # Nested struct
+                                        continue
+                                v = v[()]  # It's a Numpy array now
+                                if v.dtype == 'object':
+                                        # HDF5ObjectReferences are converted into a list of actual pointers
+                                        ret[k] = [r and paths.get(f[r].name, f[r].name) for r in v.flat]
+                                else:
+                                        # Matrices and other numeric arrays
+                                        ret[k] = v if v.ndim < 2 else v.swapaxes(-1, -2)
+                        return ret
+        
+                paths = {}
+                with h5py.File(filename, 'r') as f:
+                        return conv()
+
+        try:
+                if variables is None:
+                        data = sio.loadmat(file_name, struct_as_record=False, squeeze_me=True)
+                else:
+                        data = sio.loadmat(file_name, struct_as_record=False, squeeze_me=True, variable_names=variables)
+                return _check_keys(data)
+        except NotImplementedError:
+                data = read_hdf_matlab(file_name)
+                if variables is None:
+                        return data
+                else:
+                        return data[variables]
+                        
 
 
 def list_values_approx_equal(num_list, rel_tol):

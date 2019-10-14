@@ -87,6 +87,38 @@ def open_microscopy(microscopy_path, microscopy_origin_path, downsample_factor=1
         return microscopy_image
 
 
+def open_oct(oct_path, oct_pos_path, spacing, zero_reference, dynamic_range=None, downsample_factor=1):
+        """
+        Open a stitched OCT tif for use with registration
+        :param oct_path: Path to the stitched OCT image
+        :param oct_pos_path: Path to the position list for the OCT acquisition
+        :param spacing: Voxel spacing of the OCT acquisition
+        :param zero_reference: The Z location of the glass in the MPM/SHG image.  The OCT image does not use the
+                z coordinate in the typical manner.  Changing the objective height will alter the focus of the light,
+                but will not alter the height of objects in the image.  As such, the Z coordinate needs to be set
+                manually
+        :param dynamic_range: Dynamic range to display in the OCT image
+        :param downsample_factor:
+        :return:
+        """
+        raw_image = sitk.ReadImage(str(oct_path))
+        if dynamic_range is not None:
+                windowed_image = proc.window_image(raw_image, dynamic_range)
+        else:
+                windowed_image = raw_image
+                
+        origin_xy = recon.get_xy_origin(oct_pos_path)
+        origin = np.array([origin_xy[0], origin_xy[1], zero_reference])
+        
+        spacing[0] = spacing[0]*downsample_factor
+        spacing[1] = spacing[1]*downsample_factor
+        
+        windowed_image.SetSpacing(spacing)
+        windowed_image.SetOrigin(origin)
+        windowed_image.SetDirection([1, 0, 0, 0, 1, 0, 0, 0, -1])
+        return windowed_image
+
+
 def rotate_axes_to_microscope(image):
         """
         Rotate the US axes to be along the microscope axes
