@@ -34,7 +34,7 @@ import multiscale.microscopy.ome as ome
 import multiscale.ultrasound.reconstruction as recon
 
 
-def open_us(us_path, pl_path, params_path, spacing, dynamic_range, gauge_value):
+def open_us(us_path, pl_path, params_path, spacing, gauge_value, dynamic_range=None):
         """
         Open the US image, window it to a dynamic range, and rotate it to microscope coordinate axes
         :param us_path: Path to the US image
