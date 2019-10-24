@@ -28,7 +28,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 import SimpleITK as sitk
 import numpy as np
-import warnings
 
 import multiscale.itk.process as proc
 import multiscale.microscopy.ome as ome
@@ -81,17 +80,10 @@ def open_microscopy(microscopy_path, microscopy_origin_path, downsample_factor=1
         spacing[1] = spacing[1]*downsample_factor
         
         microscopy_image = sitk.ReadImage(str(microscopy_path))
-        
-        if microscopy_image.GetDimension() == 2: # Change to 3D
-                warnings.warn('Changing 2D image to a 3D image with 4 slices')
-                microscopy_image = sitk.JoinSeries(microscopy_image, microscopy_image,
-                                                   microscopy_image, microscopy_image)
-        
         microscopy_image.SetSpacing(spacing)
         microscopy_image.SetOrigin(origin)
-        
         microscopy_image.SetDirection([1, 0, 0, 0, 1, 0, 0, 0, -1])
-
+        
         return microscopy_image
 
 

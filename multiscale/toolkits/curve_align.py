@@ -106,19 +106,6 @@ def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
                           roi_size=np.array([64, 64]),
                           intensity_threshold=1, number_threshold=10,
                           skip_existing_images=True):
-        """
-        Take a 2D image and divide it into individual image tiles and rois per image tile
-        :param image_path: Path to the image in question
-        :param output_dir: Directory to save the output files to
-        :param output_suffix: String suffix to save the files on, for (Sample)_(Suffix) format
-        :param tile_size: Size of the tile in pixels.  2 element numpy array
-        :param tile_separation: How distant the tiles should be for each other.  No overlap is same value as tile_size
-        :param roi_size: Size of the roi in pixels
-        :param intensity_threshold: What percentage of intensity is the threshold for screening out blank tiles
-        :param number_threshold: Percentage of pixels in a tile that must be above the intensity threshold to be saved
-        :param skip_existing_images: Boolean whether to overwrite existing tiles or not
-        :return:
-        """
         image = sitk.ReadImage(str(image_path))
         image_array = sitk.GetArrayFromImage(image)
         max_value = np.max(image_array)
@@ -137,12 +124,6 @@ def process_image_to_rois(image_path, output_dir, output_suffix='Tile',
 
 
 def construct_job_file(tile_list, job_path):
-        """
-        Construct a CurveAlign job list for the CHTC batch processing software
-        :param tile_list: List of image files
-        :param job_path: Path to save the job file at
-        :return:
-        """
         with tarfile.open(job_path, 'w') as tar:
                 roi_dir = tarfile.TarInfo('ROI_management')
                 roi_dir.type = tarfile.DIRTYPE
@@ -158,16 +139,6 @@ def construct_job_file(tile_list, job_path):
 def process_folder_to_jobs(image_path, tile_dir, output_dir, output_suffix,
                            batch_size,
                            skip_existing_images=True):
-        """
-        Find all image tiles in a folder and process them into jobs for CHTC curve align analysis
-        :param image_path: Path to the base image file that was used to create the tiles
-        :param tile_dir: Directory that holds the corresponding tif tiles
-        :param output_dir: Directory to output the jobs too
-        :param output_suffix: Suffix string to name the jobs
-        :param batch_size: How many images per job.
-        :param skip_existing_images: Boolean hether to overwrite existing jobs
-        :return:
-        """
         tile_list = util.list_filetype_in_dir(tile_dir, '.tif')
         lists_of_job_items = util.split_list_into_sublists(tile_list, batch_size)
         list_suffix = output_suffix + '_JobList'
@@ -197,22 +168,9 @@ def create_batches_for_chtc(input_dir, output_dir, output_suffix,
                             number_threshold=10,
                             batch_size=10,
                             skip_existing_images=True):
-        """
-        Process all image files in a folder and turn them into CHTC jobs for CurveAlign analysis
-        :param input_dir:
-        :param output_dir: Directory to save the output files to
-        :param output_suffix: String suffix to save the files on, for (Sample)_(Suffix) format
-        :param tile_size: Size of the tile in pixels.  2 element numpy array
-        :param tile_separation: How distant the tiles should be for each other.  No overlap is same value as tile_size
-        :param roi_size: Size of the roi in pixels
-        :param intensity_threshold: What percentage of intensity is the threshold for screening out blank tiles
-        :param number_threshold: Percentage of pixels in a tile that must be above the intensity threshold to be saved
-        :param batch_size: How many images should be in each job
-        :param skip_existing_images: Boolean whether to overwrite existing tiles or not
-        :return:
-        """
-        
         image_path_list = util.list_filetype_in_subdirs(input_dir, '.tif')
+        
+        # want to split on sample name...
         
         for path in image_path_list:
                 tile_dir = Path(output_dir, blk.get_core_file_name(path))
@@ -246,13 +204,7 @@ def read_stats_file(stats_file):
         return orientation, alignment
 
 
-def extract_tar(tar_path: Path, output_dir: Path):
-        """
-        Extract CTFire and CurveAlign output from a tar and write it to an output folder
-        :param tar_path: Path to the tar file
-        :param output_dir: Path to the output directory
-        :return:
-        """
+def extract_tar(tar_path, output_dir):
         with tarfile.open(tar_path) as tar:
                 ca_roi = [tarinfo for tarinfo in tar.getmembers()
                           if tarinfo.name.startswith("images/CA_ROI/")]
@@ -266,13 +218,7 @@ def extract_tar(tar_path: Path, output_dir: Path):
                 tar.extractall(members=ct_fire, path=output_dir)
 
 
-def bulk_extract_tar(tar_dir: Path, output_dir: Path):
-        """
-        Extract CurveAlign and CTFire output from all tars in a folder and write them to an output folder
-        :param tar_dir: Path to the directory holding the tars
-        :param output_dir: Path to the directory to write the output to
-        :return:
-        """
+def bulk_extract_tar(tar_dir, output_dir):
         tar_list = util.list_filetype_in_dir(tar_dir, 'tar')
         for tar in tar_list:
                 extract_tar(tar, output_dir)
@@ -280,28 +226,19 @@ def bulk_extract_tar(tar_dir: Path, output_dir: Path):
 
 
 def scrape_tiles(tile_dir, tile_output_dir, output_suffix):
-        """
-        Convert a mass of CurveAlign tile output into a single file holding
-        :param tile_dir:
-        :param tile_output_dir:
-        :param output_suffix:
-        :return:
-        """
         tile_files = util.list_filetype_in_dir(tile_dir, 'stats.csv')
         csv_path = Path(tile_output_dir, 'Curve_Align_results_Tiles_' + output_suffix + '.csv')
         print('Scraping results from {0}'.format(tile_dir))
         
         with open(csv_path, 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(['Sample', 'Modality', 'Tile', 'Orientation', 'Alignment'])
+                writer.writerow(['Mouse', 'Slide', 'Modality', 'Tile', 'Orientation', 'Alignment'])
                 
                 for tile_path in tile_files:
                         sample, modality, tile = blk.file_name_parts(tile_path)[:3]
+                        mouse, slide = sample.split('-')
                         orientation, alignment = read_stats_file(tile_path)
-                        if 'NaN' in str(alignment):
-                                continue
-                                
-                        writer.writerow([sample, modality, tile, orientation, alignment])
+                        writer.writerow([mouse, slide, modality, tile, orientation, alignment])
 
 
 def scrape_rois(roi_dir, roi_output_dir, output_suffix):
@@ -311,15 +248,13 @@ def scrape_rois(roi_dir, roi_output_dir, output_suffix):
         
         with open(csv_path, 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(['Sample', 'Modality', 'Tile', 'ROI', 'Orientation', 'Alignment'])
+                writer.writerow(['Mouse', 'Slide', 'Modality', 'Tile', 'ROI', 'Orientation', 'Alignment'])
                 
                 for roi_path in roi_files:
                         sample, modality, tile, roi = blk.file_name_parts(roi_path)[:4]
+                        mouse, slide = sample.split('-')
                         orientation, alignment = read_stats_file(roi_path)
-                        if 'NaN' in str(alignment):
-                                continue
-                                
-                        writer.writerow([sample, modality, tile, roi, orientation, alignment])
+                        writer.writerow([mouse, slide, modality, tile, roi, orientation, alignment])
 
 
 def read_features_file(file_path):
@@ -342,15 +277,16 @@ def scrape_roi_fiber_nums(roi_dir, roi_output_dir, output_suffix):
         
         with open(csv_path, 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
-                writer.writerow(['Sample', 'Modality', 'Tile', 'ROI', 'Number of fibers', 'Fiber segments'])
+                writer.writerow(['Mouse', 'Slide', 'Modality', 'Tile', 'ROI', 'Number of fibers', 'Fiber segments'])
                 
                 for roi_path in roi_files:
                         sample, modality, tile, roi = blk.file_name_parts(roi_path)[:4]
+                        mouse, slide = sample.split('-')
                         num_fibers, fib_segments = read_features_file(roi_path)
                         if num_fibers is np.nan:
                                 continue
                         
-                        writer.writerow([sample, modality, tile, roi, num_fibers, fib_segments])
+                        writer.writerow([mouse, slide, modality, tile, roi, num_fibers, fib_segments])
 
 
 def scrape_features(curve_dir, modality_str, output_suffix):
@@ -361,25 +297,15 @@ def scrape_features(curve_dir, modality_str, output_suffix):
 
 
 def scrape_results(curve_dir, modality_str, output_suffix):
-        """
-        Convert CurveAlign ROI and Tile analysis files into a single csv document for orientation and alignment
-        :param curve_dir: Directory where the CurveAlign output was printed to
-        :param modality_str: What modality was used to take the data, in format (Sample-name_Modality_...tif)
-        :param output_suffix: What to label the output csv file
-        :return:
-        """
-        tile_dir = Path(curve_dir, r'images\CA_Out')
+        tile_dir = Path(curve_dir, modality_str + '\images\CA_Out')
         if tile_dir.exists():
                 tile_output_dir = Path(curve_dir, 'Tile')
                 os.makedirs(tile_output_dir, exist_ok=True)
                 scrape_tiles(tile_dir, tile_output_dir, output_suffix)
-                print('Done')
         
-        roi_dir = Path(curve_dir, r'images\CA_ROI\Batch\ROI_post_analysis')
-        print(roi_dir.exists())
-        if not roi_dir.exists():
-                print('Somehow got here anyway')
-                roi_dir = Path(curve_dir, r'images\CA_ROI\Batch\CA_Out')
+        roi_dir = Path(curve_dir, modality_str + '\images\CA_ROI\Batch\ROI_post_analysis')
+        if ~roi_dir.exists():
+                roi_dir = Path(curve_dir, modality_str + '\images\CA_ROI\Batch\CA_Out')
                 
         roi_output_dir = Path(curve_dir, 'ROI')
         os.makedirs(roi_output_dir, exist_ok=True)

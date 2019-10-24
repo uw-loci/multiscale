@@ -31,26 +31,18 @@ from pathlib import Path
 
 ij = imagej.init('C:/users/mpinkert/Fiji.app/')
 
-date = '2019-10-21 - Mouse 210v2'
-# date = '2019-10-04 Mouse FVB'
+date = '2019-09-28 Mouse 1596'
 study_dir = 'Mouse images'
-# #
-# base_dir = 'L22 Analysis'
-# pl_path = Path(r'F:\Research\LINK\Mouse images\2019-10-21 - Mouse 210v2\For registration', 'L22 Mouse 210 Z16869.pos')
-# params_path = Path(r'F:\Research\LINK\Mouse images\2019-10-21 - Mouse 210v2\For registration', 'L22 Mouse 210 Z16869_Run-1_Settings.mat')
 #
+# base_dir = 'L38 Analysis'
+# pl_path = Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-09-28 - Mouse 1596\L38 Mouse 1596 Z13422.pos')
+# params_path = Path(r'F:\Research\LINK\Mouse images\2019-09-28 Mouse 1596\L38 Analysis', 'L38 Mouse 1596 Z13422_Run-1_Settings.mat')
 
+base_dir = 'L22 Analysis'
+pl_path= Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-09-28 - Mouse 1596\L22 Mouse 1596 Z16727.pos')
+params_path =  Path(r'F:\Research\LINK\Mouse images\2019-09-28 Mouse 1596\L22 Analysis', 'L22 Mouse 1596 Z16727_Run-1_Settings.mat')
 
-base_dir = 'L38 Analysis'
-pl_path = Path(r'F:\Research\LINK\Mouse images\2019-10-21 - Mouse 210v2\For registration\L38 Mouse 210 Z13595.pos')
-params_path = Path(r'F:\Research\LINK\Mouse images\2019-10-21 - Mouse 210v2\For registration', 'L38 Mouse 210 Z13595_Run-1_Settings.mat')
-
-# base_dir = 'L22 Analysis'
-# pl_path= Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-09-28 - Mouse 1596\L22 Mouse 1596 Z16727.pos')
-# params_path =  Path(r'F:\Research\LINK\Mouse images\2019-09-28 Mouse 1596\L22 Analysis', 'L22 Mouse 1596 Z16727_Run-1_Settings.mat')
-
-qus_variable = 'M'
-variable_string = '.mat'
+qus_variable = 'IBC'
 
 mat_dir = Path(r'F:\Research\LINK', study_dir, date, base_dir, qus_variable)
 output_dir = Path(r'F:\Research\LINK', study_dir, date, base_dir)
@@ -62,6 +54,6 @@ output_name = base_dir + '_{}.tif'.format(qus_variable)
 
 assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path,
                                            intermediate_save_dir=intermediate_save_dir,
-                                           fuse_args={'downsampling': 1}, search_str=variable_string,
+                                           fuse_args={'downsampling': 1}, search_str='ibc.mat',
                                            output_name=output_name, params_path=params_path)
 assembler.assemble_qus_image(base_image_data='param_map')

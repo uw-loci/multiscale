@@ -32,9 +32,9 @@ import multiscale.utility_functions as util
 
 
 mats_dir = Path(r'F:\Research\LINK\Eye images\2019-10-11 - Eye v2\OCT\Processed')
-files = util.list_filetype_in_dir(mats_dir, 'processed.mat')
+files = util.list_filetype_in_dir(mats_dir, '.mat')
 output_folder = Path(r'F:\Research\LINK\Eye images\2019-10-11 - Eye v2\OCT\Tifs')
-resolution = [2.5, 2.5, 7.8]
+resolution = [2, 2.5, 7.8]
 
 for mat_path in files:
         print('Converting {} to tif'.format(mat_path.stem))
