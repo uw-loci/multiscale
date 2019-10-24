@@ -36,11 +36,20 @@ def get_positions(file_path):
         """Read a .ome.tif file and grab the image positions as a numpy array"""
         info = get_info(file_path)
         mpm_list = []
-        for position in info['OME']['Image']:
+        if type(info['OME']['Image']) is list:
+                for position in info['OME']['Image']:
+                        x = position['StageLabel']['X']
+                        y = position['StageLabel']['Y']
+                        z = position['Pixels']['Plane'][0]['PositionZ']
+                        mpm_list.append(np.array([x, y, z]))
+                        
+        elif type(info['OME']['Image']) is dict:
+                position = info['OME']['Image']
                 x = position['StageLabel']['X']
                 y = position['StageLabel']['Y']
-                z = position['Pixels']['Plane'][0]['PositionZ']
+                z = position['Pixels']['Plane']['PositionZ']
                 mpm_list.append(np.array([x, y, z]))
+                
         return np.array(mpm_list)
 
 
@@ -55,10 +64,20 @@ def get_spacing(file_path, order=None):
                 order = ['X', 'Y', 'Z']
         try:
                 info = get_info(file_path)
-                pixel_info = info['OME']['Image'][0]['Pixels']
-                spacing = [pixel_info['PhysicalSize' + order[0]],
-                           pixel_info['PhysicalSize' + order[1]],
-                           pixel_info['PhysicalSize' + order[2]]]
+                
+                if type(info['OME']['Image']) is list:
+                        pixel_info = info['OME']['Image'][0]['Pixels']
+                        spacing = [pixel_info['PhysicalSize' + order[0]],
+                                   pixel_info['PhysicalSize' + order[1]],
+                                   pixel_info['PhysicalSize' + order[2]]]
+                        
+                elif type(info['OME']['Image']) is dict:
+                        warnings.warn('These images are 2D.  Setting Z size to 1 micron.')
+                        pixel_info = info['OME']['Image']['Pixels']
+                        spacing = [pixel_info['PhysicalSize' + order[0]],
+                                   pixel_info['PhysicalSize' + order[1]],
+                                   1]
+
         except:
                 spacing = [1, 1, 1]
                 warnings.warn('Could not read the spacing.  Spacing has been set to 1, 1, 1.  Fix manually', )
