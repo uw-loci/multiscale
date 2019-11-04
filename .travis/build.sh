@@ -31,8 +31,10 @@ case "$(uname -s),$(uname -m)" in
 esac
 
 echo
-echo "--> Updating Fiji"
+echo "--> Downloading BigStitcher"
 Fiji.app/$launcher --update edit-update-site BigStitcher https://sites.imagej.net/BigStitcher/
+
+echo "--> Updating Fiji"
 Fiji.app/$launcher --update update
 echo "--> Finished updating Fiji"
 
