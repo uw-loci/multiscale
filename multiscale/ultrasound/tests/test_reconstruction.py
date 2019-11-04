@@ -100,7 +100,7 @@ class TestUltrasoundImageAssembler(object):
 
         @pytest.mark.xfail(reason="Multiview-reconstruction has a bug with headless fusion")
         def test_assemble_image(self, us_assembler):
-                us_assembler.assemble_image()
+                us_assembler.assemble_bmode_image()
                 output_file = Path(us_assembler.output_dir, 'dataset.xml')
                 tif_file = Path(us_assembler.output_dir, 'fused_tp_0_ch_0.tif')
                 assert output_file.is_file()
@@ -109,7 +109,7 @@ class TestUltrasoundImageAssembler(object):
         def test_assemble_image_without_position_list(self, us_assembler):
                 temp_pl = us_assembler.pos_list
                 us_assembler.pos_list = []
-                us_assembler.assemble_image()
+                us_assembler.assemble_bmode_image()
                 tif_file = Path(us_assembler.output_dir, us_assembler.output_name)
                 us_assembler.pos_list = temp_pl
                 assert tif_file.is_file()

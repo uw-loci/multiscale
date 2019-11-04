@@ -24,33 +24,36 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
+
 import multiscale.ultrasound.reconstruction as recon
 import imagej
 from pathlib import Path
 
 ij = imagej.init('C:/users/mpinkert/Fiji.app/')
 
-date = '2019-09-28 - Mouse 1596'
+date = '2019-09-28 Mouse 1596'
 study_dir = 'Mouse images'
-base_dir_list = ['L38 Fiducial Z12936']
-#pl_path = Path(r'C:\Users\mpinkert\Box\Research\LINK\Phantom Trials\2019-05-04', '2019-05-04_US - 3X 100YSep.pos')
-pl_path_base = Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-09-28 - Mouse 1596')
-runs = ['1']
+#
+# base_dir = 'L38 Analysis'
+# pl_path = Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-09-28 - Mouse 1596\L38 Mouse 1596 Z13422.pos')
+# params_path = Path(r'F:\Research\LINK\Mouse images\2019-09-28 Mouse 1596\L38 Analysis', 'L38 Mouse 1596 Z13422_Run-1_Settings.mat')
 
-for base_dir in base_dir_list:
-        for run in runs:
-                # pl_path = pl_path_base
-                pl_path = Path(pl_path_base, base_dir + '.pos')
-                #pl_path = Path(pl_path_base, 'Mouse 212 longitudinal.pos')
-                mat_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date, base_dir, 'Run-{}'.format(run))
-                output_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date,  base_dir)
-                intermediate_save_dir = Path(r'C:\Users\mpinkert\Box\Research\LINK', study_dir, date, base_dir,
-                                             'Run-{} Intermediate'.format(run))
-                output_name = base_dir + '_Run-{}.tif'.format(run)
-                # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-04-05\US_PositionList_25yspacing.pos')
-                # pl_path = Path(r'F:\Research\LINK\Phantom Trials\2019-01-08\US_PositionLis_2019-01-08.pos')
-        
-                assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path,
-                                                           intermediate_save_dir=intermediate_save_dir,
-                                                           fuse_args={'downsampling': 2}, search_str='IQ.mat', output_name=output_name)
-                assembler.assemble_bmode_image(base_image_data='IQData')
+base_dir = 'L22 Analysis'
+pl_path= Path(r'C:\Users\mpinkert\Box\Research\LINK\Mouse images\2019-09-28 - Mouse 1596\L22 Mouse 1596 Z16727.pos')
+params_path =  Path(r'F:\Research\LINK\Mouse images\2019-09-28 Mouse 1596\L22 Analysis', 'L22 Mouse 1596 Z16727_Run-1_Settings.mat')
+
+qus_variable = 'IBC'
+
+mat_dir = Path(r'F:\Research\LINK', study_dir, date, base_dir, qus_variable)
+output_dir = Path(r'F:\Research\LINK', study_dir, date, base_dir)
+
+
+intermediate_save_dir = Path(r'F:\Research\LINK', study_dir, date, base_dir, qus_variable, 'Intermediate')
+output_name = base_dir + '_{}.tif'.format(qus_variable)
+
+
+assembler = recon.UltrasoundImageAssembler(mat_dir, output_dir, ij, pl_path=pl_path,
+                                           intermediate_save_dir=intermediate_save_dir,
+                                           fuse_args={'downsampling': 1}, search_str='ibc.mat',
+                                           output_name=output_name, params_path=params_path)
+assembler.assemble_qus_image(base_image_data='param_map')

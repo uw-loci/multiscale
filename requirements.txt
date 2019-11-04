@@ -11,3 +11,4 @@ python-bioformats
 scyjava
 pyimagej
 tiffile
+h5py

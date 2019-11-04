@@ -99,7 +99,7 @@ class BigStitcher(object):
                                 continue
                                 
                         # Change shape to TZCYXS order
-                        ijstyle = numpy_images[idx]
+                        ijstyle = numpy_images[idx].astype(np.float32)
                         shape = ijstyle.shape
                         if len(shape) == 3:
                                 ijstyle.shape = 1, shape[0], 1, shape[1], shape[2], 1

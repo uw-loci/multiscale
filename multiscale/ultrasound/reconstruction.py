@@ -21,10 +21,10 @@ class UltrasoundImageAssembler(object):
         """
         def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
                      intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
-                     search_str: str='.mat', output_name='fused_tp_0_ch_0.tif',
+                     search_str: str='.mat', output_name='fused_tp_0_ch_0.tif', params_path=None,
                      overwrite_dataset=None, overwrite_tif=None):
                 """
-                Initiative an image assembler
+                Class for assembling a 3D Ultrasound image taken with the LINK imaging system
                 :param mat_dir: Directory holding the Verasonics generated .mat files
                 :param output_dir: Directory to print the end image
                 :param ij: A PyImageJ instance with the BigStitcher plugin
@@ -34,9 +34,11 @@ class UltrasoundImageAssembler(object):
                 :param fuse_args: Alternative arguments for fusing the BigStitcher dataset.
                 :param search_str: A string at the end of the file that identifies which .mats are used from mat_dir.
                 :param output_name: What to save the resulting image as.  Default is BigStitcher's default
+                :param params_path: Path to a Verasonics settings file
                 :param overwrite_dataset: Whether to overwrite an intermediate dataset that already exists
                 :param overwrite_tif: Whether to overwrite a final tif if it already exists.
                 """
+
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
@@ -55,7 +57,10 @@ class UltrasoundImageAssembler(object):
                 self.pos_list, self.pos_labels = self._read_position_list()
                 
                 self.mat_list = self._read_sorted_list_mats()
-                self.params = read_parameters(self.mat_list[0])
+                if params_path == None:
+                        self.params = read_parameters(self.mat_list[0])
+                else:
+                        self.params = read_parameters(params_path)
 
                 self.fuse_args = self._assemble_fuse_args(fuse_args)
                 self.dataset_args = self._assemble_dataset_arguments(dataset_args)
@@ -67,6 +72,7 @@ class UltrasoundImageAssembler(object):
                 return self.params
         
         def _convert_to_2d_tiffs(self):
+                """Convert US slices to individual 2D tifs"""
                 image_list = self._mat_list_to_variable_list('IQData')
                 for idx in range(len(self.pos_labels)):
                         file_name = 'US_' + self.pos_labels[idx] + '.tif'
@@ -74,20 +80,28 @@ class UltrasoundImageAssembler(object):
                         self._save_us_image(file_name, bmode)
                         
         def _save_us_image(self, file_name, bmode):
+                """
+                Save a 3D US image as a tif
+                :param file_name: Name of the output file
+                :param bmode: The 3D image to save
+                :return:
+                """
                 path = str(Path(self.output_dir, file_name))
                 print('Saving {}'.format(path))
                 spacing = self._get_spacing()
-                ijstyle = bmode
+                ijstyle = bmode.astype(np.float32)
                 shape = ijstyle.shape
                 ijstyle.shape = 1, shape[0], 1, shape[1], shape[2], 1
                 
                 tif.imwrite(path, ijstyle, imagej=True,
                             resolution=(1./self.params['lateral resolution'], 1./self.params['axial resolution']),
                             metadata={'spacing': spacing[2], 'unit': 'um'})
+                
+                print('Finished saving {}'.format(path))
         
-        def assemble_image(self, base_image_data='IQData'):
+        def assemble_bmode_image(self, base_image_data='IQData'):
                 """
-                Stitch the .mat based ultrasound image and save the results
+                Stitch the .mat based ultrasound image into a bmode and save the results
                 :param base_image_data: The variable being stitched in the .mat files
                 :return:
                 """
@@ -102,14 +116,41 @@ class UltrasoundImageAssembler(object):
                         return
                 
                 image_list = self._mat_list_to_variable_list(base_image_data)
-                if len(self.pos_list) == 0:
+                if len(self.pos_list) == 0 or self._count_unique_positions(0) == 1:
                         image_array = np.array(image_list)
-                        self._save_us_image(self.output_name, self._iq_to_output(image_array))
+                        bmode = iq_to_bmode(image_array)
+                        self._save_us_image(self.output_name, bmode)
                 else:
                         separate_3d_images = self.\
                                 _image_list_to_laterally_separate_3d_images(image_list)
-                        self._stitch_image(separate_3d_images)
+                        bmode = iq_to_bmode(separate_3d_images)
+                        self._stitch_image(bmode)
+
+        def assemble_qus_image(self, base_image_data='param_map'):
+                """
+                Stitch the .mat based ultrasound image and save the results
+                :param base_image_data: The variable being stitched in the .mat files
+                :return:
+                """
         
+                if self._check_for_output():
+                        return
+        
+                if self._check_for_xml():
+                        stitcher = st.BigStitcher(self._ij)
+                        # todo: fix so that this checks for existing files properly
+                        stitcher._fuse_dataset(self.fuse_args, self.output_name)
+                        return
+        
+                image_list = self._mat_list_to_variable_list(base_image_data)
+                if len(self.pos_list) == 0 or self._count_unique_positions(0) == 1:
+                        image_array = np.array(image_list).astype(np.float32)
+                        self._save_us_image(self.output_name, image_array)
+                else:
+                        separate_3d_images = self. \
+                                _image_list_to_laterally_separate_3d_images(image_list)
+                        self._stitch_image(separate_3d_images)
+                        
         def _check_for_output(self):
                 output_path = Path(self.fuse_args['output_file_directory'].replace('[', '').replace(']', ''),
                                    self.output_name)
@@ -140,8 +181,13 @@ class UltrasoundImageAssembler(object):
                 else:
                         return False
         
-        def _stitch_image(self, image_array):
-                bmode = self._iq_to_output(image_array)
+        def _stitch_image(self, bmode):
+                """
+                Stitch the image using the BigStticher plugin
+                :param bmode: the 4D array (3 dimensions + lateral tiles) bmode of the US
+                :return:
+                """
+                
                 if self.dataset_args['overlap_x_(%)'] is None:
                         self._save_us_image(self.output_name, bmode[0])
                         return
@@ -150,9 +196,6 @@ class UltrasoundImageAssembler(object):
                 stitcher.stitch_from_numpy(bmode, self.dataset_args, self.fuse_args,
                                            intermediate_save_dir=self.intermediate_save_dir,
                                            output_name=self.output_name)
-
-        def _iq_to_output(self, image_array):
-                return iq_to_db(image_array)
         
         def _assemble_dataset_arguments(self, input_args):
                 spacing = self._get_spacing()
@@ -206,7 +249,7 @@ class UltrasoundImageAssembler(object):
                         'interpolation': '[Linear Interpolation]',
                         'image': 'Virtual',
                         'blend': True,
-                        # 'preserve_original': True,
+                        'preserve_original': True,
                         'produce': '[Each timepoint & channel]',
                         'fused_image': '[Save as (compressed) TIFF stacks]',
                         'output_file_directory': str(self.output_dir)
@@ -256,7 +299,7 @@ class UltrasoundImageAssembler(object):
                 :return: image_array: A 3D numpy array corresponding to a list of 2D IQ images
                 """
                 shape = np.shape(image_list[0])
-                dims = np.size(image_list)
+                dims = np.size(shape)
                 if dims == 3:
                         image_array = np.array(image_list[:, :, :, np.int(np.floor(shape[2] / 2))])
                 elif dims == 5:
@@ -267,7 +310,6 @@ class UltrasoundImageAssembler(object):
                         raise(NotImplementedError, 'Image conversion not implemented for this {} IQ dimensions'.format(dims))
                 
                 return image_array
-        
         # Images
         def _mat_list_to_variable_list(self, variable):
                 """Acquire a sorted list containing the specified variable in each mat file"""
@@ -389,7 +431,7 @@ def extract_iteration_from_path(file_path):
 
 
 def iq_to_db(image_array):
-        db = 20 * np.log10(np.abs(image_array) + 1)
+        db = 20 * np.log10(np.abs(image_array) + np.min(np.abs(image_array))*0.001)
         return db.astype('f')
 
 
@@ -408,11 +450,14 @@ def get_origin(pl_path, params_path, gauge_value):
         return origin
 
 
-def get_xy_origin(pl_path):
-        """Read an ultrasound position list and get the XY origin"""
+def get_xy_origin(pl_path, params=None):
+        """Read an micromanager position list and get the XY origin"""
         raw_pos_list = util.read_json(pl_path)
         pos_list = clean_position_text(raw_pos_list)[0]
         xy_origin = np.min(pos_list, 0)
+        if params is not None:
+                xy_origin[0] = xy_origin[0] - 0.5*params['raylines']*params['transducer spacing']
+        
         return xy_origin
 
 
@@ -485,7 +530,7 @@ def format_parameters(param_raw: np.ndarray) -> dict:
 def iq_to_bmode(iq_array: np.ndarray) -> np.ndarray:
         """Convert complex IQ data into bmode through squared transform"""
         env = np.abs(iq_array)
-        bmode = np.log10(env + 1)
+        bmode = 20*np.log10(env + 1)
         
         return bmode
 
