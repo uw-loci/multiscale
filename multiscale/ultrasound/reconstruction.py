@@ -21,7 +21,22 @@ class UltrasoundImageAssembler(object):
         """
         def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
                      intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
-                     search_str: str='.mat', output_name='fused_tp_0_ch_0.tif'):
+                     search_str: str='.mat', output_name='fused_tp_0_ch_0.tif',
+                     overwrite_dataset=None, overwrite_tif=None):
+                """
+                Initiative an image assembler
+                :param mat_dir: Directory holding the Verasonics generated .mat files
+                :param output_dir: Directory to print the end image
+                :param ij: A PyImageJ instance with the BigStitcher plugin
+                :param pl_path: Path to the OpenScan generated position list
+                :param intermediate_save_dir: Place to save the dataset used by BigStitcher.
+                :param dataset_args: Alternative arguments for creating the BigStitcher dataset.
+                :param fuse_args: Alternative arguments for fusing the BigStitcher dataset.
+                :param search_str: A string at the end of the file that identifies which .mats are used from mat_dir.
+                :param output_name: What to save the resulting image as.  Default is BigStitcher's default
+                :param overwrite_dataset: Whether to overwrite an intermediate dataset that already exists
+                :param overwrite_tif: Whether to overwrite a final tif if it already exists.
+                """
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
@@ -44,6 +59,8 @@ class UltrasoundImageAssembler(object):
 
                 self.fuse_args = self._assemble_fuse_args(fuse_args)
                 self.dataset_args = self._assemble_dataset_arguments(dataset_args)
+                self.overwrite_dataset = overwrite_dataset
+                self.overwrite_tif = overwrite_tif
 
         def get_acquisition_parameters(self):
                 """Get the US acquisition parameters"""
@@ -97,7 +114,11 @@ class UltrasoundImageAssembler(object):
                 output_path = Path(self.fuse_args['output_file_directory'].replace('[', '').replace(']', ''),
                                    self.output_name)
                 if output_path.is_file():
-                        return util.query_yes_no('{} already exists.  Skip image fusion? >> '.format(output_path))
+                        if self.overwrite_tif is not None:
+                                return self.overwrite_tif
+                        else:
+                                return util.query_yes_no(
+                                        '{} already exists.  Skip image fusion? >> '.format(output_path))
                 else:
                         return False
                         
@@ -111,7 +132,11 @@ class UltrasoundImageAssembler(object):
                 if self.intermediate_save_dir is not None:
                         xml_path = Path(self.intermediate_save_dir, 'dataset.xml')
                         if xml_path.is_file():
-                                return util.query_yes_no('XML file already exists.  Skip reading .mat files? >> ')
+                                if self.overwrite_dataset is None:
+                                        return util.query_yes_no(
+                                                'XML file already exists.  Skip reading .mat files? >> ')
+                                else:
+                                        return self.overwrite_dataset
                 else:
                         return False
         
@@ -239,7 +264,7 @@ class UltrasoundImageAssembler(object):
                 elif dims == 2:
                         image_array = np.array(image_list)
                 else:
-                        raise(NotImplementedError, 'Image conversion not implemented for this {} IQ dimensions'.format{dims})
+                        raise(NotImplementedError, 'Image conversion not implemented for this {} IQ dimensions'.format(dims))
                 
                 return image_array
         
