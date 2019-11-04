@@ -63,20 +63,29 @@ class BigStitcher(object):
 
                 if intermediate_save_dir is None:
                         with tempfile.TemporaryDirectory() as temp_dir:
+                                xml_path = str(temp_dir) + '/dataset.xml'
+                                dataset_args['dataset_save_path'] = temp_dir
+                                dataset_args['export_path'] = str(temp_dir) + '/dataset'
+                                fuse_args['select'] = xml_path
                                 self._dataset_from_numpy(images_np, dataset_args, fuse_args, temp_dir, output_name)
                 else:
                         self._dataset_from_numpy(images_np, dataset_args, fuse_args, intermediate_save_dir, output_name)
                         
         def _rename_output(self, fuse_args, output_name='fused_tp_0_ch_0.tif'):
+                if fuse_args['fused_image'] == '[Display using ImageJ]':
+                        return
+
                 if output_name != 'fused_tp_0_ch_0.tif':
                         original_path = Path(fuse_args['output_file_directory'], 'fused_tp_0_ch_0.tif')
                         output_path = Path(fuse_args['output_file_directory'], output_name)
                         print('Renaming {0} to {1}'.format(original_path.name, output_path.name))
-                        try:
-                                os.rename(original_path, output_path)
-                        except WindowsError:
+
+                        if original_path.is_file() and output_path.is_file():
                                 os.remove(output_path)
                                 os.rename(original_path, output_path)
+                        else:
+                                os.rename(original_path, output_path)
+
         
         def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, intermediate_save_dir, output_name):
                 """Helper for stitch from numpy"""

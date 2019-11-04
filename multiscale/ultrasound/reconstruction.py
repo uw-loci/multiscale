@@ -48,9 +48,7 @@ class UltrasoundImageAssembler(object):
 
                 if intermediate_save_dir:
                         os.makedirs(str(intermediate_save_dir), exist_ok=True)
-                else:
-                        self.intermediate_save_dir = self.output_dir
-                        
+
                 os.makedirs(str(output_dir), exist_ok=True)
                 
                 self.search_str = search_str
