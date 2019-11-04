@@ -19,7 +19,7 @@ class UltrasoundImageAssembler(object):
         """
         todo: start generalizing this so it can work with multiple image types/kinds
         """
-        def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
+        def __init__(self, mat_dir: Path, output_dir: Path, ij, pl_path: Path=None,
                      intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
                      search_str: str='.mat', output_name='fused_tp_0_ch_0.tif', params_path=None,
                      overwrite_dataset=None, overwrite_tif=None):
@@ -154,7 +154,7 @@ class UltrasoundImageAssembler(object):
                                    self.output_name)
                 if output_path.is_file():
                         if self.overwrite_tif is not None:
-                                return self.overwrite_tif
+                                return not self.overwrite_tif
                         else:
                                 return util.query_yes_no(
                                         '{} already exists.  Skip image fusion? >> '.format(output_path))
@@ -175,7 +175,7 @@ class UltrasoundImageAssembler(object):
                                         return util.query_yes_no(
                                                 'XML file already exists.  Skip reading .mat files? >> ')
                                 else:
-                                        return self.overwrite_dataset
+                                        return not self.overwrite_dataset
                 else:
                         return False
         

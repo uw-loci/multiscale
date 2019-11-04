@@ -44,7 +44,7 @@ def read_transform(transform_path: Path):
         return transform
         
 
-def apply_transform(fixed_image: sitk.Image, moving_image: sitk.Image, transform_path):
+def apply_transform_fromfile(fixed_image: sitk.Image, moving_image: sitk.Image, transform_path):
         transform = sitk.ReadTransform(str(transform_path))
         registered_image = sitk.Resample(moving_image, fixed_image, transform,
                                          sitk.sitkLinear, 0.0, moving_image.GetPixelID())
@@ -143,7 +143,7 @@ def bulk_apply_transform(fixed_dir, moving_dir, transform_dir,
                         str(transform_paths[i].name)))
                 
                 transform_path = Path(transform_paths[i].parent, transform_paths[i].stem + '.tfm')
-                registered_image = apply_transform(fixed_image, moving_image, transform_path)
+                registered_image = apply_transform_fromfile(fixed_image, moving_image, transform_path)
                 
                 meta.write_image(registered_image, registered_path)
                 write_transform(registered_path, sitk.ReadTransform(str(transform_path)))
@@ -362,6 +362,17 @@ def get_transform_type_str(transform):
         
         return transform_type_str
 
-
+def landmarks_to_translation(points):
+        """
+        Convert a set of points to a translation transform, as SimpLeITK transform initializer does not allow this
+        :param points: Points acquired by a RegistrationPointDataAcquisition interface
+        :return: a SimpleITK translation transform based on the points
+        """
+        fixed_points, moving_points = points.get_points_flat()
+        landmark_transform = sitk.LandmarkBasedTransformInitializer(sitk.VersorRigid3DTransform(), fixed_points,
+                                                                    moving_points)
+        landmark_params = landmark_transform.GetParameters()
+        initial_transform = sitk.TranslationTransform(3, [landmark_params[3], landmark_params[4], landmark_params[5]])
+        return initial_transform
 
         
