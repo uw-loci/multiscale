@@ -47,21 +47,51 @@ def open_us(us_path, pl_path, params_path, spacing, gauge_value, dynamic_range=N
         """
         # todo: Read in param.start depth to properly set the origin
         raw_image = sitk.ReadImage(str(us_path))
+        return convert_sitk_to_us(raw_image, pl_path, params_path, spacing, gauge_value,
+                                      dynamic_range=dynamic_range)
+
+def convert_sitk_to_us(sitk_image, pl_path, params_path, spacing, gauge_value, dynamic_range=None):
+        """
+        Open the US image, window it to a dynamic range, and rotate it to microscope coordinate axes
+        :param sitk_image SimpleITK US image in the original orientation
+        :param pl_path: Path to the position list for the US image
+        :param params_path: Path to a .mat file with the P parameter struct
+        :param spacing: Spacing of the US image
+        :param dynamic_range: Window width in dB, measured from the maximum signal
+        :param gauge_value: Indicator gauge value for the US image
+        :return: SimpleITK US image with appropriate origin, direction, and spacing
+        """
         if dynamic_range is not None:
-                windowed_image = proc.window_image(raw_image, dynamic_range)
+                windowed_image = proc.window_image(sitk_image, dynamic_range)
         else:
-                windowed_image = raw_image
-                
+                windowed_image = sitk_image
+
         params = recon.read_parameters(params_path)
         origin_xy = recon.get_xy_origin(pl_path, params)
         origin_z = recon.get_z_origin(params, gauge_value)
         origin = [origin_xy[0], origin_xy[1], origin_z]
-        
+
         us_image = rotate_axes_to_microscope(windowed_image)
         us_image.SetSpacing(spacing)
         us_image.SetOrigin(origin)
         us_image.SetDirection([1, 0, 0, 0, 1, 0, 0, 0, -1])
         return us_image
+
+
+def convert_array_to_us(array, pl_path, params_path, spacing, gauge_value, dynamic_range=None):
+        """
+        Open the US image, window it to a dynamic range, and rotate it to microscope coordinate axes
+        :param array Convert US array in the original orientation to a microscopy orientation SimpleITK image
+        :param pl_path: Path to the position list for the US image
+        :param params_path: Path to a .mat file with the P parameter struct
+        :param spacing: Spacing of the US image
+        :param dynamic_range: Window width in dB, measured from the maximum signal
+        :param gauge_value: Indicator gauge value for the US image
+        :return: SimpleITK US image with appropriate origin, direction, and spacing
+        """
+        raw_image = sitk.GetImageFromArray(array)
+        return convert_sitk_to_us(raw_image, pl_path, params_path, spacing, gauge_value,
+                                      dynamic_range=dynamic_range)
 
 
 def open_microscopy(microscopy_path, microscopy_origin_path, downsample_factor=1):
@@ -72,18 +102,38 @@ def open_microscopy(microscopy_path, microscopy_origin_path, downsample_factor=1
         :param downsample_factor: The downsample factor in XY for the microscopy image.  Default to 1
         :return: SimpleITK MPM image with appropriate origin, direction, and spacing
         """
+        microscopy_image = sitk.ReadImage(str(microscopy_path))
+        return set_microscopy_metadata(microscopy_image, microscopy_origin_path, downsample_factor)
+
+def convert_array_to_microscopy(microscopy_array, microscopy_origin_path, downsample_factor=1):
+        """
+        For us with PyImageJ window output: Convert Grid/Collection output to microscopy image
+        :param microscopy_array: Numpy array of the Grid/Collection stitcher output
+        :param microscopy_origin_path: Path to the first saved tile of the MPM image, to extract the coordinates
+        :param downsample_factor: The downsample factor in XY for the microscopy image.  Default to 1
+        :return: SimpleITK MPM image with appropriate origin, direction, and spacing
+        """
+        microscopy_image = sitk.GetImageFromArray(microscopy_array)
+        return set_microscopy_metadata(microscopy_image, microscopy_origin_path, downsample_factor)
+
+def set_microscopy_metadata(microscopy_image, microscopy_origin_path, downsample_factor=1):
+        """
+        Set the microscopy coordinate system
+        :param microscopy_image: SimpleITK image from the Grid/Collection stitcher output
+        :param microscopy_origin_path: Path to the first saved tile of the MPM image, to extract the coordinates
+        :param downsample_factor: The downsample factor in XY for the microscopy image.  Default to 1
+        :return: SimpleITK MPM image with appropriate origin, direction, and spacing
+        """
         positions = ome.get_positions(microscopy_origin_path)
         origin = np.min(positions, 0)
-        
+
         spacing = ome.get_spacing(microscopy_origin_path)
-        spacing[0] = spacing[0]*downsample_factor
-        spacing[1] = spacing[1]*downsample_factor
-        
-        microscopy_image = sitk.ReadImage(str(microscopy_path))
+        spacing[0] = spacing[0] * downsample_factor
+        spacing[1] = spacing[1] * downsample_factor
+
         microscopy_image.SetSpacing(spacing)
         microscopy_image.SetOrigin(origin)
         microscopy_image.SetDirection([1, 0, 0, 0, 1, 0, 0, 0, -1])
-        
         return microscopy_image
 
 
