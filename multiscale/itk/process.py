@@ -147,5 +147,6 @@ def window_image(image, dynamic_range):
         minmax_filter.Execute(image)
         maximum = minmax_filter.GetMaximum()
         image_windowed = sitk.IntensityWindowing(image, maximum-dynamic_range, maximum)
+        image_windowed = sitk.Cast(image_windowed, sitk.sitkUInt8)
         return image_windowed
 

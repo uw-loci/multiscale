@@ -121,7 +121,6 @@ def plot_overlay(fixed_image: sitk.Image, moving_image: sitk.Image, transform: s
                 
         rotated_image = sitk.Resample(moving_image, fixed_image, transform,
                                       sitk.sitkLinear, 0.0, moving_image.GetPixelIDValue())
-        meta.copy_relevant_metadata(rotated_image, moving_image)
         
         if downsample:
                 fixed_shrunk = trans.resize_image(fixed_image, fixed_image.GetSpacing()[0], downsample_target)

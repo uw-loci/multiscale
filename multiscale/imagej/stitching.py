@@ -44,19 +44,21 @@ class BigStitcher(object):
                 """Class for using the BigStitcher plugin on a python interface"""
                 self._ij = ij
 
-        def stitch_from_files(self, dataset_args: dict, fuse_args: dict, output_name: str):
+        def stitch_from_files(self, dataset_args: dict, fuse_args: dict, output_name: str, overwrite_dataset=True):
                 # Stitch
-                self._define_dataset(dataset_args)
+                self._define_dataset(dataset_args, overwrite_dataset)
                 self._fuse_dataset(fuse_args, output_name)
 
         def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict,
-                              intermediate_save_dir=None, output_name='fused_tp_0_ch_0.tif'):
+                              intermediate_save_dir=None, output_name='fused_tp_0_ch_0.tif', overwrite_dataset=True):
                 """
                 Stitch images from a 4d numpy array
                 :param images_np: The array of numpy images
                 :param dataset_args: Arguments for the stitching
                 :param fuse_args: Arguments for image fusion
                 :param intermediate_save_dir: Where to save the intermediate .tif files
+                :param output_name: Name of resulting saved image
+                :param overwrite_dataset: Whether to overwrite the tif/dataset or not.
                 :return:
                 """
                 # todo: Have it save the set/save spacing correctly as well
@@ -67,9 +69,11 @@ class BigStitcher(object):
                                 dataset_args['dataset_save_path'] = temp_dir
                                 dataset_args['export_path'] = str(temp_dir) + '/dataset'
                                 fuse_args['select'] = xml_path
-                                self._dataset_from_numpy(images_np, dataset_args, fuse_args, temp_dir, output_name)
+                                self._dataset_from_numpy(images_np, dataset_args, fuse_args, temp_dir, output_name,
+                                                         overwrite_dataset)
                 else:
-                        self._dataset_from_numpy(images_np, dataset_args, fuse_args, intermediate_save_dir, output_name)
+                        self._dataset_from_numpy(images_np, dataset_args, fuse_args, intermediate_save_dir, output_name,
+                                                 overwrite_dataset)
                         
         def _rename_output(self, fuse_args, output_name='fused_tp_0_ch_0.tif'):
                 if fuse_args['fused_image'] == '[Display using ImageJ]':
@@ -85,15 +89,15 @@ class BigStitcher(object):
                                 os.rename(original_path, output_path)
                         else:
                                 os.rename(original_path, output_path)
-
         
-        def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, intermediate_save_dir, output_name):
+        def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, intermediate_save_dir, output_name,
+                                overwrite_dataset=True):
                 """Helper for stitch from numpy"""
                 dataset_args['path'] = intermediate_save_dir
-                self._save_numpy_images(intermediate_save_dir, images_np, dataset_args)
-                self.stitch_from_files(dataset_args, fuse_args, output_name)
+                self._save_numpy_images(intermediate_save_dir, images_np, dataset_args, overwrite_dataset)
+                self.stitch_from_files(dataset_args, fuse_args, output_name, overwrite_dataset)
 
-        def _save_numpy_images(self, save_dir, numpy_images: np.ndarray, dataset_args):
+        def _save_numpy_images(self, save_dir, numpy_images: np.ndarray, dataset_args, overwrite_dataset=True):
                 """
                 Save a numpy array into 32bit float tif files by iterating along the first axis.
                 :param save_dir: Directory to save the images in
@@ -103,7 +107,7 @@ class BigStitcher(object):
                 print('Saving images into tif files')
                 for idx in range(len(numpy_images)):
                         save_path = Path(save_dir, 'Image_{}.tif'.format(idx))
-                        if save_path.exists():
+                        if save_path.exists() and not overwrite_dataset:
                                 print('{} already exists, skipping save image.'.format(save_path.name))
                                 continue
                                 
@@ -122,15 +126,16 @@ class BigStitcher(object):
                                     resolution=(1. / dataset_args['voxel_size_x'], 1. / dataset_args['voxel_size_y']),
                                     metadata={'spacing': dataset_args['voxel_size_z'], 'unit': 'um'})
 
-        def _define_dataset(self, dataset_args):
+        def _define_dataset(self, dataset_args, overwrite_dataset=True):
                 """
                 Use the BigStitcher Define dataset macro to make an HDF5 dataset for the given files
                 :param dataset_args: Custom arguments for the fusion
+                :param overwrite_dataset Boolean whether to overwrite existing files or not
                 :return:
                 """
                 plugin = "Define dataset ..."
                 dataset_path = Path(dataset_args['dataset_save_path'], dataset_args['project_filename'])
-                if dataset_path.is_file():
+                if dataset_path.is_file() and not overwrite_dataset:
                         print('{} already exists, skipping save dataset.'.format(dataset_path))
                 else:
                         print('Defining dataset from {}'.format(dataset_args['path']))

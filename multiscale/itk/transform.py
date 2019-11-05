@@ -362,13 +362,14 @@ def get_transform_type_str(transform):
         
         return transform_type_str
 
-def landmarks_to_translation(points):
+
+def landmarks_to_translation(point_interface):
         """
         Convert a set of points to a translation transform, as SimpLeITK transform initializer does not allow this
-        :param points: Points acquired by a RegistrationPointDataAcquisition interface
+        :param point_interface: A RegistrationPointDataAcquisition interface with specified points
         :return: a SimpleITK translation transform based on the points
         """
-        fixed_points, moving_points = points.get_points_flat()
+        fixed_points, moving_points = point_interface.get_points_flat()
         landmark_transform = sitk.LandmarkBasedTransformInitializer(sitk.VersorRigid3DTransform(), fixed_points,
                                                                     moving_points)
         landmark_params = landmark_transform.GetParameters()

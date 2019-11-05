@@ -161,7 +161,6 @@ class UltrasoundImageAssembler(object):
                 else:
                         return False
                         
-                        
         def _check_for_xml(self):
                 """
                 Check for the dataset.xml file and ask if the user wants to skip reading/resaving the .mat files.
@@ -193,7 +192,7 @@ class UltrasoundImageAssembler(object):
                 stitcher = st.BigStitcher(self._ij)
                 stitcher.stitch_from_numpy(bmode, self.dataset_args, self.fuse_args,
                                            intermediate_save_dir=self.intermediate_save_dir,
-                                           output_name=self.output_name)
+                                           output_name=self.output_name, overwrite_dataset=self.overwrite_dataset)
         
         def _assemble_dataset_arguments(self, input_args):
                 spacing = self._get_spacing()

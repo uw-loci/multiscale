@@ -51,6 +51,7 @@ def open_us(us_path, pl_path, params_path, spacing, gauge_value, dynamic_range=N
         return convert_sitk_to_us(raw_image, pl_path, params_path, spacing, gauge_value,
                                       dynamic_range=dynamic_range)
 
+
 def convert_sitk_to_us(sitk_image, pl_path, params_path, spacing, gauge_value, dynamic_range=None):
         """
         Open the US image, window it to a dynamic range, and rotate it to microscope coordinate axes
@@ -106,6 +107,7 @@ def open_microscopy(microscopy_path, microscopy_origin_path, downsample_factor=1
         microscopy_image = sitk.ReadImage(str(microscopy_path))
         return set_microscopy_metadata(microscopy_image, microscopy_origin_path, downsample_factor)
 
+
 def convert_array_to_microscopy(microscopy_array, microscopy_origin_path, downsample_factor=1):
         """
         For us with PyImageJ window output: Convert Grid/Collection output to microscopy image
@@ -116,6 +118,7 @@ def convert_array_to_microscopy(microscopy_array, microscopy_origin_path, downsa
         """
         microscopy_image = sitk.GetImageFromArray(microscopy_array)
         return set_microscopy_metadata(microscopy_image, microscopy_origin_path, downsample_factor)
+
 
 def set_microscopy_metadata(microscopy_image, microscopy_origin_path, downsample_factor=1):
         """
