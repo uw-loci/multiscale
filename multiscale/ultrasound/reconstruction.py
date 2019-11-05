@@ -19,22 +19,26 @@ class UltrasoundImageAssembler(object):
         """
         todo: start generalizing this so it can work with multiple image types/kinds
         """
-        def __init__(self, mat_dir: Path, output_dir: Path, ij=None, pl_path: Path=None,
+        def __init__(self, mat_dir: Path, output_dir: Path, ij, pl_path: Path=None,
                      intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
-                     search_str: str='IQ.mat', output_name='fused_tp_0_ch_0.tif', params_path=None):
+                     search_str: str='.mat', output_name='fused_tp_0_ch_0.tif', params_path=None,
+                     overwrite_dataset=None, overwrite_tif=None):
                 """
                 Class for assembling a 3D Ultrasound image taken with the LINK imaging system
-                :param mat_dir: Directory holding the raw .mat files from Verasonics
-                :param output_dir: Directory to output the results to
-                :param ij: A pyimagej instance with the BigStitcher plugin installed
-                :param pl_path: A path to the stage position list associated with the US acq
-                :param intermediate_save_dir: An optional directory to save single X position 3D stacks and the dataset.xml
-                :param dataset_args: Optional changes to the dataset definition args
-                :param fuse_args: Optional changes to the fuse arguments from default
-                :param search_str: The end-of-file string to search for in the mat_dir, e.g. 'IQData.mat'
-                :param output_name: What to name the final stitched image
+                :param mat_dir: Directory holding the Verasonics generated .mat files
+                :param output_dir: Directory to print the end image
+                :param ij: A PyImageJ instance with the BigStitcher plugin
+                :param pl_path: Path to the OpenScan generated position list
+                :param intermediate_save_dir: Place to save the dataset used by BigStitcher.
+                :param dataset_args: Alternative arguments for creating the BigStitcher dataset.
+                :param fuse_args: Alternative arguments for fusing the BigStitcher dataset.
+                :param search_str: A string at the end of the file that identifies which .mats are used from mat_dir.
+                :param output_name: What to save the resulting image as.  Default is BigStitcher's default
                 :param params_path: Path to a Verasonics settings file
+                :param overwrite_dataset: Whether to overwrite an intermediate dataset that already exists
+                :param overwrite_tif: Whether to overwrite a final tif if it already exists.
                 """
+
                 self.mat_dir = mat_dir
                 self.pl_path = pl_path
                 self.output_dir = output_dir
@@ -44,9 +48,7 @@ class UltrasoundImageAssembler(object):
 
                 if intermediate_save_dir:
                         os.makedirs(str(intermediate_save_dir), exist_ok=True)
-                else:
-                        self.intermediate_save_dir = self.output_dir
-                        
+
                 os.makedirs(str(output_dir), exist_ok=True)
                 
                 self.search_str = search_str
@@ -60,6 +62,8 @@ class UltrasoundImageAssembler(object):
 
                 self.fuse_args = self._assemble_fuse_args(fuse_args)
                 self.dataset_args = self._assemble_dataset_arguments(dataset_args)
+                self.overwrite_dataset = overwrite_dataset
+                self.overwrite_tif = overwrite_tif
 
         def get_acquisition_parameters(self):
                 """Get the US acquisition parameters"""
@@ -149,7 +153,11 @@ class UltrasoundImageAssembler(object):
                 output_path = Path(self.fuse_args['output_file_directory'].replace('[', '').replace(']', ''),
                                    self.output_name)
                 if output_path.is_file():
-                        return util.query_yes_no('{} already exists.  Skip image fusion? >> '.format(output_path))
+                        if self.overwrite_tif is not None:
+                                return not self.overwrite_tif
+                        else:
+                                return util.query_yes_no(
+                                        '{} already exists.  Skip image fusion? >> '.format(output_path))
                 else:
                         return False
                         
@@ -163,7 +171,11 @@ class UltrasoundImageAssembler(object):
                 if self.intermediate_save_dir is not None:
                         xml_path = Path(self.intermediate_save_dir, 'dataset.xml')
                         if xml_path.is_file():
-                                return util.query_yes_no('XML file already exists.  Skip reading .mat files? >> ')
+                                if self.overwrite_dataset is None:
+                                        return util.query_yes_no(
+                                                'XML file already exists.  Skip reading .mat files? >> ')
+                                else:
+                                        return not self.overwrite_dataset
                 else:
                         return False
         

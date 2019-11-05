@@ -132,7 +132,7 @@ def apply_polarization_transforms(path_image, output_dir, transform_dir, transfo
                 if num == 0:
                         meta.write_image(fixed_image, output_path)
                 else:
-                        registered_image = tran.apply_transform(fixed_image, moving_image, str(transform_path))
+                        registered_image = tran.apply_transform_fromfile(fixed_image, moving_image, str(transform_path))
                         meta.write_image(registered_image, output_path)
 
 
