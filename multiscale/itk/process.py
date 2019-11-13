@@ -47,11 +47,6 @@ def bulk_apply_mask(image_dir, mask_dir,
                 meta.write_image(masked_image, masked_path)
 
 
-def find_centroid(image: sitk.Image) -> list:
-        """Find the centroid of the pixels in an image"""
-        # calculate centroid
-
-
 def apply_threshold(itk_image, image_name,
                     threshold=1, unit='degree'):
         """Apply an intensity based threshold to an image"""
@@ -152,5 +147,6 @@ def window_image(image, dynamic_range):
         minmax_filter.Execute(image)
         maximum = minmax_filter.GetMaximum()
         image_windowed = sitk.IntensityWindowing(image, maximum-dynamic_range, maximum)
+        image_windowed = sitk.Cast(image_windowed, sitk.sitkUInt8)
         return image_windowed
 
