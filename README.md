@@ -7,6 +7,8 @@ This library holds tools for multiscale imaging projects at the Laboratory of Op
 It holds tools for image registration, for interfacing with several toolkits (e.g. CurveAlign), and other processing
 tasks based on project.
 
+![Image registration demo](demo/Animation.gif)
+
 ## Submodules
 
 This project includes several submodules.  Most submodules includes a "task_scripts" sub-submodule 

@@ -87,8 +87,10 @@ class BigStitcher(object):
                         if original_path.is_file() and output_path.is_file():
                                 os.remove(output_path)
                                 os.rename(original_path, output_path)
-                        else:
+                        elif original_path.is_file():
                                 os.rename(original_path, output_path)
+                        else:
+                                raise FileNotFoundError("{} not found".format(original_path))
         
         def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, intermediate_save_dir, output_name,
                                 overwrite_dataset=True):

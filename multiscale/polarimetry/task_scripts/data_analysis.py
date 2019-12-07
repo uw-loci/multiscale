@@ -137,7 +137,7 @@ def get_average_dfs(path_shg: Path, path_average: Path, ret_thresh: float) -> (p
 
 
 def run_roi_averages_comparison(ret_thresh: float) -> (pd.DataFrame, pd.DataFrame, pd.DataFrame):
-        path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs_n.csv')
+        path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs_new.csv')
         path_average = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
                             'ROIs_averaged_from_base_image_old.csv')
         
@@ -193,12 +193,12 @@ def fib_comparison(ret_thresh: float, fib_thresh: int, seg_thresh: int):
 # corrs_orient, corrs_align = fib_comparison(2, 0, 0)
 # print(corrs_orient)
 # print(corrs_align)
-
+#
 # path_avg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics',
 #                 'ROIs_averaged_from_base_image.csv')
-# path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs.csv')
+# path_shg = Path('F:\Research\Polarimetry\Data 04 - Analysis results and graphics', 'Curve-Align_ROIs_new.csv')
 #
 # df_orient, df_align, df_ret = get_average_dfs(path_shg, path_avg, 0.1)
-#
-# print('hello')
-# run_roi_averages_comparison(0.5)
+
+run_roi_averages_comparison(0.5)
+print('hello')

@@ -16,9 +16,6 @@ import tiffile as tif
 import warnings
 
 class UltrasoundImageAssembler(object):
-        """
-        todo: start generalizing this so it can work with multiple image types/kinds
-        """
         def __init__(self, mat_dir: Path, output_dir: Path, ij, pl_path: Path=None,
                      intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
                      search_str: str='.mat', output_name='fused_tp_0_ch_0.tif', params_path=None,
@@ -35,8 +32,8 @@ class UltrasoundImageAssembler(object):
                 :param search_str: A string at the end of the file that identifies which .mats are used from mat_dir.
                 :param output_name: What to save the resulting image as.  Default is BigStitcher's default
                 :param params_path: Path to a Verasonics settings file
-                :param overwrite_dataset: Whether to overwrite an intermediate dataset that already exists
-                :param overwrite_tif: Whether to overwrite a final tif if it already exists.
+                :param overwrite_dataset: Overwrite an intermediate dataset that exists. Default queries the user
+                :param overwrite_tif: Whether to overwrite a final tif if it already exists. Default queries the user
                 """
 
                 self.mat_dir = mat_dir

@@ -10,7 +10,7 @@ with open('LICENSE.txt') as f:
 
 setup(
     name='multiscale_imaging',
-    version='0.2.1.dev',
+    version='0.2.1',
     author='Michael Pinkert',
     author_email='mpinkert@wisc.edu',
     description='An multiscale image processing library for the Laboratory of Optical and Computational Instrumentation',
