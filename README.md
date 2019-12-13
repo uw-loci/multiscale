@@ -59,3 +59,42 @@ Some modules have a "tests" sub-folder with unit tests.
     ○ Tiling: Functions for turning large images into smaller sub-image tiles and regions of interest.  This is helpful 
         for CHTC analysis and any other application where you want to analyze smaller regions of the interest.
     ○ Utility_functions: General functions that are used by various modules which don't quite fit in anywhere.
+
+
+## List of useful task scripts
+
+### LINK_system
+`process_oct_tiles.py`: This script converts processed OCT tiles, acquired from the LINK system, into tifs for stitching.
+
+### Polarimetry
+`average_retardance.py`: This script shows how to calculate averaged retardance values, including converting Polscope intensity to retardance
+
+`curve_align_prep.py`: This script is a single line call to turn images into batches for CHTC
+
+`data_analysis.py`: Project specific functions for processing polarimetry results into statistics
+
+`data_cleaning.py`: Project specific functions for taking raw CurveAlign data and turning it into a sorted dataframe
+
+`dir_dictionary.py`: Personal directory definition for the polarimetry project.  This is referenced in most other polarimetry scripts.
+
+`flip_shg_indices.py`: A simple script to flip the X and Y ROI indices for SHG, as one deprecated output mislabeled them for SHG vs Polarimetry
+
+`mueller_polarization_view_registration.py`: Mueller matrix polarimetry takes many different images of the same sample 
+using different input and output polarizations.  Changing the output polarization on the instrument we are using changes the
+optical path, and thus shifts the images. This script is intended to register the images onto each other and find a
+ universal transform so that it can be applied to all future images from the same source.  This will let us get better results with the final Mueller image.
+ 
+`reconstruct_images.py`: Reconstruct dataframes into parametric images
+ 
+`registration.py`: Script to register the polarimetry project images
+
+`ssim_comparison.py`: Compare polarimetry images and calculate the SSIM values for each tile.
+
+
+### Ultrasound
+
+`assemble_us_image.py`: Example for assembling a Bmode US image, with a few extra steps to navigate directories.
+
+`assemble_qus_image.py`: Example of assembling a QUS image, which differs slightly from a Bmode
+
+

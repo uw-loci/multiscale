@@ -1,3 +1,7 @@
+"""
+Project specific functions for taking raw CurveAlign data and turning it into a sorted dataframe
+"""
+
 import multiscale.toolkits.curve_align as ca
 import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 import multiscale.utility_functions as util

@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 """
+This script shows how to calculate averaged retardance values, including converting Polscope intensity to retardance
+
 Created on Wed Jul 18 16:18:01 2018
 
 @author: mpinkert
 """
-
-# What do I need to do?
-# Take a registered Registration/Orientation image
-# Take analyzed data (in an array)
-# Measure average retardance/orientation in the registered image
-# Compare to analyzed data
 
 import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 import multiscale.utility_functions as util

@@ -1,3 +1,6 @@
+# This script was an exploratory script for trying to get multiprocessing working with the registration plot
+
+
 import multiprocessing as mp
 import time
 

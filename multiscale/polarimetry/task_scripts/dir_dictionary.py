@@ -4,7 +4,7 @@ Created on Fri Mar 23 10:56:37 2018
 
 @author: mpinkert
 
-My personal directories
+Personal directory definition for the polarimetry project.  This is referenced in most other polarimetry scripts.
 """
 
 import os

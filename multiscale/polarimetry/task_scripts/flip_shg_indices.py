@@ -1,3 +1,7 @@
+"""
+A simple script to flip the X and Y ROI indices for SHG, as one deprecated output mislabeled them for SHG vs Polarimetry
+"""
+
 from pathlib import Path
 import pandas as pd
 import re

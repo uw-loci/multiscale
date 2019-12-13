@@ -1,4 +1,7 @@
 """
+This script converts processed OCT tiles, acquired from the LINK system, into tifs for stitching.
+
+
 Copyright (c) 2018, Michael Pinkert
 All rights reserved.
 

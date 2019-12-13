@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+Project specific functions for processing polarimetry results into statistics
+
 Created on Tue Jun 19 16:11:52 2018
 
 @author: mpinkert

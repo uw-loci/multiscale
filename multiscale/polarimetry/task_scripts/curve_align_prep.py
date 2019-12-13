@@ -1,3 +1,5 @@
+# This script is a single line call to turn images into batches for CHTC
+
 import multiscale.toolkits.curve_align as ca
 import multiscale.polarimetry.task_scripts.dir_dictionary as dird
 

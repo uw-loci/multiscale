@@ -1,3 +1,7 @@
+"""
+This script uses the the PSF calculation implemented into Python. Warning: the PSF code is incomplete/not verified
+"""
+
 import multiscale.ultrasound.correlation as corr
 from pathlib import Path
 import multiscale.utility_functions as util

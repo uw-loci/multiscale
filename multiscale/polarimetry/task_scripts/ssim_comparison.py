@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+Compare polarimetry images and calculate the SSIM values for each tile.
+
 Created on Fri Jul 13 13:00:47 2018
 
 @author: mpinkert

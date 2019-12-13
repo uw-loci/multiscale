@@ -1,5 +1,7 @@
 """
-Script to beamform a single frame of RF data for testing and quick visuals
+Script to beamform a single frame of RF data for testing and quick visuals.
+
+WARNING: The interface here is fine, but the beamforming is unfinished, incorrect, and may take days to complete.
 
 Copyright (c) 2018, Michael Pinkert
 All rights reserved.

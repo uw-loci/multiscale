@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+Script to register the polarimetry project images
+
 Created on Tue Mar  6 15:52:18 2018
 
 @author: mpinkert
