@@ -373,31 +373,41 @@ def read_parameters(mat_path: Path) -> dict:
         """
         Get the parameters from an acquisition and return a cleaned up dictionary
         """
-        params_raw = read_variable(mat_path, 'P')
+        loaded = util.load_mat(mat_path, variables='P')
+        params_raw = loaded['P'] if 'P' in loaded else loaded
         params = {}
+
+        def get_param(name):
+                value = params_raw[name]
+                if isinstance(value, np.ndarray):
+                        value = np.squeeze(value)
+                        if np.size(value) == 1:
+                                return value.item()
+
+                return value
         
-        wl = params_raw['wavelength_micron']
+        wl = get_param('wavelength_micron')
         # convert units to micron
-        params['lateral resolution'] = params_raw['lateral_resolution'] * wl
-        params['axial resolution'] = params_raw['axial_resolution'] * wl
-        params['transmit focus'] = params_raw['txFocus'] * wl
-        params['start depth'] = params_raw['startDepth'] * wl
-        params['end depth'] = params_raw['endDepth'] * wl
-        params['transducer spacing'] = params_raw['transducer_spacing'] * wl
-        params['speed of sound'] = params_raw['speed_of_sound']*1E6
+        params['lateral resolution'] = get_param('lateral_resolution') * wl
+        params['axial resolution'] = get_param('axial_resolution') * wl
+        params['transmit focus'] = get_param('txFocus') * wl
+        params['start depth'] = get_param('startDepth') * wl
+        params['end depth'] = get_param('endDepth') * wl
+        params['transducer spacing'] = get_param('transducer_spacing') * wl
+        params['speed of sound'] = get_param('speed_of_sound') * 1E6
 
         # copy other parameters that are not in wavelengths
-        params['sampling wavelength'] = params_raw['wavelength_micron']
+        params['sampling wavelength'] = wl
         
         try: # Necessary to have a try to allow processing older images
-                params['raylines'] = params_raw['numRays']
-                params['sampling frequency'] = params_raw['sampling_frequency'] * 1E6
-                params['axial samples'] = params_raw['axial_samples']
-                params['transmit samples'] = params_raw['transmit_samples']
-                params['time samples'] = params_raw['time_samples']
-                params['elements'] = params_raw['elements']
-                params['element sensitivity'] = params_raw['element_sensitivity']
-                params['line samples'] = params_raw['line_samples']
+                params['raylines'] = get_param('numRays')
+                params['sampling frequency'] = get_param('sampling_frequency') * 1E6
+                params['axial samples'] = get_param('axial_samples')
+                params['transmit samples'] = get_param('transmit_samples')
+                params['time samples'] = get_param('time_samples')
+                params['elements'] = get_param('elements')
+                params['element sensitivity'] = get_param('element_sensitivity')
+                params['line samples'] = get_param('line_samples')
 
         finally:
                 return params
