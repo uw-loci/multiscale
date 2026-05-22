@@ -27,7 +27,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from pathlib import Path
 
 import SimpleITK as sitk
-import tiffile as tif
+import tifffile as tif
 import numpy as np
 import warnings
 

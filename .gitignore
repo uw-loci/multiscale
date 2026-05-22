@@ -51,3 +51,7 @@ Temporary Items
 .idea
 .pytest_cache
 *.env
+
+# development stuff
+testing.py
+US_PositionList_retry.pos

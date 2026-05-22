@@ -1,0 +1,104 @@
+Metadata-Version: 2.4
+Name: multiscale_imaging
+Version: 0.2.1
+Summary: An multiscale image processing library for the Laboratory of Optical and Computational Instrumentation
+Home-page: https://github.com/uw-loci/multiscale
+Author: Michael Pinkert
+Author-email: mpinkert@wisc.edu
+License: Copyright (c) 2018, Michael Pinkert
+        All rights reserved.
+        
+        Redistribution and use in source and binary forms, with or without
+        modification, are permitted provided that the following conditions are met:
+            * Redistributions of source code must retain the above copyright
+              notice, this list of conditions and the following disclaimer.
+            * Redistributions in binary form must reproduce the above copyright
+              notice, this list of conditions and the following disclaimer in the
+              documentation and/or other materials provided with the distribution.
+            * Neither the name of the Laboratory for Optical and Computational Instrumentation nor the
+              names of its contributors may be used to endorse or promote products
+              derived from this software without specific prior written permission.
+        
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+        ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+        WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+        DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+        DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+        (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+        LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+        ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+        (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+        SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: BSD License
+License-File: LICENSE.txt
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: home-page
+Dynamic: license
+Dynamic: license-file
+Dynamic: summary
+
+[![Build Status](https://travis-ci.org/uw-loci/multiscale.svg?branch=master)](https://travis-ci.org/uw-loci/multiscale)
+
+Multiscale imaging at LOCI
+===================
+
+This library holds tools for multiscale imaging projects at the Laboratory of Optical and Computational Instrumentation.
+It holds tools for image registration, for interfacing with several toolkits (e.g. CurveAlign), and other processing
+tasks based on project.
+
+![Image registration demo](demo/Animation.gif)
+
+## Submodules
+
+This project includes several submodules.  Most submodules includes a "task_scripts" sub-submodule 
+with scripts written for specific image analysis pipelines at LOCI
+
+Some modules have a "tests" sub-folder with unit tests.
+    
+    â—‹ Imagej: Modules for working with PyImageJ.
+        Â§ Bigdata: not-yet-implemented module for converting image data into the big data viewer HDF5 and XML formats
+        Â§ Stitching: Implements BigStitcher plugin in Python
+    â—‹ ITK: Module for working with the SimpleITK toolkit for image registration, segmentation, and analysis.
+        Â§ Itk_plotting: Methods for plotting in-progress registrations, overlay images, multiple 2d or 3d images in 
+            Jupyter notebooks, and for manual selection of data points in Jupyter notebooks.
+        Â§ metadata:  Methods for reading and handling image registration and image metadata, as ITK does not work well 
+            with the ImageJ file formats.  Some deprecation due to using tifffile as a writer in other locations.
+        Â§ process: Module for applying various ITK analysis functions such as windowing, applying a mask, converting to 
+            8bit, and thresholding.  
+        Â§ registration: Classes for handling and plotting image registration 
+        Â§ transform: Functions for dealing with image transforms, such as from registration or scaling.
+    â—‹ LINK_system: Module for dealing with problems specific to the LINK imaging system and related methods.
+        Â§ Coordiantes: This module contains functions for mapping between the different image coordinate transforms, 
+            including opening images and doing the fiducial registration.
+        Â§ Image_classes: Module for converting between image types.  E.g., converting OCT .mat files to tifs or 
+            SimpleITK images to ImageJ style images.
+    â—‹ Microscopy: General purpose microscopy functions
+        Â§ ome: Functions for reading OME metadata 
+    â—‹ Polarimetry: Functions that are specific to the polarimetry project 
+        Â§ Analysis: Statistical functions like finding the circular correlation coefficient on a dataframe.
+        Â§ Preprocessing: Functions for taking polarimetry data and making it usable for analysis.  E.g., taking the 24 
+            polarization state images and registering them together.
+        Â§ Retardance: Functions for dealing with the retardance variable, such as how to average it by including in 
+            angle information.
+    â—‹ Toolkits: Functions that deal with specific software
+        Â§ Curve_align: Functions that specify curve align and CTFire details, such as writing ROIs or preparing for 
+            CHTC bulk analysis.
+        Â§ Cw_ssim: Functions for calculating the structural-similarity coefficient
+        Â§ Cytospectre: Functions for preparing data for Cytospectre analysis
+    â—‹ Ultrasound: Various modules related to the Verasonics ultrasound data and system used by VerasonicsScripts repostiory.
+        Â§ Beamform: incomplete/in-progress attempt at performing custom beamforming that is out-of-date.
+        Â§ Correlation: Ways to calculate the speckle autocorrelation for US images, which is a way of determining the 
+            resolution. 
+        Â§ Reconstruction: Functions to take ultrasound .mat files and convert them to tifs, read the data, and process 
+            it.
+    â—‹ Bulk_img_processing: Methods to allow bulk application of functions onto files.  E.g., to find images with 
+        matching "base" ([base]_[other].tif) names in two different folders for automatic registration.
+    â—‹ Plotting: General functions for plotting used by other modules
+    â—‹ Statistics: Statistical functions
+    â—‹ Tiling: Functions for turning large images into smaller sub-image tiles and regions of interest.  This is helpful 
+        for CHTC analysis and any other application where you want to analyze smaller regions of the interest.
+    â—‹ Utility_functions: General functions that are used by various modules which don't quite fit in anywhere.

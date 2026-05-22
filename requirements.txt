@@ -10,5 +10,5 @@ javabridge
 python-bioformats
 scyjava
 pyimagej
-tiffile
+tifffile
 h5py

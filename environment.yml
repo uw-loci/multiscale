@@ -1,10 +1,9 @@
 name: multiscale
 channels:
   - conda-forge
-  - simpleitk
 
 dependencies:
-  - python=3.6
+  - python=3.10
   - pillow
   - requests
   - pyimagej
@@ -18,4 +17,4 @@ dependencies:
   - SimpleITK >=1.1.0
   - pip
   - pip:
-    - tiffile
+    - tifffile

@@ -1,6 +1,6 @@
 import numpy as np
 import multiscale.utility_functions as util
-import tiffile as tif
+import tifffile as tif
 from pathlib import Path
 import multiscale.ultrasound.reconstruction as recon
 
