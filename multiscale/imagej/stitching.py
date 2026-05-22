@@ -49,6 +49,31 @@ class BigStitcher(object):
                 self._define_dataset(dataset_args, overwrite_dataset)
                 self._fuse_dataset(fuse_args, output_name)
 
+        @staticmethod
+        def _normalize_macro_path(path_value):
+                """Format filesystem paths for ImageJ macro-style plugin arguments."""
+                if path_value is None:
+                        return None
+
+                text = str(path_value)
+                if text.startswith('[') and text.endswith(']'):
+                        text = text[1:-1]
+
+                # BigStitcher macro parsing is more reliable with slash paths wrapped in brackets.
+                text = text.replace('\\', '/')
+                return '[{}]'.format(text)
+
+        @staticmethod
+        def _unwrap_macro_path(path_value):
+                if path_value is None:
+                        return None
+
+                text = str(path_value)
+                if text.startswith('[') and text.endswith(']'):
+                        text = text[1:-1]
+
+                return text
+
         def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict,
                               intermediate_save_dir=None, output_name='fused_tp_0_ch_0.tif', overwrite_dataset=True):
                 """
@@ -80,8 +105,9 @@ class BigStitcher(object):
                         return
 
                 if output_name != 'fused_tp_0_ch_0.tif':
-                        original_path = Path(fuse_args['output_file_directory'], 'fused_tp_0_ch_0.tif')
-                        output_path = Path(fuse_args['output_file_directory'], output_name)
+                        output_dir = self._unwrap_macro_path(fuse_args['output_file_directory'])
+                        original_path = Path(output_dir, 'fused_tp_0_ch_0.tif')
+                        output_path = Path(output_dir, output_name)
                         print('Renaming {0} to {1}'.format(original_path.name, output_path.name))
 
                         if original_path.is_file() and output_path.is_file():
@@ -142,13 +168,19 @@ class BigStitcher(object):
                 else:
                         print('Defining dataset from {}'.format(dataset_args['path']))
                         dataset_args = self._populate_dataset_args(dataset_args)
+                        for key in ['path', 'dataset_save_path', 'export_path']:
+                                dataset_args[key] = self._normalize_macro_path(dataset_args[key])
                         self._ij.py.run_plugin(plugin, args=dataset_args)
+                        print('Finished defining dataset')
 
         def _fuse_dataset(self, fuse_args, output_name='fused_tp_0_ch_0.tif'):
                 plugin = "Fuse dataset ..."
                 print('Fusing dataset from {}'.format(Path(fuse_args['select'])))
                 fuse_args = self._populate_fuse_args(fuse_args)
+                for key in ['select', 'output_file_directory']:
+                        fuse_args[key] = self._normalize_macro_path(fuse_args[key])
                 self._ij.py.run_plugin(plugin, args=fuse_args)
+                print('Finished fusing dataset')
                 self._rename_output(fuse_args, output_name)
                 
         def _populate_dataset_args(self, dataset_args):
