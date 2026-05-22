@@ -74,6 +74,23 @@ class BigStitcher(object):
 
                 return text
 
+        def _run_plugin_with_fallback(self, commands, args, action_name):
+                """Try multiple ImageJ command labels for compatibility across Fiji versions."""
+                last_error = None
+                for command in commands:
+                        try:
+                                self._ij.py.run_plugin(command, args=args)
+                                print("Used ImageJ command: {}".format(command))
+                                return
+                        except Exception as error:
+                                last_error = error
+
+                raise RuntimeError(
+                        "Could not run any {} command {}. Last error: {}".format(
+                                action_name, commands, last_error
+                        )
+                )
+
         def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict,
                               intermediate_save_dir=None, output_name='fused_tp_0_ch_0.tif', overwrite_dataset=True):
                 """
@@ -161,25 +178,25 @@ class BigStitcher(object):
                 :param overwrite_dataset Boolean whether to overwrite existing files or not
                 :return:
                 """
-                plugin = "Define dataset ..."
                 dataset_path = Path(dataset_args['dataset_save_path'], dataset_args['project_filename'])
                 if dataset_path.is_file() and not overwrite_dataset:
                         print('{} already exists, skipping save dataset.'.format(dataset_path))
                 else:
+                        plugins = ["Define dataset ...", "Define Multi-View Dataset"]
                         print('Defining dataset from {}'.format(dataset_args['path']))
                         dataset_args = self._populate_dataset_args(dataset_args)
                         for key in ['path', 'dataset_save_path', 'export_path']:
                                 dataset_args[key] = self._normalize_macro_path(dataset_args[key])
-                        self._ij.py.run_plugin(plugin, args=dataset_args)
+                        self._run_plugin_with_fallback(plugins, dataset_args, 'dataset-definition')
                         print('Finished defining dataset')
 
         def _fuse_dataset(self, fuse_args, output_name='fused_tp_0_ch_0.tif'):
-                plugin = "Fuse dataset ..."
+                plugins = ["Fuse dataset ...", "Image Fusion"]
                 print('Fusing dataset from {}'.format(Path(fuse_args['select'])))
                 fuse_args = self._populate_fuse_args(fuse_args)
                 for key in ['select', 'output_file_directory']:
                         fuse_args[key] = self._normalize_macro_path(fuse_args[key])
-                self._ij.py.run_plugin(plugin, args=fuse_args)
+                self._run_plugin_with_fallback(plugins, fuse_args, 'fusion')
                 print('Finished fusing dataset')
                 self._rename_output(fuse_args, output_name)
                 
