@@ -19,7 +19,7 @@ class UltrasoundImageAssembler(object):
         def __init__(self, mat_dir: Path, output_dir: Path, ij, pl_path: Path=None,
                      intermediate_save_dir: Path=None, dataset_args: dict=None, fuse_args: dict=None,
                      search_str: str='.mat', output_name='fused_tp_0_ch_0.tif', params_path=None,
-                     overwrite_dataset=None, overwrite_tif=None, reverse_tile_order=False):
+                     overwrite_dataset=None, overwrite_tif=None):
                 """
                 Class for assembling a 3D Ultrasound image taken with the LINK imaging system
                 :param mat_dir: Directory holding the Verasonics generated .mat files
@@ -61,7 +61,6 @@ class UltrasoundImageAssembler(object):
                 self.dataset_args = self._assemble_dataset_arguments(dataset_args)
                 self.overwrite_dataset = overwrite_dataset
                 self.overwrite_tif = overwrite_tif
-                self.reverse_tile_order = reverse_tile_order
 
         def get_acquisition_parameters(self):
                 """Get the US acquisition parameters"""
@@ -190,8 +189,7 @@ class UltrasoundImageAssembler(object):
                 stitcher = st.BigStitcher(self._ij)
                 stitcher.stitch_from_numpy(bmode, self.dataset_args, self.fuse_args,
                                            intermediate_save_dir=self.intermediate_save_dir,
-                                           output_name=self.output_name, overwrite_dataset=self.overwrite_dataset,
-                                           reverse_tile_order=self.reverse_tile_order)
+                                           output_name=self.output_name, overwrite_dataset=self.overwrite_dataset)
         
         def _assemble_dataset_arguments(self, input_args):
                 spacing = self._get_spacing()
