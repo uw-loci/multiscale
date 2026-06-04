@@ -75,7 +75,8 @@ class BigStitcher(object):
                 return text
 
         def stitch_from_numpy(self, images_np: np.ndarray, dataset_args: dict, fuse_args: dict,
-                              intermediate_save_dir=None, output_name='fused_tp_0_ch_0.tif', overwrite_dataset=True):
+                              intermediate_save_dir=None, output_name='fused_tp_0_ch_0.tif', overwrite_dataset=True,
+                              reverse_tile_order=False):
                 """
                 Stitch images from a 4d numpy array
                 :param images_np: The array of numpy images
@@ -95,10 +96,10 @@ class BigStitcher(object):
                                 dataset_args['export_path'] = str(temp_dir) + '/dataset'
                                 fuse_args['select'] = xml_path
                                 self._dataset_from_numpy(images_np, dataset_args, fuse_args, temp_dir, output_name,
-                                                         overwrite_dataset)
+                                                         overwrite_dataset, reverse_tile_order)
                 else:
                         self._dataset_from_numpy(images_np, dataset_args, fuse_args, intermediate_save_dir, output_name,
-                                                 overwrite_dataset)
+                                                 overwrite_dataset, reverse_tile_order)
                         
         def _rename_output(self, fuse_args, output_name='fused_tp_0_ch_0.tif'):
                 if fuse_args['fused_image'] == '[Display using ImageJ]':
@@ -121,13 +122,15 @@ class BigStitcher(object):
                                 raise FileNotFoundError("{} not found".format(original_path))
         
         def _dataset_from_numpy(self, images_np, dataset_args, fuse_args, intermediate_save_dir, output_name,
-                                overwrite_dataset=True):
+                                overwrite_dataset=True, reverse_tile_order=False):
                 """Helper for stitch from numpy"""
                 dataset_args['path'] = intermediate_save_dir
-                self._save_numpy_images(intermediate_save_dir, images_np, dataset_args, overwrite_dataset)
+                self._save_numpy_images(intermediate_save_dir, images_np, dataset_args, overwrite_dataset,
+                                        reverse_tile_order)
                 self.stitch_from_files(dataset_args, fuse_args, output_name, overwrite_dataset)
 
-        def _save_numpy_images(self, save_dir, numpy_images: np.ndarray, dataset_args, overwrite_dataset=True):
+        def _save_numpy_images(self, save_dir, numpy_images: np.ndarray, dataset_args, overwrite_dataset=True,
+                               reverse_tile_order=False):
                 """
                 Save a numpy array into 32bit float tif files by iterating along the first axis.
                 :param save_dir: Directory to save the images in
@@ -136,7 +139,8 @@ class BigStitcher(object):
                 """
                 print('Saving images into tif files')
                 for idx in range(len(numpy_images)):
-                        save_path = Path(save_dir, 'Image_{}.tif'.format(idx))
+                        save_idx = len(numpy_images) - 1 - idx if reverse_tile_order else idx
+                        save_path = Path(save_dir, 'Image_{}.tif'.format(save_idx))
                         if save_path.exists() and not overwrite_dataset:
                                 print('{} already exists, skipping save image.'.format(save_path.name))
                                 continue
