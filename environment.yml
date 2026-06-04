@@ -14,7 +14,8 @@ dependencies:
   - scipy
   - pytest
   - ipywidgets
-  - SimpleITK >=1.1.0
+  - conda-forge::simpleitk
+  - vs2015_runtime
   - pip
   - pip:
     - tifffile
